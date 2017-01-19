@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<eclipse-userlibraries version="2">
+    <library name="LWJGL" systemlibrary="false">
+        <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-glfw-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl-glfw.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-glfw-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-jemalloc-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl-jemalloc.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-jemalloc-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-nuklear-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl-nuklear.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-nuklear-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-openal-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl-openal.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-openal-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-opengl-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl-opengl.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-opengl-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-stb-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl-stb.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-stb-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-sources.jar"/>
+    </library>
+</eclipse-userlibraries>
