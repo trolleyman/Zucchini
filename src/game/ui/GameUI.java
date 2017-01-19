@@ -1,6 +1,7 @@
 package game.ui;
 
 import game.render.IRenderer;
+import game.world.World;
 
 public class GameUI {
 

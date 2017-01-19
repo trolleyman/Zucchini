@@ -1,13 +1,23 @@
 package game.world;
 
+import org.joml.Vector2f;
+
 public abstract class Entity {
 
-	Vector2 position;
-	Vector2 velocity;
+	Vector2f position;
+	Vector2f velocity;
 	
-	void translate(Vector2 v);
-	void addVelocity(Vector2 v);
-	void update(double dt);
+	void translate(Vector2f v) {
+		
+	}
+	
+	void addVelocity(Vector2f v) {
+		
+	}
+	
+	void update(double dt) {
+		
+	}
 
 	
 }
