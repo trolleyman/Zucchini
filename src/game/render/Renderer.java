@@ -1,31 +1,8 @@
 package game.render;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
-import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
-import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
-import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
-import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
-import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
-import static org.lwjgl.glfw.GLFW.glfwTerminate;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.*;
+import org.lwjgl.glfw.GLFWVidMode;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
@@ -57,7 +34,13 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 		
 		// Create the window
-		window = glfwCreateWindow(1000, 800, "Zucchini", NULL, NULL);
+		long monitor = glfwGetPrimaryMonitor();
+		GLFWVidMode mode = glfwGetVideoMode(monitor);
+		glfwWindowHint(GLFW_RED_BITS, mode.redBits());
+		glfwWindowHint(GLFW_GREEN_BITS, mode.greenBits());
+		glfwWindowHint(GLFW_BLUE_BITS, mode.blueBits());
+		glfwWindowHint(GLFW_REFRESH_RATE, mode.refreshRate());
+		window = glfwCreateWindow(mode.width(), mode.height(), "My Title", monitor, NULL);
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 		
