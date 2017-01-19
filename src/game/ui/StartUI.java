@@ -3,24 +3,29 @@
  */
 package game.ui;
 
+import game.render.IRenderer;
+
 /**
  * @author jackm
  *
  */
 public class StartUI extends UI {
 	
-	StartUI() {
+	public StartUI() {
 		
 	}
 	
+	@Override
 	void update(double dt) {
 		
 	}
 	
-	void render() {
+	@Override
+	void render(IRenderer r) {
 		
 	}
 	
+	@Override
 	UI next() {
 		return null;
 		
