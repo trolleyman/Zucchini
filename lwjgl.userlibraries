@@ -9,4 +9,22 @@
         <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-stb-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl-stb.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-stb-sources.jar"/>
         <archive javadoc="jar:platform:/resource/Zucchini/lwjgl-3.1.1/lwjgl-javadoc.jar!/" path="/Zucchini/lwjgl-3.1.1/lwjgl.jar" source="/Zucchini/lwjgl-3.1.1/lwjgl-sources.jar"/>
     </library>
+    <library name="LWJGL-linux" systemlibrary="false">
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-glfw-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-jemalloc-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-nuklear-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-openal-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-opengl-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-stb-natives-linux.jar"/>
+    </library>
+    <library name="LWJGL-windows" systemlibrary="false">
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-glfw-natives-windows.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-jemalloc-natives-windows.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-natives-windows.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-nuklear-natives-windows.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-openal-natives-windows.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-opengl-natives-windows.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-stb-natives-windows.jar"/>
+    </library>
 </eclipse-userlibraries>
