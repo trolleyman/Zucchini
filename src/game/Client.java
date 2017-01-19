@@ -14,14 +14,14 @@ class Client implements Runnable {
 	// The renderer
 	private Renderer renderer;
 	
-	public Client() {
+	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
 		// Initialize UI
 		ui = new StartUI();
 		
 		// Initialize renderer
-		renderer = new Renderer(ui);
+		renderer = new Renderer(ui, _fullscreen);
 	}
 	
 	@Override
@@ -55,6 +55,6 @@ class Client implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		new Client().run();
+		new Client(false).run();
 	}
 }
