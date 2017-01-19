@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL-windows"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JOML-1.9.1-20"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/joml"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
