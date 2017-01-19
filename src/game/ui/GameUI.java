@@ -1,16 +1,15 @@
-/**
- * 
- */
 package game.ui;
 
-import game.InputHandler;
+public class GameUI {
 
-/**
- * @author jackm
- *
- */
-public abstract class UI implements InputHandler {
-
+	GameUI(World w) {
+		
+	}
+	
+	void setWorld(World w) {
+		
+	}
+	
 	void update(double dt) {
 		
 	}
@@ -21,6 +20,7 @@ public abstract class UI implements InputHandler {
 	
 	UI next() {
 		return null;
+		
 	}
 	
 }
