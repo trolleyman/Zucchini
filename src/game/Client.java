@@ -17,10 +17,11 @@ class Client implements Runnable {
 	public Client() {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
+		// Initialize UI
 		ui = new StartUI();
 		
 		// Initialize renderer
-		renderer = new Renderer();
+		renderer = new Renderer(ui);
 	}
 	
 	@Override
@@ -49,6 +50,7 @@ class Client implements Runnable {
 			
 			ui.update(dt);
 			ui = ui.next();
+			renderer.setInputHandler(ui);
 		}
 	}
 	
