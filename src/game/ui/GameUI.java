@@ -1,17 +1,17 @@
-/**
- * 
- */
 package game.ui;
 
-import game.InputHandler;
 import game.render.IRenderer;
 
-/**
- * @author jackm
- *
- */
-public abstract class UI implements InputHandler {
+public class GameUI {
 
+	GameUI(World w) {
+		
+	}
+	
+	void setWorld(World w) {
+		
+	}
+	
 	void update(double dt) {
 		
 	}
@@ -22,6 +22,7 @@ public abstract class UI implements InputHandler {
 	
 	UI next() {
 		return null;
+		
 	}
 	
 }
