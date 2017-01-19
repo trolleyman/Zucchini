@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<eclipse-userlibraries version="2">
+    <library name="LWJGL-linux" systemlibrary="false">
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-glfw-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-jemalloc-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-nuklear-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-openal-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-opengl-natives-linux.jar"/>
+        <archive path="/Zucchini/lwjgl-3.1.1/lwjgl-stb-natives-linux.jar"/>
+    </library>
+</eclipse-userlibraries>
