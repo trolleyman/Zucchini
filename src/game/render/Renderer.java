@@ -43,7 +43,13 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 		
 		// Create the window
-		window = glfwCreateWindow(1000, 800, "Zucchini", NULL, NULL);
+		long monitor = glfwGetPrimaryMonitor();
+		GLFWVidMode mode = glfwGetVideoMode(monitor);
+		glfwWindowHint(GLFW_RED_BITS, mode.redBits());
+		glfwWindowHint(GLFW_GREEN_BITS, mode.greenBits());
+		glfwWindowHint(GLFW_BLUE_BITS, mode.blueBits());
+		glfwWindowHint(GLFW_REFRESH_RATE, mode.refreshRate());
+		window = glfwCreateWindow(mode.width(), mode.height(), "Zucchini", monitor, NULL);
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 		
