@@ -2,7 +2,7 @@ package game.world;
 
 public class World {
 
-	World(IPlayer player) {
+	World() {
 		
 	}
 	

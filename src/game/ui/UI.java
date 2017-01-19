@@ -11,17 +11,7 @@ import game.render.IRenderer;
  *
  */
 public abstract class UI implements InputHandler {
-
-	void update(double dt) {
-		
-	}
-	
-	void render(IRenderer r) {
-		
-	}
-	
-	UI next() {
-		return null;
-	}
-	
+	public abstract void update(double dt);
+	public abstract void render(IRenderer r);
+	public abstract UI next();
 }

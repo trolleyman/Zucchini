@@ -16,19 +16,18 @@ public class StartUI extends UI {
 	}
 	
 	@Override
-	void update(double dt) {
+	public void update(double dt) {
 		
 	}
 	
 	@Override
-	void render(IRenderer r) {
-		
+	public void render(IRenderer r) {
+		r.drawTexture("xxx", 0, 0, 0);
 	}
 	
 	@Override
-	UI next() {
-		return null;
-		
+	public UI next() {
+		return this;
 	}
 
 	@Override
