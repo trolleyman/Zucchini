@@ -4,6 +4,7 @@
 package game.ui;
 
 import game.InputHandler;
+import game.render.IRenderer;
 
 /**
  * @author jackm
