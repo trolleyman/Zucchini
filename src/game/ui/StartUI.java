@@ -17,34 +17,56 @@ public class StartUI extends UI {
 	private double x;
 	private double y;
 	
+	private double w = 256.0;
+	private double h = 256.0;
+	
+	private double speed = 200.0;
+	private double xSpeed;
+	private double ySpeed;
+	
+	private double windowW = 1000.0;
+	private double windowH = 1000.0;
+	
 	public StartUI(KeyboardManager _km) {
 		super(_km);
 		
 		x = 100.0;
 		y = 100.0;
+		xSpeed = speed;
+		ySpeed = speed;
 	}
 	
 	@Override
 	public void update(double dt) {
-		double rate = 200.0;
-		double diff = rate * dt;
-		if (km.getKeyState(GLFW_KEY_UP) == GLFW_PRESS) {
-			y -= diff;
+		x += xSpeed * dt;
+		y += ySpeed * dt;
+		
+		if (x < 0.0) {
+			x = 0.0;
+			xSpeed = speed;
 		}
-		if (km.getKeyState(GLFW_KEY_DOWN) == GLFW_PRESS) {
-			y += diff;
+		if (x > windowW - w) {
+			x = windowW - w;
+			xSpeed = -speed;
 		}
-		if (km.getKeyState(GLFW_KEY_LEFT) == GLFW_PRESS) {
-			x -= diff;
+		if (y < 0) {
+			y = 0.0;
+			ySpeed = speed;
 		}
-		if (km.getKeyState(GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			x += diff;
+		if (y > windowH - h) {
+			y = windowH - h;
+			ySpeed = -speed;
 		}
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawTexture("test.png", (int)x, (int)y);
+		r.drawImage("test.png", (int)x, (int)y);
+		w = r.getImage("test.png").getWidth();
+		h = r.getImage("test.png").getHeight();
+		
+		windowW = r.getWidth();
+		windowH = r.getHeight();
 	}
 	
 	@Override

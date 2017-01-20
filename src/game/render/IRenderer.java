@@ -4,8 +4,12 @@ import game.InputHandler;
 import game.KeyboardManager;
 
 public interface IRenderer {
-	public void setInputHandler(InputHandler _ui);
+	public void setInputHandler(InputHandler ui);
+	public void setResizeCallback(IResizeCallback resizeCallback);
 	public KeyboardManager getKeyboardManager();
+	
+	public int getWidth();
+	public int getHeight();
 	
 	public void show();
 	public void destroy();
@@ -15,5 +19,6 @@ public interface IRenderer {
 	public void beginFrame();
 	public void endFrame();
 	
-	public void drawTexture(String name, int x, int y);
+	public void drawImage(String name, int x, int y);
+	public Image getImage(String name);
 }

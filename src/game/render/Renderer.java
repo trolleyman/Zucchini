@@ -31,8 +31,13 @@ public class Renderer implements IRenderer {
 	
 	private int windowW;
 	private int windowH;
+	
+	// Should the game recalculate the projection matrix on the next frame?
+	private boolean dirty;
 
 	private KeyboardManager km;
+	
+	private IResizeCallback resizeCallback;
 	
 	public Renderer(InputHandler _ih, boolean _fullscreen) {
 		// Setup input handler
@@ -100,11 +105,9 @@ public class Renderer implements IRenderer {
 		glfwSetWindowSizeCallback(window, (window, w, h) -> {
 			this.windowW = w;
 			this.windowH = h;
-			int[] wArr = new int[1];
-			int[] hArr = new int[1];
-			glfwGetWindowSize(window, wArr, hArr);
-			System.out.println(wArr[0] + ", " + hArr[0] + " or " + w + ", " + h);
-			recalculateMatrices();
+			this.dirty = true;
+			if (this.resizeCallback != null)
+				this.resizeCallback.invoke(this);
 		});
 		
 		// Setup keyboard manager
@@ -151,6 +154,8 @@ public class Renderer implements IRenderer {
 	}
 	
 	private void recalculateMatrices() {
+		this.dirty = false;
+		glViewport(0, 0, windowW, windowH);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glMatrixMode(GL_PROJECTION);
@@ -165,8 +170,23 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
+	public void setResizeCallback(IResizeCallback _resizeCallback) {
+		this.resizeCallback = _resizeCallback;
+	}
+	
+	@Override
 	public KeyboardManager getKeyboardManager() {
 		return km;
+	}
+	
+	@Override
+	public int getWidth() {
+		return windowW;
+	}
+	
+	@Override
+	public int getHeight() {
+		return windowH;
 	}
 	
 	@Override
@@ -193,6 +213,9 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void beginFrame() {
+		if (this.dirty)
+			recalculateMatrices();
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 	}
 	
@@ -204,7 +227,12 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawTexture(String _name, int _x, int _y) {
+	public Image getImage(String name) {
+		return images.get(name);
+	}
+	
+	@Override
+	public void drawImage(String _name, int _x, int _y) {
 		if (!images.containsKey(_name)) {
 			System.err.println("Error: Texture does not exist: " + _name);
 		} else {
