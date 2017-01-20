@@ -18,10 +18,11 @@ class Client implements Runnable {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
 		// Initialize UI
-		ui = new StartUI();
+		ui = new StartUI(null);
 		
 		// Initialize renderer
 		renderer = new Renderer(ui, _fullscreen);
+		ui.setKeyboardManager(renderer.getKeyboardManager());
 	}
 	
 	@Override

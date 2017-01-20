@@ -3,20 +3,18 @@ package game.render;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import java.nio.IntBuffer;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 
-import org.lwjgl.glfw.GLFWCharCallbackI;
-import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
-
 import game.InputHandler;
-import game.ui.UI;
+import game.KeyboardManager;
 
 public class Renderer implements IRenderer {
 	// window handle
@@ -27,6 +25,14 @@ public class Renderer implements IRenderer {
 	
 	// input handler
 	private InputHandler ih;
+	
+	// Images loaded
+	private HashMap<String, Image> images;
+	
+	private int windowW;
+	private int windowH;
+
+	private KeyboardManager km;
 	
 	public Renderer(InputHandler _ih, boolean _fullscreen) {
 		// Setup input handler
@@ -47,8 +53,6 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		
 		long monitor;
-		int width;
-		int height;
 		if (fullscreen) {
 			monitor = glfwGetPrimaryMonitor();
 			GLFWVidMode mode = glfwGetVideoMode(monitor);
@@ -56,35 +60,26 @@ public class Renderer implements IRenderer {
 			glfwWindowHint(GLFW_GREEN_BITS, mode.greenBits());
 			glfwWindowHint(GLFW_BLUE_BITS, mode.blueBits());
 			glfwWindowHint(GLFW_REFRESH_RATE, mode.refreshRate());
-			width = mode.width();
-			height = mode.height();
+			windowW = mode.width();
+			windowH = mode.height();
 		} else {
 			monitor = NULL;
-			width = 1000;
-			height = 800;
+			windowW = 1000;
+			windowH = 800;
 		}
-		window = glfwCreateWindow(width, height, "Zucchini", monitor, NULL);
-		if ( window == NULL )
+		window = glfwCreateWindow(windowW, windowH, "Zucchini", monitor, NULL);
+		if (window == NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		
-		// Get the thread stack and push a new frame
-		try ( MemoryStack stack = stackPush() ) {
-			IntBuffer pWidth = stack.mallocInt(1); // int*
-			IntBuffer pHeight = stack.mallocInt(1); // int*
-			
-			// Get the window size passed to glfwCreateWindow
-			glfwGetWindowSize(window, pWidth, pHeight);
-			
-			// Get the resolution of the primary monitor
-			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			
-			// Center the window
-			glfwSetWindowPos(
-				window,
-				(vidmode.width() - pWidth.get(0)) / 2,
-				(vidmode.height() - pHeight.get(0)) / 2
-			);
-		}
+		// Get the resolution of the primary monitor
+		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		
+		// Center the window
+		glfwSetWindowPos(
+			window,
+			(vidmode.width() - windowW) / 2,
+			(vidmode.height() - windowH) / 2
+		);
 		
 		// Setup input handlers
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
@@ -102,6 +97,18 @@ public class Renderer implements IRenderer {
 		glfwSetScrollCallback(window, (window, xoffset, yoffset) -> {
 			this.ih.handleScroll(xoffset, yoffset);
 		});
+		glfwSetWindowSizeCallback(window, (window, w, h) -> {
+			this.windowW = w;
+			this.windowH = h;
+			int[] wArr = new int[1];
+			int[] hArr = new int[1];
+			glfwGetWindowSize(window, wArr, hArr);
+			System.out.println(wArr[0] + ", " + hArr[0] + " or " + w + ", " + h);
+			recalculateMatrices();
+		});
+		
+		// Setup keyboard manager
+		this.km = new KeyboardManager(window);
 		
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
@@ -109,6 +116,57 @@ public class Renderer implements IRenderer {
 		glfwSwapInterval(1);
 		
 		GL.createCapabilities();
+		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		glDisable(GL_CULL_FACE);
+		
+		recalculateMatrices();
+		
+		loadImages();
+	}
+	
+	private void loadImages() {
+		images = new HashMap<>();
+		
+		// Find all .png files in directory "img/"
+		Path baseDir = Paths.get(".").toAbsolutePath();
+		Path imgsDirPath = Paths.get(baseDir.toString(), "img");
+		File imgsDir = imgsDirPath.toFile();
+		File[] imgFiles = imgsDir.listFiles((dir, name) -> {
+			return name.endsWith(".png");
+		});
+		
+		if (imgFiles == null) {
+			System.out.println("No images loaded.");
+			return;
+		}
+		
+		for (File file : imgFiles) {
+			Image i = new Image(file.toString());
+			images.put(file.getName(), i);
+		}
+		System.out.println(images.size() + " image(s) loaded.");
+	}
+	
+	private void recalculateMatrices() {
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0.0, windowW, windowH, 0.0, -1.0, 1.0);
+		glMatrixMode(GL_MODELVIEW);
+	}
+	
+	@Override
+	public void setInputHandler(InputHandler _ih) {
+		this.ih = _ih;
+	}
+	
+	@Override
+	public KeyboardManager getKeyboardManager() {
+		return km;
 	}
 	
 	@Override
@@ -146,13 +204,22 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawTexture(String _name, int _x, int _y, float _rot) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setInputHandler(UI _ui) {
-		// TODO Auto-generated method stub
-		
+	public void drawTexture(String _name, int _x, int _y) {
+		if (!images.containsKey(_name)) {
+			System.err.println("Error: Texture does not exist: " + _name);
+		} else {
+			glEnable(GL_TEXTURE_2D);
+			Image i = images.get(_name);
+			i.bind();
+			int w = i.getWidth();
+			int h = i.getHeight();
+			
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 0.0f); glVertex3f((float)_x  , (float)_y  , 0.0f);
+			glTexCoord2f(0.0f, 1.0f); glVertex3f((float)_x  , (float)_y+h, 0.0f);
+			glTexCoord2f(1.0f, 1.0f); glVertex3f((float)_x+w, (float)_y+h, 0.0f);
+			glTexCoord2f(1.0f, 0.0f); glVertex3f((float)_x+w, (float)_y  , 0.0f);
+			glEnd();
+		}
 	}
 }

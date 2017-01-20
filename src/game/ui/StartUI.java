@@ -3,8 +3,9 @@
  */
 package game.ui;
 
-import org.lwjgl.glfw.GLFW;
+import static org.lwjgl.glfw.GLFW.*;
 
+import game.KeyboardManager;
 import game.render.IRenderer;
 
 /**
@@ -13,18 +14,37 @@ import game.render.IRenderer;
  */
 public class StartUI extends UI {
 	
-	public StartUI() {
+	private double x;
+	private double y;
+	
+	public StartUI(KeyboardManager _km) {
+		super(_km);
 		
+		x = 100.0;
+		y = 100.0;
 	}
 	
 	@Override
 	public void update(double dt) {
-		
+		double rate = 200.0;
+		double diff = rate * dt;
+		if (km.getKeyState(GLFW_KEY_UP) == GLFW_PRESS) {
+			y -= diff;
+		}
+		if (km.getKeyState(GLFW_KEY_DOWN) == GLFW_PRESS) {
+			y += diff;
+		}
+		if (km.getKeyState(GLFW_KEY_LEFT) == GLFW_PRESS) {
+			x -= diff;
+		}
+		if (km.getKeyState(GLFW_KEY_RIGHT) == GLFW_PRESS) {
+			x += diff;
+		}
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawTexture("xxx", 0, 0, 0);
+		r.drawTexture("test.png", (int)x, (int)y);
 	}
 	
 	@Override
@@ -34,27 +54,31 @@ public class StartUI extends UI {
 
 	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
+		printKey(key, scancode, action, mods);
+	}
+	
+	private void printKey(int key, int scancode, int action, int mods) {
 		String actionStr = "";
 		switch (action) {
-		case GLFW.GLFW_PRESS  : actionStr = "pressed "; break;
-		case GLFW.GLFW_RELEASE: actionStr = "released"; break;
-		case GLFW.GLFW_REPEAT : actionStr = "repeated"; break;
+		case GLFW_PRESS  : actionStr = "pressed "; break;
+		case GLFW_RELEASE: actionStr = "released"; break;
+		case GLFW_REPEAT : actionStr = "repeated"; break;
 		}
 		
 		String modsStr = "";
-		if ((mods & GLFW.GLFW_MOD_SHIFT) != 0)
+		if ((mods & GLFW_MOD_SHIFT) != 0)
 			modsStr += "SHIFT ";
-		if ((mods & GLFW.GLFW_MOD_CONTROL) != 0)
+		if ((mods & GLFW_MOD_CONTROL) != 0)
 			modsStr += "CTRL ";
-		if ((mods & GLFW.GLFW_MOD_ALT) != 0)
+		if ((mods & GLFW_MOD_ALT) != 0)
 			modsStr += "ALT ";
-		if ((mods & GLFW.GLFW_MOD_SUPER) != 0)
+		if ((mods & GLFW_MOD_SUPER) != 0)
 			modsStr += "SUPER ";
 		
 		if (!modsStr.equals(""))
 			modsStr = "Mods: " + modsStr;
 		
-		String keyName = GLFW.glfwGetKeyName(key, scancode);
+		String keyName = glfwGetKeyName(key, scancode);
 		if (keyName == null)
 			keyName = key + ":" + scancode;
 		
