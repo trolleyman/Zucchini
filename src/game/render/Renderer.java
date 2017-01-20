@@ -199,6 +199,11 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void destroy() {
+		// Free the images
+		for (Image i : images.values()) {
+			i.destroy();
+		}
+		
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(window);
 		glfwDestroyWindow(window);

@@ -41,6 +41,10 @@ public class Image {
 		glBindTexture(GL_TEXTURE_2D, this.texID);
 	}
 	
+	public void destroy() {
+		glDeleteTextures(texID);
+	}
+	
 	public int getWidth() {
 		return w;
 	}
