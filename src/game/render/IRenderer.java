@@ -5,7 +5,8 @@ import game.KeyboardManager;
 
 public interface IRenderer {
 	public void setInputHandler(InputHandler ui);
-	public void setResizeCallback(IResizeCallback resizeCallback);
+	public void setVSync(boolean enable);
+	
 	public KeyboardManager getKeyboardManager();
 	
 	public int getWidth();

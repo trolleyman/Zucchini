@@ -1,18 +1,26 @@
 package game;
 
 import org.lwjgl.Version;
-import org.lwjgl.opengl.GL11;
 
 import game.render.Renderer;
 import game.ui.StartUI;
 import game.ui.UI;
 
 class Client implements Runnable {
+	private static final double UPS = 60;
+	private static final long NANOS_PER_UPDATE = (long) (1_000_000_000 / UPS);
+	
 	// The current UI state
 	private UI ui;
 	
 	// The renderer
 	private Renderer renderer;
+	
+	// Previous time in nanoseconds of update.
+	long prevTime;
+	
+	// Number of nanoseconds to process
+	long dtPool;
 	
 	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
@@ -23,9 +31,6 @@ class Client implements Runnable {
 		// Initialize renderer
 		renderer = new Renderer(ui, _fullscreen);
 		ui.setKeyboardManager(renderer.getKeyboardManager());
-		renderer.setResizeCallback((r) -> {
-			this.render();
-		});
 	}
 	
 	@Override
@@ -38,22 +43,27 @@ class Client implements Runnable {
 	}
 	
 	private void loop() {
-		// Set the clear color
-		GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		
-		long prevTime = System.nanoTime();
+		prevTime = System.nanoTime();
+		dtPool = 0;
 		while (!renderer.shouldClose()) {
-			render();
-			
-			long now = System.nanoTime();
-			long dtNanos = now - prevTime;
-			double dt = ((double) dtNanos) / 1_000_000_000.0;
-			prevTime = now;
-			
-			ui.update(dt);
-			ui = ui.next();
-			renderer.setInputHandler(ui);
+			loopIter();
 		}
+	}
+	
+	private void loopIter() {
+		render();
+		
+		long now = System.nanoTime();
+		long dtNanos = now - prevTime;
+		prevTime = now;
+		dtPool += dtNanos;
+		while (dtPool > NANOS_PER_UPDATE) {
+			ui.update(((double) NANOS_PER_UPDATE) / 1_000_000_000.0);
+			ui = ui.next();
+			dtPool -= NANOS_PER_UPDATE;
+		}
+		
+		renderer.setInputHandler(ui);
 	}
 	
 	private void render() {

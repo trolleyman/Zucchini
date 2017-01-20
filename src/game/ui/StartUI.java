@@ -108,27 +108,15 @@ public class StartUI extends UI {
 	}
 
 	@Override
-	public void handleChar(char c) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void handleChar(char c) {}
 	
 	@Override
-	public void handleCursorPos(double _xpos, double _ypos) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void handleCursorPos(double xpos, double ypos) {}
 
 	@Override
-	public void handleMouseButton(int button, int action, int mods) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void handleMouseButton(int button, int action, int mods) {}
 
 	@Override
-	public void handleScroll(double xoffset, double yoffset) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void handleScroll(double xoffset, double yoffset) {}
 
 }

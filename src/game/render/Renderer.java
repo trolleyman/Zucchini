@@ -13,6 +13,8 @@ import java.util.HashMap;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+
 import game.InputHandler;
 import game.KeyboardManager;
 
@@ -36,9 +38,7 @@ public class Renderer implements IRenderer {
 	private boolean dirty;
 
 	private KeyboardManager km;
-	
-	private IResizeCallback resizeCallback;
-	
+		
 	public Renderer(InputHandler _ih, boolean _fullscreen) {
 		// Setup input handler
 		this.ih = _ih;
@@ -106,8 +106,6 @@ public class Renderer implements IRenderer {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
-			if (this.resizeCallback != null)
-				this.resizeCallback.invoke(this);
 		});
 		
 		// Setup keyboard manager
@@ -115,15 +113,19 @@ public class Renderer implements IRenderer {
 		
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
-		// Enable v-sync
-		glfwSwapInterval(1);
 		
 		GL.createCapabilities();
+		
+		// Enable v-sync
+		this.setVSync(true);
 		
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		glDisable(GL_CULL_FACE);
+		
+		// Set the clear color
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		
 		recalculateMatrices();
 		
@@ -170,8 +172,11 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void setResizeCallback(IResizeCallback _resizeCallback) {
-		this.resizeCallback = _resizeCallback;
+	public void setVSync(boolean enable) {
+		if (enable)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
 	}
 	
 	@Override
