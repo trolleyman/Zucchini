@@ -158,12 +158,9 @@ public class Renderer implements IRenderer {
 	private void recalculateMatrices() {
 		this.dirty = false;
 		glViewport(0, 0, windowW, windowH);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glOrtho(0.0, windowW, windowH, 0.0, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
 	}
 	
 	@Override
@@ -222,6 +219,9 @@ public class Renderer implements IRenderer {
 			recalculateMatrices();
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+		
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 	}
 	
 	@Override
