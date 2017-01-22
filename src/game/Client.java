@@ -7,7 +7,7 @@ import game.ui.StartUI;
 import game.ui.UI;
 
 class Client implements Runnable {
-	private static final double UPS = 60;
+	private static final double UPS = 120;
 	private static final long NANOS_PER_UPDATE = (long) (1_000_000_000 / UPS);
 	
 	// The current UI state

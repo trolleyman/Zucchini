@@ -13,7 +13,6 @@ import java.util.HashMap;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 
 import game.InputHandler;
 import game.KeyboardManager;
@@ -132,6 +131,14 @@ public class Renderer implements IRenderer {
 		loadImages();
 	}
 	
+	@SuppressWarnings("unused")
+	private void checkGLError() {
+		int err = glGetError();
+		if (err != GL_NO_ERROR) {
+			System.err.println("Error with OpenGL detected: " + err);
+		}
+	}
+	
 	private void loadImages() {
 		images = new HashMap<>();
 		
@@ -160,7 +167,7 @@ public class Renderer implements IRenderer {
 		glViewport(0, 0, windowW, windowH);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0.0, windowW, windowH, 0.0, -1.0, 1.0);
+		glOrtho(0.0, windowW, 0.0, windowH, -1.0, 1.0);
 	}
 	
 	@Override
@@ -246,18 +253,20 @@ public class Renderer implements IRenderer {
 		if (!images.containsKey(_name)) {
 			System.err.println("Error: Texture does not exist: " + _name);
 		} else {
-			glEnable(GL_TEXTURE_2D);
 			Image i = images.get(_name);
 			i.bind();
 			int w = i.getWidth();
 			int h = i.getHeight();
 			
+			glEnable(GL_TEXTURE_2D);
 			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f((float)_x  , (float)_y  , 0.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f((float)_x  , (float)_y+h, 0.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f((float)_x+w, (float)_y+h, 0.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f((float)_x+w, (float)_y  , 0.0f);
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glTexCoord2f(0.0f, 0.0f); glVertex3f((float)_x  , (float)_y  , 0.0f); // BL
+			glTexCoord2f(1.0f, 0.0f); glVertex3f((float)_x+w, (float)_y  , 0.0f); // BR
+			glTexCoord2f(1.0f, 1.0f); glVertex3f((float)_x+w, (float)_y+h, 0.0f); // TR
+			glTexCoord2f(0.0f, 1.0f); glVertex3f((float)_x  , (float)_y+h, 0.0f); // TL
 			glEnd();
+			glDisable(GL_TEXTURE_2D);
 		}
 	}
 }
