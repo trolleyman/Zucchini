@@ -260,11 +260,11 @@ public class Renderer implements IRenderer {
 			
 			glEnable(GL_TEXTURE_2D);
 			glBegin(GL_QUADS);
-			glColor3f(1.0f, 1.0f, 1.0f);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f((float)_x  , (float)_y  , 0.0f); // BL
-			glTexCoord2f(1.0f, 0.0f); glVertex3f((float)_x+w, (float)_y  , 0.0f); // BR
-			glTexCoord2f(1.0f, 1.0f); glVertex3f((float)_x+w, (float)_y+h, 0.0f); // TR
-			glTexCoord2f(0.0f, 1.0f); glVertex3f((float)_x  , (float)_y+h, 0.0f); // TL
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glTexCoord2f(0.0f, 0.0f); glVertex3f((float)_x  , (float)_y  , 0.0f); // BL
+				glTexCoord2f(1.0f, 0.0f); glVertex3f((float)_x+w, (float)_y  , 0.0f); // BR
+				glTexCoord2f(1.0f, 1.0f); glVertex3f((float)_x+w, (float)_y+h, 0.0f); // TR
+				glTexCoord2f(0.0f, 1.0f); glVertex3f((float)_x  , (float)_y+h, 0.0f); // TL
 			glEnd();
 			glDisable(GL_TEXTURE_2D);
 		}

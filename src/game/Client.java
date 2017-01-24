@@ -28,8 +28,25 @@ class Client implements Runnable {
 		// Initialize UI
 		ui = new StartUI(null);
 		
+		// Initialize input handler - redirect events to the current ui
+		Client client = this;
+		InputHandler ih = new InputHandler() {
+			@Override
+			public void setKeyboardManager(KeyboardManager km) { client.ui.setKeyboardManager(km); }
+			@Override
+			public void handleKey(int key, int scancode, int action, int mods) { client.ui.handleKey(key, scancode, action, mods); };
+			@Override
+			public void handleChar(char c) { client.ui.handleChar(c); };
+			@Override
+			public void handleCursorPos(double xpos, double ypos) { client.ui.handleCursorPos(xpos, ypos); };
+			@Override
+			public void handleMouseButton(int button, int action, int mods) { client.ui.handleMouseButton(button, action, mods); };
+			@Override
+			public void handleScroll(double xoffset, double yoffset) { client.ui.handleScroll(xoffset, yoffset); };
+		};
+		
 		// Initialize renderer
-		renderer = new Renderer(ui, _fullscreen);
+		renderer = new Renderer(ih, _fullscreen);
 		ui.setKeyboardManager(renderer.getKeyboardManager());
 	}
 	
@@ -62,8 +79,6 @@ class Client implements Runnable {
 			ui = ui.next();
 			dtPool -= NANOS_PER_UPDATE;
 		}
-		
-		renderer.setInputHandler(ui);
 	}
 	
 	private void render() {

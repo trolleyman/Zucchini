@@ -1,6 +1,5 @@
 package game.render;
 
-import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -18,7 +17,7 @@ public class Image {
 		int[] compArr = new int[1];
 		
 		// Decode the image
-		data = stbi_load(path, wArr, hArr, compArr, 4);
+		data = stbi_load(path, wArr, hArr, compArr, 3);
 		if (data == null)
 			throw new RuntimeException("Failed to load image: " + stbi_failure_reason());
 		
@@ -28,14 +27,25 @@ public class Image {
 		// Upload to OpenGL
 		int texID = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, texID);
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, w);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		
+		/*System.out.print("Data = [");
+		byte[] pixel = new byte[4];
+		data.rewind();
+		for (int i = 0; i < 4; i++) {
+			System.out.print("0x");
+			data.get(pixel);
+			for (byte b : pixel) {
+				System.out.print(String.format("%02X", b));
+			}
+			System.out.print(", ");
+		}
+		data.rewind();
+		System.out.println(" ... ]");*/
 		System.out.println("Loaded image: " + path);
 	}
 
