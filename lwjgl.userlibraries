@@ -18,6 +18,15 @@
         <archive path="/c3/lwjgl-3.1.1/lwjgl-opengl-natives-linux.jar"/>
         <archive path="/c3/lwjgl-3.1.1/lwjgl-stb-natives-linux.jar"/>
     </library>
+    <library name="LWJGL-macos" systemlibrary="false">
+        <archive path="/C3/lwjgl-3.1.1/lwjgl-glfw-natives-macos.jar"/>
+        <archive path="/C3/lwjgl-3.1.1/lwjgl-jemalloc-natives-macos.jar"/>
+        <archive path="/C3/lwjgl-3.1.1/lwjgl-natives-macos.jar"/>
+        <archive path="/C3/lwjgl-3.1.1/lwjgl-nuklear-natives-macos.jar"/>
+        <archive path="/C3/lwjgl-3.1.1/lwjgl-openal-natives-macos.jar"/>
+        <archive path="/C3/lwjgl-3.1.1/lwjgl-opengl-natives-macos.jar"/>
+        <archive path="/C3/lwjgl-3.1.1/lwjgl-stb-natives-macos.jar"/>
+    </library>
     <library name="LWJGL-windows" systemlibrary="false">
         <archive path="/c3/lwjgl-3.1.1/lwjgl-glfw-natives-windows.jar"/>
         <archive path="/c3/lwjgl-3.1.1/lwjgl-jemalloc-natives-windows.jar"/>
