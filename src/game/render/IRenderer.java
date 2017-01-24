@@ -1,5 +1,7 @@
 package game.render;
 
+import java.awt.Color;
+
 import game.InputHandler;
 import game.KeyboardManager;
 
@@ -20,6 +22,8 @@ public interface IRenderer {
 	public void beginFrame();
 	public void endFrame();
 	
-	public void drawImage(String name, int x, int y);
+	public void drawImage(String name, float x, float y);
 	public Image getImage(String name);
+	
+	public void drawBox(float x, float y, float w, float h, Color c);
 }

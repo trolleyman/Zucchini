@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import java.awt.Color;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -249,11 +250,11 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawImage(String _name, int _x, int _y) {
-		if (!images.containsKey(_name)) {
-			System.err.println("Error: Texture does not exist: " + _name);
+	public void drawImage(String name, float x, float y) {
+		if (!images.containsKey(name)) {
+			System.err.println("Error: Texture does not exist: " + name);
 		} else {
-			Image i = images.get(_name);
+			Image i = images.get(name);
 			i.bind();
 			int w = i.getWidth();
 			int h = i.getHeight();
@@ -261,12 +262,25 @@ public class Renderer implements IRenderer {
 			glEnable(GL_TEXTURE_2D);
 			glBegin(GL_QUADS);
 				glColor3f(1.0f, 1.0f, 1.0f);
-				glTexCoord2f(0.0f, 0.0f); glVertex3f((float)_x  , (float)_y  , 0.0f); // BL
-				glTexCoord2f(1.0f, 0.0f); glVertex3f((float)_x+w, (float)_y  , 0.0f); // BR
-				glTexCoord2f(1.0f, 1.0f); glVertex3f((float)_x+w, (float)_y+h, 0.0f); // TR
-				glTexCoord2f(0.0f, 1.0f); glVertex3f((float)_x  , (float)_y+h, 0.0f); // TL
+				glTexCoord2f(0.0f, 0.0f); glVertex3f(x  , y  , 0.0f); // BL
+				glTexCoord2f(1.0f, 0.0f); glVertex3f(x+w, y  , 0.0f); // BR
+				glTexCoord2f(1.0f, 1.0f); glVertex3f(x+w, y+h, 0.0f); // TR
+				glTexCoord2f(0.0f, 1.0f); glVertex3f(x  , y+h, 0.0f); // TL
 			glEnd();
-			glDisable(GL_TEXTURE_2D);
 		}
+	}
+
+	@Override
+	public void drawBox(float x, float y, float w, float h, Color c) {
+		float r = c.getRed()   / 255.0f;
+		float g = c.getGreen() / 255.0f;
+		float b = c.getBlue()  / 255.0f;
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+			glColor3f(r, g, b); glVertex3f(x  , y  , 0.0f); // BL
+			glColor3f(r, g, b); glVertex3f(x+w, y  , 0.0f); // BR
+			glColor3f(r, g, b); glVertex3f(x+w, y+h, 0.0f); // TR
+			glColor3f(r, g, b); glVertex3f(x  , y+h, 0.0f); // TL
+		glEnd();
 	}
 }
