@@ -63,12 +63,12 @@ public class StartUI extends UI {
 			ySpeed = -speed;
 		}
 		
-		if ((x < mx && mx < (x+w)) && (y < my && my < (y+h))) {
+		double yFlip = (double) (windowH - my);
+		if ((x < mx && mx < (x+w)) && (y < yFlip && yFlip < (y+h))) {
 			overButton = true;
 		} else {
 			overButton = false;
 		}
-		
 	}
 	
 	@Override
@@ -100,7 +100,6 @@ public class StartUI extends UI {
 	
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
-		
 		mx = xpos;
 		my = ypos;
 	}
