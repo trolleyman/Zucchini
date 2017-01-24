@@ -8,12 +8,15 @@ import java.awt.Color;
 import game.KeyboardManager;
 import game.Util;
 import game.render.IRenderer;
+import game.render.ImageBank;
 
 /**
  * @author jackm
  *
  */
 public class StartUI extends UI {
+	
+	private UIComponent button;
 	
 	private double testBoxX;
 	private double testBoxY;
@@ -32,17 +35,28 @@ public class StartUI extends UI {
 	private double mX = 0;
 	private double mY = 0;
 	
-	public StartUI(KeyboardManager _km) {
+	public StartUI(KeyboardManager _km, ImageBank ib) {
 		super(_km);
 		
 		testBoxX = 100.0;
 		testBoxY = 100.0;
 		xSpeed = speed;
 		ySpeed = speed;
+		
+		button = new UIButton(
+			() -> { System.out.println("Clicked!"); },
+			100, 100,
+			ib.getImage("buttonDefault.png"),
+			ib.getImage("buttonHover.png"),
+			ib.getImage("buttonPressed.png")
+		);
+		this.inputHandlers.add(button);
 	}
 	
 	@Override
 	public void update(double dt) {
+		button.update(dt);
+		
 		testBoxX += xSpeed * dt;
 		testBoxY += ySpeed * dt;
 		
@@ -72,6 +86,9 @@ public class StartUI extends UI {
 	
 	@Override
 	public void render(IRenderer r) {
+		windowW = r.getWidth();
+		windowH = r.getHeight();
+		
 		Color c;
 		if (this.overButton)
 			c = Color.RED;
@@ -80,35 +97,11 @@ public class StartUI extends UI {
 		
 		r.drawBox((float)testBoxX, (float)testBoxY, (float)testBoxW, (float)testBoxH, c);
 		
-		windowW = r.getWidth();
-		windowH = r.getHeight();
+		button.render(r);
 	}
 	
 	@Override
 	public UI next() {
 		return this;
 	}
-	
-	@Override
-	public void handleKey(int key, int scancode, int action, int mods) {
-		Util.printKey(key, scancode, action, mods);
-	}
-	
-	@Override
-	public void handleChar(char c) {}
-	
-	@Override
-	public void handleCursorPos(double xpos, double ypos) {
-		mX = xpos;
-		mY = ypos;
-	}
-
-	@Override
-	public void handleMouseButton(int button, int action, int mods) {
-		
-	}
-
-	@Override
-	public void handleScroll(double xoffset, double yoffset) {}
-	
 }

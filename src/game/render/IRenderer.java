@@ -22,8 +22,8 @@ public interface IRenderer {
 	public void beginFrame();
 	public void endFrame();
 	
-	public void drawImage(String name, float x, float y);
-	public Image getImage(String name);
+	public void drawImage(Image img, float x, float y);
+	public ImageBank getImageBank();
 	
 	public void drawBox(float x, float y, float w, float h, Color c);
 }

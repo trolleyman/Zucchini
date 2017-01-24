@@ -28,8 +28,8 @@ public class Renderer implements IRenderer {
 	// input handler
 	private InputHandler ih;
 	
-	// Images loaded
-	private HashMap<String, Image> images;
+	// image bank
+	private ImageBank ib;
 	
 	private int windowW;
 	private int windowH;
@@ -116,6 +116,9 @@ public class Renderer implements IRenderer {
 		
 		GL.createCapabilities();
 		
+		// Load images
+		ib = new ImageBank();
+		
 		// Enable v-sync
 		this.setVSync(true);
 		
@@ -128,8 +131,6 @@ public class Renderer implements IRenderer {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		
 		recalculateMatrices();
-		
-		loadImages();
 	}
 	
 	@SuppressWarnings("unused")
@@ -140,35 +141,12 @@ public class Renderer implements IRenderer {
 		}
 	}
 	
-	private void loadImages() {
-		images = new HashMap<>();
-		
-		// Find all .png files in directory "img/"
-		Path baseDir = Paths.get(".").toAbsolutePath();
-		Path imgsDirPath = Paths.get(baseDir.toString(), "img");
-		File imgsDir = imgsDirPath.toFile();
-		File[] imgFiles = imgsDir.listFiles((dir, name) -> {
-			return name.endsWith(".png");
-		});
-		
-		if (imgFiles == null) {
-			System.out.println("No images loaded.");
-			return;
-		}
-		
-		for (File file : imgFiles) {
-			Image i = new Image(file.toString());
-			images.put(file.getName(), i);
-		}
-		System.out.println(images.size() + " image(s) loaded.");
-	}
-	
 	private void recalculateMatrices() {
 		this.dirty = false;
 		glViewport(0, 0, windowW, windowH);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0.0, windowW, 0.0, windowH, -1.0, 1.0);
+		glOrtho(0.0, windowW, windowH, 0.0, -1.0, 1.0);
 	}
 	
 	@Override
@@ -208,9 +186,7 @@ public class Renderer implements IRenderer {
 	@Override
 	public void destroy() {
 		// Free the images
-		for (Image i : images.values()) {
-			i.destroy();
-		}
+		ib.destroy();
 		
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(window);
@@ -245,29 +221,24 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public Image getImage(String name) {
-		return images.get(name);
+	public ImageBank getImageBank() {
+		return ib;
 	}
 	
 	@Override
-	public void drawImage(String name, float x, float y) {
-		if (!images.containsKey(name)) {
-			System.err.println("Error: Texture does not exist: " + name);
-		} else {
-			Image i = images.get(name);
-			i.bind();
-			int w = i.getWidth();
-			int h = i.getHeight();
-			
-			glEnable(GL_TEXTURE_2D);
-			glBegin(GL_QUADS);
-				glColor3f(1.0f, 1.0f, 1.0f);
-				glTexCoord2f(0.0f, 0.0f); glVertex3f(x  , y  , 0.0f); // BL
-				glTexCoord2f(1.0f, 0.0f); glVertex3f(x+w, y  , 0.0f); // BR
-				glTexCoord2f(1.0f, 1.0f); glVertex3f(x+w, y+h, 0.0f); // TR
-				glTexCoord2f(0.0f, 1.0f); glVertex3f(x  , y+h, 0.0f); // TL
-			glEnd();
-		}
+	public void drawImage(Image img, float x, float y) {
+		img.bind();
+		int w = img.getWidth();
+		int h = img.getHeight();
+		
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glTexCoord2f(0.0f, 0.0f); glVertex3f(x  , y  , 0.0f); // TL
+			glTexCoord2f(0.0f, 1.0f); glVertex3f(x  , y+h, 0.0f); // BL
+			glTexCoord2f(1.0f, 1.0f); glVertex3f(x+w, y+h, 0.0f); // BR
+			glTexCoord2f(1.0f, 0.0f); glVertex3f(x+w, y  , 0.0f); // TR
+		glEnd();
 	}
 
 	@Override
@@ -277,10 +248,10 @@ public class Renderer implements IRenderer {
 		float b = c.getBlue()  / 255.0f;
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
-			glColor3f(r, g, b); glVertex3f(x  , y  , 0.0f); // BL
-			glColor3f(r, g, b); glVertex3f(x+w, y  , 0.0f); // BR
-			glColor3f(r, g, b); glVertex3f(x+w, y+h, 0.0f); // TR
-			glColor3f(r, g, b); glVertex3f(x  , y+h, 0.0f); // TL
+			glColor3f(r, g, b); glVertex3f(x  , y  , 0.0f); // TL
+			glColor3f(r, g, b); glVertex3f(x  , y+h, 0.0f); // BL
+			glColor3f(r, g, b); glVertex3f(x+w, y+h, 0.0f); // BR
+			glColor3f(r, g, b); glVertex3f(x+w, y  , 0.0f); // TR
 		glEnd();
 	}
 }

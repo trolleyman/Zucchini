@@ -25,9 +25,6 @@ class Client implements Runnable {
 	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
-		// Initialize UI
-		ui = new StartUI(null);
-		
 		// Initialize input handler - redirect events to the current ui
 		Client client = this;
 		InputHandler ih = new InputHandler() {
@@ -47,7 +44,9 @@ class Client implements Runnable {
 		
 		// Initialize renderer
 		renderer = new Renderer(ih, _fullscreen);
-		ui.setKeyboardManager(renderer.getKeyboardManager());
+		
+		// Initialize UI
+		ui = new StartUI(renderer.getKeyboardManager(), renderer.getImageBank());
 	}
 	
 	@Override

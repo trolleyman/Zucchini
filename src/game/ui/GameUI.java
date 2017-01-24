@@ -31,34 +31,4 @@ public class GameUI extends UI {
 	public UI next() {
 		return this;
 	}
-	
-	@Override
-	public void handleKey(int _key, int _scancode, int _action, int _mods) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleChar(char _c) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleCursorPos(double _xpos, double _ypos) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleMouseButton(int _button, int _action, int _mods) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleScroll(double _xoffset, double _yoffset) {
-		// TODO Auto-generated method stub
-		
-	}
 }
