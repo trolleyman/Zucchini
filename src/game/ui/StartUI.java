@@ -3,6 +3,8 @@
  */
 package game.ui;
 
+import java.awt.Color;
+
 import game.KeyboardManager;
 import game.Util;
 import game.render.IRenderer;
@@ -71,9 +73,13 @@ public class StartUI extends UI {
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawImage("test.png", (int)x, (int)y);
-		w = r.getImage("test.png").getWidth();
-		h = r.getImage("test.png").getHeight();
+		Color c;
+		if (this.overButton)
+			c = Color.RED;
+		else
+			c = Color.WHITE;
+		
+		r.drawBox((float)x, (float)y, (float)w, (float)h, c);
 		
 		windowW = r.getWidth();
 		windowH = r.getHeight();
