@@ -15,11 +15,11 @@ import game.render.IRenderer;
  */
 public class StartUI extends UI {
 	
-	private double x;
-	private double y;
+	private double testBoxX;
+	private double testBoxY;
 	
-	private double w = 256.0;
-	private double h = 256.0;
+	private double testBoxW = 256.0;
+	private double testBoxH = 256.0;
 	
 	private double speed = 200.0;
 	private double xSpeed;
@@ -29,42 +29,41 @@ public class StartUI extends UI {
 	private double windowH = 1000.0;
 	
 	private boolean overButton;
-	private double mx = 0;
-	private double my = 0;
+	private double mX = 0;
+	private double mY = 0;
 	
 	public StartUI(KeyboardManager _km) {
 		super(_km);
 		
-		x = 100.0;
-		y = 100.0;
+		testBoxX = 100.0;
+		testBoxY = 100.0;
 		xSpeed = speed;
 		ySpeed = speed;
 	}
 	
 	@Override
 	public void update(double dt) {
-		x += xSpeed * dt;
-		y += ySpeed * dt;
+		testBoxX += xSpeed * dt;
+		testBoxY += ySpeed * dt;
 		
-		if (x < 0.0) {
-			x = 0.0;
+		if (testBoxX < 0.0) {
+			testBoxX = 0.0;
 			xSpeed = speed;
 		}
-		if (x > windowW - w) {
-			x = windowW - w;
+		if (testBoxX > windowW - testBoxW) {
+			testBoxX = windowW - testBoxW;
 			xSpeed = -speed;
 		}
-		if (y < 0) {
-			y = 0.0;
+		if (testBoxY < 0) {
+			testBoxY = 0.0;
 			ySpeed = speed;
 		}
-		if (y > windowH - h) {
-			y = windowH - h;
+		if (testBoxY > windowH - testBoxH) {
+			testBoxY = windowH - testBoxH;
 			ySpeed = -speed;
 		}
 		
-		double yFlip = (double) (windowH - my);
-		if ((x < mx && mx < (x+w)) && (y < yFlip && yFlip < (y+h))) {
+		if ((testBoxX < mX && mX < (testBoxX+testBoxW)) && (testBoxY < mY && mY < (testBoxY+testBoxH))) {
 			overButton = true;
 		} else {
 			overButton = false;
@@ -79,7 +78,7 @@ public class StartUI extends UI {
 		else
 			c = Color.WHITE;
 		
-		r.drawBox((float)x, (float)y, (float)w, (float)h, c);
+		r.drawBox((float)testBoxX, (float)testBoxY, (float)testBoxW, (float)testBoxH, c);
 		
 		windowW = r.getWidth();
 		windowH = r.getHeight();
@@ -100,8 +99,8 @@ public class StartUI extends UI {
 	
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
-		mx = xpos;
-		my = ypos;
+		mX = xpos;
+		mY = ypos;
 	}
 
 	@Override
