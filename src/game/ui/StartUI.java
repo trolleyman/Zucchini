@@ -26,6 +26,10 @@ public class StartUI extends UI {
 	private double windowW = 1000.0;
 	private double windowH = 1000.0;
 	
+	private boolean overButton;
+	private int mx = 0;
+	private int my = 0;
+	
 	public StartUI(KeyboardManager _km) {
 		super(_km);
 		
@@ -56,6 +60,7 @@ public class StartUI extends UI {
 			y = windowH - h;
 			ySpeed = -speed;
 		}
+		
 	}
 	
 	@Override
@@ -82,11 +87,19 @@ public class StartUI extends UI {
 	public void handleChar(char c) {}
 	
 	@Override
-	public void handleCursorPos(double xpos, double ypos) {}
-	
+	public void handleCursorPos(double xpos, double ypos) {
+		if ((xpos == (x+w)) && (ypos == (y+h))) {
+			overButton = true;
+		} else {
+			overButton = false;
+		}
+	}
+
 	@Override
-	public void handleMouseButton(int button, int action, int mods) {}
-	
+	public void handleMouseButton(int button, int action, int mods) {
+		
+	}
+
 	@Override
 	public void handleScroll(double xoffset, double yoffset) {}
 	
