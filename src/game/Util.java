@@ -9,6 +9,9 @@ import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
 import static org.lwjgl.glfw.GLFW.glfwGetKeyName;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class Util {
 	public static void printKey(int key, int scancode, int action, int mods) {
 		String actionStr = "";
@@ -36,5 +39,9 @@ public class Util {
 			keyName = key + ":" + scancode;
 		
 		System.out.println(String.format("Key %s: %-8s %s", actionStr, keyName, modsStr));
+	}
+	
+	public static Path getBasePath() {
+		return Paths.get(".").toAbsolutePath();
 	}
 }

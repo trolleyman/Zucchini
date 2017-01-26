@@ -35,7 +35,7 @@ class Client implements Runnable {
 			@Override
 			public void handleChar(char c) { client.ui.handleChar(c); };
 			@Override
-			public void handleCursorPos(double xpos, double ypos) { client.ui.handleCursorPos(xpos, ypos); };
+			public void handleCursorPos(double xpos, double ypos) { client.ui.handleCursorPos(xpos, renderer.getHeight() - ypos); };
 			@Override
 			public void handleMouseButton(int button, int action, int mods) { client.ui.handleMouseButton(button, action, mods); };
 			@Override
@@ -75,7 +75,11 @@ class Client implements Runnable {
 		dtPool += dtNanos;
 		while (dtPool > NANOS_PER_UPDATE) {
 			ui.update(((double) NANOS_PER_UPDATE) / 1_000_000_000.0);
-			ui = ui.next();
+			UI next = ui.next();
+			if (next != ui) {
+				System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
+			}
+			ui = next;
 			dtPool -= NANOS_PER_UPDATE;
 		}
 	}

@@ -31,4 +31,9 @@ public class GameUI extends UI {
 	public UI next() {
 		return this;
 	}
+
+	@Override
+	public String toString() {
+		return "GameUI";
+	}
 }

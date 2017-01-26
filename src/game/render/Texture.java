@@ -5,13 +5,13 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
 
-public class Image {
+public class Texture {
 	private ByteBuffer data;
 	private int w;
 	private int h;
 	private int texID;
 	
-	public Image(String path) {
+	public Texture(String path) {
 		int[] wArr = new int[1];
 		int[] hArr = new int[1];
 		int[] compArr = new int[1];
@@ -19,7 +19,8 @@ public class Image {
 		// Decode the image
 		data = stbi_load(path, wArr, hArr, compArr, 3);
 		if (data == null)
-			throw new RuntimeException("Failed to load image: " + stbi_failure_reason());
+			throw new RuntimeException("Failed to load texture: " + path + ": " + stbi_failure_reason());
+		data.rewind();
 		
 		w = wArr[0];
 		h = hArr[0];
@@ -46,15 +47,14 @@ public class Image {
 		}
 		data.rewind();
 		System.out.println(" ... ]");*/
-		System.out.println("Loaded image: " + path);
 	}
-
-	public void bind() {
-		glBindTexture(GL_TEXTURE_2D, this.texID);
+	
+	public int getTextureID() {
+		return this.texID;
 	}
 	
 	public void destroy() {
-		glDeleteTextures(texID);
+		glDeleteTextures(this.texID);
 	}
 	
 	public int getWidth() {

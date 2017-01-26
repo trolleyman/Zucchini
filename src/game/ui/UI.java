@@ -28,8 +28,22 @@ public abstract class UI implements InputHandler {
 	public void setKeyboardManager(KeyboardManager _km) {
 		this.km = _km;
 	}
+	
+	/**
+	 * Updates the UI
+	 * @param dt The number of seconds passed since the last update
+	 */
 	public abstract void update(double dt);
+	
+	/**
+	 * Renders the UI onto the screen
+	 * @param r The Renderer object
+	 */
 	public abstract void render(IRenderer r);
+	
+	/**
+	 * Returns the next UI state to be in
+	 */
 	public abstract UI next();
 	
 	@Override
@@ -62,4 +76,8 @@ public abstract class UI implements InputHandler {
 		for (InputHandler ih : inputHandlers)
 			ih.handleScroll(xoffset, yoffset);
 	}
+	
+	// Inheriting classes must implement toString
+	@Override
+	public abstract String toString();
 }

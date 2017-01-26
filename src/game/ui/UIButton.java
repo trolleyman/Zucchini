@@ -4,17 +4,17 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import game.KeyboardManager;
 import game.render.IRenderer;
-import game.render.Image;
+import game.render.Texture;
 
 public class UIButton extends UIComponent {
 	
 	private Runnable callback;
 	
-	private Image defaultImage;
-	private Image hoverImage;
-	private Image pressedImage;
+	private Texture defaultImage;
+	private Texture hoverImage;
+	private Texture pressedImage;
 	
-	private Image currentImage;
+	private Texture currentImage;
 	
 	private float mx;
 	private float my;
@@ -34,14 +34,14 @@ public class UIButton extends UIComponent {
 	 * @param _hoverImage The image drawn when the mouse hovers over the button
 	 * @param _pressedImage The image drawn when the button is pressed down
 	 */
-	public UIButton(Runnable _callback, float _x, float _y, Image _defaultImage, Image _hoverImage, Image _pressedImage) {
+	public UIButton(Runnable _callback, float _x, float _y, Texture _defaultImage, Texture _hoverImage, Texture _pressedImage) {
 		this.callback = _callback;
 		
 		this.defaultImage = _defaultImage;
 		this.hoverImage = _hoverImage;
 		this.pressedImage = _pressedImage;
 		
-		this.currentImage = this.defaultImage;
+		this.currentImage = defaultImage;
 		
 		this.x = _x;
 		this.y = _y;
@@ -65,8 +65,8 @@ public class UIButton extends UIComponent {
 	}
 	
 	private boolean isMouseOnButton() {
-		return mx >= x && mx < x + defaultImage.getWidth()
-			&& my >= y && my < y + defaultImage.getHeight();
+		return mx >= x && mx < x + currentImage.getWidth()
+			&& my >= y && my < y + currentImage.getHeight();
 	}
 	
 	@Override
@@ -82,22 +82,13 @@ public class UIButton extends UIComponent {
 	@Override
 	public void render(IRenderer r) {
 		if (!isMouseOnButton()) {
-			r.drawImage(defaultImage, x, y);
+			currentImage = defaultImage;
+		} else if (!this.pressed) {
+			currentImage = hoverImage;
 		} else {
-			if (!this.pressed) {
-				r.drawImage(hoverImage, x, y);
-			} else {
-				r.drawImage(pressedImage, x, y);
-			}
+			currentImage = pressedImage;
 		}
+		
+		r.drawImage(currentImage, x, y);
 	}
-	
-	@Override
-	public void setKeyboardManager(KeyboardManager _km) {}
-	@Override
-	public void handleKey(int _key, int _scancode, int _action, int _mods) {}
-	@Override
-	public void handleChar(char _c) {}
-	@Override
-	public void handleScroll(double _xoffset, double _yoffset) {}
 }

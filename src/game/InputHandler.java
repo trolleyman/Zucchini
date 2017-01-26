@@ -2,13 +2,13 @@ package game;
 
 /**
  * @author jackm
- *
  */
 public interface InputHandler {
-	public void setKeyboardManager(KeyboardManager km);
-	public void handleKey(int key, int scancode, int action, int mods);
-	public void handleChar(char c);
-	public void handleCursorPos(double xpos, double ypos);
-	public void handleMouseButton(int button, int action, int mods);
-	public void handleScroll(double xoffset, double yoffset);
+	// By default all of the methods are empty
+	public default void setKeyboardManager(KeyboardManager km) {};
+	public default void handleKey(int key, int scancode, int action, int mods) {};
+	public default void handleChar(char c) {};
+	public default void handleCursorPos(double xpos, double ypos) {};
+	public default void handleMouseButton(int button, int action, int mods) {};
+	public default void handleScroll(double xoffset, double yoffset) {};
 }
