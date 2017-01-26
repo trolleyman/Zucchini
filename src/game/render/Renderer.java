@@ -301,7 +301,7 @@ public class Renderer implements IRenderer {
 	@Override
 	public void drawImage(Texture img, float x, float y, float w, float h) {
 		matModelView.pushMatrix();
-		matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
+		matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);

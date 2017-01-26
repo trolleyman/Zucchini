@@ -1,5 +1,7 @@
 package game.render.shader;
 
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.*;
 
 import game.render.Texture;
@@ -23,7 +25,9 @@ public class TextureShader extends SimpleShader {
 	}
 	
 	private void uploadTexture() {
-		glUniform1i(texUniform, tex);
+		glUniform1i(texUniform, 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tex);
 	}
 	
 	@Override
