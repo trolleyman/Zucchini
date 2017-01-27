@@ -7,9 +7,6 @@ import game.ui.StartUI;
 import game.ui.UI;
 
 class Client implements Runnable {
-	private static final double UPS = 120;
-	private static final long NANOS_PER_UPDATE = (long) (1_000_000_000 / UPS);
-	
 	// The current UI state
 	private UI ui;
 	
@@ -72,16 +69,12 @@ class Client implements Runnable {
 		long now = System.nanoTime();
 		long dtNanos = now - prevTime;
 		prevTime = now;
-		dtPool += dtNanos;
-		while (dtPool > NANOS_PER_UPDATE) {
-			ui.update(((double) NANOS_PER_UPDATE) / 1_000_000_000.0);
-			UI next = ui.next();
-			if (next != ui) {
-				System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
-			}
-			ui = next;
-			dtPool -= NANOS_PER_UPDATE;
+		ui.update(dtNanos / Util.NANOS_PER_SECOND);
+		UI next = ui.next();
+		if (next != ui) {
+			System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
 		}
+		ui = next;
 	}
 	
 	private void render() {
