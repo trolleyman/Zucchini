@@ -8,8 +8,8 @@ public class GameUI extends UI {
 	
 	public World world;
 	
-	GameUI(KeyboardManager _km, World _world) {
-		super(_km);
+	GameUI(IRenderer renderer, World _world) {
+		super(renderer);
 		setWorld(_world);
 	}
 	

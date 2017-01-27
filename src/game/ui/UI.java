@@ -15,19 +15,16 @@ import game.render.IRenderer;
  *
  */
 public abstract class UI implements InputHandler {
-	protected KeyboardManager km;
+	protected IRenderer renderer;
 	
 	protected ArrayList<InputHandler> inputHandlers;
 	
-	public UI(KeyboardManager _km) {
-		this.km = _km;
+	public UI(IRenderer renderer) {
+		this.renderer = renderer;
 		this.inputHandlers = new ArrayList<>();
+		
 	}
 	
-	@Override
-	public void setKeyboardManager(KeyboardManager _km) {
-		this.km = _km;
-	}
 	
 	/**
 	 * Updates the UI

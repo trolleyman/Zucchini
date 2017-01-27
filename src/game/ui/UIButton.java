@@ -91,4 +91,20 @@ public class UIButton extends UIComponent {
 		
 		r.drawImage(currentImage, x, y);
 	}
+	
+	public void setX(float _x) {
+		this.x = _x;
+	}
+	
+	public void setY(float _y) {
+		this.y = _y;
+	}
+	
+	public int getWidth() {
+		return currentImage.getWidth();
+	}
+	
+	public int getHeight() {
+		return currentImage.getHeight();
+	}
 }

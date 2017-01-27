@@ -46,7 +46,7 @@ class Client implements Runnable {
 		renderer = new Renderer(ih, _fullscreen);
 		
 		// Initialize UI
-		ui = new StartUI(renderer.getKeyboardManager(), renderer.getImageBank());
+		ui = new StartUI(renderer);
 	}
 	
 	@Override
