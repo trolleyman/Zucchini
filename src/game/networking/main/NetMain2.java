@@ -1,6 +1,6 @@
-package networking.main;
+package game.networking.main;
 
-import networking.client.ClientTest;
+import game.networking.client.ClientTest;
 
 public class NetMain2
 {

@@ -1,11 +1,11 @@
-package networking.client;
+package game.networking.client;
 
 import java.net.*;
 import java.util.Enumeration;
 import java.util.logging.*;
 
-import networking.util.Protocol;
-import networking.util.TraceLog;
+import game.networking.util.Protocol;
+import game.networking.util.TraceLog;
 
 import java.io.*;
 

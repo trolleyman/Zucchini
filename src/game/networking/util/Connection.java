@@ -1,4 +1,4 @@
-package networking.util;
+package game.networking.util;
 
 import java.net.InetAddress;
 

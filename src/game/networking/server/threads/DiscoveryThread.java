@@ -1,16 +1,19 @@
-package networking.server.threads;
+package game.networking.server.threads;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import networking.server.ServerTest;
-import networking.util.Connection;
-import networking.util.Protocol;
-import networking.util.ServerMainable;
-import networking.util.TraceLog;
+import game.networking.server.ServerTest;
+import game.networking.util.Connection;
+import game.networking.util.Protocol;
+import game.networking.util.ServerMainable;
+import game.networking.util.TraceLog;
 
 public class DiscoveryThread implements Runnable
 {
