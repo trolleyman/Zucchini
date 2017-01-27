@@ -1,4 +1,4 @@
-package networking.server.threads;
+package game.networking.server.threads;
 
 import java.io.BufferedReader;
 import java.io.IOException;

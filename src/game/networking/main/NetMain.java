@@ -1,7 +1,7 @@
-package networking.main;
+package game.networking.main;
 
-import networking.server.*;
-import networking.client.*;
+import game.networking.server.*;
+import game.networking.client.*;
 
 public class NetMain
 {

@@ -1,4 +1,4 @@
-package networking.server.threads;
+package game.networking.server.threads;
 
 import java.util.LinkedList;
 import java.util.List;

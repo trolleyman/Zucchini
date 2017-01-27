@@ -1,13 +1,13 @@
-package networking.server;
+package game.networking.server;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import networking.server.threads.DiscoveryThread;
-import networking.server.threads.LobbyThread;
-import networking.util.Connection;
-import networking.util.ServerMainable;
+import game.networking.server.threads.DiscoveryThread;
+import game.networking.server.threads.LobbyThread;
+import game.networking.util.Connection;
+import game.networking.util.ServerMainable;
 
 public class ServerTest implements ServerMainable
 {

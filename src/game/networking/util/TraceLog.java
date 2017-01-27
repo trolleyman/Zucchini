@@ -1,4 +1,4 @@
-package networking.util;
+package game.networking.util;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

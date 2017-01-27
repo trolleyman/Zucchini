@@ -1,4 +1,4 @@
-package networking.server.threads;
+package game.networking.server.threads;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -12,10 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.omg.CORBA.PRIVATE_MEMBER;
-
-import networking.util.Connection;
-import networking.util.Protocol;
+import game.networking.util.Connection;
+import game.networking.util.Protocol;
 
 public class LobbyThread implements Runnable
 {
