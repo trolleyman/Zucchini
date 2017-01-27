@@ -2,10 +2,22 @@ package game.world;
 
 import org.joml.Vector2f;
 
-public class Player extends Entity {
+import game.render.IRenderer;
 
-	Player(Vector2f position, Vector2f velocity) {
-		
+public class Player extends Entity {
+	public Player(Vector2f position) {
+		super(position);
 	}
 	
+	@Override
+	public void update(double _dt) {
+		// TODO
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void render(IRenderer _r) {
+		// TODO
+		throw new UnsupportedOperationException();
+	}
 }

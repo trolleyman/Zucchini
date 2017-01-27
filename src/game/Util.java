@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Util {
+	public static long NANOS_PER_SECOND = 1_000_000_000;
+	
 	public static void printKey(int key, int scancode, int action, int mods) {
 		String actionStr = "";
 		switch (action) {
