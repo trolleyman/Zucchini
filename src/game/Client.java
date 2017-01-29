@@ -58,9 +58,11 @@ class Client implements Runnable {
 	private void loop() {
 		prevTime = System.nanoTime();
 		dtPool = 0;
-		while (!renderer.shouldClose()) {
+		System.out.println("==== UI Start State: " + ui.toString() + " ====");
+		while (!renderer.shouldClose() && ui != null) {
 			loopIter();
 		}
+		System.out.println("Quitting...");
 	}
 	
 	private void loopIter() {
@@ -72,7 +74,12 @@ class Client implements Runnable {
 		ui.update(dtNanos / Util.NANOS_PER_SECOND);
 		UI next = ui.next();
 		if (next != ui) {
-			System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
+			String nextStr;
+			if (next == null)
+				nextStr = "Exit";
+			else
+				nextStr = next.toString();
+			System.out.println("==== UI State Change: " + ui.toString() + " => " + nextStr + " ====");
 		}
 		ui = next;
 	}

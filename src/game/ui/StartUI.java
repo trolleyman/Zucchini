@@ -35,7 +35,7 @@ public class StartUI extends UI {
 		);
 		
 		exitButton = new UIButton(
-				() -> { /* TODO Exit */ },
+				() -> { this.nextUI = null; },
 				100, 100,
 				renderer.getImageBank().getTexture("exitButtonDefault.png"),
 				renderer.getImageBank().getTexture("exitButtonHover.png"),
