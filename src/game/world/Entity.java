@@ -14,3 +14,4 @@ public abstract class Entity {
 	public abstract void update(double dt);
 	public abstract void render(IRenderer r);
 }
+

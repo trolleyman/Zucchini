@@ -22,3 +22,4 @@ public class Map {
 		throw new UnsupportedOperationException();
 	}
 }
+

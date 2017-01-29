@@ -49,3 +49,4 @@ public abstract class World {
 	
 	public abstract void addEntity(Entity e);
 }
+

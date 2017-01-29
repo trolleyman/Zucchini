@@ -21,3 +21,4 @@ public class Player extends Entity {
 		throw new UnsupportedOperationException();
 	}
 }
+
