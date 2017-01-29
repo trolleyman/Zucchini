@@ -2,22 +2,15 @@ package game.world;
 
 import org.joml.Vector2f;
 
+import game.render.IRenderer;
+
 public abstract class Entity {
-
-	Vector2f position;
-	Vector2f velocity;
+	public Vector2f position;
 	
-	void translate(Vector2f v) {
-		
+	public Entity(Vector2f _position) {
+		this.position = _position;
 	}
 	
-	void addVelocity(Vector2f v) {
-		
-	}
-	
-	void update(double dt) {
-		
-	}
-
-	
+	public abstract void update(double dt);
+	public abstract void render(IRenderer r);
 }
