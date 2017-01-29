@@ -44,8 +44,8 @@ public class StartUI extends UI {
 		
 		//renderer.drawImage(renderer.getImageBank().getTexture("startBackground.png"), 500, 400);
 		
-		this.inputHandlers.add(exitButton);
 		this.inputHandlers.add(startButton);
+		this.inputHandlers.add(exitButton);
 	}
 	
 	@Override
@@ -53,7 +53,7 @@ public class StartUI extends UI {
 		windowW = renderer.getWidth();
 		windowH = renderer.getHeight();
 		startButton.update(dt);
-		startButton.update(dt);
+		exitButton.update(dt);
 	}
 	
 	@Override
