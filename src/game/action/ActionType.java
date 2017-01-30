@@ -1,0 +1,14 @@
+package game.action;
+
+public enum ActionType {
+	BEGIN_MOVE_NORTH,
+	END_MOVE_NORTH,
+	BEGIN_MOVE_SOUTH,
+	END_MOVE_SOUTH,
+	BEGIN_MOVE_EAST,
+	END_MOVE_EAST,
+	BEGIN_MOVE_WEST,
+	END_MOVE_WEST,
+	AIM,
+	SHOOT;
+}

@@ -1,19 +1,23 @@
 package game.ui;
 
+import game.InputHandler;
+import game.InputPipe;
 import game.render.IRenderer;
+import game.world.ClientWorld;
 import game.world.World;
 
-public class GameUI extends UI {
+public class GameUI extends UI implements InputPipe {
 	
-	public World world;
+	public ClientWorld world;
 	
-	GameUI(IRenderer renderer, World _world) {
+	GameUI(IRenderer renderer, ClientWorld _world) {
 		super(renderer);
-		setWorld(_world);
+		this.world = _world;
 	}
 	
-	void setWorld(World _world) {
-		this.world = _world;
+	@Override
+	public InputHandler getHandler() {
+		return this.world;
 	}
 	
 	@Override

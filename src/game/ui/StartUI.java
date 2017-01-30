@@ -5,7 +5,10 @@ package game.ui;
 
 import java.util.ArrayList;
 
+import game.InputHandler;
+import game.InputPipeMulti;
 import game.render.IRenderer;
+import game.world.ClientWorld;
 import game.world.TestMap;
 import game.world.World;
 
@@ -13,7 +16,9 @@ import game.world.World;
  * @author jackm
  *
  */
-public class StartUI extends UI {
+public class StartUI extends UI implements InputPipeMulti {
+	
+	private ArrayList<InputHandler> inputHandlers;
 	
 	private UIButton startButton;
 	private UIButton exitButton;
@@ -21,14 +26,13 @@ public class StartUI extends UI {
 	float windowW;
 	float windowH;
 	
-	
 	public StartUI(IRenderer renderer) {
 		super(renderer);
 		windowW = renderer.getWidth();
 		windowH = renderer.getHeight();
 		
 		startButton = new UIButton(
-			() -> { this.nextUI = new GameUI(renderer, new World(new TestMap(), new ArrayList<>())); },
+			() -> { this.nextUI = new GameUI(renderer, ClientWorld.createTestWorld()); },
 			100, 100,
 			renderer.getImageBank().getTexture("buttonDefault.png"),
 			renderer.getImageBank().getTexture("buttonHover.png"),
@@ -47,6 +51,11 @@ public class StartUI extends UI {
 		
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
+	}
+	
+	@Override
+	public ArrayList<InputHandler> getHandlers() {
+		return this.inputHandlers;
 	}
 	
 	@Override

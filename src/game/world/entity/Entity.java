@@ -10,6 +10,11 @@ public abstract class Entity {
 	
 	public Vector2f position;
 	
+	/**
+	 * The angle clockwise in radians from the north direction.
+	 */
+	public float angle;
+	
 	public Entity(Vector2f _position) {
 		this.position = _position;
 	}

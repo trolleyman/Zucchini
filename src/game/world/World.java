@@ -2,14 +2,16 @@ package game.world;
 
 import java.util.ArrayList;
 
+import game.InputHandler;
 import game.Util;
-import game.ai.PlayerController;
+import game.ai.EntityController;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 
 public class World {
 	private static final double UPS = 120;
 	private static final long NANOS_PER_UPDATE = (long) (Util.NANOS_PER_SECOND / UPS);
+	
 	private long dtPool = 0;
 	
 	private int nextEntityId = 0;
@@ -17,22 +19,19 @@ public class World {
 	protected Map map;
 	
 	protected ArrayList<Entity> entities;
-	protected ArrayList<PlayerController> players;
+	protected ArrayList<EntityController> controllers;
 	
-	static { // testing
-		World w = new World(new TestMap(), new ArrayList<>());
-		//w.addEntity();
-	}
+	protected ArrayList<InputHandler> inputHandlers;
 	
-	public World(Map _map, ArrayList<PlayerController> _players) {
+	public World(Map _map, ArrayList<Entity> _entities, ArrayList<EntityController> _controllers) {
 		this.map = _map;
 		
-		this.entities = new ArrayList<>();
-		this.players = _players;
-		
+		this.entities = _entities;
+		this.controllers = _controllers;
+				
 		// Add players as entities
-		for (PlayerController p : players) {
-			this.addEntity(p.getPlayer());
+		for (EntityController p : controllers) {
+			this.addEntity(p.getEntity());
 		}
 	}
 	
@@ -43,24 +42,14 @@ public class World {
 		}
 	}
 	
-	public void updateStep(double dt) {
+	protected void updateStep(double dt) {
 		for (Entity e : entities) {
 			e.update(dt);
 		}
 		
 		// Update AI/players
-		for (PlayerController p : players) {
+		for (EntityController p : controllers) {
 			p.update(this, dt);
-		}
-	}
-	
-	public void render(IRenderer r) {
-		// Render map
-		this.map.render(r);
-		
-		// Render entities
-		for (Entity e : entities) {
-			e.render(r);
 		}
 	}
 	
