@@ -2,12 +2,14 @@ package game.render.shader;
 
 import static org.lwjgl.opengl.GL20.*;
 
-import java.awt.Color;
+import org.joml.Vector4f;
+
+import game.ColorUtil;
 
 public class SimpleShader extends TransformationShader {
 	private int colorUniform;
 	
-	private Color color = Color.WHITE;
+	private Vector4f color = ColorUtil.WHITE;
 	
 	public SimpleShader() {
 		this("simple");
@@ -19,7 +21,7 @@ public class SimpleShader extends TransformationShader {
 		colorUniform = getUniformLocation("color");
 	}
 	
-	public void setColor(Color _color) {
+	public void setColor(Vector4f _color) {
 		color = _color;
 		
 		if (getCurrentShader() == this)
@@ -27,11 +29,7 @@ public class SimpleShader extends TransformationShader {
 	}
 	
 	private void uploadColor() {
-		glUniform4f(colorUniform,
-			color.getRed() / 255.0f,
-			color.getGreen() / 255.0f,
-			color.getBlue() / 255.0f,
-			color.getAlpha() / 255.0f);
+		glUniform4f(colorUniform, color.x, color.y, color.z, color.w);
 	}
 	
 	@Override

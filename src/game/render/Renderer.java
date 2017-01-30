@@ -5,9 +5,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import java.awt.Color;
-
-import org.joml.Matrix4f;
 import org.joml.MatrixStackf;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -284,7 +281,7 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawBox(float x, float y, float w, float h, Color c) {
+	public void drawBox(float x, float y, float w, float h, Vector4f c) {
 		matModelView.pushMatrix();
 		matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		

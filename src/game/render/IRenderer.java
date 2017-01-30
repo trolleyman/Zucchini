@@ -1,8 +1,7 @@
 package game.render;
 
-import java.awt.Color;
-
 import org.joml.MatrixStackf;
+import org.joml.Vector4f;
 
 import game.InputHandler;
 import game.KeyboardManager;
@@ -32,5 +31,5 @@ public interface IRenderer {
 	public void drawImage(Texture img, float x, float y, float w, float h);
 	public TextureBank getImageBank();
 	
-	public void drawBox(float x, float y, float w, float h, Color c);
+	public void drawBox(float x, float y, float w, float h, Vector4f c);
 }
