@@ -1,6 +1,5 @@
 package game.ui;
 
-import game.KeyboardManager;
 import game.render.IRenderer;
 import game.world.World;
 

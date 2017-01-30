@@ -1,4 +1,4 @@
-package game.world;
+package game.world.entity;
 
 import org.joml.Vector2f;
 

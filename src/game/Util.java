@@ -1,13 +1,6 @@
 package game;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_ALT;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_CONTROL;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_SUPER;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
-import static org.lwjgl.glfw.GLFW.glfwGetKeyName;
+import static org.lwjgl.glfw.GLFW.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -2,7 +2,6 @@ package game.ui;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import game.KeyboardManager;
 import game.render.IRenderer;
 import game.render.Texture;
 

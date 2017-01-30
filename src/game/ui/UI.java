@@ -6,7 +6,6 @@ package game.ui;
 import java.util.ArrayList;
 
 import game.InputHandler;
-import game.KeyboardManager;
 import game.Util;
 import game.render.IRenderer;
 
@@ -22,9 +21,7 @@ public abstract class UI implements InputHandler {
 	public UI(IRenderer renderer) {
 		this.renderer = renderer;
 		this.inputHandlers = new ArrayList<>();
-		
 	}
-	
 	
 	/**
 	 * Updates the UI

@@ -19,7 +19,7 @@ public class World {
 	protected ArrayList<Entity> entities;
 	protected ArrayList<PlayerController> players;
 	
-	static {
+	static { // testing
 		World w = new World(new TestMap(), new ArrayList<>());
 		//w.addEntity();
 	}
