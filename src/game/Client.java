@@ -62,7 +62,7 @@ class Client implements Runnable {
 		while (!renderer.shouldClose() && ui != null) {
 			loopIter();
 		}
-		System.out.println("Quitting...");
+		System.out.println("Exiting...");
 	}
 	
 	private void loopIter() {
@@ -73,14 +73,10 @@ class Client implements Runnable {
 		prevTime = now;
 		ui.update(dtNanos / Util.NANOS_PER_SECOND);
 		UI next = ui.next();
-		if (next != ui) {
-			String nextStr;
-			if (next == null)
-				nextStr = "Exit";
-			else
-				nextStr = next.toString();
-			System.out.println("==== UI State Change: " + ui.toString() + " => " + nextStr + " ====");
-		}
+		if (next != ui)
+			if (next != null)
+				System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
+		
 		ui = next;
 	}
 	
