@@ -19,19 +19,19 @@ public class GameUI extends UI {
 	
 	@Override
 	public void update(double dt) {
-		
+		this.world.update(dt);
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		
+		this.world.render(r);
 	}
 	
 	@Override
 	public UI next() {
 		return this;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "GameUI";

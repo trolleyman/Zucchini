@@ -27,7 +27,7 @@ public class StartUI extends UI {
 		windowH = renderer.getHeight();
 		
 		startButton = new UIButton(
-			() -> { this.nextUI = new GameUI(renderer, null); },
+			() -> { this.nextUI = new GameUI(renderer, new World(new TestMap(), new ArrayList<>())); },
 			100, 100,
 			renderer.getImageBank().getTexture("buttonDefault.png"),
 			renderer.getImageBank().getTexture("buttonHover.png"),

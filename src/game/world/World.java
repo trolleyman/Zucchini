@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import game.Util;
 import game.ai.PlayerController;
+import game.render.IRenderer;
 import game.world.entity.Entity;
 
 public class World {
@@ -29,6 +30,7 @@ public class World {
 		this.entities = new ArrayList<>();
 		this.players = _players;
 		
+		// Add players as entities
 		for (PlayerController p : players) {
 			this.addEntity(p.getPlayer());
 		}
@@ -49,6 +51,16 @@ public class World {
 		// Update AI/players
 		for (PlayerController p : players) {
 			p.update(this, dt);
+		}
+	}
+	
+	public void render(IRenderer r) {
+		// Render map
+		this.map.render(r);
+		
+		// Render entities
+		for (Entity e : entities) {
+			e.render(r);
 		}
 	}
 	
