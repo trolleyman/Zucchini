@@ -10,4 +10,9 @@ public class Action {
 	public ActionType getType() {
 		return this.type;
 	}
+	
+	@Override
+	public String toString() {
+		return this.type.toString();
+	}
 }

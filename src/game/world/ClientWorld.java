@@ -10,12 +10,25 @@ import game.InputHandler;
 import game.action.Action;
 import game.action.ActionType;
 import game.action.AimAction;
+import game.net.DummyConnection;
 import game.net.IClientConnection;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 
 public class ClientWorld extends World implements InputHandler {
+	public static ClientWorld createTestWorld() {
+		Map map = new TestMap();
+		
+		ArrayList<Entity> entities = new ArrayList<>();
+		
+		Player player = new Player(new Vector2f(0.5f, 0.5f));
+		
+		DummyConnection connection = new DummyConnection(player);
+		
+		return new ClientWorld(map, entities, player, connection);
+	}
+	
 	private Player player;
 	private IClientConnection connection;
 	
@@ -32,17 +45,28 @@ public class ClientWorld extends World implements InputHandler {
 	private float cameraZoom = 100;
 	
 	public ClientWorld(Map _map, ArrayList<Entity> _entities, Player _player, IClientConnection _connection) {
-		super(_map, _entities, new ArrayList<>());
+		super(_map, _entities);
 		this.player = _player;
 		this.connection = _connection;
 		
 		// Ensure that player is an entity in the world
 		this.addEntity(player);
+		
+		this.cameraPos = this.player.position;
+	}
+	
+	@Override
+	protected void updateStep(double dt) {
+		this.cameraPos = this.player.position;
+		
+		// TODO: For debugging. Do not use in production.
+		this.player.update(dt);
 	}
 	
 	public void render(IRenderer r) {
 		r.getModelViewMatrix()
 			.pushMatrix()
+			.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
 			.scale(cameraZoom)
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
@@ -55,11 +79,6 @@ public class ClientWorld extends World implements InputHandler {
 		}
 		
 		r.getModelViewMatrix().popMatrix();
-	}
-	
-	@Override
-	protected void updateStep(double dt) {
-		this.cameraPos = this.player.position;
 	}
 	
 	@Override
@@ -83,16 +102,14 @@ public class ClientWorld extends World implements InputHandler {
 	
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
+		float x = ((float) xpos / cameraZoom) - cameraPos.x;
+		float y = ((float) ypos / cameraZoom) - cameraPos.y;
+		float angle = (float) Math.atan(x / y);
 		connection.sendAction(new AimAction(angle));
 	}
 	
 	@Override
 	public void handleMouseButton(int button, int action, int mods) {
-		// TODO Shoot
-	}
-
-	public static ClientWorld createTestWorld() {
-		// TODO Auto-generated method stub
-		return null;
+		connection.sendAction(new Action(ActionType.SHOOT));
 	}
 }

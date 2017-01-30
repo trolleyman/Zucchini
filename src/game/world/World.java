@@ -4,54 +4,38 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.Util;
-import game.ai.EntityController;
+import game.ai.AI;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 
-public class World {
+public abstract class World {
 	private static final double UPS = 120;
 	private static final long NANOS_PER_UPDATE = (long) (Util.NANOS_PER_SECOND / UPS);
+	private static final double DT_PER_UPDATE = NANOS_PER_UPDATE / (double) Util.NANOS_PER_SECOND;
 	
-	private long dtPool = 0;
+	private double dtPool = 0;
 	
 	private int nextEntityId = 0;
 	
 	protected Map map;
 	
 	protected ArrayList<Entity> entities;
-	protected ArrayList<EntityController> controllers;
 	
-	protected ArrayList<InputHandler> inputHandlers;
-	
-	public World(Map _map, ArrayList<Entity> _entities, ArrayList<EntityController> _controllers) {
+	public World(Map _map, ArrayList<Entity> _entities) {
 		this.map = _map;
 		
 		this.entities = _entities;
-		this.controllers = _controllers;
-				
-		// Add players as entities
-		for (EntityController p : controllers) {
-			this.addEntity(p.getEntity());
-		}
 	}
 	
 	public void update(double dt) {
-		while (dtPool > NANOS_PER_UPDATE) {
-			updateStep(NANOS_PER_UPDATE / ((double) Util.NANOS_PER_SECOND));
-			dtPool -= NANOS_PER_UPDATE;
+		dtPool += dt;
+		while (dtPool > DT_PER_UPDATE) {
+			updateStep(DT_PER_UPDATE);
+			dtPool -= DT_PER_UPDATE;
 		}
 	}
 	
-	protected void updateStep(double dt) {
-		for (Entity e : entities) {
-			e.update(dt);
-		}
-		
-		// Update AI/players
-		for (EntityController p : controllers) {
-			p.update(this, dt);
-		}
-	}
+	protected abstract void updateStep(double dt);
 	
 	/**
 	 * Returns the entity associated with the id entered

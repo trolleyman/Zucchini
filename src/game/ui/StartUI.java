@@ -18,7 +18,7 @@ import game.world.World;
  */
 public class StartUI extends UI implements InputPipeMulti {
 	
-	private ArrayList<InputHandler> inputHandlers;
+	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
 	private UIButton startButton;
 	private UIButton exitButton;
@@ -46,9 +46,7 @@ public class StartUI extends UI implements InputPipeMulti {
 				renderer.getImageBank().getTexture("exitButtonHover.png"),
 				renderer.getImageBank().getTexture("exitButtonPressed.png")
 			);
-		
-		//renderer.drawImage(renderer.getImageBank().getTexture("startBackground.png"), 500, 400);
-		
+				
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
 	}

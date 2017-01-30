@@ -16,4 +16,9 @@ public class AimAction extends Action {
 	public float getAngle() {
 		return angle;
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + ": " + angle;
+	}
 }

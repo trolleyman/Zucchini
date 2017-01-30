@@ -71,7 +71,7 @@ class Client implements Runnable {
 		long now = System.nanoTime();
 		long dtNanos = now - prevTime;
 		prevTime = now;
-		ui.update(dtNanos / Util.NANOS_PER_SECOND);
+		ui.update(dtNanos / (double) Util.NANOS_PER_SECOND);
 		UI next = ui.next();
 		if (next != ui)
 			if (next != null)

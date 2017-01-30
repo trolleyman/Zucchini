@@ -36,7 +36,7 @@ public class Map {
 			float w = Math.abs(x0 - x1);
 			float h = Math.abs(y0 - y1);
 			
-			r.drawBox(x, y, w+10.0f, h+10.0f, ColorUtil.RED);
+			r.drawBox(x, y, w+0.1f, h+0.1f, ColorUtil.RED);
 		}
 	}
 }
