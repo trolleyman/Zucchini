@@ -3,31 +3,53 @@
  */
 package game.ui;
 
-import game.KeyboardManager;
+import java.util.ArrayList;
+
+import game.InputHandler;
+import game.InputPipeMulti;
 import game.render.IRenderer;
-import game.render.Renderer;
-import game.render.TextureBank;
+import game.world.ClientWorld;
+import game.world.TestMap;
+import game.world.World;
 
 /**
+ * The StartUI is the UI responsible for rendering the starting UI of the program
+ * 
  * @author jackm
- *
  */
-public class StartUI extends UI {
+public class StartUI extends UI implements InputPipeMulti {
 	
+	/** The renderer. Used for getting the window width and height */
+	private IRenderer renderer;
+	
+	/** The list of objects to redirect input to */
+	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	
+	/** The start button */
 	private UIButton startButton;
+	/** The exit button */
 	private UIButton exitButton;
+	/** The next UI to return */
 	private UI nextUI = this;
-	float windowW;
-	float windowH;
 	
+	/** The window width */
+	private float windowW;
+	/** The window height */
+	private float windowH;
 	
-	public StartUI(IRenderer renderer) {
-		super(renderer);
+	/**
+	 * Constructs a new StartUI with a specified renderer to gather the window width and height
+	 * @param _renderer The renderer
+	 */
+	public StartUI(IRenderer _renderer) {
+		super();
+		this.renderer = _renderer;
+		
 		windowW = renderer.getWidth();
 		windowH = renderer.getHeight();
 		
 		startButton = new UIButton(
-			() -> { this.nextUI = new GameUI(renderer, null); },
+			() -> { this.nextUI = new GameUI(ClientWorld.createTestWorld()); },
 			100, 100,
 			renderer.getImageBank().getTexture("buttonDefault.png"),
 			renderer.getImageBank().getTexture("buttonHover.png"),
@@ -35,17 +57,20 @@ public class StartUI extends UI {
 		);
 		
 		exitButton = new UIButton(
-				() -> { /* TODO Exit */ },
+				() -> { this.nextUI = null; },
 				100, 100,
 				renderer.getImageBank().getTexture("exitButtonDefault.png"),
 				renderer.getImageBank().getTexture("exitButtonHover.png"),
 				renderer.getImageBank().getTexture("exitButtonPressed.png")
 			);
-		
-		//renderer.drawImage(renderer.getImageBank().getTexture("startBackground.png"), 500, 400);
-		
+				
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
+	}
+	
+	@Override
+	public ArrayList<InputHandler> getHandlers() {
+		return this.inputHandlers;
 	}
 	
 	@Override

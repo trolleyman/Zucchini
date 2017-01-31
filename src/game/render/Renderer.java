@@ -5,9 +5,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import java.awt.Color;
-
-import org.joml.Matrix4f;
 import org.joml.MatrixStackf;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -15,16 +12,15 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import game.InputHandler;
-import game.KeyboardManager;
 import game.render.shader.Shader;
 import game.render.shader.SimpleShader;
 import game.render.shader.TextureShader;
 
 public class Renderer implements IRenderer {
-	// window handle
+	/** Window handle. See <a target="_top" href="http://www.glfw.org/docs/latest/window_guide.html#window_object">here</a> */
 	private long window;
 	
-	// If the window is fullscreen
+	/** If the window is fullscreen */
 	private boolean fullscreen;
 	
 	// Shaders
@@ -32,26 +28,35 @@ public class Renderer implements IRenderer {
 	private TextureShader textureShader;
 	
 	// Boxes
+	/** Box VAO */
 	private VAO box;
+	/** Textured box VAO */
 	private VAO boxUV;
 	
-	// input handler
+	/** Current input handler */
 	private InputHandler ih;
 	
-	// image bank
+	/** Image bank */
 	private TextureBank ib;
 	
+	/** Current window height */
 	private int windowW;
+	/** Current window width */
 	private int windowH;
 	
-	// Should the game recalculate the projection matrix on the next frame?
+	/** Should the game recalculate the projection matrix on the next frame? */
 	private boolean dirty;
 	
+	/** Projection matrix */
 	private MatrixStackf matProjection = new MatrixStackf(1);
+	/** ModelView matrix */
 	private MatrixStackf matModelView = new MatrixStackf(16);
 	
-	private KeyboardManager km;
-	
+	/**
+	 * Construct the renderer, setting up a new hidden window. To show, use {@link #show()}
+	 * @param _ih The input handler to set
+	 * @param _fullscreen Should the window be fullscreen?
+	 */
 	public Renderer(InputHandler _ih, boolean _fullscreen) {
 		// Setup input handler
 		this.ih = _ih;
@@ -117,7 +122,8 @@ public class Renderer implements IRenderer {
 			this.ih.handleChar((char) cp);
 		});
 		glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
-			this.ih.handleCursorPos(xpos, ypos);
+			// Modify ypos so that coords are relative to bottom left of window.
+			this.ih.handleCursorPos(xpos, this.windowH - ypos);
 		});
 		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
 			this.ih.handleMouseButton(button, action, mods);
@@ -130,9 +136,6 @@ public class Renderer implements IRenderer {
 			this.windowH = h;
 			this.dirty = true;
 		});
-		
-		// Setup keyboard manager
-		this.km = new KeyboardManager(window);
 		
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
@@ -162,9 +165,12 @@ public class Renderer implements IRenderer {
 		// Set the clear color
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		
-		recalculateMatrices();
+		recalcProjectionMatrix();
 	}
 	
+	/**
+	 * Generate the VAO boxes.
+	 */
 	private void generateBoxes() {
 		float[] vertexPositions = {
 			0.0f, 0.0f, // BL
@@ -187,7 +193,10 @@ public class Renderer implements IRenderer {
 		boxUV.addData(textureShader, "uv", vertexUVs, 2);
 	}
 	
-	private void recalculateMatrices() {
+	/**
+	 * Recalculate the projection matrix
+	 */
+	private void recalcProjectionMatrix() {
 		this.dirty = false;
 		glViewport(0, 0, windowW, windowH);
 		matProjection.setOrtho(0.0f, windowW, 0.0f, windowH, -1.0f, 1.0f);
@@ -204,11 +213,6 @@ public class Renderer implements IRenderer {
 			glfwSwapInterval(1);
 		else
 			glfwSwapInterval(0);
-	}
-	
-	@Override
-	public KeyboardManager getKeyboardManager() {
-		return km;
 	}
 	
 	@Override
@@ -262,7 +266,7 @@ public class Renderer implements IRenderer {
 	@Override
 	public void beginFrame() {
 		if (this.dirty)
-			recalculateMatrices();
+			recalcProjectionMatrix();
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 		
@@ -284,7 +288,7 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawBox(float x, float y, float w, float h, Color c) {
+	public void drawBox(float x, float y, float w, float h, Vector4f c) {
 		matModelView.pushMatrix();
 		matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		
@@ -299,13 +303,13 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawImage(Texture img, float x, float y, float w, float h) {
+	public void drawTexture(Texture tex, float x, float y, float w, float h) {
 		matModelView.pushMatrix();
 		matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);
-		textureShader.bindTexture(img);
+		textureShader.bindTexture(tex);
 		textureShader.use();
 		
 		// Draw 1x1 box (with UV)

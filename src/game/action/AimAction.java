@@ -1,0 +1,36 @@
+package game.action;
+
+/**
+ * The class for {@link game.action.ActionType#AIM ActionType.AIM}
+ * 
+ * @author Callum
+ */
+public class AimAction extends Action {
+	/**
+	 * The angle in the same format as {@link game.world.entity.Entity#angle Entity.angle}.
+	 */
+	private float angle;
+	
+	/**
+	 * Constructs an {@link game.action.ActionType#AIM AIM} action.
+	 * @param angle angle in the same format as {@link game.world.entity.Entity#angle Entity.angle}.
+	 */
+	public AimAction(float _angle) {
+		super(ActionType.AIM);
+		
+		this.angle = _angle;
+	}
+	
+	/**
+	 * Returns an angle in the same format as {@link game.world.entity.Entity#angle Entity.angle}.
+	 * @return The angle
+	 */
+	public float getAngle() {
+		return angle;
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + ": " + angle;
+	}
+}

@@ -5,19 +5,30 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
 
+/**
+ * Represents an OpenGL texture. See <a target="_top" href="https://open.gl/textures">here</a> for an introduction.
+ * 
+ * @author Callum
+ */
 public class Texture {
-	private ByteBuffer data;
+	/** The width of the texture in pixels */
 	private int w;
+	/** The height of the texture in pixels */
 	private int h;
+	/** The OpenGL texture ID */
 	private int texID;
 	
+	/**
+	 * Constructs a new Texture by reading the file specified.
+	 * @param path The texture location.
+	 */
 	public Texture(String path) {
 		int[] wArr = new int[1];
 		int[] hArr = new int[1];
 		int[] compArr = new int[1];
 		
 		// Decode the image
-		data = stbi_load(path, wArr, hArr, compArr, 4);
+		ByteBuffer data = stbi_load(path, wArr, hArr, compArr, 4);
 		if (data == null)
 			throw new RuntimeException("Failed to load texture: " + path + ": " + stbi_failure_reason());
 		data.rewind();
@@ -49,18 +60,30 @@ public class Texture {
 		System.out.println(" ... ]");*/
 	}
 	
+	/**
+	 * Returns the OpenGL texture ID
+	 */
 	public int getTextureID() {
 		return this.texID;
 	}
 	
+	/**
+	 * Frees OpenGL resources related to this texture.
+	 */
 	public void destroy() {
 		glDeleteTextures(this.texID);
 	}
 	
+	/**
+	 * Returns the width in pixels of this texture.
+	 */
 	public int getWidth() {
 		return w;
 	}
 	
+	/**
+	 * Returns the height in pixels of this texture.
+	 */
 	public int getHeight() {
 		return h;
 	}

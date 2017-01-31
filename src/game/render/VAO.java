@@ -19,6 +19,9 @@ public class VAO {
 	private int primitiveType;
 	private int count;
 	
+	/**
+	 * VBOs "owned" by this VAO.
+	 */
 	private ArrayList<Integer> vbos;
 	
 	/**
@@ -34,6 +37,9 @@ public class VAO {
 		vbos = new ArrayList<>();
 	}
 	
+	/**
+	 * Binds the VAO as the current VAO.
+	 */
 	public void bind() {
 		glBindVertexArray(vao);
 	}
@@ -48,7 +54,7 @@ public class VAO {
 	public void addData(Shader shader, String attribName, float[] data, int components) {
 		shader.use();
 		this.bind();
-				
+		
 		// Generate the VBO
 		int vbo = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -60,6 +66,9 @@ public class VAO {
 		glEnableVertexAttribArray(attribLoc);
 	}
 	
+	/**
+	 * Frees resources associated with this VAO
+	 */
 	public void destroy() {
 		for (int i = 0; i < vbos.size(); i++)
 			glDeleteBuffers(vbos.get(i));
@@ -67,7 +76,12 @@ public class VAO {
 		
 		glDeleteVertexArrays(vao);
 	}
-
+	
+	/**
+	 * Draws this VAO to the screen.
+	 * <p>
+	 * <b>NB:</b> Does not bind the shader, so remember to!
+	 */
 	public void draw() {
 		this.bind();
 		glDrawArrays(primitiveType, 0, count);

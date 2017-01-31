@@ -2,6 +2,12 @@ package game.render.shader;
 
 import static org.lwjgl.opengl.GL20.*;
 
+/**
+ * Represents the type of a shader.
+ * See <a target="_top" href="https://www.khronos.org/opengl/wiki/Shader">here</a>.
+ * 
+ * @author Callum
+ */
 public enum ShaderType {
 	VERTEX,
 	FRAGMENT;
@@ -10,16 +16,16 @@ public enum ShaderType {
 		switch (this) {
 		case VERTEX  : return GL_VERTEX_SHADER;
 		case FRAGMENT: return GL_FRAGMENT_SHADER;
-		default      : return VERTEX.glType();
 		}
+		return VERTEX.glType();
 	}
 	
 	public String getExtension() {
 		switch (this) {
 		case VERTEX  : return ".vert";
 		case FRAGMENT: return ".frag";
-		default      : return VERTEX.getExtension();
 		}
+		return VERTEX.getExtension();
 	}
 	
 	@Override
@@ -27,7 +33,7 @@ public enum ShaderType {
 		switch (this) {
 		case VERTEX  : return "Vertex";
 		case FRAGMENT: return "Fragment";
-		default      : return VERTEX.toString();
 		}
+		return VERTEX.toString();
 	}
 }
