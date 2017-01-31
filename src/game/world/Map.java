@@ -5,9 +5,18 @@ import org.joml.Vector2f;
 import game.ColorUtil;
 import game.render.IRenderer;
 
+/**
+ * Represents a specified map.
+ * 
+ * @author Callum
+ */
 public class Map {
+	/** The "walls" of the map that entities can collide with */
 	private float[] lines;
 	
+	/**
+	 * Construct a map with the specified "wall"
+	 */
 	protected Map(float[] _lines) {
 		this.lines = _lines;
 	}
@@ -23,6 +32,10 @@ public class Map {
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * Render the map
+	 * @param r The renderer
+	 */
 	public void render(IRenderer r) {
 		for (int i = 0; i < lines.length - 3; i += 4) {
 			float x0 = lines[i  ];

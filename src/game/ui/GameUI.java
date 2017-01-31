@@ -6,12 +6,22 @@ import game.render.IRenderer;
 import game.world.ClientWorld;
 import game.world.World;
 
+/**
+ * The GameUI is the UI responsible for rendering, updating the game and handling input
+ * 
+ * @author Callum
+ */
 public class GameUI extends UI implements InputPipe {
+	/** The world of the game */
+	private ClientWorld world;
 	
-	public ClientWorld world;
-	
-	GameUI(IRenderer renderer, ClientWorld _world) {
-		super(renderer);
+	/**
+	 * Constructs a new GameUI
+	 * @param renderer The renderer of the game
+	 * @param _world The world
+	 */
+	public GameUI(ClientWorld _world) {
+		super();
 		this.world = _world;
 	}
 	
@@ -32,6 +42,7 @@ public class GameUI extends UI implements InputPipe {
 	
 	@Override
 	public UI next() {
+		// TODO: Handle exiting
 		return this;
 	}
 	

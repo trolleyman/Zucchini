@@ -7,16 +7,11 @@ import game.InputHandler;
 import game.render.IRenderer;
 
 /**
+ * The UI is the root class of all UIs
+ * 
  * @author jackm
- *
  */
 public abstract class UI implements InputHandler {
-	protected IRenderer renderer;
-		
-	public UI(IRenderer renderer) {
-		this.renderer = renderer;
-	}
-	
 	/**
 	 * Updates the UI
 	 * @param dt The number of seconds passed since the last update
@@ -34,7 +29,7 @@ public abstract class UI implements InputHandler {
 	 */
 	public abstract UI next();
 	
-	// Inheriting classes must implement toString
+	/** Inheriting classes must implement {@link java.lang.Object#toString toString()} */
 	@Override
 	public abstract String toString();
 }

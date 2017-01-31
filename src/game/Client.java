@@ -6,44 +6,38 @@ import game.render.Renderer;
 import game.ui.StartUI;
 import game.ui.UI;
 
-class Client implements Runnable {
-	// The current UI state
+/**
+ * The main class for the client. It contains a main method that, when run, initializes the client and
+ * starts everything running.
+ * 
+ * @author Callum
+ */
+class Client implements Runnable, InputPipe {
+	/**
+	 * The current UI state
+	 */
 	private UI ui;
 	
-	// The renderer
 	private Renderer renderer;
 	
-	// Previous time in nanoseconds of update.
-	long prevTime;
-	
-	// Number of nanoseconds to process
-	long dtPool;
+	/**
+	 * Previous time in nanoseconds of update.
+	 */
+	private long prevTime;
 	
 	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
-		// Initialize input handler - redirect events to the current ui
-		Client client = this;
-		InputHandler ih = new InputHandler() {
-			@Override
-			public void setKeyboardManager(KeyboardManager km) { client.ui.setKeyboardManager(km); }
-			@Override
-			public void handleKey(int key, int scancode, int action, int mods) { client.ui.handleKey(key, scancode, action, mods); };
-			@Override
-			public void handleChar(char c) { client.ui.handleChar(c); };
-			@Override
-			public void handleCursorPos(double xpos, double ypos) { client.ui.handleCursorPos(xpos, renderer.getHeight() - ypos); };
-			@Override
-			public void handleMouseButton(int button, int action, int mods) { client.ui.handleMouseButton(button, action, mods); };
-			@Override
-			public void handleScroll(double xoffset, double yoffset) { client.ui.handleScroll(xoffset, yoffset); };
-		};
-		
 		// Initialize renderer
-		renderer = new Renderer(ih, _fullscreen);
+		renderer = new Renderer(this, _fullscreen);
 		
 		// Initialize UI
 		ui = new StartUI(renderer);
+	}
+	
+	@Override
+	public InputHandler getHandler() {
+		return this.ui;
 	}
 	
 	@Override
@@ -57,7 +51,6 @@ class Client implements Runnable {
 	
 	private void loop() {
 		prevTime = System.nanoTime();
-		dtPool = 0;
 		System.out.println("==== UI Start State: " + ui.toString() + " ====");
 		while (!renderer.shouldClose() && ui != null) {
 			loopIter();

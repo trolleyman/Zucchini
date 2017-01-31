@@ -7,10 +7,19 @@ import java.util.HashMap;
 
 import game.Util;
 
+/**
+ * Represents the currently loaded textures.
+ * 
+ * @author Callum
+ */
 public class TextureBank {
-	// Images loaded
+	/** Textures loaded */
 	private HashMap<String, Texture> textures;
 	
+	/**
+	 * Constructs a new TextureBank instance. Images are loaded from the img/ directory, relative to
+	 * the base dir. (See {@link game.Util#getBasePath() Util#getBasePath()})
+	 */
 	public TextureBank() {
 		System.out.println("Loading textures...");
 		textures = new HashMap<>();
@@ -37,16 +46,24 @@ public class TextureBank {
 		System.out.println(textures.size() + " texture(s) loaded.");
 	}
 	
+	/**
+	 * Frees all resources associated with this TextureBank instance.
+	 */
 	public void destroy() {
 		for (Texture i : textures.values()) {
 			i.destroy();
 		}
 	}
 	
+	/**
+	 * Returns the texture associated with the name specified
+	 * @param name The name of the texture requested
+	 * @return {@code null} if the texture could not be located
+	 */
 	public Texture getTexture(String name) {
-		Texture i = textures.get(name);
-		if (i == null)
+		Texture t = textures.get(name);
+		if (t == null)
 			System.err.println("Warning: getTexture of unknown texture: " + name);
-		return i;
+		return t;
 	}
 }

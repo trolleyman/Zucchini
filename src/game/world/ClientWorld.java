@@ -16,7 +16,16 @@ import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 
+/**
+ * The world located on the client
+ * 
+ * @author Callum
+ */
 public class ClientWorld extends World implements InputHandler {
+	/**
+	 * Creates a test single player world
+	 * @return The world
+	 */
 	public static ClientWorld createTestWorld() {
 		Map map = new TestMap();
 		
@@ -29,7 +38,9 @@ public class ClientWorld extends World implements InputHandler {
 		return new ClientWorld(map, entities, player, connection);
 	}
 	
+	/** The player controlled by the client */
 	private Player player;
+	/** The connection to the server */
 	private IClientConnection connection;
 	
 	/**
@@ -44,6 +55,13 @@ public class ClientWorld extends World implements InputHandler {
 	 */
 	private float cameraZoom = 100;
 	
+	/**
+	 * Constructs a client world
+	 * @param _map The map
+	 * @param _entities The list of entities to start with
+	 * @param _player The player controlled by the client
+	 * @param _connection The connection to the server
+	 */
 	public ClientWorld(Map _map, ArrayList<Entity> _entities, Player _player, IClientConnection _connection) {
 		super(_map, _entities);
 		this.player = _player;
@@ -63,6 +81,10 @@ public class ClientWorld extends World implements InputHandler {
 		this.player.update(dt);
 	}
 	
+	/**
+	 * Renders the world
+	 * @param r The renderer
+	 */
 	public void render(IRenderer r) {
 		r.getModelViewMatrix()
 			.pushMatrix()
@@ -83,25 +105,27 @@ public class ClientWorld extends World implements InputHandler {
 	
 	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
+		// Send input to server
 		if (action == GLFW_PRESS) { // Begin move
 			switch (key) {
 			case GLFW_KEY_W: connection.sendAction(new Action(ActionType.BEGIN_MOVE_NORTH)); break;
 			case GLFW_KEY_S: connection.sendAction(new Action(ActionType.BEGIN_MOVE_SOUTH)); break;
-			case GLFW_KEY_D: connection.sendAction(new Action(ActionType.BEGIN_MOVE_EAST)); break;
-			case GLFW_KEY_A: connection.sendAction(new Action(ActionType.BEGIN_MOVE_WEST)); break;
+			case GLFW_KEY_D: connection.sendAction(new Action(ActionType.BEGIN_MOVE_EAST )); break;
+			case GLFW_KEY_A: connection.sendAction(new Action(ActionType.BEGIN_MOVE_WEST )); break;
 			}
 		} else if (action == GLFW_RELEASE) { // End move
 			switch (key) {
 			case GLFW_KEY_W: connection.sendAction(new Action(ActionType.END_MOVE_NORTH)); break;
 			case GLFW_KEY_S: connection.sendAction(new Action(ActionType.END_MOVE_SOUTH)); break;
-			case GLFW_KEY_D: connection.sendAction(new Action(ActionType.END_MOVE_EAST)); break;
-			case GLFW_KEY_A: connection.sendAction(new Action(ActionType.END_MOVE_WEST)); break;
+			case GLFW_KEY_D: connection.sendAction(new Action(ActionType.END_MOVE_EAST )); break;
+			case GLFW_KEY_A: connection.sendAction(new Action(ActionType.END_MOVE_WEST )); break;
 			}
 		}
 	}
 	
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
+		// Send input to server
 		float x = ((float) xpos / cameraZoom) - cameraPos.x;
 		float y = ((float) ypos / cameraZoom) - cameraPos.y;
 		float angle = (float) Math.atan(x / y);
@@ -110,6 +134,7 @@ public class ClientWorld extends World implements InputHandler {
 	
 	@Override
 	public void handleMouseButton(int button, int action, int mods) {
+		// Send input to server
 		connection.sendAction(new Action(ActionType.SHOOT));
 	}
 }

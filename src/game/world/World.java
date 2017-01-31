@@ -8,25 +8,55 @@ import game.ai.AI;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 
+/**
+ * The base class for the worlds (the common functionality is located here
+ * 
+ * @author Callum
+ */
 public abstract class World {
+	/** Updates Per Second */
 	private static final double UPS = 120;
+	/** Number of nanoseconds per update. This is calculated from the {@link #UPS} */
 	private static final long NANOS_PER_UPDATE = (long) (Util.NANOS_PER_SECOND / UPS);
+	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SECOND} */
 	private static final double DT_PER_UPDATE = NANOS_PER_UPDATE / (double) Util.NANOS_PER_SECOND;
 	
+	/** Number of seconds to process */
 	private double dtPool = 0;
 	
+	/** Next sequential entity ID to use */
 	private int nextEntityId = 0;
 	
-	protected Map map;
-	
+	/**
+	 * List of all entities in the world.
+	 * <p>
+	 * <b>NB:</b> This list is sorted ascending by entity ID.
+	 *            Use {@link addEntity} to add entities to this safely
+	 */
 	protected ArrayList<Entity> entities;
 	
-	public World(Map _map, ArrayList<Entity> _entities) {
+	/** Current map */
+	protected Map map;
+	
+	/**
+	 * Constructs the world
+	 * @param _map The map
+	 * @param _entities The list of entities in the world
+	 */
+	protected World(Map _map, ArrayList<Entity> _entities) {
 		this.map = _map;
 		
-		this.entities = _entities;
+		this.entities = new ArrayList<Entity>();
+		for (Entity e : _entities) {
+			// Do this to ensure that the entity IDs are set correctly
+			addEntity(e);
+		}
 	}
 	
+	/**
+	 * Updates the world
+	 * @param dt The number of seconds since the last update
+	 */
 	public void update(double dt) {
 		dtPool += dt;
 		while (dtPool > DT_PER_UPDATE) {
@@ -35,6 +65,10 @@ public abstract class World {
 		}
 	}
 	
+	/**
+	 * An update step. This is called with a constant dt ({@link #DT_PER_UPDATE})
+	 * @param dt The number of seconds to update the world by
+	 */
 	protected abstract void updateStep(double dt);
 	
 	/**
@@ -52,36 +86,10 @@ public abstract class World {
 	}
 	
 	/**
-	 * Finds where to insert an entity with the specified id into the list
-	 * 
-	 * If the id exists, returns that index
-	 * 
-	 * @param id The entity id
-	 * @return The index to insert the entity into
-	 */
-	private int getEntityInsertIndex(int id) {
-		int min = 0;
-		int max = this.entities.size() - 1;
-		
-		while (min < max) {
-			int mid = (min + max) / 2;
-			
-			Entity e = this.entities.get(mid);
-			int eid = e.getId();
-			if (id == eid)
-				return mid;
-			else if (id < eid)
-				max = mid - 1;
-			else
-				min = mid + 1;
-		}
-		return min;
-	}
-	
-	/**
 	 * Adds an entity to the world.
-	 * 
+	 * <p>
 	 * If the id of the entity is Entity.INVALID_ID, then the id is set to a valid id
+	 * <br>
 	 * If the id of the entity already exists, then the entity is updated
 	 * 
 	 * @param e The entity
@@ -105,5 +113,32 @@ public abstract class World {
 				entities.add(i, e);
 			}
 		}
+	}
+	
+	/**
+	 * Finds where to insert an entity with the specified id into the list
+	 * <p>
+	 * If the id exists, returns that index
+	 * 
+	 * @param id The entity id
+	 * @return The index to insert the entity into
+	 */
+	private int getEntityInsertIndex(int id) {
+		int min = 0;
+		int max = this.entities.size() - 1;
+		
+		while (min < max) {
+			int mid = (min + max) / 2;
+			
+			Entity e = this.entities.get(mid);
+			int eid = e.getId();
+			if (id == eid)
+				return mid;
+			else if (id < eid)
+				max = mid - 1;
+			else
+				min = mid + 1;
+		}
+		return min;
 	}
 }

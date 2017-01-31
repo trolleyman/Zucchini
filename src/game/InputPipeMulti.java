@@ -11,11 +11,6 @@ public interface InputPipeMulti extends InputHandler {
 	public ArrayList<InputHandler> getHandlers();
 	
 	@Override
-	public default void setKeyboardManager(KeyboardManager km) {
-		for (InputHandler ih : getHandlers())
-			ih.setKeyboardManager(km);
-	}
-	@Override
 	public default void handleKey(int key, int scancode, int action, int mods) {
 		for (InputHandler ih : getHandlers())
 			ih.handleKey(key, scancode, action, mods);

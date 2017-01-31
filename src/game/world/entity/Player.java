@@ -7,16 +7,35 @@ import game.action.Action;
 import game.action.AimAction;
 import game.render.IRenderer;
 
+/**
+ * Represents a player
+ * 
+ * @author Callum
+ */
 public class Player extends Entity {
+	/** The speed of the player in m/s */
 	private static final float SPEED = 2.0f;
 	
+	/**
+	 * The current velocity of the player.
+	 * <p>
+	 * Used so that we don't have to construct a new Vector2f every update.
+	 */
 	private Vector2f velocity = new Vector2f();
 	
+	/** If the player is moving north */
 	private boolean moveNorth = false;
+	/** If the player is moving south */
 	private boolean moveSouth = false;
+	/** If the player is moving east */
 	private boolean moveEast  = false;
+	/** If the player is moving west */
 	private boolean moveWest  = false;
 	
+	/**
+	 * Constructs a new player at the specified position
+	 * @param position The position
+	 */
 	public Player(Vector2f position) {
 		super(position);
 	}
@@ -43,6 +62,10 @@ public class Player extends Entity {
 		r.drawBox(position.x - size/2, position.y - size/2, size, size, ColorUtil.GREEN);
 	}
 	
+	/**
+	 * Handles an action on the player
+	 * @param a The action
+	 */
 	public void handleAction(Action a) {
 		switch (a.getType()) {
 		case BEGIN_MOVE_NORTH: this.moveNorth = true ; break;

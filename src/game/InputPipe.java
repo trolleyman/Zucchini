@@ -9,10 +9,6 @@ public interface InputPipe extends InputHandler {
 	public InputHandler getHandler();
 	
 	@Override
-	public default void setKeyboardManager(KeyboardManager km) {
-		getHandler().setKeyboardManager(km);
-	}
-	@Override
 	public default void handleKey(int key, int scancode, int action, int mods) {
 		getHandler().handleKey(key, scancode, action, mods);
 	}
