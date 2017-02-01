@@ -20,7 +20,7 @@ public class ImageComponent extends UIComponent {
 	}
 	
 	public void render(IRenderer r) {	
-		r.drawTexture(texture, x, y);
+		r.drawTexture(texture, x, y, r.getWidth(), r.getHeight());
 	}
 
 	@Override

@@ -29,6 +29,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ButtonComponent startButton;
 	/** The exit button */
 	private ButtonComponent exitButton;
+	/** The background image */
+	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
 	
@@ -62,7 +64,11 @@ public class StartUI extends UI implements InputPipeMulti {
 				renderer.getImageBank().getTexture("exitButtonDefault.png"),
 				renderer.getImageBank().getTexture("exitButtonHover.png"),
 				renderer.getImageBank().getTexture("exitButtonPressed.png")
-			);
+		);
+		
+		backgroundImage = new ImageComponent(
+				0, 0, renderer.getImageBank().getTexture("Start_BG.png")
+		);
 				
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
@@ -87,6 +93,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
+		backgroundImage.render(r);
 		startButton.render(r);
 		exitButton.render(r);
 	}
