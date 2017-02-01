@@ -38,6 +38,7 @@ public class ClientTest
 				TraceLog.consoleLog(getClass().getName() + name + ">>> Request packet sent to: 255.255.255.255 (DEFAULT)");
 			} catch (Exception e)
 			{
+				e.printStackTrace();
 			}
 
 			// Broadcast the message over all the network interfaces
@@ -94,6 +95,7 @@ public class ClientTest
 				TraceLog.consoleLog(getClass().getName() + name + ">>> SERVER MESSAGE: " + message);
 
 				// if message is destined to me deocde it
+				// what happens for 'name' and 'username'
 				if (message.endsWith(name))
 				{
 					int namePos = message.lastIndexOf(name);
