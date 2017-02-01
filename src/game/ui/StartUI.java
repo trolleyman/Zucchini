@@ -26,9 +26,9 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
 	/** The start button */
-	private UIButton startButton;
+	private ButtonComponent startButton;
 	/** The exit button */
-	private UIButton exitButton;
+	private ButtonComponent exitButton;
 	/** The next UI to return */
 	private UI nextUI = this;
 	
@@ -48,7 +48,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		windowW = renderer.getWidth();
 		windowH = renderer.getHeight();
 		
-		startButton = new UIButton(
+		startButton = new ButtonComponent(
 			() -> { this.nextUI = new GameUI(ClientWorld.createTestWorld()); },
 			100, 100,
 			renderer.getImageBank().getTexture("buttonDefault.png"),
@@ -56,7 +56,7 @@ public class StartUI extends UI implements InputPipeMulti {
 			renderer.getImageBank().getTexture("buttonPressed.png")
 		);
 		
-		exitButton = new UIButton(
+		exitButton = new ButtonComponent(
 				() -> { this.nextUI = null; },
 				100, 100,
 				renderer.getImageBank().getTexture("exitButtonDefault.png"),
