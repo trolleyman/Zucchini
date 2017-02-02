@@ -17,7 +17,6 @@ import game.networking.util.TraceLog;
 
 public class DiscoveryThread implements Runnable
 {
-	// TODO: this needs to be an actual run state
 	private boolean run = true;
 
 	private int socketInt;
@@ -25,7 +24,7 @@ public class DiscoveryThread implements Runnable
 	private List<String> acceptedClients;
 	private ServerMainable server;
 
-	public DiscoveryThread(int _socketInt, Map<String, Connection> _clients, ServerTest _server, List<String> _acceptedClients)
+	public DiscoveryThread(int _socketInt, Map<String, Connection> _clients, ServerMainable _server, List<String> _acceptedClients)
 	{
 		socketInt = _socketInt;
 		clients = _clients;
@@ -59,8 +58,10 @@ public class DiscoveryThread implements Runnable
 				TraceLog.consoleLog(getClass().getName() + ">>>Packet received; data: " + new String(packet.getData()));
 
 				// See if the packet holds the right command (message)
+
 				String message = new String(packet.getData()).trim();
-				if (message.contains(Protocol.CtoS_Discovery))
+
+				if (message.startsWith(Protocol.CtoS_Discovery))
 				{
 					name = message.substring(Protocol.CtoS_Discovery.length());
 					message = Protocol.CtoS_Discovery;
@@ -70,8 +71,6 @@ public class DiscoveryThread implements Runnable
 
 					// see if we already have a client that has registered with
 					// that name;
-					// System.out.println(clients.containsKey(name) + " - " +
-					// name);
 
 					if (acceptedClients.contains(name))
 					{
@@ -113,6 +112,7 @@ public class DiscoveryThread implements Runnable
 		{
 			Logger.getLogger(DiscoveryThread.class.getName()).log(Level.SEVERE, null, ex);
 		}
+
 	}
 
 	private void sendData(DatagramSocket socket, String data, InetAddress address, int port) throws IOException

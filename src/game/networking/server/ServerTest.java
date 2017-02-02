@@ -8,6 +8,7 @@ import game.networking.server.threads.DiscoveryThread;
 import game.networking.server.threads.LobbyThread;
 import game.networking.util.Connection;
 import game.networking.util.ServerMainable;
+import game.networking.util.Touple;
 
 public class ServerTest implements ServerMainable
 {
@@ -53,9 +54,15 @@ public class ServerTest implements ServerMainable
 	}
 
 	@Override
-	public LinkedList<String> getAccQueue()
+	public synchronized LinkedList<Touple<String, String>> getActions()
 	{
-		return lobby.getQueue();
+		return lobby.getActions();
+	}
+
+	@Override
+	public synchronized Touple<String, String> getAction()
+	{
+		return lobby.getActions().poll();
 	}
 
 }

@@ -26,7 +26,6 @@ public class TCPSenderLobbyThread implements Runnable
 	public void run()
 	{
 		boolean run = true;
-
 		try
 		{
 			DataOutputStream toClient = new DataOutputStream(socket.getOutputStream());
@@ -40,13 +39,27 @@ public class TCPSenderLobbyThread implements Runnable
 					while (!messages.isEmpty())
 					{
 						Touple<String, String> t = messages.poll();
-						toClient.writeBytes(Protocol.TCP_Message + t.getFirst() + ": " + t.getSecond() + "\n");
+						try
+						{
+							toClient.writeBytes(Protocol.TCP_Message + t.getFirst() + ": " + t.getSecond() + "\n");
+						} catch (IOException e)
+						{
+							run = false;
+						}
 						System.out.println(name + " should receive:  " + Protocol.TCP_Message + t.getFirst() + ": " + t.getSecond());
 					}
 				}
+
 				try
 				{
 					Thread.sleep(100);
+					try
+					{
+						toClient.writeBytes(Protocol.TCP_Ping + name + "\n");
+					} catch (IOException e)
+					{
+						run = false;
+					}
 				} catch (InterruptedException e)
 				{
 					// TODO Auto-generated catch block
@@ -56,10 +69,10 @@ public class TCPSenderLobbyThread implements Runnable
 
 		} catch (IOException e)
 		{
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-			System.out.println(name + " disconected!!");
+			e.printStackTrace();
 		}
+
+		System.out.println(name + " disconected!!");
 
 	}
 

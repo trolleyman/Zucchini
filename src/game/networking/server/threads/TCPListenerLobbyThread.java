@@ -39,8 +39,6 @@ public class TCPListenerLobbyThread implements Runnable
 
 			(new Thread(new TCPSenderLobbyThread(socket, name, messages.get(name)))).start();
 
-			// Thread thread = new Thread(new TickClass());
-			// thread.start();
 			while (run)
 			{
 				String messageFull = fromClient.readLine().trim();
@@ -50,7 +48,6 @@ public class TCPListenerLobbyThread implements Runnable
 					continue;
 
 				}
-				// System.out.println(messageFull);
 				String message = messageFull.substring(0, messageFull.length() - name.length());
 				if (message.startsWith(Protocol.TCP_Message))
 				{

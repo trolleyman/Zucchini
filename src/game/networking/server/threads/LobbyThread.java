@@ -92,8 +92,6 @@ public class LobbyThread implements Runnable
 				}
 			}
 
-			// FIXME: messages do not work as map does not have a next field
-
 			try
 			{
 				Thread.sleep(10);
@@ -138,6 +136,11 @@ public class LobbyThread implements Runnable
 	public void newClient()
 	{
 		updated = true;
+	}
+
+	public synchronized LinkedList<Touple<String, String>> getActions()
+	{
+		return actions;
 	}
 
 }
