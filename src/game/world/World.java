@@ -9,18 +9,11 @@ import game.render.IRenderer;
 import game.world.entity.Entity;
 
 /**
- * The base class for the worlds (the common functionality is located here
+ * The base class for the worlds (the common functionality is located here)
  * 
  * @author Callum
  */
 public abstract class World {
-	/** Updates Per Second */
-	private static final double UPS = 120;
-	/** Number of nanoseconds per update. This is calculated from the {@link #UPS} */
-	private static final long NANOS_PER_UPDATE = (long) (Util.NANOS_PER_SECOND / UPS);
-	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SECOND} */
-	private static final double DT_PER_UPDATE = NANOS_PER_UPDATE / (double) Util.NANOS_PER_SECOND;
-	
 	/** Number of seconds to process */
 	private double dtPool = 0;
 	
@@ -49,7 +42,7 @@ public abstract class World {
 		this.entities = new ArrayList<Entity>();
 		for (Entity e : _entities) {
 			// Do this to ensure that the entity IDs are set correctly
-			addEntity(e);
+			updateEntity(e);
 		}
 	}
 	
@@ -57,11 +50,11 @@ public abstract class World {
 	 * Updates the world
 	 * @param dt The number of seconds since the last update
 	 */
-	public void update(double dt) {
+	public synchronized void update(double dt) {
 		dtPool += dt;
-		while (dtPool > DT_PER_UPDATE) {
-			updateStep(DT_PER_UPDATE);
-			dtPool -= DT_PER_UPDATE;
+		while (dtPool > Util.DT_PER_UPDATE) {
+			updateStep(Util.DT_PER_UPDATE);
+			dtPool -= Util.DT_PER_UPDATE;
 		}
 	}
 	
@@ -76,7 +69,7 @@ public abstract class World {
 	 * @param id The entity ID
 	 * @return null if the entity with that id does not exist
 	 */
-	public Entity getEntity(int id) {
+	public synchronized Entity getEntity(int id) {
 		int i = getEntityInsertIndex(id);
 		Entity e = entities.get(i);
 		if (e.getId() == id) {
@@ -86,7 +79,7 @@ public abstract class World {
 	}
 	
 	/**
-	 * Adds an entity to the world.
+	 * Adds/updates an entity to/in the world.
 	 * <p>
 	 * If the id of the entity is Entity.INVALID_ID, then the id is set to a valid id
 	 * <br>
@@ -94,7 +87,7 @@ public abstract class World {
 	 * 
 	 * @param e The entity
 	 */
-	public void addEntity(Entity e) {
+	public synchronized void updateEntity(Entity e) {
 		if (e.getId() == Entity.INVALID_ID) {
 			// Insert entity at the end of the array
 			int id = this.nextEntityId++;
@@ -103,15 +96,27 @@ public abstract class World {
 		} else {
 			// Insert entity somewhere in the array
 			int i = getEntityInsertIndex(e.getId());
-			Entity tempEntity = entities.get(i);
 			
-			if (tempEntity.getId() == e.getId()) {
+			if (i < entities.size() && entities.get(i).getId() == e.getId()) {
 				// Replace the entity with the new one
 				entities.set(i, e);
 			} else {
 				// Insert the entity into the array
 				entities.add(i, e);
 			}
+		}
+	}
+	
+	/**
+	 * Removes the entity associated with the specified id
+	 * @param id The entity id
+	 */
+	public synchronized void removeEntity(int id) {
+		int i = getEntityInsertIndex(id);
+		
+		if (i < this.entities.size() && this.entities.get(i).getId() == id) {
+			// Remove entity
+			this.entities.remove(i);
 		}
 	}
 	

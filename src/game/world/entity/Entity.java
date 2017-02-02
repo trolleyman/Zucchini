@@ -59,4 +59,12 @@ public abstract class Entity {
 	public void setId(int _id) {
 		this.id = _id;
 	}
+	
+	/**
+	 * Subclasses <b>must</b> implement {@link java.lang.Object#clone clone}.
+	 * <p>
+	 * <b>NB:</b> Remember to clone the Entity ID and the angle as well
+	 */
+	@Override
+	public abstract Object clone();
 }

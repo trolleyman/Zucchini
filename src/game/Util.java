@@ -15,6 +15,29 @@ public class Util {
 	public static long NANOS_PER_SECOND = 1_000_000_000;
 	
 	/**
+	 * Updates Per Second
+	 * <p>
+	 * This is the number of times per second that the server updates the world.
+	 */
+	public static final double UPS = 120;
+	/** Number of nanoseconds per update. This is calculated from the {@link #UPS} */
+	public static final long NANOS_PER_UPDATE = (long) (NANOS_PER_SECOND / UPS);
+	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SECOND} */
+	public static final double DT_PER_UPDATE = NANOS_PER_UPDATE / (double) NANOS_PER_SECOND;
+	
+	/**
+	 * Snapshot Updates Per Second
+	 * <p>
+	 * This is the number of times per second that the server sends data to the client, and the number
+	 * of times per second the client sends input data to the server.
+	 */
+	public static final double SUPS = 30;
+	/** Number of nanoseconds per update. This is calculated from the {@link #SUPS} */
+	public static final long NANOS_PER_SNAPSHOT_UPDATE = (long) (NANOS_PER_SECOND / SUPS);
+	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SNAPSHOT_UPDATE} */
+	public static final double DT_PER_SNAPSHOT_UPDATE = NANOS_PER_SNAPSHOT_UPDATE / (double) NANOS_PER_SECOND;
+	
+	/**
 	 * Debug prints a key to stdout
 	 */
 	public static void printKey(int key, int scancode, int action, int mods) {

@@ -12,6 +12,7 @@ import game.action.ActionType;
 import game.action.AimAction;
 import game.net.DummyConnection;
 import game.net.IClientConnection;
+import game.net.IClientConnectionHandler;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Player;
@@ -21,21 +22,21 @@ import game.world.entity.Player;
  * 
  * @author Callum
  */
-public class ClientWorld extends World implements InputHandler {
+public class ClientWorld extends World implements InputHandler, IClientConnectionHandler {
 	/**
 	 * Creates a test single player world
-	 * @return The world
 	 */
 	public static ClientWorld createTestWorld() {
 		Map map = new TestMap();
 		
-		ArrayList<Entity> entities = new ArrayList<>();
+		ArrayList<Entity> serverEntities = new ArrayList<>();
+		Player serverPlayer = new Player(new Vector2f(0.5f, 0.5f));
+		serverEntities.add(serverPlayer);
+		ServerWorld serverWorld = new ServerWorld(map, serverEntities, new ArrayList<>());
 		
-		Player player = new Player(new Vector2f(0.5f, 0.5f));
+		DummyConnection connection = new DummyConnection(serverWorld, (Player) serverPlayer.clone());
 		
-		DummyConnection connection = new DummyConnection(player);
-		
-		return new ClientWorld(map, entities, player, connection);
+		return new ClientWorld(map, new ArrayList<>(), serverPlayer, connection);
 	}
 	
 	/** The player controlled by the client */
@@ -68,7 +69,7 @@ public class ClientWorld extends World implements InputHandler {
 		this.connection = _connection;
 		
 		// Ensure that player is an entity in the world
-		this.addEntity(player);
+		this.updateEntity(player);
 		
 		this.cameraPos = this.player.position;
 	}

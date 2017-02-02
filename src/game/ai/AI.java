@@ -9,7 +9,7 @@ import game.world.entity.Entity;
  * 
  * @author Callum
  */
-public abstract class AI {
+public abstract class AI implements Cloneable {
 	private Entity entity;
 	
 	public AI(Entity _entity) {
@@ -30,4 +30,20 @@ public abstract class AI {
 	public Entity getEntity() {
 		return entity;
 	}
+	
+	/**
+	 * Sets the internal entity of the AI.
+	 * <p>
+	 * <b>NB:</b> Ensure that the entity is of the correct type for the subclasses!
+	 * @param _entity The entity
+	 */
+	public void setEntity(Entity _entity) {
+		this.entity = _entity;
+	}
+	
+	/**
+	 * Implementations must override {@link java.lang.Object#clone clone}
+	 */
+	@Override
+	public abstract Object clone();
 }

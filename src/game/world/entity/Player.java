@@ -80,4 +80,18 @@ public class Player extends Entity {
 		case SHOOT: /* TODO: Implement shooting */ System.out.println("BANG!"); break;
 		}
 	}
+	
+	@Override
+	public Object clone() {
+		Player p = new Player(new Vector2f(this.position));
+		
+		p.angle = this.angle;
+		p.setId(this.getId());
+		p.moveNorth = this.moveNorth;
+		p.moveSouth = this.moveSouth;
+		p.moveEast  = this.moveEast ;
+		p.moveWest  = this.moveWest ;
+		
+		return p;
+	}
 }

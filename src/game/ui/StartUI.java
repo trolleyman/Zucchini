@@ -56,14 +56,18 @@ public class StartUI extends UI implements InputPipeMulti {
 			renderer.getImageBank().getTexture("buttonPressed.png")
 		);
 		
-		exitButton = new UIButton(
-				() -> { this.nextUI = null; },
-				100, 100,
-				renderer.getImageBank().getTexture("exitButtonDefault.png"),
-				renderer.getImageBank().getTexture("exitButtonHover.png"),
-				renderer.getImageBank().getTexture("exitButtonPressed.png")
-			);
-				
+		exitButton = new ButtonComponent(
+			() -> { this.nextUI = null; },
+			100, 100,
+			renderer.getImageBank().getTexture("exitButtonDefault.png"),
+			renderer.getImageBank().getTexture("exitButtonHover.png"),
+			renderer.getImageBank().getTexture("exitButtonPressed.png")
+		);
+		
+		backgroundImage = new ImageComponent(
+			0, 0, renderer.getImageBank().getTexture("Start_BG.png")
+		);
+		
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
 	}

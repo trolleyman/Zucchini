@@ -3,6 +3,7 @@ package game.world;
 import java.util.ArrayList;
 
 import game.ai.AI;
+import game.net.IClientConnectionHandler;
 import game.world.entity.Entity;
 
 /**
@@ -10,7 +11,7 @@ import game.world.entity.Entity;
  * 
  * @author Callum
  */
-public class ServerWorld extends World {
+public class ServerWorld extends World implements Cloneable {
 	/**
 	 * The AIs/Players in the world.
 	 */
@@ -29,10 +30,10 @@ public class ServerWorld extends World {
 		
 		// Ensure ais are entities
 		for (AI ai : ais) {
-			this.addEntity(ai.getEntity());
+			this.updateEntity(ai.getEntity());
 		}
 	}
-
+	
 	@Override
 	protected void updateStep(double dt) {
 		// Update entities
@@ -44,5 +45,48 @@ public class ServerWorld extends World {
 		for (AI ai : ais) {
 			ai.update(this, dt);
 		}
+	}
+	
+	/**
+	 * DEBUG: This is a debug function used to transfer data to the client
+	 * @param cch The client connection handler
+	 */
+	public void send(ServerWorld prevWorld, IClientConnectionHandler cch) {
+		for (Entity e : prevWorld.entities) {
+			// If the entity doesn't exist anymore
+			if (getEntity(e.getId()) == null) {
+				// Remove entity
+				cch.removeEntity(e.getId());
+			}
+		}
+		
+		// Update/create entities from the current world
+		for (Entity e : this.entities) {
+			cch.updateEntity(e);
+		}
+	}
+	
+	@Override
+	public Object clone() {
+		ServerWorld world = new ServerWorld(this.map, new ArrayList<>(this.entities.size()), new ArrayList<>());
+		
+		// Clone all entities
+		for (Entity e : this.entities) {
+			world.updateEntity((Entity) e.clone());
+		}
+		
+		// Clone & update AIs
+		ArrayList<AI> newAIs = new ArrayList<>(this.ais.size());
+		for (AI ai : this.ais) {
+			AI newAI = (AI) ai.clone();
+			int id = ai.getEntity().getId();
+			// Reset the AI's internal entity
+			newAI.setEntity(world.getEntity(id));
+			newAIs.add(newAI);
+		}
+		
+		world.ais = newAIs;
+		
+		return world;
 	}
 }
