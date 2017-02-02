@@ -82,8 +82,9 @@ public class LobbyThread implements Runnable
 					{
 						Thread thread = new Thread(new TCPListenerLobbyThread(clientSockets.get(string), string, messages));
 						thread.start();
+						System.out.println("Creadted TCPListener for: " + string);
 					}
-					updatedList = new LinkedList<>();
+					updatedList.clear();
 				}
 			}
 
