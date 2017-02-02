@@ -1,4 +1,4 @@
-package game.networking.server.threads;
+package game.networking.server.threads.tcp;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+
+import game.networking.server.threads.LobbyThread;
 
 public class TCPConLobbyThread implements Runnable
 {

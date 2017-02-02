@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import game.networking.server.threads.tcp.TCPConLobbyThread;
+import game.networking.server.threads.tcp.TCPListenerLobbyThread;
 import game.networking.util.Connection;
 import game.networking.util.Protocol;
 import game.networking.util.Touple;
@@ -76,6 +78,8 @@ public class LobbyThread implements Runnable
 		boolean run = true;
 		while (run)
 		{
+			// create TCP listener and sender for all newly accepted clients
+			// FAST create UDP listener and sender for clients
 			if (updated == true)
 			{
 

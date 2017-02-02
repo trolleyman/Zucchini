@@ -1,4 +1,4 @@
-package game.networking.server.threads;
+package game.networking.server.threads.tcp;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
