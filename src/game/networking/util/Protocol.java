@@ -6,6 +6,9 @@ public class Protocol
 	public static final String StoC_DiscoveryAccept = "DISCOVER_SERVER_C3_RESPONSE_ACC";
 	public static final String StoC_DiscoveryReject = "DISCOVER_SERVER_C3_RESPONSE_REJ";
 	public static final String StoC_DiscoveryWait = "DISCOVER_SERVER_C3_RESPONSE_WAIT";
-	// public static String = "";
+	public static final String TCP_Ping = "[PING]";
+	public static final String TCP_Pong = "[PONG]";
+	public static final String TCP_Message = "[MES]";
+	// public static final String = "";
 
 }

@@ -123,12 +123,12 @@ public class ClientTest
 
 					String mes = bfr.readLine();
 
-					if (!mes.equals(name))
+					if (!mes.equals(Protocol.TCP_Ping + name))
 					{
 						System.out.println("bad shit" + name);
 					}
 
-					toServer.writeBytes("[MESS] Hello from " + name + "\n");
+					toServer.writeBytes(Protocol.TCP_Pong + name + "\n");
 					System.out.println("sent message" + name);
 
 					// FIXME: this is not good
@@ -138,6 +138,9 @@ public class ClientTest
 
 						// System.out.println(getClass().getName() + name + ">>>
 						// SLEEP!!");
+
+						toServer.writeBytes(Protocol.TCP_Message + "Tick" + name + "\n");
+
 						try
 						{
 							Thread.sleep(1000);

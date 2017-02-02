@@ -14,6 +14,7 @@ import java.util.Map;
 
 import game.networking.util.Connection;
 import game.networking.util.Protocol;
+import game.networking.util.Touple;
 
 public class LobbyThread implements Runnable
 {
@@ -25,12 +26,14 @@ public class LobbyThread implements Runnable
 	private List<String> acceptedClients;
 
 	private Map<String, Socket> clientSockets;
-	private Map<String, String> messages;
+	private Map<String, LinkedList<Touple<String, String>>> messages;
 
 	private DatagramSocket datagramSocket;
 
 	private boolean updated = false;
 	private List<String> updatedList;
+
+	private LinkedList<Touple<String, String>> actions;
 
 	public LobbyThread(int _socketInt, Map<String, Connection> _clients, List<String> _acceptedClients)
 	{
@@ -47,6 +50,7 @@ public class LobbyThread implements Runnable
 		updatedList = new LinkedList<String>();
 
 		messages = new LinkedHashMap<>();
+		actions = new LinkedList<>();
 
 		Thread lobbyConThread = new Thread(lobbyConnection);
 		lobbyConThread.start();
@@ -80,7 +84,7 @@ public class LobbyThread implements Runnable
 
 					for (String string : updatedList)
 					{
-						Thread thread = new Thread(new TCPListenerLobbyThread(clientSockets.get(string), string, messages));
+						Thread thread = new Thread(new TCPListenerLobbyThread(clientSockets.get(string), string, messages, actions));
 						thread.start();
 						System.out.println("Creadted TCPListener for: " + string);
 					}
