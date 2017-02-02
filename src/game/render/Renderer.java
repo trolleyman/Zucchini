@@ -76,8 +76,8 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		
 		// OpenGL window hints
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		if (System.getenv("C3_DEBUG") != null) {
@@ -141,6 +141,9 @@ public class Renderer implements IRenderer {
 		glfwMakeContextCurrent(window);
 		
 		GL.createCapabilities();
+		
+		// Print OpenGL version
+		System.out.println("Loaded OpenGL " + glGetString(GL_VERSION) + " (" + glGetString(GL_VENDOR) + ") on " + glGetString(GL_RENDERER));
 		
 		// Load shaders
 		System.out.println("Loading shaders...");

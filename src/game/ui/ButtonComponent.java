@@ -11,7 +11,7 @@ import game.render.Texture;
  * 
  * @author Callum
  */
-public class UIButton extends UIComponent {
+public class ButtonComponent extends UIComponent {
 	/** The function that is called when the button is clicked */
 	private Runnable callback;
 	
@@ -49,7 +49,7 @@ public class UIButton extends UIComponent {
 	 * @param _hoverTexture The image drawn when the mouse hovers over the button
 	 * @param _pressedTexture The image drawn when the button is pressed down
 	 */
-	public UIButton(Runnable _callback, float _x, float _y, Texture _defaultTexture, Texture _hoverTexture, Texture _pressedTexture) {
+	public ButtonComponent(Runnable _callback, float _x, float _y, Texture _defaultTexture, Texture _hoverTexture, Texture _pressedTexture) {
 		this.callback = _callback;
 		
 		this.defaultTexture = _defaultTexture;
