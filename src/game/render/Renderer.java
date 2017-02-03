@@ -287,13 +287,8 @@ public class Renderer implements IRenderer {
 		return ib;
 	}
 	
-	@Override
-	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c) {
-		matModelView.pushMatrix();
-		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
-		
+	public void align(Align a, float x, float y, float w, float h) {
 		switch (a) {
-		
 		case BL: matModelView.translate(x, y, 0.0f);
 			break;
 		case BM: matModelView.translate(x, (y+(w/2)), 0.0f);
@@ -313,6 +308,15 @@ public class Renderer implements IRenderer {
 		case TR: matModelView.translate(x+w, y+h, 0.0f);
 			break;
 		}
+	}
+	
+	@Override
+	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r) {
+		matModelView.pushMatrix();
+		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
+		
+		align(a, x, y, w, h);
+		matModelView.scale(w, h, 1.0f);
 		
 		simpleShader.setProjectionMatrix(matProjection);
 		simpleShader.setModelViewMatrix(matModelView);
@@ -325,9 +329,13 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h) {
+	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r) {
 		matModelView.pushMatrix();
-		matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
+		//matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
+		
+		align(a, x, y, w, h);
+		
+		matModelView.translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);

@@ -5,6 +5,7 @@ import org.joml.Vector2f;
 import game.ColorUtil;
 import game.action.Action;
 import game.action.AimAction;
+import game.render.Align;
 import game.render.IRenderer;
 
 /**
@@ -59,7 +60,7 @@ public class Player extends Entity {
 	@Override
 	public void render(IRenderer r) {
 		float size = 0.5f;
-		r.drawBox(position.x - size/2, position.y - size/2, size, size, ColorUtil.GREEN);
+		r.drawBox(Align.BL, position.x - size/2, position.y - size/2, size, size, ColorUtil.GREEN);
 	}
 	
 	/**

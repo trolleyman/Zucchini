@@ -75,33 +75,81 @@ public interface IRenderer {
 	public MatrixStackf getModelViewMatrix();
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the bottom left)
+	 * Draws the texture specified to the screen at x,y (relative to the alignment a).
 	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param a The alignment. See {@link #Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 */
 	public default void drawTexture(Texture tex, Align a, float x, float y) {
-		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight());
+		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight(), 0.0f);
 	}
+	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the bottom left) with a specified
-	 * width and height.
+	 * Draws the texture specified to the screen at x,y (relative to the alignment a) with a specified
+	 * rotation r.
 	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param a The alignment. See {@link #Align}
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param r The rotation
+	 */
+	public default void drawTexture(Texture tex, Align a, float x, float y, float r) {
+		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight(), r);
+	}
+	
+	/**
+	 * Draws the texture specified to the screen at x,y (relative to the alignment a) with a specified
+	 * width, height and rotation.
+	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param a The alignment. See {@link #Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 * @param w The width
 	 * @param h The height
 	 */
-	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h);
+	public default void drawTexture(Texture tex, Align a, float x, float y, float w, float h) {
+		this.drawTexture(tex, a, x, y, w, h, 0.0f);
+	}
 	
 	/**
-	 * Draws a solid-color box to the screen at x,y (relative to the bottom left) with a specified
-	 * width and height and with a specified Color. See {@link game.ColorUtil ColorUtil}.
+	 * Draws the texture specified to the screen at x,y (relative to the alignment a) with a specified
+	 * width, height and rotation.
+	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param a The alignment. See {@link #Align}
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param w The width
+	 * @param h The height
+	 * @param r The rotation
+	 */
+	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r);
+	
+	/**
+	 * Draws a solid-color box to the screen at x,y (relative to the alignment a) with a specified
+	 * width, height, Color. See {@link game.ColorUtil ColorUtil}.
+	 * @param a The alignment. See {@link #Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 * @param w The width
 	 * @param h The height
 	 * @param c The color
 	 */
-	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c);
+	public default void drawBox(Align a, float x, float y, float w, float h, Vector4f c) {
+		this.drawBox(a, x, y, w, h, c, 0.0f);
+	}
+	
+	/**
+	 * Draws a solid-color box to the screen at x,y (relative to the alignment a) with a specified
+	 * width, height, Color (See {@link game.ColorUtil ColorUtil}) and rotation r.
+	 * @param a The alignment. See {@link #Align}
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param w The width
+	 * @param h The height
+	 * @param c The color
+	 * @param r The rotation
+	 */
+	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r);
+	
 }

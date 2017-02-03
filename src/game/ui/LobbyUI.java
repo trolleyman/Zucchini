@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.render.Align;
 import game.render.IRenderer;
 import game.world.ClientWorld;
 
@@ -39,7 +40,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		
 		joinButton = new ButtonComponent(
 			() -> { this.nextUI = new GameUI(ClientWorld.createTestWorld()); },
-			100, 100,
+			Align.BL, 100, 100,
 			renderer.getImageBank().getTexture("joinDefault.png"),
 			renderer.getImageBank().getTexture("joinHover.png"),
 			renderer.getImageBank().getTexture("joinPressed.png")
@@ -47,14 +48,14 @@ public class LobbyUI extends UI implements InputPipeMulti {
 			
 		backButton = new ButtonComponent(
 			() -> { this.nextUI = new StartUI(renderer); },
-			100, 100,
+			Align.BL, 100, 100,
 			renderer.getImageBank().getTexture("backDefault.png"),
 			renderer.getImageBank().getTexture("backHover.png"),
 			renderer.getImageBank().getTexture("backPressed.png")
 		);
 			
 		backgroundImage = new ImageComponent(
-			0, 0, renderer.getImageBank().getTexture("Start_BG.png")
+			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png")
 		);
 		
 		this.inputHandlers.add(joinButton);

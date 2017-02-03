@@ -3,6 +3,7 @@ package game.world;
 import org.joml.Vector2f;
 
 import game.ColorUtil;
+import game.render.Align;
 import game.render.IRenderer;
 
 /**
@@ -49,7 +50,7 @@ public class Map {
 			float w = Math.abs(x0 - x1);
 			float h = Math.abs(y0 - y1);
 			
-			r.drawBox(x, y, w+0.1f, h+0.1f, ColorUtil.RED);
+			r.drawBox(Align.BL, x, y, w+0.1f, h+0.1f, ColorUtil.RED);
 		}
 	}
 }

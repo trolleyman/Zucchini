@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.render.Align;
 import game.render.IRenderer;
 import game.world.ClientWorld;
 import game.world.TestMap;
@@ -52,7 +53,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		
 		startButton = new ButtonComponent(
 			() -> { this.nextUI = new LobbyUI(renderer); },
-			100, 100,
+			Align.BL, 100, 100,
 			renderer.getImageBank().getTexture("buttonDefault.png"),
 			renderer.getImageBank().getTexture("buttonHover.png"),
 			renderer.getImageBank().getTexture("buttonPressed.png")
@@ -60,14 +61,14 @@ public class StartUI extends UI implements InputPipeMulti {
 		
 		exitButton = new ButtonComponent(
 			() -> { this.nextUI = null; },
-			100, 100,
+			Align.BL, 100, 100,
 			renderer.getImageBank().getTexture("exitButtonDefault.png"),
 			renderer.getImageBank().getTexture("exitButtonHover.png"),
 			renderer.getImageBank().getTexture("exitButtonPressed.png")
 		);
 		
 		backgroundImage = new ImageComponent(
-			0, 0, renderer.getImageBank().getTexture("Start_BG.png")
+			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png")
 		);
 				
 		this.inputHandlers.add(startButton);

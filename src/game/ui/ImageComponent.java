@@ -13,15 +13,17 @@ public class ImageComponent extends UIComponent {
 	private float x;
 	/** The image y position */
 	private float y;
+	private Align a;
 	
-	public ImageComponent(float x, float y, Texture _texture) {
+	public ImageComponent(Align a, float x, float y, Texture _texture) {
 		this.texture = _texture;
 		this.x = x;
 		this.y = y;
+		this.a = a;
 	}
 	
 	public void render(IRenderer r) {	
-		r.drawTexture(texture, Align.MM, x, y, r.getWidth(), r.getHeight());
+		r.drawTexture(texture, a, x, y, r.getWidth(), r.getHeight());
 	}
 
 	@Override
