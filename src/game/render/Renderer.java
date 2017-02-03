@@ -127,7 +127,9 @@ public class Renderer implements IRenderer {
 		});
 		glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
 			// Modify ypos so that coords are relative to bottom left of window.
-			this.ih.handleCursorPos(xpos, this.windowScreenH - ypos);
+			double xposPixel = screenToPixelCoordinates(xpos);
+			double yposPixel = screenToPixelCoordinates(this.windowH - ypos);
+			this.ih.handleCursorPos(xposPixel, yposPixel);
 		});
 		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
 			this.ih.handleMouseButton(button, action, mods);
@@ -162,6 +164,9 @@ public class Renderer implements IRenderer {
 		// Print OpenGL version
 		System.out.println("Loaded OpenGL " + glGetString(GL_VERSION) + " (" + glGetString(GL_VENDOR) + ") on " + glGetString(GL_RENDERER));
 		
+		// Print scale
+		System.out.println("DPI Scale: " + screenToPixelCoordinates(1));
+		
 		// Load shaders
 		System.out.println("Loading shaders...");
 		simpleShader = new SimpleShader();
@@ -188,6 +193,11 @@ public class Renderer implements IRenderer {
 		recalcProjectionMatrix();
 	}
 	
+	private double screenToPixelCoordinates(double coord) {
+		double scale = this.windowW / this.windowScreenW;
+		return coord * scale;
+	}
+
 	/**
 	 * Generate the VAO boxes.
 	 */
