@@ -75,7 +75,7 @@ public class TCPListenerLobbyThread implements Runnable
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
-		System.out.println(name + " i'm out!!");
+		System.out.println(this.getClass().getName() + name + ">> i'm out!!");
 
 	}
 

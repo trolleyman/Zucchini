@@ -21,20 +21,19 @@ import game.networking.util.Tuple;
 public class LobbyThread implements Runnable
 {
 
-	private Map<String, Connection> clients;
 	private int socketInt;
-	private LinkedList<String> acceptQueue;
-	private LobbyConnectionThread lobbyConnection;
-	private List<String> acceptedClients;
-
-	private Map<String, Socket> clientSockets;
-	private Map<String, LinkedList<Tuple<String, String>>> messages;
-
 	private DatagramSocket datagramSocket;
 
+	// Client accept
+	private Map<String, Connection> clients;
+	private LinkedList<String> acceptQueue;
+	private List<String> acceptedClients;
+	private LobbyConnectionThread lobbyConnection;
+	private Map<String, Socket> clientSockets;
 	private boolean updated = false;
 	private List<String> updatedList;
 
+	private Map<String, LinkedList<Tuple<String, String>>> messages;
 	private LinkedList<Tuple<String, String>> actions;
 
 	public LobbyThread(int _socketInt, Map<String, Connection> _clients, List<String> _acceptedClients)
@@ -44,12 +43,10 @@ public class LobbyThread implements Runnable
 		acceptedClients = _acceptedClients;
 
 		acceptQueue = new LinkedList<String>();
+		clientSockets = new LinkedHashMap<>();
+		updatedList = new LinkedList<String>();
 
 		lobbyConnection = new LobbyConnectionThread(acceptQueue, this, acceptedClients);
-
-		clientSockets = new LinkedHashMap<>();
-
-		updatedList = new LinkedList<String>();
 
 		messages = new LinkedHashMap<>();
 		actions = new LinkedList<>();
@@ -98,7 +95,7 @@ public class LobbyThread implements Runnable
 
 			try
 			{
-				Thread.sleep(10);
+				Thread.sleep(100);
 			} catch (InterruptedException e)
 			{
 				// TODO Auto-generated catch block
@@ -130,11 +127,6 @@ public class LobbyThread implements Runnable
 			e.printStackTrace();
 		}
 
-	}
-
-	public LinkedList<String> getQueue()
-	{
-		return acceptQueue;
 	}
 
 	public void newClient()

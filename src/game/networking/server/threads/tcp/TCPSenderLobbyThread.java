@@ -72,7 +72,7 @@ public class TCPSenderLobbyThread implements Runnable
 			e.printStackTrace();
 		}
 
-		System.out.println(name + " disconected!!");
+		System.out.println(this.getClass().getName() + name + ">>disconected!!");
 
 	}
 

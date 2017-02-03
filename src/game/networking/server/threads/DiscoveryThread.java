@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import game.networking.server.ServerTest;
 import game.networking.util.Connection;
 import game.networking.util.Protocol;
 import game.networking.util.ServerMainable;

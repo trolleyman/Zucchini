@@ -9,6 +9,8 @@ public class Protocol
 	public static final String TCP_Ping = "[PING]";
 	public static final String TCP_Pong = "[PONG]";
 	public static final String TCP_Message = "[MES]";
+	public static final String TCP_LobbyAction = "";
+	public static final String TCP_GameAction = "";
 	// public static final String = "";
 
 }
