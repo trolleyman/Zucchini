@@ -39,10 +39,14 @@ public class Renderer implements IRenderer {
 	/** Image bank */
 	private TextureBank ib;
 	
-	/** Current window height */
+	/** Current window width (in pixels) */
 	private int windowW;
-	/** Current window width */
+	/** Current window height (in pixels) */
 	private int windowH;
+	/** Current window width (in screen co-ordinates) */
+	private int windowScreenW;
+	/** Current window height (in screen co-ordinates) */
+	private int windowScreenH;
 	
 	/** Should the game recalculate the projection matrix on the next frame? */
 	private boolean dirty;
@@ -77,9 +81,9 @@ public class Renderer implements IRenderer {
 		
 		// OpenGL window hints
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		if (System.getenv("C3_DEBUG") != null) {
 			System.out.println("OpenGL debug context enabled.");
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
@@ -123,7 +127,9 @@ public class Renderer implements IRenderer {
 		});
 		glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
 			// Modify ypos so that coords are relative to bottom left of window.
-			this.ih.handleCursorPos(xpos, this.windowH - ypos);
+			double xposPixel = screenToPixelCoordinates(xpos);
+			double yposPixel = screenToPixelCoordinates(this.windowScreenH - ypos);
+			this.ih.handleCursorPos(xposPixel, yposPixel);
 		});
 		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
 			this.ih.handleMouseButton(button, action, mods);
@@ -132,10 +138,23 @@ public class Renderer implements IRenderer {
 			this.ih.handleScroll(xoffset, yoffset);
 		});
 		glfwSetWindowSizeCallback(window, (window, w, h) -> {
+			this.windowScreenW = w;
+			this.windowScreenH = h;
+			this.dirty = true;
+		});
+		glfwSetFramebufferSizeCallback(window, (window, w, h) -> {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
 		});
+		int[] wBuf = new int[1];
+		int[] hBuf = new int[1];
+		glfwGetFramebufferSize(window, wBuf, hBuf);
+		windowW = wBuf[0];
+		windowH = hBuf[0];
+		glfwGetWindowSize(window, wBuf, hBuf);
+		windowScreenW = wBuf[0];
+		windowScreenH = hBuf[0];
 		
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
@@ -144,6 +163,9 @@ public class Renderer implements IRenderer {
 		
 		// Print OpenGL version
 		System.out.println("Loaded OpenGL " + glGetString(GL_VERSION) + " (" + glGetString(GL_VENDOR) + ") on " + glGetString(GL_RENDERER));
+		
+		// Print scale
+		System.out.println("DPI Scale: " + screenToPixelCoordinates(1));
 		
 		// Load shaders
 		System.out.println("Loading shaders...");
@@ -171,27 +193,40 @@ public class Renderer implements IRenderer {
 		recalcProjectionMatrix();
 	}
 	
+	private double screenToPixelCoordinates(double coord) {
+		double scale = this.windowW / this.windowScreenW;
+		return coord * scale;
+	}
+
 	/**
 	 * Generate the VAO boxes.
 	 */
 	private void generateBoxes() {
 		float[] vertexPositions = {
+			// t0
 			0.0f, 0.0f, // BL
 			1.0f, 0.0f, // BR
-			1.0f, 1.0f, // TR
 			0.0f, 1.0f, // TL
+			// t1
+			0.0f, 1.0f, // TL
+			1.0f, 0.0f, // BR
+			1.0f, 1.0f, // TR
 		};
 		float[] vertexUVs = {
-			0.0f, 0.0f, // BL
-			1.0f, 0.0f, // BR
-			1.0f, 1.0f, // TR
-			0.0f, 1.0f, // TL
+			// t0
+			0.0f, 1.0f, // BL
+			1.0f, 1.0f, // BR
+			0.0f, 0.0f, // TL
+			// t1
+			0.0f, 0.0f, // TL
+			1.0f, 1.0f, // BR
+			1.0f, 0.0f, // TR
 		};
 		
-		box = new VAO(GL_QUADS, 4);
+		box = new VAO(GL_TRIANGLES, 6);
 		box.addData(simpleShader, "position", vertexPositions, 2);
 		
-		boxUV = new VAO(GL_QUADS, 4);
+		boxUV = new VAO(GL_TRIANGLES, 6);
 		boxUV.addData(textureShader, "position", vertexPositions, 2);
 		boxUV.addData(textureShader, "uv", vertexUVs, 2);
 	}
@@ -285,25 +320,25 @@ public class Renderer implements IRenderer {
 		return ib;
 	}
 	
-	public void align(Align a, float x, float y, float w, float h) {
+	public void align(Align a, float w, float h) {
 		switch (a) {
-		case BL: matModelView.translate(x, y, 0.0f);
+		case BL: 
 			break;
-		case BM: matModelView.translate(x, (y+(w/2)), 0.0f);
+		case BM: matModelView.translate(w/2, 0.0f, 0.0f);
 			break;
-		case BR: matModelView.translate(x, (y+w), 0.0f);
+		case BR: matModelView.translate(w, 0.0f, 0.0f);
 			break;
-		case ML: matModelView.translate(x, y+(h/2), 0.0f);
+		case ML: matModelView.translate(0.0f, h/2, 0.0f);
 			break;
-		case MM: matModelView.translate(x+(w/2), y+(h/2), 0.0f);
+		case MM: matModelView.translate(w/2, h/2, 0.0f);
 			break;
-		case MR: matModelView.translate(x+w, y+(h/2), 0.0f);
+		case MR: matModelView.translate(w, h/2, 0.0f);
 			break;
-		case TL: matModelView.translate(x, y+h, 0.0f);
+		case TL: matModelView.translate(0.0f, h, 0.0f);
 			break;
-		case TM: matModelView.translate(x+(w/2), y+h, 0.0f);
+		case TM: matModelView.translate(w/2, h, 0.0f);
 			break;
-		case TR: matModelView.translate(x+w, y+h, 0.0f);
+		case TR: matModelView.translate(w, h, 0.0f);
 			break;
 		}
 	}
@@ -318,7 +353,9 @@ public class Renderer implements IRenderer {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		
-		align(a, x, y, w, h);
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		
 		simpleShader.setProjectionMatrix(matProjection);
@@ -336,9 +373,11 @@ public class Renderer implements IRenderer {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
-		align(a, x, y, w, h);
 		
-		matModelView.translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		align(a, -w, -h);
+		matModelView.scale(w, h, 1.0f);
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);

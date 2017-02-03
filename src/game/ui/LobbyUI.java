@@ -55,7 +55,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		);
 			
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png")
+			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png"), 0.0f
 		);
 		
 		this.inputHandlers.add(joinButton);

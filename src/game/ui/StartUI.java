@@ -16,7 +16,7 @@ import game.world.World;
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
  * 
- * @author jackm
+ * @author Jack
  */
 public class StartUI extends UI implements InputPipeMulti {
 	
@@ -39,6 +39,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	private float windowW;
 	/** The window height */
 	private float windowH;
+
+	private float testRot;
 	
 	/**
 	 * Constructs a new StartUI with a specified renderer to gather the window width and height
@@ -68,7 +70,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		);
 		
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png")
+			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png"), 0.0f
 		);
 		
 		this.inputHandlers.add(startButton);
@@ -86,6 +88,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		windowH = renderer.getHeight();
 		startButton.update(dt);
 		exitButton.update(dt);
+		testRot += 3.0f * dt;
 	}
 	
 	@Override
@@ -97,6 +100,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		backgroundImage.render(r);
 		startButton.render(r);
 		exitButton.render(r);
+		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
 	}
 	
 	@Override

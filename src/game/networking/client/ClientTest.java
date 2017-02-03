@@ -95,8 +95,7 @@ public class ClientTest
 				TraceLog.consoleLog(getClass().getName() + name + ">>> SERVER MESSAGE: " + message);
 
 				// if message is destined to me deocde it
-				// what happens for 'name' and 'username'
-				if (message.endsWith(name))
+				if (message.substring(message.length() - name.length()).equals(name))
 				{
 					int namePos = message.lastIndexOf(name);
 					// System.out.println(message.substring(0, namePos));
@@ -119,7 +118,18 @@ public class ClientTest
 
 					Socket s = new Socket(receivePacket.getAddress(), receivePacket.getPort() + 1);
 					DataOutputStream toServer = new DataOutputStream(s.getOutputStream());
+					BufferedReader bfr = new BufferedReader(new InputStreamReader(s.getInputStream()));
 					toServer.writeBytes(name + "\n");
+
+					String mes = bfr.readLine();
+
+					if (!mes.equals(name))
+					{
+						System.out.println("bad shit" + name);
+					}
+
+					toServer.writeBytes("[MESS] Hello from " + name + "\n");
+					System.out.println("sent message" + name);
 
 					// FIXME: this is not good
 					boolean t = true;
@@ -137,7 +147,7 @@ public class ClientTest
 							e.printStackTrace();
 						}
 					}
-
+					s.close();
 					break;
 				}
 				case Protocol.StoC_DiscoveryWait:
