@@ -262,11 +262,6 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public MatrixStackf getModelViewMatrix() {
-		return matModelView;
-	}
-	
-	@Override
 	public void beginFrame() {
 		if (this.dirty)
 			recalcProjectionMatrix();
@@ -311,6 +306,11 @@ public class Renderer implements IRenderer {
 		case TR: matModelView.translate(x+w, y+h, 0.0f);
 			break;
 		}
+	}
+	
+	@Override
+	public MatrixStackf getModelViewMatrix() {
+		return matModelView;
 	}
 	
 	@Override

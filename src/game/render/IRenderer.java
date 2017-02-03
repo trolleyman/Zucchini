@@ -75,6 +75,19 @@ public interface IRenderer {
 	public MatrixStackf getModelViewMatrix();
 	
 	/**
+	 * Draws a line with a specified thickness and color
+	 * @param x0
+	 * @param y0
+	 * @param x1
+	 * @param y0
+	 * @param c The color of the line
+	 * @param thickness Thickness in pixels of the line
+	 */
+	public default void drawLine(float x0, float y0, float x1, float y1, Vector4f c, float thickness) {
+		// TODO
+	}
+	
+	/**
 	 * Draws the texture specified to the screen at x,y (relative to the alignment a).
 	 * @param tex The texture specified. See {@link #getImageBank()}.
 	 * @param a The alignment. See {@link #Align}
