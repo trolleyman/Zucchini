@@ -84,7 +84,11 @@ public interface IRenderer {
 	 * @param thickness Thickness in pixels of the line
 	 */
 	public default void drawLine(float x0, float y0, float x1, float y1, Vector4f c, float thickness) {
-		// TODO
+		float xdiff = x1 - x0;
+		float ydiff = y1 - y0;
+		float ang = (float) Math.atan(xdiff/ydiff);
+		float length = (float) Math.sqrt(xdiff*xdiff + ydiff*ydiff); // Pythag
+		drawBox(Align.ML, x0, y0, length, thickness, c, ang);
 	}
 	
 	/**

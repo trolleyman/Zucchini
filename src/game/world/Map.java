@@ -44,13 +44,7 @@ public class Map {
 			float x1 = lines[i+2];
 			float y1 = lines[i+3];
 			
-			float x = Math.min(x0, x1);
-			float y = Math.min(y0, y1);
-			
-			float w = Math.abs(x0 - x1);
-			float h = Math.abs(y0 - y1);
-			
-			r.drawBox(Align.BL, x, y, w+0.1f, h+0.1f, ColorUtil.RED);
+			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 4.0f);
 		}
 	}
 }
