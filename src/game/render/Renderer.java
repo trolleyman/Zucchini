@@ -214,13 +214,13 @@ public class Renderer implements IRenderer {
 		};
 		float[] vertexUVs = {
 			// t0
-			0.0f, 0.0f, // BL
-			1.0f, 0.0f, // BR
-			0.0f, 1.0f, // TL
+			0.0f, 1.0f, // BL
+			1.0f, 1.0f, // BR
+			0.0f, 0.0f, // TL
 			// t1
-			0.0f, 1.0f, // TL
-			1.0f, 0.0f, // BR
-			1.0f, 1.0f, // TR
+			0.0f, 0.0f, // TL
+			1.0f, 1.0f, // BR
+			1.0f, 0.0f, // TR
 		};
 		
 		box = new VAO(GL_TRIANGLES, 6);
@@ -325,25 +325,25 @@ public class Renderer implements IRenderer {
 		return ib;
 	}
 	
-	public void align(Align a, float x, float y, float w, float h) {
+	public void align(Align a, float w, float h) {
 		switch (a) {
-		case BL: matModelView.translate(x, y, 0.0f);
+		case BL: 
 			break;
-		case BM: matModelView.translate(x, (y+(w/2)), 0.0f);
+		case BM: matModelView.translate(w/2, 0.0f, 0.0f);
 			break;
-		case BR: matModelView.translate(x, (y+w), 0.0f);
+		case BR: matModelView.translate(w, 0.0f, 0.0f);
 			break;
-		case ML: matModelView.translate(x, y+(h/2), 0.0f);
+		case ML: matModelView.translate(0.0f, h/2, 0.0f);
 			break;
-		case MM: matModelView.translate(x+(w/2), y+(h/2), 0.0f);
+		case MM: matModelView.translate(w/2, h/2, 0.0f);
 			break;
-		case MR: matModelView.translate(x+w, y+(h/2), 0.0f);
+		case MR: matModelView.translate(w, h/2, 0.0f);
 			break;
-		case TL: matModelView.translate(x, y+h, 0.0f);
+		case TL: matModelView.translate(0.0f, h, 0.0f);
 			break;
-		case TM: matModelView.translate(x+(w/2), y+h, 0.0f);
+		case TM: matModelView.translate(w/2, h, 0.0f);
 			break;
-		case TR: matModelView.translate(x+w, y+h, 0.0f);
+		case TR: matModelView.translate(w, h, 0.0f);
 			break;
 		}
 	}
@@ -353,9 +353,10 @@ public class Renderer implements IRenderer {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		
-		align(a, x, y, w, h);
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
-		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
 		
 		simpleShader.setProjectionMatrix(matProjection);
 		simpleShader.setModelViewMatrix(matModelView);
@@ -372,11 +373,11 @@ public class Renderer implements IRenderer {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
-		align(a, x, y, w, h);
 		
-		matModelView.translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
-		
-		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		align(a, -w, -h);
+		matModelView.scale(w, h, 1.0f);
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);

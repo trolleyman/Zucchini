@@ -100,7 +100,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		backgroundImage.render(r);
 		startButton.render(r);
 		exitButton.render(r);
-		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 100, 100, testRot);
+		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
 	}
 	
 	@Override
