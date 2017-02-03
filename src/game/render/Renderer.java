@@ -317,6 +317,7 @@ public class Renderer implements IRenderer {
 		
 		align(a, x, y, w, h);
 		matModelView.scale(w, h, 1.0f);
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
 		
 		simpleShader.setProjectionMatrix(matProjection);
 		simpleShader.setModelViewMatrix(matModelView);
@@ -336,6 +337,8 @@ public class Renderer implements IRenderer {
 		align(a, x, y, w, h);
 		
 		matModelView.translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
+		
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);
