@@ -2,6 +2,7 @@ package game.ui;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
 
@@ -39,6 +40,7 @@ public class ButtonComponent extends UIComponent {
 	private boolean pressed = false;
 	/** Whether the mouse has been released since the last update */
 	private boolean released = false;
+	private Align a;
 		
 	/**
 	 * Constructs a button
@@ -49,8 +51,9 @@ public class ButtonComponent extends UIComponent {
 	 * @param _hoverTexture The image drawn when the mouse hovers over the button
 	 * @param _pressedTexture The image drawn when the button is pressed down
 	 */
-	public ButtonComponent(Runnable _callback, float _x, float _y, Texture _defaultTexture, Texture _hoverTexture, Texture _pressedTexture) {
+	public ButtonComponent(Runnable _callback, Align a, float _x, float _y, Texture _defaultTexture, Texture _hoverTexture, Texture _pressedTexture) {
 		this.callback = _callback;
+		this.a = a;
 		
 		this.defaultTexture = _defaultTexture;
 		this.hoverTexture = _hoverTexture;
@@ -107,7 +110,7 @@ public class ButtonComponent extends UIComponent {
 			currentTexture = pressedTexture;
 		}
 		
-		r.drawTexture(currentTexture, x, y);
+		r.drawTexture(currentTexture, a, x, y);
 	}
 	
 	/**
