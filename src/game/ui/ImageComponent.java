@@ -16,6 +16,14 @@ public class ImageComponent extends UIComponent {
 	private Align a;
 	float rot;
 	
+	/**
+	 * Constructs an image component
+	 * @param a The alignment point of the button
+	 * @param x The x-coordinate of the image (bottom left of the screen to the alignment point)
+	 * @param y The x-coordinate of the image (bottom left of the screen to the alignment point)
+	 * @param _texture The texture to use for the image
+	 * @param rot The rotation of the image in radians (clockwise)
+	 */
 	public ImageComponent(Align a, float x, float y, Texture _texture, float rot) {
 		this.texture = _texture;
 		this.x = x;

@@ -75,7 +75,8 @@ public interface IRenderer {
 	public MatrixStackf getModelViewMatrix();
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the alignment a).
+	 * Draws the texture specified to the screen at x,y (relative to the
+	 * bottom left of the screen and alignment a).
 	 * @param tex The texture specified. See {@link #getImageBank()}.
 	 * @param a The alignment. See {@link #Align}
 	 * @param x The x-coordinate
@@ -86,8 +87,8 @@ public interface IRenderer {
 	}
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the alignment a) with a specified
-	 * rotation r.
+	 * Draws the texture specified to the screen at x,y (relative to the
+	 * bottom left of the screen and alignment a) with a specified rotation r.
 	 * @param tex The texture specified. See {@link #getImageBank()}.
 	 * @param a The alignment. See {@link #Align}
 	 * @param x The x-coordinate
@@ -99,7 +100,8 @@ public interface IRenderer {
 	}
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the alignment a) with a specified
+	 * Draws the texture specified to the screen at x,y (relative to the
+	 * bottom left of the screen and alignment a) with a specified
 	 * width, height and rotation.
 	 * @param tex The texture specified. See {@link #getImageBank()}.
 	 * @param a The alignment. See {@link #Align}
@@ -113,7 +115,8 @@ public interface IRenderer {
 	}
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the alignment a) with a specified
+	 * Draws the texture specified to the screen at x,y (relative to the
+	 * bottom left of the screen and alignment a) with a specified
 	 * width, height and rotation.
 	 * @param tex The texture specified. See {@link #getImageBank()}.
 	 * @param a The alignment. See {@link #Align}
@@ -126,7 +129,8 @@ public interface IRenderer {
 	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r);
 	
 	/**
-	 * Draws a solid-color box to the screen at x,y (relative to the alignment a) with a specified
+	 * Draws a solid-color box to the screen at x,y (relative to the
+	 * bottom left of the screen and alignment a) with a specified
 	 * width, height, Color. See {@link game.ColorUtil ColorUtil}.
 	 * @param a The alignment. See {@link #Align}
 	 * @param x The x-coordinate
@@ -140,7 +144,8 @@ public interface IRenderer {
 	}
 	
 	/**
-	 * Draws a solid-color box to the screen at x,y (relative to the alignment a) with a specified
+	 * Draws a solid-color box to the screen at x,y (relative to the
+	 * bottom left of the screen and alignment a) with a specified
 	 * width, height, Color (See {@link game.ColorUtil ColorUtil}) and rotation r.
 	 * @param a The alignment. See {@link #Align}
 	 * @param x The x-coordinate

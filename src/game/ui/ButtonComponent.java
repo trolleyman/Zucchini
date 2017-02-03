@@ -45,15 +45,16 @@ public class ButtonComponent extends UIComponent {
 	/**
 	 * Constructs a button
 	 * @param _callback The callback that is run when the button is clicked
+	 * @param _a The alignment point of the button
 	 * @param _x The x-coordinate of the button
 	 * @param _y The y-coordinate of the button
 	 * @param _defaultTexture The default image of the button
 	 * @param _hoverTexture The image drawn when the mouse hovers over the button
 	 * @param _pressedTexture The image drawn when the button is pressed down
 	 */
-	public ButtonComponent(Runnable _callback, Align a, float _x, float _y, Texture _defaultTexture, Texture _hoverTexture, Texture _pressedTexture) {
+	public ButtonComponent(Runnable _callback, Align _a, float _x, float _y, Texture _defaultTexture, Texture _hoverTexture, Texture _pressedTexture) {
 		this.callback = _callback;
-		this.a = a;
+		this.a = _a;
 		
 		this.defaultTexture = _defaultTexture;
 		this.hoverTexture = _hoverTexture;
