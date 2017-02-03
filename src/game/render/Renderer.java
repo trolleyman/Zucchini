@@ -39,9 +39,9 @@ public class Renderer implements IRenderer {
 	/** Image bank */
 	private TextureBank ib;
 	
-	/** Current window height */
+	/** Current window width (in pixels) */
 	private int windowW;
-	/** Current window width */
+	/** Current window height (in pixels) */
 	private int windowH;
 	
 	/** Should the game recalculate the projection matrix on the next frame? */
@@ -131,7 +131,7 @@ public class Renderer implements IRenderer {
 		glfwSetScrollCallback(window, (window, xoffset, yoffset) -> {
 			this.ih.handleScroll(xoffset, yoffset);
 		});
-		glfwSetWindowSizeCallback(window, (window, w, h) -> {
+		glfwSetFramebufferSizeCallback(window, (window, w, h) -> {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
