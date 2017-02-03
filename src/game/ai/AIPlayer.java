@@ -4,7 +4,7 @@ import game.world.ServerWorld;
 import game.world.entity.Player;
 
 public class AIPlayer extends AI {
-	public AIPlayer(Player _player, Connection whatever) {
+	public AIPlayer(Player _player/* TODO: , Connection whatever*/) {
 		super(_player);
 		// TODO Auto-generated constructor stub
 	}

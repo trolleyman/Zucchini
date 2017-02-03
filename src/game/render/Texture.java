@@ -41,11 +41,12 @@ public class Texture {
 		glBindTexture(GL_TEXTURE_2D, texID);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		
-		/*System.out.print("Data = [");
+		/*
+		System.out.print("Data = [");
 		byte[] pixel = new byte[4];
 		data.rewind();
 		for (int i = 0; i < 4; i++) {
@@ -57,7 +58,7 @@ public class Texture {
 			System.out.print(", ");
 		}
 		data.rewind();
-		System.out.println(" ... ]");*/
+		System.out.println(" ... ]");//*/
 	}
 	
 	/**

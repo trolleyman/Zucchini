@@ -39,10 +39,14 @@ public class Renderer implements IRenderer {
 	/** Image bank */
 	private TextureBank ib;
 	
-	/** Current window height */
+	/** Current window width (in pixels) */
 	private int windowW;
-	/** Current window width */
+	/** Current window height (in pixels) */
 	private int windowH;
+	/** Current window width (in screen co-ordinates) */
+	private int windowScreenW;
+	/** Current window height (in screen co-ordinates) */
+	private int windowScreenH;
 	
 	/** Should the game recalculate the projection matrix on the next frame? */
 	private boolean dirty;
@@ -76,10 +80,10 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		
 		// OpenGL window hints
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		if (System.getenv("C3_DEBUG") != null) {
 			System.out.println("OpenGL debug context enabled.");
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
@@ -123,7 +127,9 @@ public class Renderer implements IRenderer {
 		});
 		glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
 			// Modify ypos so that coords are relative to bottom left of window.
-			this.ih.handleCursorPos(xpos, this.windowH - ypos);
+			double xposPixel = screenToPixelCoordinates(xpos);
+			double yposPixel = screenToPixelCoordinates(this.windowScreenH - ypos);
+			this.ih.handleCursorPos(xposPixel, yposPixel);
 		});
 		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
 			this.ih.handleMouseButton(button, action, mods);
@@ -132,15 +138,34 @@ public class Renderer implements IRenderer {
 			this.ih.handleScroll(xoffset, yoffset);
 		});
 		glfwSetWindowSizeCallback(window, (window, w, h) -> {
+			this.windowScreenW = w;
+			this.windowScreenH = h;
+			this.dirty = true;
+		});
+		glfwSetFramebufferSizeCallback(window, (window, w, h) -> {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
 		});
+		int[] wBuf = new int[1];
+		int[] hBuf = new int[1];
+		glfwGetFramebufferSize(window, wBuf, hBuf);
+		windowW = wBuf[0];
+		windowH = hBuf[0];
+		glfwGetWindowSize(window, wBuf, hBuf);
+		windowScreenW = wBuf[0];
+		windowScreenH = hBuf[0];
 		
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
 		
 		GL.createCapabilities();
+		
+		// Print OpenGL version
+		System.out.println("Loaded OpenGL " + glGetString(GL_VERSION) + " (" + glGetString(GL_VENDOR) + ") on " + glGetString(GL_RENDERER));
+		
+		// Print scale
+		System.out.println("DPI Scale: " + screenToPixelCoordinates(1));
 		
 		// Load shaders
 		System.out.println("Loading shaders...");
@@ -168,27 +193,40 @@ public class Renderer implements IRenderer {
 		recalcProjectionMatrix();
 	}
 	
+	private double screenToPixelCoordinates(double coord) {
+		double scale = this.windowW / this.windowScreenW;
+		return coord * scale;
+	}
+
 	/**
 	 * Generate the VAO boxes.
 	 */
 	private void generateBoxes() {
 		float[] vertexPositions = {
+			// t0
 			0.0f, 0.0f, // BL
 			1.0f, 0.0f, // BR
-			1.0f, 1.0f, // TR
 			0.0f, 1.0f, // TL
+			// t1
+			0.0f, 1.0f, // TL
+			1.0f, 0.0f, // BR
+			1.0f, 1.0f, // TR
 		};
 		float[] vertexUVs = {
+			// t0
 			0.0f, 0.0f, // BL
 			1.0f, 0.0f, // BR
-			1.0f, 1.0f, // TR
 			0.0f, 1.0f, // TL
+			// t1
+			0.0f, 1.0f, // TL
+			1.0f, 0.0f, // BR
+			1.0f, 1.0f, // TR
 		};
 		
-		box = new VAO(GL_QUADS, 4);
+		box = new VAO(GL_TRIANGLES, 6);
 		box.addData(simpleShader, "position", vertexPositions, 2);
 		
-		boxUV = new VAO(GL_QUADS, 4);
+		boxUV = new VAO(GL_TRIANGLES, 6);
 		boxUV.addData(textureShader, "position", vertexPositions, 2);
 		boxUV.addData(textureShader, "uv", vertexUVs, 2);
 	}
