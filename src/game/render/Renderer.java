@@ -43,6 +43,10 @@ public class Renderer implements IRenderer {
 	private int windowW;
 	/** Current window height (in pixels) */
 	private int windowH;
+	/** Current window width (in screen co-ordinates) */
+	private int windowScreenW;
+	/** Current window height (in screen co-ordinates) */
+	private int windowScreenH;
 	
 	/** Should the game recalculate the projection matrix on the next frame? */
 	private boolean dirty;
@@ -123,7 +127,7 @@ public class Renderer implements IRenderer {
 		});
 		glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
 			// Modify ypos so that coords are relative to bottom left of window.
-			this.ih.handleCursorPos(xpos, this.windowH - ypos);
+			this.ih.handleCursorPos(xpos, this.windowScreenH - ypos);
 		});
 		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
 			this.ih.handleMouseButton(button, action, mods);
@@ -131,11 +135,24 @@ public class Renderer implements IRenderer {
 		glfwSetScrollCallback(window, (window, xoffset, yoffset) -> {
 			this.ih.handleScroll(xoffset, yoffset);
 		});
+		glfwSetWindowSizeCallback(window, (window, w, h) -> {
+			this.windowScreenW = w;
+			this.windowScreenH = h;
+			this.dirty = true;
+		});
 		glfwSetFramebufferSizeCallback(window, (window, w, h) -> {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
 		});
+		int[] wBuf = new int[1];
+		int[] hBuf = new int[1];
+		glfwGetFramebufferSize(window, wBuf, hBuf);
+		windowW = wBuf[0];
+		windowH = hBuf[0];
+		glfwGetWindowSize(window, wBuf, hBuf);
+		windowScreenW = wBuf[0];
+		windowScreenH = hBuf[0];
 		
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
