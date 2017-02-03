@@ -7,16 +7,16 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Map;
 import game.networking.util.Protocol;
-import game.networking.util.Touple;
+import game.networking.util.Tuple;
 
 public class TCPListenerLobbyThread implements Runnable
 {
 	private Socket socket;
 	private String name;
-	private Map<String, LinkedList<Touple<String, String>>> messages;
-	private LinkedList<Touple<String, String>> actions;
+	private Map<String, LinkedList<Tuple<String, String>>> messages;
+	private LinkedList<Tuple<String, String>> actions;
 
-	public TCPListenerLobbyThread(Socket _socket, String _name, Map<String, LinkedList<Touple<String, String>>> _messages, LinkedList<Touple<String, String>> _actions)
+	public TCPListenerLobbyThread(Socket _socket, String _name, Map<String, LinkedList<Tuple<String, String>>> _messages, LinkedList<Tuple<String, String>> _actions)
 	{
 		socket = _socket;
 		name = _name;
@@ -56,10 +56,7 @@ public class TCPListenerLobbyThread implements Runnable
 						message = message.substring(Protocol.TCP_Message.length());
 						for (String n : messages.keySet())
 						{
-							if (!n.equals(name))
-							{
-								messages.get(n).add(new Touple<>(name, message));
-							}
+							messages.get(n).add(new Tuple<>(name, message));
 						}
 						System.out.println(name + ": " + message);
 					}
@@ -67,7 +64,7 @@ public class TCPListenerLobbyThread implements Runnable
 				{
 					synchronized (actions)
 					{
-						actions.add(new Touple<>(name, message));
+						actions.add(new Tuple<>(name, message));
 						System.out.println("ACTION from: " + name + " TO DO: " + message);
 					}
 				}

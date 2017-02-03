@@ -6,16 +6,16 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import game.networking.util.Protocol;
-import game.networking.util.Touple;
+import game.networking.util.Tuple;
 
 public class TCPSenderLobbyThread implements Runnable
 {
 
 	private Socket socket;
 	private String name;
-	LinkedList<Touple<String, String>> messages;
+	LinkedList<Tuple<String, String>> messages;
 
-	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<Touple<String, String>> _messages)
+	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<Tuple<String, String>> _messages)
 	{
 		socket = _socket;
 		name = _name;
@@ -38,7 +38,7 @@ public class TCPSenderLobbyThread implements Runnable
 
 					while (!messages.isEmpty())
 					{
-						Touple<String, String> t = messages.poll();
+						Tuple<String, String> t = messages.poll();
 						try
 						{
 							toClient.writeBytes(Protocol.TCP_Message + t.getFirst() + ": " + t.getSecond() + "\n");

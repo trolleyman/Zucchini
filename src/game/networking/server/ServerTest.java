@@ -8,7 +8,7 @@ import game.networking.server.threads.DiscoveryThread;
 import game.networking.server.threads.LobbyThread;
 import game.networking.util.Connection;
 import game.networking.util.ServerMainable;
-import game.networking.util.Touple;
+import game.networking.util.Tuple;
 
 public class ServerTest implements ServerMainable
 {
@@ -54,13 +54,13 @@ public class ServerTest implements ServerMainable
 	}
 
 	@Override
-	public synchronized LinkedList<Touple<String, String>> getActions()
+	public synchronized LinkedList<Tuple<String, String>> getActions()
 	{
 		return lobby.getActions();
 	}
 
 	@Override
-	public synchronized Touple<String, String> getAction()
+	public synchronized Tuple<String, String> getAction()
 	{
 		return lobby.getActions().poll();
 	}

@@ -16,7 +16,7 @@ import game.networking.server.threads.tcp.TCPConLobbyThread;
 import game.networking.server.threads.tcp.TCPListenerLobbyThread;
 import game.networking.util.Connection;
 import game.networking.util.Protocol;
-import game.networking.util.Touple;
+import game.networking.util.Tuple;
 
 public class LobbyThread implements Runnable
 {
@@ -28,14 +28,14 @@ public class LobbyThread implements Runnable
 	private List<String> acceptedClients;
 
 	private Map<String, Socket> clientSockets;
-	private Map<String, LinkedList<Touple<String, String>>> messages;
+	private Map<String, LinkedList<Tuple<String, String>>> messages;
 
 	private DatagramSocket datagramSocket;
 
 	private boolean updated = false;
 	private List<String> updatedList;
 
-	private LinkedList<Touple<String, String>> actions;
+	private LinkedList<Tuple<String, String>> actions;
 
 	public LobbyThread(int _socketInt, Map<String, Connection> _clients, List<String> _acceptedClients)
 	{
@@ -142,7 +142,7 @@ public class LobbyThread implements Runnable
 		updated = true;
 	}
 
-	public synchronized LinkedList<Touple<String, String>> getActions()
+	public synchronized LinkedList<Tuple<String, String>> getActions()
 	{
 		return actions;
 	}
