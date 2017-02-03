@@ -176,22 +176,30 @@ public class Renderer implements IRenderer {
 	 */
 	private void generateBoxes() {
 		float[] vertexPositions = {
+			// t0
 			0.0f, 0.0f, // BL
 			1.0f, 0.0f, // BR
-			1.0f, 1.0f, // TR
 			0.0f, 1.0f, // TL
+			// t1
+			0.0f, 1.0f, // TL
+			1.0f, 0.0f, // BR
+			1.0f, 1.0f, // TR
 		};
 		float[] vertexUVs = {
+			// t0
 			0.0f, 0.0f, // BL
 			1.0f, 0.0f, // BR
-			1.0f, 1.0f, // TR
 			0.0f, 1.0f, // TL
+			// t1
+			0.0f, 1.0f, // TL
+			1.0f, 0.0f, // BR
+			1.0f, 1.0f, // TR
 		};
 		
-		box = new VAO(GL_QUADS, 4);
+		box = new VAO(GL_TRIANGLES, 6);
 		box.addData(simpleShader, "position", vertexPositions, 2);
 		
-		boxUV = new VAO(GL_QUADS, 4);
+		boxUV = new VAO(GL_TRIANGLES, 6);
 		boxUV.addData(textureShader, "position", vertexPositions, 2);
 		boxUV.addData(textureShader, "uv", vertexUVs, 2);
 	}
