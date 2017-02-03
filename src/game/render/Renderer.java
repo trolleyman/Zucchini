@@ -128,7 +128,7 @@ public class Renderer implements IRenderer {
 		glfwSetCursorPosCallback(window, (window, xpos, ypos) -> {
 			// Modify ypos so that coords are relative to bottom left of window.
 			double xposPixel = screenToPixelCoordinates(xpos);
-			double yposPixel = screenToPixelCoordinates(this.windowH - ypos);
+			double yposPixel = screenToPixelCoordinates(this.windowScreenH - ypos);
 			this.ih.handleCursorPos(xposPixel, yposPixel);
 		});
 		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
