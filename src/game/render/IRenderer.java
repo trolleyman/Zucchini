@@ -4,6 +4,7 @@ import org.joml.MatrixStackf;
 import org.joml.Vector4f;
 
 import game.InputHandler;
+import game.render.Align;
 
 /**
  * The interface for the renderer.
@@ -11,6 +12,7 @@ import game.InputHandler;
  * @author Callum
  */
 public interface IRenderer {
+
 	/**
 	 * Sets the {@link InputHandler} that will be called when events are triggered.
 	 * <p>
@@ -78,8 +80,8 @@ public interface IRenderer {
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 */
-	public default void drawTexture(Texture tex, float x, float y) {
-		this.drawTexture(tex, x, y, tex.getWidth(), tex.getHeight());
+	public default void drawTexture(Texture tex, Align a, float x, float y) {
+		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight());
 	}
 	/**
 	 * Draws the texture specified to the screen at x,y (relative to the bottom left) with a specified
@@ -90,7 +92,7 @@ public interface IRenderer {
 	 * @param w The width
 	 * @param h The height
 	 */
-	public void drawTexture(Texture tex, float x, float y, float w, float h);
+	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h);
 	
 	/**
 	 * Draws a solid-color box to the screen at x,y (relative to the bottom left) with a specified
@@ -101,5 +103,5 @@ public interface IRenderer {
 	 * @param h The height
 	 * @param c The color
 	 */
-	public void drawBox(float x, float y, float w, float h, Vector4f c);
+	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c);
 }

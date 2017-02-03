@@ -1,5 +1,6 @@
 package game.ui;
 
+import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
 
@@ -20,7 +21,7 @@ public class ImageComponent extends UIComponent {
 	}
 	
 	public void render(IRenderer r) {	
-		r.drawTexture(texture, x, y, r.getWidth(), r.getHeight());
+		r.drawTexture(texture, Align.MM, x, y, r.getWidth(), r.getHeight());
 	}
 
 	@Override

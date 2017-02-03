@@ -2,6 +2,7 @@ package game.ui;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
 
@@ -107,7 +108,7 @@ public class ButtonComponent extends UIComponent {
 			currentTexture = pressedTexture;
 		}
 		
-		r.drawTexture(currentTexture, x, y);
+		r.drawTexture(currentTexture, Align.BL, x, y);
 	}
 	
 	/**
