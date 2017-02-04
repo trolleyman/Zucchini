@@ -6,12 +6,15 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import org.joml.MatrixStackf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
+import game.ColorUtil;
 import game.InputHandler;
+import game.Util;
 import game.render.shader.Shader;
 import game.render.shader.SimpleShader;
 import game.render.shader.TextureShader;
@@ -322,7 +325,7 @@ public class Renderer implements IRenderer {
 	
 	public void align(Align a, float w, float h) {
 		switch (a) {
-		case BL: 
+		case BL:
 			break;
 		case BM: matModelView.translate(w/2, 0.0f, 0.0f);
 			break;
@@ -349,6 +352,29 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
+	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness) {
+		// Change to screen co-ords
+		Vector3f temp = Util.getThreadLocalVector3f();
+		temp.set(_x0, _y0, 0.0f).mulPosition(matModelView);
+		float x0 = temp.x;
+		float y0 = temp.y;
+		temp.set(_x1, _y1, 0.0f).mulPosition(matModelView);
+		float x1 = temp.x;
+		float y1 = temp.y;
+		
+		float xdiff = x1 - x0;
+		float ydiff = y1 - y0;
+		float ang = (float) -Math.atan(xdiff/ydiff);
+		float length = (float) Math.sqrt(xdiff*xdiff + ydiff*ydiff); // Pythag
+		
+		// Reset the modelview matrix so that we are directly drawing to screen
+		getModelViewMatrix().pushMatrix();
+		getModelViewMatrix().identity();
+		drawBox(Align.BM, x0, y0, thickness, length, c, ang);
+		getModelViewMatrix().popMatrix();
+	}
+	
+	@Override
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r) {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
@@ -372,7 +398,6 @@ public class Renderer implements IRenderer {
 	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r) {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
-		
 		
 		matModelView.translate(x, y, 0.0f);
 		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);

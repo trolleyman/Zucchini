@@ -1,9 +1,11 @@
 package game.render;
 
 import org.joml.MatrixStackf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import game.InputHandler;
+import game.Util;
 import game.render.Align;
 
 /**
@@ -79,23 +81,17 @@ public interface IRenderer {
 	 * @param x0
 	 * @param y0
 	 * @param x1
-	 * @param y0
+	 * @param y1
 	 * @param c The color of the line
 	 * @param thickness Thickness in pixels of the line
 	 */
-	public default void drawLine(float x0, float y0, float x1, float y1, Vector4f c, float thickness) {
-		float xdiff = x1 - x0;
-		float ydiff = y1 - y0;
-		float ang = (float) Math.atan(xdiff/ydiff);
-		float length = (float) Math.sqrt(xdiff*xdiff + ydiff*ydiff); // Pythag
-		drawBox(Align.ML, x0, y0, length, thickness, c, ang);
-	}
+	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness);
 	
 	/**
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a).
 	 * @param tex The texture specified. See {@link #getImageBank()}.
-	 * @param a The alignment. See {@link #Align}
+	 * @param a The alignment. See {@link game.Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 */

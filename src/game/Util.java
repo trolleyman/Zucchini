@@ -5,6 +5,8 @@ import static org.lwjgl.glfw.GLFW.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.joml.Vector3f;
+
 /**
  * Class used for utility methods/constants that don't have a proper home anywhere.
  * 
@@ -77,5 +79,17 @@ public class Util {
 	 */
 	public static Path getBasePath() {
 		return Paths.get(".").toAbsolutePath();
+	}
+	
+	private static final ThreadLocal<Vector3f> vector3f = new ThreadLocal<Vector3f>() {
+		@Override
+		protected Vector3f initialValue() { return new Vector3f(); }
+	};
+	
+	/**
+	 * Gets the thread local temporary Vector3f
+	 */
+	public static Vector3f getThreadLocalVector3f() {
+		return vector3f.get();
 	}
 }

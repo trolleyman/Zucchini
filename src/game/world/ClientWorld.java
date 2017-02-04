@@ -136,6 +136,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleMouseButton(int button, int action, int mods) {
 		// Send input to server
-		connection.sendAction(new Action(ActionType.SHOOT));
+		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1)
+			connection.sendAction(new Action(ActionType.SHOOT));
 	}
 }

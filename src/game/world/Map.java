@@ -44,7 +44,7 @@ public class Map {
 			float x1 = lines[i+2];
 			float y1 = lines[i+3];
 			
-			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 4.0f);
+			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
 		}
 	}
 }
