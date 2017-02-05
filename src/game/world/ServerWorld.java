@@ -31,7 +31,7 @@ public class ServerWorld extends World implements Cloneable {
 		
 		// Ensure ais are entities
 		for (AI ai : ais) {
-			this.updateEntity(ai.getEntity());
+			this.handleUpdateEntity(ai.getEntity());
 		}
 	}
 	
@@ -57,13 +57,13 @@ public class ServerWorld extends World implements Cloneable {
 			// If the entity doesn't exist anymore
 			if (getEntity(e.getId()) == null) {
 				// Remove entity
-				cch.removeEntity(e.getId());
+				cch.handleRemoveEntity(e.getId());
 			}
 		}
 		
 		// Update/create entities from the current world
 		for (Entity e : this.entities) {
-			cch.updateEntity(e);
+			cch.handleUpdateEntity(e);
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class ServerWorld extends World implements Cloneable {
 		
 		// Clone all entities
 		for (Entity e : this.entities) {
-			world.updateEntity((Entity) e.clone());
+			world.handleUpdateEntity((Entity) e.clone());
 		}
 		
 		// Clone & update AIs

@@ -77,7 +77,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		this.connection = _connection;
 		
 		// Ensure that player is an entity in the world
-		this.updateEntity(player);
+		this.handleUpdateEntity(player);
 		
 		this.cameraPos = this.player.position;
 	}

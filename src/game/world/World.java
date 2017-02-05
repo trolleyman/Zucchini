@@ -43,7 +43,7 @@ public abstract class World {
 		this.entities = new ArrayList<Entity>();
 		for (Entity e : _entities) {
 			// Do this to ensure that the entity IDs are set correctly
-			updateEntity(e);
+			handleUpdateEntity(e);
 		}
 	}
 	
@@ -88,7 +88,7 @@ public abstract class World {
 	 * 
 	 * @param e The entity
 	 */
-	public synchronized void updateEntity(Entity e) {
+	public synchronized void handleUpdateEntity(Entity e) {
 		if (e.getId() == Entity.INVALID_ID) {
 			// Insert entity at the end of the array
 			int id = this.nextEntityId++;
@@ -112,7 +112,7 @@ public abstract class World {
 	 * Removes the entity associated with the specified id
 	 * @param id The entity id
 	 */
-	public synchronized void removeEntity(int id) {
+	public synchronized void handleRemoveEntity(int id) {
 		int i = getEntityInsertIndex(id);
 		
 		if (i < this.entities.size() && this.entities.get(i).getId() == id) {

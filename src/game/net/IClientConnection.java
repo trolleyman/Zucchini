@@ -4,6 +4,7 @@ import game.action.Action;
 
 /**
  * This is the main interface used by the client to communicate with the server.
+ * It is mirrored on the server-side by {@link game.net.IServerConnection IServerConnection}.
  * <p>
  * This class assumes that the client is already connected to the server with an acceptable username.
  * <p>
