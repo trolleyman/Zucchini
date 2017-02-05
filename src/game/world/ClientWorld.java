@@ -17,6 +17,8 @@ import game.net.IClientConnectionHandler;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Player;
+import game.world.map.Map;
+import game.world.map.TestMap;
 
 /**
  * The world located on the client
@@ -28,7 +30,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * Creates a test single player world
 	 */
 	public static ClientWorld createTestWorld() {
-		Map map = new TestMap();
+		Map map = Map.createTestMap();
 		
 		ArrayList<Entity> serverEntities = new ArrayList<>();
 		Player serverPlayer = new Player(new Vector2f(0.5f, 0.5f));

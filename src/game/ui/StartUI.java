@@ -11,8 +11,8 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
-import game.world.TestMap;
 import game.world.World;
+import game.world.map.TestMap;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program

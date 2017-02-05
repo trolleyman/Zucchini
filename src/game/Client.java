@@ -1,10 +1,13 @@
 package game;
 
+import java.util.Random;
+
 import org.lwjgl.Version;
 
 import game.render.Renderer;
 import game.ui.StartUI;
 import game.ui.UI;
+import game.world.map.Maze;
 
 /**
  * The main class for the client. It contains a main method that, when run, initializes the client and

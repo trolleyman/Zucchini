@@ -7,6 +7,7 @@ import game.Util;
 import game.ai.AI;
 import game.render.IRenderer;
 import game.world.entity.Entity;
+import game.world.map.Map;
 
 /**
  * The base class for the worlds (the common functionality is located here)

@@ -1,4 +1,6 @@
-package game.world;
+package game.world.map;
+
+import java.util.Random;
 
 import org.joml.Vector2f;
 
@@ -12,6 +14,11 @@ import game.render.IRenderer;
  * @author Callum
  */
 public class Map {
+	public static Map createTestMap() {
+		Maze maze = new Maze(new Random(10), 20, 5, 0, 0, 19, 4);
+		return new MazeMap(maze);
+	}
+	
 	/** The "walls" of the map that entities can collide with */
 	private float[] lines;
 	

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import game.ai.AI;
 import game.net.IClientConnectionHandler;
 import game.world.entity.Entity;
+import game.world.map.Map;
 
 /**
  * The world located on the server

@@ -1,4 +1,4 @@
-package game.world;
+package game.world.map;
 
 /**
  * A simple test map
