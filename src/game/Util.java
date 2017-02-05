@@ -92,4 +92,50 @@ public class Util {
 	public static Vector3f getThreadLocalVector3f() {
 		return vector3f.get();
 	}
+	
+	/**
+	 * Gets the angle between two points, relative clockwise to the up vector.
+	 * @param x0 x-coordinate of the first point
+	 * @param y0 y-coordinate of the first point
+	 * @param x1 x-coordinate of the second point
+	 * @param y1 y-coordinate of the second point
+	 */
+	public static float getAngle(float x0, float y0, float x1, float y1) {
+		return (float) Util.getAngle((double)x0, (double)y0, (double)x1, (double)y1);
+	}
+	
+	/**
+	 * Gets the angle between two points, relative clockwise to the up vector.
+	 * @param x0 x-coordinate of the first point
+	 * @param y0 y-coordinate of the first point
+	 * @param x1 x-coordinate of the second point
+	 * @param y1 y-coordinate of the second point
+	 */
+	public static double getAngle(double x0, double y0, double x1, double y1) {
+		double x = x1-x0;
+		double y = y1-y0;
+		return Util.getAngle(x, y);
+	}
+	
+	/**
+	 * Gets the angle between 0,0 and the point specified, relative clockwise to the up vector.
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 */
+	public static float getAngle(float x, float y) {
+		return (float) Util.getAngle((double) x, (double) y);
+	}
+	
+	/**
+	 * Gets the angle between 0,0 and the point specified, relative clockwise to the up vector.
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 */
+	public static double getAngle(double x, double y) {
+		double angle = Math.atan(x/y);
+		if (y < 0.0f) {
+			angle = Math.PI + angle;
+		}
+		return angle;
+	}
 }

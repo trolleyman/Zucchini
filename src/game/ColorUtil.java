@@ -3,7 +3,7 @@ package game;
 import org.joml.Vector4f;
 
 /**
- * Color util class. I know it's ColoUr, but I'm following the American convention here so it's
+ * Color util class. I know it's Colo<b>u</b>r, but I'm following the American convention here so it's
  * consistent with Java's standard library.
  * 
  * We're using Vector4f's so that their values can be rewritten.

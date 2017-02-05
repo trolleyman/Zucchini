@@ -353,7 +353,7 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness) {
-		// Change to screen co-ords
+		// Change to pixel co-ords
 		Vector3f temp = Util.getThreadLocalVector3f();
 		temp.set(_x0, _y0, 0.0f).mulPosition(matModelView);
 		float x0 = temp.x;
@@ -364,10 +364,10 @@ public class Renderer implements IRenderer {
 		
 		float xdiff = x1 - x0;
 		float ydiff = y1 - y0;
-		float ang = (float) -Math.atan(xdiff/ydiff);
+		float ang = Util.getAngle(xdiff, ydiff);
 		float length = (float) Math.sqrt(xdiff*xdiff + ydiff*ydiff); // Pythag
 		
-		// Reset the modelview matrix so that we are directly drawing to screen
+		// Reset the modelview matrix so that we are using pixel co-ordinates
 		getModelViewMatrix().pushMatrix();
 		getModelViewMatrix().identity();
 		drawBox(Align.BM, x0, y0, thickness, length, c, ang);
@@ -380,7 +380,7 @@ public class Renderer implements IRenderer {
 		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		
 		matModelView.translate(x, y, 0.0f);
-		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
 		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		
@@ -400,7 +400,7 @@ public class Renderer implements IRenderer {
 		//matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
 		matModelView.translate(x, y, 0.0f);
-		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
 		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		

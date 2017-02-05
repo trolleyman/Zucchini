@@ -78,11 +78,11 @@ public interface IRenderer {
 	
 	/**
 	 * Draws a line with a specified thickness and color
-	 * @param x0
-	 * @param y0
-	 * @param x1
-	 * @param y1
-	 * @param c The color of the line
+	 * @param x0 First x-coordinate
+	 * @param y0 First y-coordinate
+	 * @param x1 Second x-coordinate
+	 * @param y1 Second y-coordinate
+	 * @param c The color of the line. See {@link game.ColorUtil ColorUtil}.
 	 * @param thickness Thickness in pixels of the line
 	 */
 	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness);

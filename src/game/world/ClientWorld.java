@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import game.InputHandler;
+import game.Util;
 import game.action.Action;
 import game.action.ActionType;
 import game.action.AimAction;
@@ -56,6 +57,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 */
 	private float cameraZoom = 100;
 	
+	/** Cached window width */
+	private float windowW;
+	/** Cached window height */
+	private float windowH;
+	
 	/**
 	 * Constructs a client world
 	 * @param _map The map
@@ -87,6 +93,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
+		// Cache window size
+		windowW = r.getWidth();
+		windowH = r.getHeight();
+		
+		// Set model view matrix
 		r.getModelViewMatrix()
 			.pushMatrix()
 			.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
@@ -127,9 +138,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
 		// Send input to server
-		float x = ((float) xpos / cameraZoom) - cameraPos.x;
-		float y = ((float) ypos / cameraZoom) - cameraPos.y;
-		float angle = (float) Math.atan(x / y);
+		float angle = (float) Util.getAngle(windowW/2, windowH/2, xpos, ypos);
+		double x = xpos - windowW/2;
+		double y = ypos - windowH/2;
+		System.out.println(x + ", " + y + ": " + angle);
 		connection.sendAction(new AimAction(angle));
 	}
 	

@@ -59,8 +59,8 @@ public class Player extends Entity {
 	
 	@Override
 	public void render(IRenderer r) {
-		float size = 0.5f;
-		r.drawBox(Align.MM, position.x, position.y, size, size, ColorUtil.GREEN, this.angle);
+		r.drawBox(Align.BM, position.x, position.y, 0.01f, 20.0f, ColorUtil.RED, this.angle);
+		r.drawBox(Align.MM, position.x, position.y, 0.5f, 0.5f, ColorUtil.GREEN, this.angle);
 	}
 	
 	/**
