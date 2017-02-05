@@ -5,6 +5,7 @@ import game.action.Action;
 import game.action.ActionType;
 import game.ui.UI;
 import game.world.ClientWorld;
+import game.world.EntityBank;
 import game.world.ServerWorld;
 import game.world.World;
 import game.world.entity.Entity;
@@ -19,7 +20,7 @@ import game.world.entity.Player;
 public class DummyConnection extends Thread implements IClientConnection {
 	private ServerWorld serverWorld;
 	
-	private int playerId;
+	private int playerID;
 	
 	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
 
@@ -28,16 +29,19 @@ public class DummyConnection extends Thread implements IClientConnection {
 	/**
 	 * Constructs a new {@link DummyConnection}.
 	 * @param _serverWorld The server world
-	 * @param _player The player to receive actions from the connection.
+	 * @param _playerID The player id to receive actions from the connection.
 	 */
-	public DummyConnection(ServerWorld _serverWorld, Player _player) {
+	public DummyConnection(ServerWorld _serverWorld, int _playerID) {
 		this.serverWorld = _serverWorld;
-		this.playerId = _player.getId();
+		this.playerID = _playerID;
 	}
 	
 	@Override
 	public void sendAction(Action a) {
-		((Player) this.serverWorld.getEntity(playerId)).handleAction(a);
+		EntityBank bank = this.serverWorld.getEntityBank();
+		Entity e = bank.getEntity(playerID);
+		if (e != null && e instanceof Player)
+			((Player) e).handleAction(bank, a);
 	}
 	
 	@Override

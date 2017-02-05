@@ -13,7 +13,7 @@ public class AIPlayer extends AI {
 	}
 	
 	public AIPlayer(Player _player/* TODO: , Connection whatever*/) {
-		super(_player);
+		super(_player.getId());
 		// TODO Auto-generated constructor stub
 	}
 
@@ -24,7 +24,7 @@ public class AIPlayer extends AI {
 	}
 
 	@Override
-	public Object clone() {
+	public AIPlayer clone() {
 		return new AIPlayer(this);
 	}
 }

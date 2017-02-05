@@ -9,12 +9,12 @@ import game.world.entity.Entity;
  */
 public class DummyClientConnectionHandler implements IClientConnectionHandler {
 	@Override
-	public void handleUpdateEntity(Entity _e) {
+	public void updateEntity(Entity _e) {
 		System.err.println("Warning: Dummy client connection handler called.");
 	}
 
 	@Override
-	public void handleRemoveEntity(int _id) {
+	public void removeEntity(int _id) {
 		System.err.println("Warning: Dummy client connection handler called.");
 	}
 }

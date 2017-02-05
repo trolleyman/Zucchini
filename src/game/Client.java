@@ -85,5 +85,6 @@ class Client implements Runnable, InputPipe {
 	
 	public static void main(String[] args) {
 		new Client(false).run();
+		System.exit(0);
 	}
 }

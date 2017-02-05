@@ -3,6 +3,7 @@ package game.world.entity;
 import org.joml.Vector2f;
 
 import game.render.IRenderer;
+import game.world.EntityBank;
 
 /**
  * Abstract root of all the Entity classes.
@@ -34,7 +35,7 @@ public abstract class Entity implements Cloneable {
 	 */
 	public Entity(Entity e) {
 		this.id = e.id;
-		this.position = e.position;
+		this.position = new Vector2f(e.position);
 		this.angle = e.angle;
 	}
 	
@@ -48,9 +49,10 @@ public abstract class Entity implements Cloneable {
 	
 	/**
 	 * Updates the entity. Called every update cycle
+	 * @param bank The entity bank. Can be used to get entities from the world, modify or remove them.
 	 * @param dt Number of seconds to update the entity by
 	 */
-	public abstract void update(double dt);
+	public abstract void update(EntityBank bank, double dt);
 	/**
 	 * Renders the entity to the screen
 	 * @param r The renderer

@@ -110,4 +110,9 @@ public class StartUI extends UI implements InputPipeMulti {
 	public String toString() {
 		return "StartUI";
 	}
+
+	@Override
+	public void destroy() {
+		// Nothing to destroy
+	}
 }

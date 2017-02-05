@@ -94,4 +94,9 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		return "LobbyUI";
 	}
 
+	@Override
+	public void destroy() {
+		// Nothing to destroy
+	}
+
 }

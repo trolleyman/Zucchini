@@ -16,6 +16,7 @@ import game.net.IClientConnection;
 import game.net.IClientConnectionHandler;
 import game.render.IRenderer;
 import game.world.entity.Entity;
+import game.world.entity.Handgun;
 import game.world.entity.Player;
 import game.world.map.Map;
 import game.world.map.TestMap;
@@ -30,27 +31,41 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * Creates a test single player world
 	 */
 	public static ClientWorld createTestWorld() {
+		// Create map
 		Map map = Map.createTestMap();
 		
-		ArrayList<Entity> serverEntities = new ArrayList<>();
-		Player serverPlayer = new Player(new Vector2f(0.5f, 0.5f));
-		serverEntities.add(serverPlayer);
-		ServerWorld serverWorld = new ServerWorld(map, serverEntities, new ArrayList<>());
+		// Create entity bank and add entities
+		EntityBank serverBank = new EntityBank();
+		int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
+		int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
 		
-		DummyConnection connection = new DummyConnection(serverWorld, (Player) serverPlayer.clone());
+		// Create server world
+		ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
 		
-		return new ClientWorld(map, new ArrayList<>(), serverPlayer, connection);
+		// Create connection
+		DummyConnection connection = new DummyConnection(serverWorld, playerID);
+		
+		// Create client
+		ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, connection);
+		
+		// Start server thread
+		Thread t = new Thread(connection);
+		t.setName("Connection Handler");
+		t.start();
+		
+		// Return client world
+		return clientWorld;
 	}
 	
-	/** The player controlled by the client */
-	private Player player;
+	/** The ID of the player */
+	private int playerID;
 	/** The connection to the server */
 	private IClientConnection connection;
 	
 	/**
 	 * The position of the camera.
 	 */
-	private Vector2f cameraPos;
+	private Vector2f cameraPos = new Vector2f();
 	
 	/**
 	 * How much to scale the world co-ordinates to screen co-ordinates.
@@ -66,28 +81,27 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	/**
 	 * Constructs a client world
-	 * @param _map The map
-	 * @param _entities The list of entities to start with
-	 * @param _player The player controlled by the client
+	 * @param map The map
+	 * @param bank The entity bank
+	 * @param _playerID The player controlled by the client
 	 * @param _connection The connection to the server
 	 */
-	public ClientWorld(Map _map, ArrayList<Entity> _entities, Player _player, IClientConnection _connection) {
-		super(_map, _entities);
-		this.player = _player;
+	public ClientWorld(Map map, EntityBank bank, int _playerID, IClientConnection _connection) {
+		super(map, bank);
+		this.playerID = _playerID;
 		this.connection = _connection;
+		connection.setHandler(this);
 		
-		// Ensure that player is an entity in the world
-		this.handleUpdateEntity(player);
-		
-		this.cameraPos = this.player.position;
+		this.updateStep(0.0f);
 	}
 	
 	@Override
 	protected void updateStep(double dt) {
-		this.cameraPos = this.player.position;
-		
-		// TODO: For debugging. Do not use in production.
-		this.player.update(dt);
+		Entity e = this.bank.getEntity(this.playerID);
+		if (e != null && e instanceof Player)
+			this.cameraPos.set(e.position);
+		else
+			System.err.println("Warning: Player does not exist");
 	}
 	
 	/**
@@ -106,7 +120,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		this.map.render(r);
 		
 		// Render entities
-		for (Entity e : entities) {
+		for (Entity e : this.bank.entities) {
 			e.render(r);
 		}
 		
@@ -149,7 +163,24 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleMouseButton(int button, int action, int mods) {
 		// Send input to server
-		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1)
-			connection.sendAction(new Action(ActionType.SHOOT));
+		if (button == GLFW_MOUSE_BUTTON_1)
+			if (action == GLFW_PRESS)
+				connection.sendAction(new Action(ActionType.BEGIN_SHOOT));
+			else if (action == GLFW_RELEASE)
+				connection.sendAction(new Action(ActionType.END_SHOOT));
+	}
+
+	@Override
+	public void updateEntity(Entity e) {
+		this.bank.updateEntityCached(e);
+	}
+
+	@Override
+	public void removeEntity(int id) {
+		this.bank.removeEntityCached(id);
+	}
+
+	public void destroy() {
+		this.connection.close();
 	}
 }
