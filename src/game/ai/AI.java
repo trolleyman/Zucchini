@@ -12,6 +12,18 @@ import game.world.entity.Entity;
 public abstract class AI implements Cloneable {
 	private Entity entity;
 	
+	/**
+	 * Clones the specified AI
+	 * @param ai The AI
+	 */
+	public AI(AI ai) {
+		this.entity = (Entity) ai.entity.clone();
+	}
+	
+	/**
+	 * Constructs an AI that tracks a specified entity
+	 * @param _entity The entity
+	 */
 	public AI(Entity _entity) {
 		this.entity = _entity;
 	}

@@ -4,6 +4,14 @@ import game.world.ServerWorld;
 import game.world.entity.Player;
 
 public class AIPlayer extends AI {
+	/**
+	 * Clones the specified AI
+	 * @param ai The AI
+	 */
+	public AIPlayer(AIPlayer ai) {
+		super(ai);
+	}
+	
 	public AIPlayer(Player _player/* TODO: , Connection whatever*/) {
 		super(_player);
 		// TODO Auto-generated constructor stub
@@ -17,6 +25,6 @@ public class AIPlayer extends AI {
 
 	@Override
 	public Object clone() {
-		return new AIPlayer((Player) this.getEntity());
+		return new AIPlayer(this);
 	}
 }

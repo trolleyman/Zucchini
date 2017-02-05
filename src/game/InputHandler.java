@@ -3,6 +3,11 @@ package game;
 /**
  * Input handling interface
  * 
+ * <p>
+ * TODO: handleMouseEnter
+ * <br>
+ * TODO: Cursor modes: See <a target="_top" href="http://www.glfw.org/docs/latest/input_guide.html#cursor_mode">here</a>.
+ * 
  * @author jackm
  */
 public interface InputHandler {

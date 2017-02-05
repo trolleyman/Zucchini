@@ -12,7 +12,7 @@ import game.render.IRenderer;
  * 
  * @author Callum
  */
-public abstract class Entity {
+public abstract class Entity implements Cloneable {
 	/** Represents an ivalid entity ID */
 	public static int INVALID_ID = -1;
 	/** Current id of the entity */
@@ -27,6 +27,16 @@ public abstract class Entity {
 	 * The angle clockwise in radians from the north direction.
 	 */
 	public float angle;
+	
+	/**
+	 * Clones the specified entity
+	 * @param e The entity
+	 */
+	public Entity(Entity e) {
+		this.id = e.id;
+		this.position = e.position;
+		this.angle = e.angle;
+	}
 	
 	/**
 	 * Constructs an entity at the position specified
@@ -61,10 +71,8 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * Subclasses <b>must</b> implement {@link java.lang.Object#clone clone}.
-	 * <p>
-	 * <b>NB:</b> Remember to clone the Entity ID and the angle as well
+	 * Implementations must override this function.
 	 */
 	@Override
-	public abstract Object clone();
+	public abstract Entity clone();
 }

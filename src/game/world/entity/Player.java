@@ -34,6 +34,21 @@ public class Player extends Entity {
 	private boolean moveWest  = false;
 	
 	/**
+	 * Clones the specified player
+	 * @param p The player
+	 */
+	public Player(Player p) {
+		super(p);
+		
+		this.velocity = p.velocity;
+		
+		this.moveNorth = p.moveNorth;
+		this.moveSouth = p.moveSouth;
+		this.moveEast = p.moveEast;
+		this.moveWest = p.moveWest;
+	}
+	
+	/**
 	 * Constructs a new player at the specified position
 	 * @param position The position
 	 */
@@ -83,16 +98,7 @@ public class Player extends Entity {
 	}
 	
 	@Override
-	public Object clone() {
-		Player p = new Player(new Vector2f(this.position));
-		
-		p.angle = this.angle;
-		p.setId(this.getId());
-		p.moveNorth = this.moveNorth;
-		p.moveSouth = this.moveSouth;
-		p.moveEast  = this.moveEast ;
-		p.moveWest  = this.moveWest ;
-		
-		return p;
+	public Player clone() {
+		return new Player(this);
 	}
 }
