@@ -113,7 +113,7 @@ public class Player extends Entity {
 		case END_MOVE_EAST   : this.moveEast  = false; break;
 		case END_MOVE_WEST   : this.moveWest  = false; break;
 		case AIM: super.angle = ((AimAction)a).getAngle(); break;
-		case BEGIN_SHOOT: {
+		case BEGIN_FIRE: {
 			Entity e = bank.getEntity(weaponID);
 			if (e != null && e instanceof Weapon) {
 				Weapon wp = (Weapon)e;
@@ -123,7 +123,7 @@ public class Player extends Entity {
 			}
 		}
 		break;
-		case END_SHOOT: {
+		case END_FIRE: {
 			Entity e = bank.getEntity(weaponID);
 			if (e != null && e instanceof Weapon) {
 				Weapon wp = (Weapon)e;

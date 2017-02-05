@@ -33,7 +33,7 @@ public class Util {
 	 * This is the number of times per second that the server sends data to the client, and the number
 	 * of times per second the client sends input data to the server.
 	 */
-	public static final double SUPS = 10;
+	public static final double SUPS = 60;
 	/** Number of nanoseconds per update. This is calculated from the {@link #SUPS} */
 	public static final long NANOS_PER_SNAPSHOT_UPDATE = (long) (NANOS_PER_SECOND / SUPS);
 	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SNAPSHOT_UPDATE} */
