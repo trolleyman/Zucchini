@@ -80,8 +80,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		System.out.println(this.toString() + ": Window resize: " + w + ", " + h);
 		this.windowW = w;
 		this.windowH = h;
-		for (InputHandler ih : inputHandlers)
-			ih.handleResize(w, h);
+		InputPipeMulti.super.handleResize(w, h);
 	}
 	
 	@Override
