@@ -1,11 +1,10 @@
 package game.world.map;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.joml.Vector2f;
 
 import game.ColorUtil;
-import game.render.Align;
 import game.render.IRenderer;
 
 /**
@@ -15,7 +14,7 @@ import game.render.IRenderer;
  */
 public class Map {
 	public static Map createTestMap() {
-		Maze maze = new Maze(new Random(10), 20, 5, 0, 0, 19, 4);
+		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 		return new MazeMap(maze);
 	}
 	
