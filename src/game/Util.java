@@ -133,7 +133,9 @@ public class Util {
 	 */
 	public static double getAngle(double x, double y) {
 		double angle = Math.atan(x/y);
-		if (y < 0.0f) {
+		if (!Double.isFinite(angle)) { // Check for NaNs, infinities etc.
+			angle = 0.0f;
+		} else if (y < 0.0f) {
 			angle = Math.PI + angle;
 		}
 		return angle;

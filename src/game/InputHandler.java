@@ -20,20 +20,20 @@ public interface InputHandler {
 	 * @param action GLFW_PRESSED, GLFW_RELEASED or GLFW_REPEAT
 	 * @param mods Modifier bits. See GLFW_MOD_{SHIFT, CONTROL, ALT, SUPER}
 	 */
-	public default void handleKey(int key, int scancode, int action, int mods) {};
+	public default void handleKey(int key, int scancode, int action, int mods) {}
 	/**
 	 * Called when a text is input.
 	 * See <a target="_top" href="http://www.glfw.org/docs/latest/input_guide.html#input_text">here</a> for more info.
 	 * @param c The character input
 	 */
-	public default void handleChar(char c) {};
+	public default void handleChar(char c) {}
 	/**
 	 * Called when the cursor is moved.
 	 * See <a target="_top" href="http://www.glfw.org/docs/latest/input_guide.html#cursor_pos">here</a> for more info.
 	 * @param xpos The x co-ordinate relative to the bottom left of the window
 	 * @param ypos The y co-ordinate relative to the bottom left of the window
 	 */
-	public default void handleCursorPos(double xpos, double ypos) {};
+	public default void handleCursorPos(double xpos, double ypos) {}
 	/**
 	 * Called when a mouse button is pressed/released.
 	 * See <a target="_top" href="http://www.glfw.org/docs/latest/input_guide.html#input_mouse_button">here</a> for more info.
@@ -41,14 +41,18 @@ public interface InputHandler {
 	 * @param action GLFW_PRESS or GLFW_RELEASE
 	 * @param mods Modifier bits. See GLFW_MOD_{SHIFT, CONTROL, ALT, SUPER}
 	 */
-	public default void handleMouseButton(int button, int action, int mods) {};
+	public default void handleMouseButton(int button, int action, int mods) {}
 	/**
 	 * Called when the use scrolls the mouse.
 	 * See <a target="_top" href="http://www.glfw.org/docs/latest/input_guide.html#scrolling">here</a> for more info.
 	 * @param xoffset The x offset
 	 * @param yoffset The y offset
 	 */
-	public default void handleScroll(double xoffset, double yoffset) {};
-	// TODO: handleMouseEnter
-	// TODO: Cursor modes: http://www.glfw.org/docs/latest/input_guide.html#cursor_mode
+	public default void handleScroll(double xoffset, double yoffset) {}
+	/**
+	 * Called when the window is resized.
+	 * @param w The new window width, in pixels
+	 * @param h The new window height, in pixels
+	 */
+	public default void handleResize(int w, int h) {}
 }

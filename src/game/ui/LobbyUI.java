@@ -6,12 +6,14 @@ import game.InputHandler;
 import game.InputPipeMulti;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.TextureBank;
 import game.world.ClientWorld;
 
 public class LobbyUI extends UI implements InputPipeMulti {
-	
-	/** The renderer. Used for getting the window width and height */
-	private IRenderer renderer;
+	/** The current window width */
+	private int windowW;
+	/** The current window height */
+	private int windowH;
 	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
@@ -24,69 +26,64 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
-	
-	/** The window width */
-	private float windowW;
-	/** The window height */
-	private float windowH;
 
-	public LobbyUI(IRenderer _renderer) {
-		
+	public LobbyUI(TextureBank tb) {
 		super();
-		this.renderer = _renderer;
-		
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
 		
 		joinButton = new ButtonComponent(
 			() -> { this.nextUI = new GameUI(ClientWorld.createTestWorld()); },
 			Align.BL, 100, 100,
-			renderer.getImageBank().getTexture("joinDefault.png"),
-			renderer.getImageBank().getTexture("joinHover.png"),
-			renderer.getImageBank().getTexture("joinPressed.png")
+			tb.getTexture("joinDefault.png"),
+			tb.getTexture("joinHover.png"),
+			tb.getTexture("joinPressed.png")
 		);
-			
+		
 		backButton = new ButtonComponent(
-			() -> { this.nextUI = new StartUI(renderer); },
+			() -> { this.nextUI = new StartUI(tb); },
 			Align.BL, 100, 100,
-			renderer.getImageBank().getTexture("backDefault.png"),
-			renderer.getImageBank().getTexture("backHover.png"),
-			renderer.getImageBank().getTexture("backPressed.png")
+			tb.getTexture("backDefault.png"),
+			tb.getTexture("backHover.png"),
+			tb.getTexture("backPressed.png")
 		);
-			
+		
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png"), 0.0f
+			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
 		);
 		
 		this.inputHandlers.add(joinButton);
 		this.inputHandlers.add(backButton);
-		
 	}
 
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
 		return this.inputHandlers;
 	}
+	
+	@Override
+	public void handleResize(int w, int h) {
+		System.out.println(this.toString() + ": Window resize: " + w + ", " + h);
+		this.windowW = w;
+		this.windowH = h;
+		for (InputHandler ih : inputHandlers)
+			ih.handleResize(w, h);
+	}
 
 	@Override
 	public void update(double dt) {
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
 		joinButton.update(dt);
 		backButton.update(dt);
-		
 	}
 
 	@Override
 	public void render(IRenderer r) {
-		joinButton.setX((int) (windowW/2.0 - backButton.getWidth()/2.0));
-		joinButton.setY((int) (windowH/2.0 - backButton.getHeight()/2.0) + 140);
+		joinButton.setX((int) (windowW/2.0 - joinButton.getWidth()/2.0));
+		joinButton.setY((int) (windowH/2.0 - joinButton.getHeight()/2.0) + 140);
 		backButton.setX((int) (windowW/2.0 - backButton.getWidth()/2.0));
 		backButton.setY((int) (windowH/2.0 - backButton.getHeight()/2.0));
+		
 		backgroundImage.render(r);
 		joinButton.render(r);
 		backButton.render(r);
-		
 	}
 
 	@Override

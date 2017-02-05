@@ -35,4 +35,9 @@ public interface InputPipeMulti extends InputHandler {
 		for (InputHandler ih : getHandlers())
 			ih.handleScroll(xoffset, yoffset);
 	}
+	@Override
+	public default void handleResize(int w, int h) {
+		for (InputHandler ih : getHandlers())
+			ih.handleResize(w, h);
+	}
 }

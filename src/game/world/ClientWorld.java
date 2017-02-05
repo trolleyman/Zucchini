@@ -93,10 +93,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
-		// Cache window size
-		windowW = r.getWidth();
-		windowH = r.getHeight();
-		
 		// Set model view matrix
 		r.getModelViewMatrix()
 			.pushMatrix()
@@ -113,6 +109,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 		
 		r.getModelViewMatrix().popMatrix();
+	}
+	
+	@Override
+	public void handleResize(int w, int h) {
+		this.windowW = w;
+		this.windowH = h;
 	}
 	
 	@Override
@@ -139,9 +141,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	public void handleCursorPos(double xpos, double ypos) {
 		// Send input to server
 		float angle = (float) Util.getAngle(windowW/2, windowH/2, xpos, ypos);
-		double x = xpos - windowW/2;
-		double y = ypos - windowH/2;
-		System.out.println(x + ", " + y + ": " + angle);
 		connection.sendAction(new AimAction(angle));
 	}
 	

@@ -170,4 +170,12 @@ public interface IRenderer {
 	 */
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r);
 	
+	/**
+	 * Gets the current mouse x-coordinate
+	 */
+	public double getMouseX();
+	/**
+	 * Gets the current mouse y-coordinate
+	 */
+	public double getMouseY();
 }

@@ -32,7 +32,7 @@ class Client implements Runnable, InputPipe {
 		renderer = new Renderer(this, _fullscreen);
 		
 		// Initialize UI
-		ui = new StartUI(renderer);
+		ui = new StartUI(renderer.getImageBank());
 	}
 	
 	@Override
@@ -42,6 +42,7 @@ class Client implements Runnable, InputPipe {
 	
 	@Override
 	public void run() {
+		System.out.println("==== UI Start State: " + ui.toString() + " ====");
 		renderer.show();
 		
 		loop();
@@ -51,7 +52,6 @@ class Client implements Runnable, InputPipe {
 	
 	private void loop() {
 		prevTime = System.nanoTime();
-		System.out.println("==== UI Start State: " + ui.toString() + " ====");
 		while (!renderer.shouldClose() && ui != null) {
 			loopIter();
 		}
@@ -66,10 +66,11 @@ class Client implements Runnable, InputPipe {
 		prevTime = now;
 		ui.update(dtNanos / (double) Util.NANOS_PER_SECOND);
 		UI next = ui.next();
-		if (next != ui)
-			if (next != null)
-				System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
-		
+		if (next != ui && next != null) {
+			System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
+			next.handleResize(renderer.getWidth(), renderer.getHeight());
+			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
+		}
 		ui = next;
 	}
 	

@@ -9,6 +9,7 @@ import game.InputHandler;
 import game.InputPipeMulti;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.TextureBank;
 import game.world.ClientWorld;
 import game.world.TestMap;
 import game.world.World;
@@ -19,9 +20,10 @@ import game.world.World;
  * @author Jack
  */
 public class StartUI extends UI implements InputPipeMulti {
-	
-	/** The renderer. Used for getting the window width and height */
-	private IRenderer renderer;
+	/** The current window width */
+	private int windowW;
+	/** The current window height */
+	private int windowH;
 	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
@@ -34,43 +36,34 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
-	
-	/** The window width */
-	private float windowW;
-	/** The window height */
-	private float windowH;
 
 	private float testRot;
 	
 	/**
-	 * Constructs a new StartUI with a specified renderer to gather the window width and height
-	 * @param _renderer The renderer
+	 * Constructs a new StartUI
+	 * @param tb TextureBank used to get textures for components
 	 */
-	public StartUI(IRenderer _renderer) {
+	public StartUI(TextureBank tb) {
 		super();
-		this.renderer = _renderer;
-		
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
 		
 		startButton = new ButtonComponent(
-			() -> { this.nextUI = new LobbyUI(renderer); },
+			() -> { this.nextUI = new LobbyUI(tb); },
 			Align.BL, 100, 100,
-			renderer.getImageBank().getTexture("buttonDefault.png"),
-			renderer.getImageBank().getTexture("buttonHover.png"),
-			renderer.getImageBank().getTexture("buttonPressed.png")
+			tb.getTexture("buttonDefault.png"),
+			tb.getTexture("buttonHover.png"),
+			tb.getTexture("buttonPressed.png")
 		);
 		
 		exitButton = new ButtonComponent(
 			() -> { this.nextUI = null; },
 			Align.BL, 100, 100,
-			renderer.getImageBank().getTexture("exitButtonDefault.png"),
-			renderer.getImageBank().getTexture("exitButtonHover.png"),
-			renderer.getImageBank().getTexture("exitButtonPressed.png")
+			tb.getTexture("exitButtonDefault.png"),
+			tb.getTexture("exitButtonHover.png"),
+			tb.getTexture("exitButtonPressed.png")
 		);
 		
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, renderer.getImageBank().getTexture("Start_BG.png"), 0.0f
+			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
 		);
 		
 		this.inputHandlers.add(startButton);
@@ -83,9 +76,16 @@ public class StartUI extends UI implements InputPipeMulti {
 	}
 	
 	@Override
+	public void handleResize(int w, int h) {
+		System.out.println(this.toString() + ": Window resize: " + w + ", " + h);
+		this.windowW = w;
+		this.windowH = h;
+		for (InputHandler ih : inputHandlers)
+			ih.handleResize(w, h);
+	}
+	
+	@Override
 	public void update(double dt) {
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
 		startButton.update(dt);
 		exitButton.update(dt);
 		testRot += 3.0f * dt;

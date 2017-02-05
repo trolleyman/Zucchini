@@ -149,6 +149,7 @@ public class Renderer implements IRenderer {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
+			this.ih.handleResize(w, h);
 		});
 		int[] wBuf = new int[1];
 		int[] hBuf = new int[1];
@@ -412,5 +413,18 @@ public class Renderer implements IRenderer {
 		// Draw 1x1 box (with UV)
 		boxUV.draw();
 		matModelView.popMatrix();
+	}
+	
+	private double[] xBuf = new double[1];
+	private double[] yBuf = new double[1];
+	@Override
+	public double getMouseX() {
+		glfwGetCursorPos(window, xBuf, null);
+		return screenToPixelCoordinates(xBuf[0]);
+	}
+	@Override
+	public double getMouseY() {
+		glfwGetCursorPos(window, null, yBuf);
+		return screenToPixelCoordinates(this.windowScreenH - yBuf[0]);
 	}
 }
