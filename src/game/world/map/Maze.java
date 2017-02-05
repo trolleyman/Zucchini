@@ -1,5 +1,6 @@
 package game.world.map;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
@@ -174,10 +175,55 @@ public class Maze {
 		default: throw new RuntimeException("Illegal direction: " + dir);
 		}
 	}
-
+	
+	/**
+	 * Adds a line to the arraylist
+	 * @param l The list
+	 * @param x0 The first x-coordinate
+	 * @param y0 The first y-coordinate
+	 * @param x1 The second x-coordinate
+	 * @param y1 The second y-coordinate
+	 */
+	private static void addLine(ArrayList<Float> l, float x0, float y0, float x1, float y1) {
+		l.add(x0);
+		l.add(y0);
+		l.add(x1);
+		l.add(y1);
+	}
+	
 	public float[] toLines() {
 		// TODO
-		throw new UnsupportedOperationException("Not yet implemented.");
+		//throw new UnsupportedOperationException("Not yet implemented");
+		
+		ArrayList<Float> list = new ArrayList<>();
+		// Get bottom/left lines
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				if (!isDir(x, y, S))
+					addLine(list, x, y, x+1, y);
+				if (!isDir(x, y, W))
+					addLine(list, x, y, x, y+1);
+			}
+		}
+		
+		// Get top lines
+		for (int x = 0; x < w; x++) {
+			if (!isDir(x, h-1, N))
+				addLine(list, x, h, x+1, h);
+		}
+		
+		// Get right lines
+		for (int y = 0; y < h; y++) {
+			if (!isDir(w-1, y, E))
+				addLine(list, w, y, w, y+1);
+		}
+		
+		// Copy from arraylist
+		float[] array = new float[list.size()];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = list.get(i);
+		}
+		return array;
 	}
 	
 	@Override
