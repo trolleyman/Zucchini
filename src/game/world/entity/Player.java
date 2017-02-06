@@ -8,6 +8,7 @@ import game.action.AimAction;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.EntityBank;
+import game.world.UpdateArgs;
 import game.world.World;
 
 /**
@@ -37,6 +38,8 @@ public class Player extends Entity {
 	
 	/** Entity ID of the weapon */
 	private int weaponID = Entity.INVALID_ID;
+
+	private boolean beganFire = false;
 	
 	/**
 	 * Clones the specified player
@@ -53,6 +56,8 @@ public class Player extends Entity {
 		this.moveWest = p.moveWest;
 		
 		this.weaponID = p.weaponID;
+		
+		this.beganFire = p.beganFire;
 	}
 	
 	/**
@@ -65,12 +70,17 @@ public class Player extends Entity {
 		this.weaponID = _weaponID;
 	}
 	
+	@Override
+	protected float getMaxHealth() {
+		return 10.0f;
+	}
+	
 	public void setWeapon(int _weaponID) {
 		this.weaponID = _weaponID;
 	}
 	
 	@Override
-	public void update(EntityBank eb, double dt) {
+	public void update(UpdateArgs ua) {
 		this.velocity.zero();
 		if (this.moveNorth)
 			this.velocity.add( 0.0f,  1.0f);
@@ -81,14 +91,14 @@ public class Player extends Entity {
 		if (this.moveWest)
 			this.velocity.add(-1.0f,  0.0f);
 		
-		this.velocity.mul(SPEED).mul((float) dt);
+		this.velocity.mul(SPEED).mul((float) ua.dt);
 		this.position.add(this.velocity);
 		
 		// Make sure weapon keeps up with the player
-		Entity e = eb.getEntity(weaponID).clone();
+		Entity e = ua.bank.getEntity(weaponID).clone();
 		e.position.set(this.position);
 		e.angle = this.angle;
-		eb.updateEntityCached(e);
+		ua.bank.updateEntityCached(e);
 	}
 	
 	@Override
@@ -114,16 +124,20 @@ public class Player extends Entity {
 		case END_MOVE_WEST   : this.moveWest  = false; break;
 		case AIM: super.angle = ((AimAction)a).getAngle(); break;
 		case BEGIN_FIRE: {
-			Entity e = bank.getEntity(weaponID);
-			if (e != null && e instanceof Weapon) {
-				Weapon wp = (Weapon)e;
-				wp.fireBegin();
-			} else {
-				System.out.println("*Click*: No weapon.");
+			if (!this.beganFire) {
+				this.beganFire = true;
+				Entity e = bank.getEntity(weaponID);
+				if (e != null && e instanceof Weapon) {
+					Weapon wp = (Weapon)e;
+					wp.fireBegin();
+				} else {
+					System.out.println("*Click*: No weapon.");
+				}
 			}
 		}
 		break;
 		case END_FIRE: {
+			this.beganFire = false;
 			Entity e = bank.getEntity(weaponID);
 			if (e != null && e instanceof Weapon) {
 				Weapon wp = (Weapon)e;

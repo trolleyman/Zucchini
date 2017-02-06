@@ -2,6 +2,7 @@ package game.ai;
 
 import game.world.EntityBank;
 import game.world.ServerWorld;
+import game.world.UpdateArgs;
 import game.world.World;
 import game.world.entity.Entity;
 
@@ -31,11 +32,9 @@ public abstract class AI implements Cloneable {
 	
 	/**
 	 * This is the main method for the AI. Every world update this is called.
-	 * @param w This is the world state at the world update. <b>This *should not* be modified in any way
-	 *          during this method! (Apart from through EntityBank)</b>
-	 * @param dt The number of seconds since the last update.
+	 * @param ua The UpdateArgs object. See {@link game.world.UpdateArgs UpdateArgs}.
 	 */
-	public abstract void update(ServerWorld w, double dt);
+	public abstract void update(UpdateArgs ua);
 	
 	/**
 	 * Implementations must override {@link java.lang.Object#clone clone}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import game.world.EntityBank;
+import game.world.UpdateArgs;
 
 public abstract class SemiAutoWeapon extends Weapon {
 	private ArrayList<Entity> toFire = new ArrayList<>();
@@ -55,11 +56,15 @@ public abstract class SemiAutoWeapon extends Weapon {
 	}
 
 	@Override
-	public void update(EntityBank bank, double dt) {
+	public void update(UpdateArgs ua) {
 		if (this.fire && this.currentCooldown <= 0.0f) {
 			// Fire!!!
 			System.out.println("BANG!");
-			bank.updateEntityCached(this.fire());
+			// Add bullets to entity bank
+			for (Entity e : this.fire())
+				ua.bank.updateEntityCached(e);
+			
+			// Decrement shots left
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload
@@ -71,18 +76,10 @@ public abstract class SemiAutoWeapon extends Weapon {
 		}
 		this.fire = false;
 		
-		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)dt);
+		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f) {
 			this.reloading = false;
 		}
-	}
-	
-	@Override
-	public ArrayList<Entity> getEntities() {
-		// Return entities gathered
-		ArrayList<Entity> ret = toFire;
-		toFire = new ArrayList<>();
-		return ret;
 	}
 
 	@Override
@@ -92,8 +89,8 @@ public abstract class SemiAutoWeapon extends Weapon {
 
 	@Override
 	public void fireEnd() {
-		// This does nothing as this is a semi-auto weapon
+		
 	}
 	
-	protected abstract Entity fire();
+	protected abstract Entity[] fire();
 }

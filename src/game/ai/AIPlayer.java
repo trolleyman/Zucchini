@@ -1,6 +1,6 @@
 package game.ai;
 
-import game.world.ServerWorld;
+import game.world.UpdateArgs;
 import game.world.entity.Player;
 
 public class AIPlayer extends AI {
@@ -18,7 +18,7 @@ public class AIPlayer extends AI {
 	}
 
 	@Override
-	public void update(ServerWorld _w, double _dt) {
+	public void update(UpdateArgs ua) {
 		// TODO Auto-generated method stub
 
 	}

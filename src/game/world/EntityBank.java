@@ -16,14 +16,13 @@ public class EntityBank {
 	 */
 	protected ArrayList<Entity> entities;
 	
-	/**
-	 * The cache of entities to update
-	 */
+	/** The cache of entities to update */
 	private ArrayList<Entity> updateEntities = new ArrayList<>();
 	
-	/**
-	 * The cache of entities to remove
-	 */
+	/** The cache of entities to heal */
+	private ArrayList<HealthUpdate> healEntities = new ArrayList<>();
+	
+	/** The cache of entities to remove */
 	private ArrayList<Integer> removeEntities = new ArrayList<>();
 	
 	public EntityBank(ArrayList<Entity> _entities) {
@@ -45,10 +44,13 @@ public class EntityBank {
 			this.updateEntity(e.clone());
 		}
 		// Clone caches
-		for (Entity e : updateEntities) {
+		for (Entity e : bank.updateEntities) {
 			this.updateEntityCached(e.clone());
 		}
-		for (Integer id : removeEntities) {
+		for (HealthUpdate hu : bank.healEntities) {
+			this.healEntities.add(hu.clone());
+		}
+		for (Integer id : bank.removeEntities) {
 			this.removeEntityCached(id);
 		}
 	}
@@ -70,19 +72,28 @@ public class EntityBank {
 		}
 		updateEntities.clear();
 		
+		// Process health updates
+		for (HealthUpdate hu : healEntities) {
+			this.healEntity(hu.id, hu.health);
+		}
+		healEntities.clear();
+		
 		// Remove cached entities
 		for (Integer id : removeEntities) {
 			this.removeEntity(id);
 		}
 		removeEntities.clear();
 	}
-	
+
 	/**
 	 * Returns the entity associated with the id entered
 	 * @param id The entity ID
 	 * @return null if the entity with that id does not exist
 	 */
 	public synchronized Entity getEntity(int id) {
+		if (id == Entity.INVALID_ID)
+			return null;
+		
 		int i = getEntityInsertIndex(id);
 		if (i >= entities.size())
 			return null;
@@ -151,7 +162,7 @@ public class EntityBank {
 	 * Removes the entity associated with the specified id
 	 * @param id The entity id
 	 */
-	public synchronized void removeEntity(int id) {
+	protected synchronized void removeEntity(int id) {
 		int i = getEntityInsertIndex(id);
 		
 		if (i < this.entities.size() && this.entities.get(i).getId() == id) {
@@ -185,5 +196,29 @@ public class EntityBank {
 				min = mid + 1;
 		}
 		return min;
+	}
+	
+	/**
+	 * Checks if a line intersects with any collideable entity
+	 * @param x0 Start x-coordinate of the line
+	 * @param y0 Start y-coordinate of the line
+	 * @param x1 End x-coordinate of the line
+	 * @param y1 End y-coordinate of the line
+	 * @return null if there was no intersection, the closest intersection to x0,y0 otherwise
+	 */
+	public EntityIntersection getIntersection(float x0, float y0, float x1, float y1) {
+		// TODO: Implement entity collision
+		return null;
+	}
+	
+	protected void healEntity(int _id, float _health) {
+		Entity e = this.getEntity(_id);
+		if (e != null) {
+			e.addHealth(_health);
+		}
+	}
+	
+	public void healEntityCached(int _id, float _health) {
+		this.healEntities.add(new HealthUpdate(_id, _health));
 	}
 }

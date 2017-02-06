@@ -13,9 +13,10 @@ import game.world.map.Map;
  * @author Callum
  */
 public class ServerWorld extends World implements Cloneable {
-	/**
-	 * The AIs/Players in the world.
-	 */
+	/** Cached UpdateArgs object */
+	private UpdateArgs ua = new UpdateArgs(0.0, null, null);
+	
+	/** The AIs/Players in the world. */
 	private ArrayList<AI> ais;
 	
 	/**
@@ -49,14 +50,18 @@ public class ServerWorld extends World implements Cloneable {
 
 	@Override
 	protected void updateStep(double dt) {
+		ua.dt = dt;
+		ua.bank = bank;
+		ua.map = map;
+		
 		// Update entities
 		for (Entity e : this.bank.entities) {
-			e.update(this.bank, dt);
+			e.update(ua);
 		}
 		
 		// Update AI/players
 		for (AI ai : ais) {
-			ai.update(this, dt);
+			ai.update(ua);
 		}
 	}
 	

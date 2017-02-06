@@ -1,5 +1,7 @@
 package game.world.entity;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import game.ColorUtil;
@@ -16,8 +18,8 @@ public class Handgun extends SemiAutoWeapon {
 	}
 
 	@Override
-	protected Entity fire() {
-		return new HandgunBullet(position, angle);
+	protected Entity[] fire() {
+		return new Entity[] { new HandgunBullet(new Vector2f(position), angle) };
 	}
 
 	@Override
@@ -29,5 +31,4 @@ public class Handgun extends SemiAutoWeapon {
 	public Handgun clone() {
 		return new Handgun(this);
 	}
-	
 }

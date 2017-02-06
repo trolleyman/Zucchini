@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 
 import game.render.IRenderer;
 import game.world.EntityBank;
+import game.world.UpdateArgs;
 
 /**
  * Abstract root of all the Entity classes.
@@ -14,6 +15,8 @@ import game.world.EntityBank;
  * @author Callum
  */
 public abstract class Entity implements Cloneable {
+	/** The default maximum health of an entity */
+	public static final float DEFAULT_MAX_HEALTH = 0.1f;
 	/** Represents an ivalid entity ID */
 	public static int INVALID_ID = -1;
 	/** Current id of the entity */
@@ -30,6 +33,13 @@ public abstract class Entity implements Cloneable {
 	public float angle;
 	
 	/**
+	 * The current amount of health the entity has.
+	 * <p>
+	 * If this goes below 0, then the entity will be removed from the world.
+	 */
+	private float health;
+	
+	/**
 	 * Clones the specified entity
 	 * @param e The entity
 	 */
@@ -37,8 +47,10 @@ public abstract class Entity implements Cloneable {
 		this.id = e.id;
 		this.position = new Vector2f(e.position);
 		this.angle = e.angle;
+		
+		this.health = this.getMaxHealth();
 	}
-	
+
 	/**
 	 * Constructs an entity at the position specified
 	 * @param _position The position
@@ -49,15 +61,43 @@ public abstract class Entity implements Cloneable {
 	
 	/**
 	 * Updates the entity. Called every update cycle
-	 * @param bank The entity bank. Can be used to get entities from the world, modify or remove them.
-	 * @param dt Number of seconds to update the entity by
+	 * @param ua The arguments passed to each update function. See {@link game.world.UpdateArgs UpdateArgs}.
 	 */
-	public abstract void update(EntityBank bank, double dt);
+	public abstract void update(UpdateArgs ua);
 	/**
 	 * Renders the entity to the screen
 	 * @param r The renderer
 	 */
 	public abstract void render(IRenderer r);
+	
+	/**
+	 * Calculates an intersection with the entity and a line
+	 * @param x0 Start x-coordinate of the line
+	 * @param y0 Start y-coordinate of the line
+	 * @param x1 End x-coordinate of the line
+	 * @param y1 End y-coordinate of the line
+	 * @return null if there was not an intersection, the point of intersection otherwise
+	 */
+	public Vector2f intersects(float x0, float y0, float x1, float y1) {
+		return null;
+	}
+	
+	/**
+	 * Adds the specified amount of health to an entity.
+	 * <p>
+	 * To damage an entity, use a negative health.
+	 * @param health The health
+	 */
+	public void addHealth(float health) {
+		this.health += health;
+	}
+	
+	/**
+	 * Returns the maximum health of the entity
+	 */
+	protected float getMaxHealth() {
+		return DEFAULT_MAX_HEALTH;
+	}
 	
 	/**
 	 * Returns the entity ID

@@ -30,13 +30,15 @@ public class Map {
 	
 	/**
 	 * Returns the point at which the line given intersects with the map.
-	 * @param x0 The start x-coordinate of the line
-	 * TODO:
+	 * @param x0 Start x-coordinate of the line
+	 * @param y0 Start y-coordinate of the line
+	 * @param x1 End x-coordinate of the line
+	 * @param y1 End x-coordinate of the line
 	 * @return null if there was no intersection
 	 */
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
-		// TODO
-		throw new UnsupportedOperationException();
+		// TODO: Implement
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
 	/**
