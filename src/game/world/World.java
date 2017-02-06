@@ -43,8 +43,8 @@ public abstract class World {
 		dtPool += dt;
 		while (dtPool > Util.DT_PER_UPDATE) {
 			updateStep(Util.DT_PER_UPDATE);
-			dtPool -= Util.DT_PER_UPDATE;
 			this.bank.processCache();
+			dtPool -= Util.DT_PER_UPDATE;
 		}
 	}
 	

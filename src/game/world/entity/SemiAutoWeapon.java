@@ -68,7 +68,7 @@ public abstract class SemiAutoWeapon extends Weapon {
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload
-				System.out.println("Reloading!");
+				System.out.println("Reloading...");
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
 				this.currentShots = this.shots;
@@ -77,7 +77,8 @@ public abstract class SemiAutoWeapon extends Weapon {
 		this.fire = false;
 		
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
-		if (this.currentCooldown <= 0.0f) {
+		if (this.currentCooldown <= 0.0f && this.reloading) {
+			System.out.println("Reloaded.");
 			this.reloading = false;
 		}
 	}

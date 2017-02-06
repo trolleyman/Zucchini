@@ -45,17 +45,18 @@ public abstract class Bullet extends Entity {
 			closest = PhysicsUtil.getClosest(prevPosition, mi, temp);
 		}
 		
-		if (closest == mi) {
+		if (closest == null) {
+			// Hit nothing
+		} else if (closest == mi) {
 			// Hit map
+			// Remove bullet from the world
 			System.out.println("*Plink*: Bullet hit the map");
+			ua.bank.removeEntityCached(this.getId());
 		} else if (closest == temp) {
 			// Hit entity
 			// Hit an entity, damage
 			System.out.println("Ow! Bullet hit entity");
 			ua.bank.healEntityCached(ei.id, -damage);
-		}
-		
-		if (closest != null) {
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		}
