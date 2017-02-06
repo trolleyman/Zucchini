@@ -6,6 +6,7 @@ import game.ColorUtil;
 import game.render.IRenderer;
 import game.world.EntityBank;
 import game.world.EntityIntersection;
+import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 
 public abstract class Bullet extends Entity {
@@ -35,51 +36,26 @@ public abstract class Bullet extends Entity {
 		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x, position.y);
 		Vector2f mi = ua.map.intersects(prevPosition.x, prevPosition.y, position.x, position.y);
 		
-		// --- After this section id will hold the id of the entity that the intersection hit
-		//     (Entity.INVALID_ID for the map), and temp will hold the position of the intersection. ---
-		boolean hit;
-		int id;
-		if (ei != null && mi != null) {
-			hit = true;
-			// Get closest intersection
-			float eiX = prevPosition.x - ei.x;
-			float eiY = prevPosition.y - ei.y;
-			float eiD = eiX*eiX + eiY*eiY;
-			
-			// Compare by distance squared to save precious CPU cycles
-			float miD = mi.distanceSquared(prevPosition);
-			
-			if (miD < eiD) {
-				// Use map intersection
-				id = Entity.INVALID_ID;
-				temp.set(mi);
-			} else {
-				id = ei.id;
-				temp.set(ei.x, ei.y);
-			}
-		} else if (ei == null && mi != null) {
-			hit = true;
-			id = Entity.INVALID_ID;
-			temp.set(mi);
-		} else if (ei != null && mi == null) {
-			hit = true;
-			id = ei.id;
-			temp.set(ei.x, ei.y);
+		// Choose closest point
+		Vector2f closest;
+		if (ei == null) {
+			closest = mi;
 		} else {
-			hit = false;
-			id = Entity.INVALID_ID;
+			temp.set(ei.x, ei.y);
+			closest = PhysicsUtil.getClosest(prevPosition, mi, temp);
 		}
-		// --- Now id contains the id, temp contains the position ---
 		
-		if (hit) {
-			if (id == Entity.INVALID_ID) {
-				// Hit the map
-				System.out.println("*Plink*: Bullet hit the map");
-			} else {
-				// Hit an entity, damage
-				System.out.println("Ow! Bullet hit entity");
-				ua.bank.healEntityCached(id, -damage);
-			}
+		if (closest == mi) {
+			// Hit map
+			System.out.println("*Plink*: Bullet hit the map");
+		} else if (closest == temp) {
+			// Hit entity
+			// Hit an entity, damage
+			System.out.println("Ow! Bullet hit entity");
+			ua.bank.healEntityCached(ei.id, -damage);
+		}
+		
+		if (closest != null) {
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		}
