@@ -1,22 +1,56 @@
 package game.networking.server.threads.udp;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.LinkedList;
 
-//FAST: implement this!!!
+import game.networking.util.Protocol;
+import game.networking.util.Tuple;
 
 public class UDPListenerLobbyThread implements Runnable
 {
 	private DatagramSocket socket;
 	private boolean run = false;
+	private LinkedList<Tuple<String, String>> UDP_actions;
 
-	public UDPListenerLobbyThread(DatagramSocket _socket)
+	public UDPListenerLobbyThread(DatagramSocket _socket, LinkedList<Tuple<String, String>> _udpActions)
 	{
 		socket = _socket;
+		UDP_actions = _udpActions;
 	}
 
 	@Override
 	public void run()
 	{
+
+		while (run)
+		{
+			byte[] receiveBuffer = new byte[20000];
+			DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+			try
+			{
+				socket.receive(packet);
+				String message = new String(packet.getData()).trim();
+				int tagEnd = message.indexOf(Protocol.UDP_playerNameTagEnd);
+				int tagBegin = message.indexOf(Protocol.UDP_playerNameTagBegin);
+				if (tagBegin == 0)
+				{
+					String plName = message.substring(tagBegin + Protocol.UDP_playerNameTagBegin.length(), tagEnd);
+					String stuff = message.substring(tagEnd + Protocol.UDP_playerNameTagEnd.length());
+					synchronized (UDP_actions)
+					{
+						UDP_actions.add(new Tuple<>(plName, stuff));
+					}
+				}
+			} catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+				System.out.println("UDP LISTENER could not receive message");
+				run = false;
+			}
+		}
 
 	}
 

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import game.networking.util.Connection;
+import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
 import game.networking.util.ServerMainable;
 import game.networking.util.TraceLog;
@@ -19,11 +19,11 @@ public class DiscoveryThread implements Runnable
 	private boolean run = true;
 
 	private int socketInt;
-	private Map<String, Connection> clients;
+	private Map<String, ConnectionDetails> clients;
 	private List<String> acceptedClients;
 	private ServerMainable server;
 
-	public DiscoveryThread(int _socketInt, Map<String, Connection> _clients, ServerMainable _server, List<String> _acceptedClients)
+	public DiscoveryThread(int _socketInt, Map<String, ConnectionDetails> _clients, ServerMainable _server, List<String> _acceptedClients)
 	{
 		socketInt = _socketInt;
 		clients = _clients;
@@ -90,7 +90,7 @@ public class DiscoveryThread implements Runnable
 							// thread safe way of putting stuff into the map
 							synchronized (this)
 							{
-								Connection connection = new Connection(packet.getAddress(), packet.getPort());
+								ConnectionDetails connection = new ConnectionDetails(packet.getAddress(), packet.getPort());
 								clients.put(name, connection);
 								server.acceptClientConnection(name);
 
@@ -125,7 +125,7 @@ public class DiscoveryThread implements Runnable
 
 	private boolean processingClient(String name, DatagramPacket packet)
 	{
-		Connection con = clients.get(name);
+		ConnectionDetails con = clients.get(name);
 		if (con.address.equals(packet.getAddress()) && (con.port == packet.getPort()))
 			return true;
 		else

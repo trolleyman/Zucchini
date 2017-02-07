@@ -6,22 +6,24 @@ import java.util.List;
 import java.util.Map;
 import game.networking.server.threads.DiscoveryThread;
 import game.networking.server.threads.LobbyThread;
-import game.networking.util.Connection;
+import game.networking.util.ConnectionDetails;
 import game.networking.util.ServerMainable;
 import game.networking.util.Tuple;
 
 public class ServerTest implements ServerMainable
 {
+
+	// FIXME: never pass a port directly, se if you can do it without passing it
 	private int socket;
 	// private Thread discoveryThread;
 	private LobbyThread lobby;
-	private Map<String, Connection> clients;
+	private Map<String, ConnectionDetails> clients;
 	private List<String> acceptedClients;
 
 	public ServerTest(int _socket)
 	{
 		socket = _socket;
-		clients = new LinkedHashMap<String, Connection>();
+		clients = new LinkedHashMap<String, ConnectionDetails>();
 		acceptedClients = new LinkedList<String>();
 	}
 

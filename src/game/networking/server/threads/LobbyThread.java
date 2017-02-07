@@ -14,7 +14,7 @@ import java.util.Map;
 
 import game.networking.server.threads.tcp.TCPConLobbyThread;
 import game.networking.server.threads.tcp.TCPListenerLobbyThread;
-import game.networking.util.Connection;
+import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
 import game.networking.util.Tuple;
 
@@ -25,7 +25,7 @@ public class LobbyThread implements Runnable
 	private DatagramSocket datagramSocket;
 
 	// Client accept
-	private Map<String, Connection> clients;
+	private Map<String, ConnectionDetails> clients;
 	private LinkedList<String> acceptQueue;
 	private List<String> acceptedClients;
 	private LobbyConnectionThread lobbyConnection;
@@ -36,7 +36,7 @@ public class LobbyThread implements Runnable
 	private Map<String, LinkedList<Tuple<String, String>>> messages;
 	private LinkedList<Tuple<String, String>> actions;
 
-	public LobbyThread(int _socketInt, Map<String, Connection> _clients, List<String> _acceptedClients)
+	public LobbyThread(int _socketInt, Map<String, ConnectionDetails> _clients, List<String> _acceptedClients)
 	{
 		socketInt = _socketInt;
 		clients = _clients;
@@ -116,7 +116,7 @@ public class LobbyThread implements Runnable
 	public synchronized void sendAccept(String name)
 	{
 		byte[] buffer = (Protocol.StoC_DiscoveryAccept + name).getBytes();
-		Connection conn = clients.get(name);
+		ConnectionDetails conn = clients.get(name);
 		DatagramPacket acceptPacket = new DatagramPacket(buffer, buffer.length, conn.address, conn.port);
 		try
 		{

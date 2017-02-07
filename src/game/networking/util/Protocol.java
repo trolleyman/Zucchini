@@ -11,6 +11,10 @@ public class Protocol
 	public static final String TCP_Message = "[MES]";
 	public static final String TCP_LobbyAction = "";
 	public static final String TCP_GameAction = "";
+
+	public static final String UDP_playerNameTagBegin = "";
+	public static final String UDP_playerNameTagEnd = "";
+
 	// public static final String = "";
 
 }
