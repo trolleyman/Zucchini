@@ -7,7 +7,9 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.Util;
 import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
@@ -36,6 +38,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
+	
+	private Font font;
 
 	private float testRot;
 	
@@ -45,6 +49,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	 */
 	public StartUI(TextureBank tb) {
 		super();
+		
+		font = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
 		
 		startButton = new ButtonComponent(
 			() -> { this.nextUI = new LobbyUI(tb); },
@@ -99,6 +105,8 @@ public class StartUI extends UI implements InputPipeMulti {
 		startButton.render(r);
 		exitButton.render(r);
 		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
+		
+		r.drawTexture(font.getTexture(), Align.MM, 400, 400);
 	}
 	
 	@Override

@@ -412,6 +412,8 @@ public class Renderer implements IRenderer {
 		matModelView.popMatrix();
 	}
 	
+	
+	
 	private double[] xBuf = new double[1];
 	private double[] yBuf = new double[1];
 	@Override

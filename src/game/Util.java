@@ -77,8 +77,8 @@ public class Util {
 	 *       so that this application can be run from anywhere.
 	 * TODO: Also this function should check if certain directories exist. (img, shader, etc.)
 	 */
-	public static Path getBasePath() {
-		return Paths.get(".").toAbsolutePath();
+	public static String getBasePath() {
+		return "./";
 	}
 	
 	private static final ThreadLocal<Vector3f> vector3f = new ThreadLocal<Vector3f>() {
