@@ -1,9 +1,11 @@
 package game.render;
 
 import org.joml.MatrixStackf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import game.InputHandler;
+import game.Util;
 import game.render.Align;
 
 /**
@@ -75,10 +77,21 @@ public interface IRenderer {
 	public MatrixStackf getModelViewMatrix();
 	
 	/**
+	 * Draws a line with a specified thickness and color
+	 * @param x0 First x-coordinate
+	 * @param y0 First y-coordinate
+	 * @param x1 Second x-coordinate
+	 * @param y1 Second y-coordinate
+	 * @param c The color of the line. See {@link game.ColorUtil ColorUtil}.
+	 * @param thickness Thickness in pixels of the line
+	 */
+	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness);
+	
+	/**
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a).
 	 * @param tex The texture specified. See {@link #getImageBank()}.
-	 * @param a The alignment. See {@link #Align}
+	 * @param a The alignment. See {@link game.Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 */
@@ -157,4 +170,12 @@ public interface IRenderer {
 	 */
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r);
 	
+	/**
+	 * Gets the current mouse x-coordinate
+	 */
+	public double getMouseX();
+	/**
+	 * Gets the current mouse y-coordinate
+	 */
+	public double getMouseY();
 }

@@ -50,4 +50,9 @@ public class GameUI extends UI implements InputPipe {
 	public String toString() {
 		return "GameUI";
 	}
+
+	@Override
+	public void destroy() {
+		this.world.destroy();
+	}
 }

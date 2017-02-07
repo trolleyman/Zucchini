@@ -29,6 +29,14 @@ public class AimAction extends Action {
 		return angle;
 	}
 	
+	/**
+	 * Sets the angle for this aim action
+	 * @param _angle The new angle
+	 */
+	public void setAngle(float _angle) {
+		this.angle = _angle;
+	}
+	
 	@Override
 	public String toString() {
 		return super.toString() + ": " + angle;

@@ -6,12 +6,15 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import org.joml.MatrixStackf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
+import game.ColorUtil;
 import game.InputHandler;
+import game.Util;
 import game.render.shader.Shader;
 import game.render.shader.SimpleShader;
 import game.render.shader.TextureShader;
@@ -84,10 +87,6 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-		if (System.getenv("C3_DEBUG") != null) {
-			System.out.println("OpenGL debug context enabled.");
-			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-		}
 		
 		long monitor;
 		if (fullscreen) {
@@ -146,6 +145,7 @@ public class Renderer implements IRenderer {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
+			this.ih.handleResize(w, h);
 		});
 		int[] wBuf = new int[1];
 		int[] hBuf = new int[1];
@@ -182,10 +182,11 @@ public class Renderer implements IRenderer {
 		// Enable v-sync
 		this.setVSync(true);
 		
+		// Set OpenGL settings
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		
 		// Set the clear color
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -297,11 +298,6 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public MatrixStackf getModelViewMatrix() {
-		return matModelView;
-	}
-	
-	@Override
 	public void beginFrame() {
 		if (this.dirty)
 			recalcProjectionMatrix();
@@ -327,7 +323,7 @@ public class Renderer implements IRenderer {
 	
 	public void align(Align a, float w, float h) {
 		switch (a) {
-		case BL: 
+		case BL:
 			break;
 		case BM: matModelView.translate(w/2, 0.0f, 0.0f);
 			break;
@@ -349,12 +345,40 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
+	public MatrixStackf getModelViewMatrix() {
+		return matModelView;
+	}
+	
+	@Override
+	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness) {
+		// Change to pixel co-ords
+		Vector3f temp = Util.getThreadLocalVector3f();
+		temp.set(_x0, _y0, 0.0f).mulPosition(matModelView);
+		float x0 = temp.x;
+		float y0 = temp.y;
+		temp.set(_x1, _y1, 0.0f).mulPosition(matModelView);
+		float x1 = temp.x;
+		float y1 = temp.y;
+		
+		float xdiff = x1 - x0;
+		float ydiff = y1 - y0;
+		float ang = Util.getAngle(xdiff, ydiff);
+		float length = (float) Math.sqrt(xdiff*xdiff + ydiff*ydiff); // Pythag
+		
+		// Reset the modelview matrix so that we are using pixel co-ordinates
+		getModelViewMatrix().pushMatrix();
+		getModelViewMatrix().identity();
+		drawBox(Align.BM, x0, y0, thickness, length, c, ang);
+		getModelViewMatrix().popMatrix();
+	}
+	
+	@Override
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r) {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		
 		matModelView.translate(x, y, 0.0f);
-		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
 		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		
@@ -373,9 +397,8 @@ public class Renderer implements IRenderer {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
-		
 		matModelView.translate(x, y, 0.0f);
-		matModelView.rotate(r, 0.0f, 0.0f, 1.0f);
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
 		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		
@@ -387,5 +410,18 @@ public class Renderer implements IRenderer {
 		// Draw 1x1 box (with UV)
 		boxUV.draw();
 		matModelView.popMatrix();
+	}
+	
+	private double[] xBuf = new double[1];
+	private double[] yBuf = new double[1];
+	@Override
+	public double getMouseX() {
+		glfwGetCursorPos(window, xBuf, null);
+		return screenToPixelCoordinates(xBuf[0]);
+	}
+	@Override
+	public double getMouseY() {
+		glfwGetCursorPos(window, null, yBuf);
+		return screenToPixelCoordinates(this.windowScreenH - yBuf[0]);
 	}
 }

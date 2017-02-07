@@ -99,10 +99,7 @@ public class ButtonComponent extends UIComponent {
 			if (isMouseOnButton())
 				this.callback.run();
 		}
-	}
-
-	@Override
-	public void render(IRenderer r) {
+		
 		if (!isMouseOnButton()) {
 			currentTexture = defaultTexture;
 		} else if (!this.pressed) {
@@ -110,7 +107,10 @@ public class ButtonComponent extends UIComponent {
 		} else {
 			currentTexture = pressedTexture;
 		}
-		
+	}
+
+	@Override
+	public void render(IRenderer r) {
 		r.drawTexture(currentTexture, a, x, y);
 	}
 	
