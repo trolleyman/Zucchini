@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
 import game.ColorUtil;
 import game.InputHandler;
@@ -142,7 +143,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		// Render line of sight
 		float[] los = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX);
-		r.drawTriangleFan(los, 0, 0, ColorUtil.CYAN);
+		r.drawTriangleFan(los, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 		
 		// Render map
 		this.map.render(r);
