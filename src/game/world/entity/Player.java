@@ -18,6 +18,9 @@ import game.world.World;
  * @author Callum
  */
 public class Player extends Entity {
+	/** The size of the player's line of sight */
+	public static final float LINE_OF_SIGHT_MAX = 8.0f;
+	
 	/** The speed of the player in m/s */
 	private static final float SPEED = 2.0f;
 	/** The size of the player in m */

@@ -4,6 +4,7 @@ import org.joml.MatrixStackf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.render.Align;
@@ -169,6 +170,12 @@ public interface IRenderer {
 	 * @param r The rotation
 	 */
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r);
+	
+	public default void drawTriangleFan(float[] data, float x, float y) {
+		this.drawTriangleFan(data, x, y, ColorUtil.WHITE);
+	}
+	
+	public void drawTriangleFan(float[] data, float x, float y, Vector4f c);
 	
 	/**
 	 * Gets the current mouse x-coordinate

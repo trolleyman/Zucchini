@@ -36,6 +36,11 @@ public class Renderer implements IRenderer {
 	/** Textured box VAO */
 	private VAO boxUV;
 	
+	/** The positions of the polygon */
+	private VBO polygonVBO;
+	/** The actual VAO of the polygon. References polygonVBO */
+	private VAO polygonVAO;
+	
 	/** Current input handler */
 	private InputHandler ih;
 	
@@ -87,6 +92,8 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+		// Debug context
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 		
 		long monitor;
 		if (fullscreen) {
@@ -224,12 +231,19 @@ public class Renderer implements IRenderer {
 			1.0f, 0.0f, // TR
 		};
 		
-		box = new VAO(GL_TRIANGLES, 6);
-		box.addData(simpleShader, "position", vertexPositions, 2);
+		VBO positions = new VBO(vertexPositions, AccessFrequency.STATIC);
+		VBO uvs = new VBO(vertexUVs, AccessFrequency.STATIC);
 		
-		boxUV = new VAO(GL_TRIANGLES, 6);
-		boxUV.addData(textureShader, "position", vertexPositions, 2);
-		boxUV.addData(textureShader, "uv", vertexUVs, 2);
+		box = new VAO();
+		box.addData(simpleShader, "position", positions, 2, 0, 0);
+		
+		boxUV = new VAO();
+		boxUV.addData(textureShader, "position", positions, 2, 0, 0);
+		boxUV.addData(textureShader, "uv", uvs, 2, 0, 0);
+		
+		polygonVBO = new VBO(new float[] {}, AccessFrequency.DYNAMIC);
+		polygonVAO = new VAO();
+		polygonVAO.addData(simpleShader, "position", polygonVBO, 2, 0, 0);
 	}
 	
 	/**
@@ -388,7 +402,7 @@ public class Renderer implements IRenderer {
 		simpleShader.use();
 		
 		// Draw 1x1 box (without UV)
-		box.draw();
+		box.draw(GL_TRIANGLES, 6);
 		matModelView.popMatrix();
 	}
 	
@@ -408,7 +422,23 @@ public class Renderer implements IRenderer {
 		textureShader.use();
 		
 		// Draw 1x1 box (with UV)
-		boxUV.draw();
+		boxUV.draw(GL_TRIANGLES, 6);
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawTriangleFan(float[] data, float x, float y, Vector4f c) {
+		matModelView.pushMatrix();
+		matModelView.translate(x, y, 0.0f);
+		
+		simpleShader.setProjectionMatrix(matProjection);
+		simpleShader.setModelViewMatrix(matModelView);
+		simpleShader.setColor(c);
+		simpleShader.use();
+		
+		polygonVBO.setData(data);
+		polygonVAO.draw(GL_TRIANGLE_FAN, data.length / 2);
+		
 		matModelView.popMatrix();
 	}
 	

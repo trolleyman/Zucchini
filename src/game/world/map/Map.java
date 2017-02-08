@@ -54,6 +54,35 @@ public class Map {
 	}
 	
 	/**
+	 * Gets the line of sight data for the position given.
+	 * @param pos The position of the camera in the world
+	 * @param num The number of samples
+	 * @param max The maximum length of the line of sight
+	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
+	 */
+	public float[] getLineOfSight(Vector2f pos, int num, float max) {
+		float[] ret = new float[num * 2 + 4];
+		ret[0] = pos.x;
+		ret[1] = pos.y;
+		for (int i = 0; i <= num; i++) {
+			// Get current angle
+			double ang = -((double)i / num * Math.PI * 2);
+			// Convert angle to cartesian co-ords (length of max)
+			float x = pos.x + max * (float)Math.sin(ang);
+			float y = pos.y + max * (float)Math.cos(ang);
+			Vector2f intersection = this.intersects(pos.x, pos.y, x, y);
+			if (intersection == null) {
+				ret[2+i*2  ] = x;
+				ret[2+i*2+1] = y;
+			} else {
+				ret[2+i*2  ] = intersection.x;
+				ret[2+i*2+1] = intersection.y;
+			}
+		}
+		return ret;
+	}
+	
+	/**
 	 * Render the map
 	 * @param r The renderer
 	 */

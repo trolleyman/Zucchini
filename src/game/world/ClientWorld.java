@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.action.Action;
@@ -138,6 +139,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
 			.scale(cameraZoom)
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+		
+		// Render line of sight
+		float[] los = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX);
+		r.drawTriangleFan(los, 0, 0, ColorUtil.CYAN);
 		
 		// Render map
 		this.map.render(r);
