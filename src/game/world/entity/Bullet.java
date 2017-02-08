@@ -14,23 +14,36 @@ public abstract class Bullet extends Entity {
 	private Vector2f velocity;
 	private Vector2f temp = new Vector2f();
 	
+	/** Damage of the bullet */
 	private float damage;
+	
+	/** Time to live of the bullet: after this time it automatically removes itself from the world */
+	private double ttl;
 	
 	public Bullet(Bullet b) {
 		super(b);
+		this.prevPosition = new Vector2f(b.prevPosition);
 		this.velocity = b.velocity;
 		this.damage = b.damage;
+		this.ttl = b.ttl;
 	}
 	
-	public Bullet(Vector2f position, Vector2f _velocity, float _damage) {
+	public Bullet(Vector2f position, Vector2f _velocity, float _damage, double _ttl) {
 		super(position);
 		this.prevPosition.set(position);
 		this.velocity = _velocity;
 		this.damage = _damage;
+		this.ttl = _ttl;
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		// Decrement ttl
+		this.ttl -= ua.dt;
+		if (ttl <= 0.0f) {
+			ua.bank.removeEntityCached(this.getId());
+		}
+				
 		temp.set(velocity).mul((float)ua.dt);
 		position.add(temp);
 		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x, position.y);
@@ -55,7 +68,7 @@ public abstract class Bullet extends Entity {
 		} else if (closest == temp) {
 			// Hit entity
 			// Hit an entity, damage
-			System.out.println("Ow! Bullet hit entity");
+			System.out.println("Ow! Bullet hit entity id " + ei.id);
 			ua.bank.healEntityCached(ei.id, -damage);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());

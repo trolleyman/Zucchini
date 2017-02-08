@@ -44,7 +44,9 @@ public class EntityCodec {
 		String s = EntityCodec.toString(b);
 		System.out.println("JSON: " + s);
 		Entity e = EntityCodec.fromString(s);
-		System.out.println("e instanceof HangunBullet == " + (e instanceof HandgunBullet));
+		boolean val = e instanceof HandgunBullet;
+		System.out.println("e instanceof HangunBullet == " + val);
+		assert(val);
 	}
 	
 	private static Type typeForName(final JsonElement typeElem) {

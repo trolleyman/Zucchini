@@ -98,10 +98,13 @@ public class Player extends Entity {
 		this.position.add(this.velocity);
 		
 		// Make sure weapon keeps up with the player
-		Entity e = ua.bank.getEntity(weaponID).clone();
-		e.position.set(this.position);
-		e.angle = this.angle;
-		ua.bank.updateEntityCached(e);
+		Entity eFinal = ua.bank.getEntity(weaponID);
+		if (eFinal != null) {
+			Entity e = eFinal.clone();
+			e.position.set(this.position);
+			e.angle = this.angle;
+			ua.bank.updateEntityCached(e);
+		}
 	}
 	
 	@Override
