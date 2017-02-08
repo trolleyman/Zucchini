@@ -37,6 +37,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		EntityBank serverBank = new EntityBank();
 		int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
 		int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
+		serverBank.updateEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
 		
 		// Create server world
 		ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
