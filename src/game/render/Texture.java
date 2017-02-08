@@ -36,18 +36,20 @@ public class Texture {
 		w = wArr[0];
 		h = hArr[0];
 		
-		this.loadTexture(data, w, h);
+		this.loadTexture(data, w, h, GL_RGBA);
 	}
 	
-	public Texture(ByteBuffer data, int w, int h) {
-		this.loadTexture(data, w, h);
+	public Texture(ByteBuffer data, int _w, int _h, int format) {
+		this.w = _w;
+		this.h = _h;
+		this.loadTexture(data, w, h, format);
 	}
 	
-	private void loadTexture(ByteBuffer data, int w, int h) {
+	private void loadTexture(ByteBuffer data, int w, int h, int format) {
 		// Upload to OpenGL
 		texID = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, texID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, format, GL_UNSIGNED_BYTE, data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

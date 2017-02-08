@@ -2,6 +2,8 @@ package game.render;
 
 import java.nio.ByteBuffer;
 
+import static org.lwjgl.opengl.GL11.*;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.system.MemoryUtil;
@@ -40,15 +42,30 @@ public class Font {
 			
 			RandomAccessFile file = new RandomAccessFile(path, "r");
 			FileChannel channel = file.getChannel();
-			ByteBuffer ttf = BufferUtils.createByteBuffer((int)channel.size());
+			ByteBuffer ttf = ByteBuffer.allocateDirect((int)channel.size());
 			channel.read(ttf);
+			file.close();
 			ttf.rewind();
 
-			ByteBuffer bitmap = BufferUtils.createByteBuffer(w * h);
+			ByteBuffer bitmap = MemoryUtil.memAlloc(w * h);
 			stbtt_BakeFontBitmap(ttf, 32, bitmap, w, h, 32, cdata);
 			bitmap.rewind();
 			
-			text = new Texture(bitmap, w, h);
+			ByteBuffer rgba = MemoryUtil.memAlloc(w * h * 4);
+			
+			for (int i = 0; i < w*h; i++) {
+				rgba.put((byte) -1);
+				rgba.put((byte) -1);
+				rgba.put((byte) -1);
+				rgba.put(bitmap.get());
+			}
+			
+			rgba.rewind();
+			
+			text = new Texture(rgba, w, h, GL_RGBA);
+			
+			MemoryUtil.memFree(rgba);
+			MemoryUtil.memFree(bitmap);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
