@@ -43,11 +43,15 @@ public abstract class Bullet extends Entity {
 		if (ttl <= 0.0f) {
 			ua.bank.removeEntityCached(this.getId());
 		}
-				
+		
+		// Calculate intersection
+		float x = getSizeX();
+		float y = getSizeY();
+		
 		temp.set(velocity).mul((float)ua.dt);
 		position.add(temp);
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x, position.y);
-		Vector2f mi = ua.map.intersects(prevPosition.x, prevPosition.y, position.x, position.y);
+		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x+x, prevPosition.y+y, position.x+x, position.y+y);
+		Vector2f mi = ua.map.intersects(prevPosition.x+x, prevPosition.y+y, position.x+x, position.y+y);
 		
 		// Choose closest point
 		Vector2f closest;
@@ -77,12 +81,19 @@ public abstract class Bullet extends Entity {
 		prevPosition.set(position);
 	}
 	
+	private final float SCALE = 1/80f;
+	
+	private float getSizeX() {
+		return velocity.x*SCALE;
+	}
+	private float getSizeY() {
+		return velocity.y*SCALE;
+	}
+	
 	@Override
 	public void render(IRenderer r) {
-		final float SCALE = 1/80f;
-		
-		float x = velocity.x*SCALE;
-		float y = velocity.y*SCALE;
+		float x = getSizeX();
+		float y = getSizeY();
 		
 		r.drawLine(
 			position.x, position.y,
