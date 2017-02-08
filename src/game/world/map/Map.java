@@ -16,7 +16,7 @@ import game.world.PhysicsUtil;
 public class Map {
 	public static Map createTestMap() {
 		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
-		return new MazeMap(maze);
+		return new MazeMap(maze, 1.5f);
 	}
 	
 	private Vector2f temp = new Vector2f();
