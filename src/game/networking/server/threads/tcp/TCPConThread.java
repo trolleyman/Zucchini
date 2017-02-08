@@ -10,14 +10,14 @@ import java.util.Map;
 
 import game.networking.server.threads.LobbyThread;
 
-public class TCPConLobbyThread implements Runnable
+public class TCPConThread implements Runnable
 {
 	private ServerSocket serverSocke;
 	private Map<String, Socket> clientSockets;
 	private LobbyThread lobby;
 	private List<String> updatedList;
 
-	public TCPConLobbyThread(int _socketInt, Map<String, Socket> _clientSockets, LobbyThread _lobby, List<String> _updatedList)
+	public TCPConThread(int _socketInt, Map<String, Socket> _clientSockets, LobbyThread _lobby, List<String> _updatedList)
 	{
 
 		clientSockets = _clientSockets;

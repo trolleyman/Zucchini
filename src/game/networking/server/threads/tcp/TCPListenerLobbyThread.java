@@ -37,11 +37,10 @@ public class TCPListenerLobbyThread implements Runnable
 		{
 			BufferedReader fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-			(new Thread(new TCPSenderLobbyThread(socket, name, messages.get(name)))).start();
-
 			while (run)
 			{
 				String messageFull = fromClient.readLine().trim();
+
 				if (messageFull == null)
 				{
 					run = false;

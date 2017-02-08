@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import game.networking.server.threads.tcp.TCPConLobbyThread;
+import game.networking.server.threads.tcp.TCPConThread;
 import game.networking.server.threads.tcp.TCPListenerLobbyThread;
 import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
@@ -54,7 +54,7 @@ public class LobbyThread implements Runnable
 		Thread lobbyConThread = new Thread(lobbyConnection);
 		lobbyConThread.start();
 
-		Thread TCPconLobby = new Thread(new TCPConLobbyThread(_socketInt, clientSockets, this, updatedList));
+		Thread TCPconLobby = new Thread(new TCPConThread(_socketInt, clientSockets, this, updatedList));
 		TCPconLobby.start();
 
 		// TODO: see if this is good
