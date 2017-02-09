@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import game.networking.util.Protocol;
-import game.networking.util.Tuple;
 
 public class TCPSenderLobbyThread implements Runnable
 {
@@ -85,7 +84,7 @@ public class TCPSenderLobbyThread implements Runnable
 		{
 			e.printStackTrace();
 		}
-
+		// FIXME: send back a dissconect request to get rid of this client
 		System.out.println(this.getClass().getName() + name + ">>disconected!!");
 
 	}

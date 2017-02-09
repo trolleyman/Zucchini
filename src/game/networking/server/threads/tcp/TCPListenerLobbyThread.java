@@ -32,7 +32,7 @@ public class TCPListenerLobbyThread implements Runnable
 			while (run)
 			{
 				String messageFull = fromClient.readLine().trim();
-				// System.out.println(messageFull);
+				System.out.println(messageFull);
 				/// [ACTION/MESSAGE]stuff
 				if (messageFull == null)
 				{
@@ -55,6 +55,7 @@ public class TCPListenerLobbyThread implements Runnable
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
+		// FIXME: send back a dissconect request to get rid of this client
 		System.out.println(this.getClass().getName() + name + ">> i'm out!!");
 
 	}
