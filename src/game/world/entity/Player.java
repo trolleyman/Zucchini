@@ -10,7 +10,6 @@ import game.render.IRenderer;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
-import game.world.World;
 
 /**
  * Represents a player
@@ -164,6 +163,6 @@ public class Player extends Entity {
 	
 	@Override
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
-		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1);
+		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1, null);
 	}
 }

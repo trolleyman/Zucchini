@@ -95,6 +95,44 @@ public class Util {
 		return vector3f.get();
 	}
 	
+	private static final ThreadLocal<ArrayList<Vector2f>> vector2fStack = new ThreadLocal<ArrayList<Vector2f>>() {
+		@Override
+		protected ArrayList<Vector2f> initialValue() { return new ArrayList<>(); }
+	};
+	private static final ThreadLocal<Integer> vector2fStackSize = new ThreadLocal<Integer>() {
+		@Override
+		protected Integer initialValue() { return 0; }
+	};
+	
+	/**
+	 * Pushes a new temporary Vector2f onto the stack
+	 * @returns the new temporary Vector2f
+	 */
+	public static Vector2f pushTemporaryVector2f() {
+		ArrayList<Vector2f> stack = vector2fStack.get();
+		int stackSize = vector2fStackSize.get();
+		if (stack.size() == stackSize) {
+			stack.add(new Vector2f());
+		}
+		Vector2f v = stack.get(stackSize);
+		v.set(0.0f, 0.0f);
+		stackSize++;
+		vector2fStackSize.set(stackSize);
+		if (stackSize > 256) {
+			System.err.println("Warning: Vector2f stack size: " + stackSize);
+		}
+		return v;
+	}
+	
+	/**
+	 * Pops a temporary Vector2f off of the stack
+	 */
+	public static void popTemporaryVector2f() {
+		int stackSize = vector2fStackSize.get();
+		stackSize--;
+		vector2fStackSize.set(stackSize);
+	}
+	
 	/**
 	 * Gets the angle between two points, relative clockwise to the up vector.
 	 * @param x0 x-coordinate of the first point
