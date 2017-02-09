@@ -18,14 +18,14 @@ public abstract class ServerAbstract implements ServerMainable
 	private LobbyThread lobby;
 	private Map<String, ConnectionDetails> clients;
 	private List<String> acceptedClients;
-	private Map<String, LinkedList<Tuple<String, String>>> receivedMess;
-	private Map<String, LinkedList<Tuple<String, String>>> sendMess;
+	private LinkedList<Tuple<String, String>> receivedMess;
+	private Map<String, LinkedList<String>> sendMess;
 
 	public ServerAbstract()
 	{
 		clients = new LinkedHashMap<String, ConnectionDetails>();
 		acceptedClients = new LinkedList<String>();
-		receivedMess = new LinkedHashMap<>();
+		receivedMess = new LinkedList<>();
 		sendMess = new LinkedHashMap<>();
 	}
 
@@ -56,12 +56,12 @@ public abstract class ServerAbstract implements ServerMainable
 
 	}
 
-	public synchronized Map<String, LinkedList<Tuple<String, String>>> getSendMess()
+	public synchronized Map<String, LinkedList<String>> getSendMess()
 	{
 		return sendMess;
 	}
 
-	public synchronized Map<String, LinkedList<Tuple<String, String>>> getReceivedMess()
+	public synchronized LinkedList<Tuple<String, String>> getReceivedMess()
 	{
 		return receivedMess;
 	}

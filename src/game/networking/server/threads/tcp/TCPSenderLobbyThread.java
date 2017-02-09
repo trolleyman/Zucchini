@@ -13,13 +13,13 @@ public class TCPSenderLobbyThread implements Runnable
 
 	private Socket socket;
 	private String name;
-	private LinkedList<Tuple<String, String>> messages;
+	private LinkedList<String> messages;
 
-	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<Tuple<String, String>> _messages)
+	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<String> _sendMessages)
 	{
 		socket = _socket;
 		name = _name;
-		messages = _messages;
+		messages = _sendMessages;
 
 		// SEND FIRST PING
 		// DataOutputStream toClient;
@@ -50,10 +50,10 @@ public class TCPSenderLobbyThread implements Runnable
 
 					while (!messages.isEmpty())
 					{
-						Tuple<String, String> t = messages.poll();
+						String t = messages.poll();
 						try
 						{
-							toClient.writeBytes(Protocol.TCP_Message + t.getFirst() + ": " + t.getSecond() + "\n");
+							toClient.writeBytes(t + "\n");
 							// System.out.println(name + " should receive: " +
 							// Protocol.TCP_Message + t.getFirst() + ": " +
 							// t.getSecond());

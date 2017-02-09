@@ -37,10 +37,10 @@ public class LobbyThread implements Runnable
 
 	private TCPConThread tcpConTh;
 
-	private Map<String, LinkedList<Tuple<String, String>>> sendMessages;
-	private Map<String, LinkedList<Tuple<String, String>>> receivedMessages;
+	private Map<String, LinkedList<String>> sendMessages;
+	private LinkedList<Tuple<String, String>> receivedMessages;
 
-	public LobbyThread(Map<String, ConnectionDetails> _clients, List<String> _acceptedClients, Map<String, LinkedList<Tuple<String, String>>> _receivedMessages, Map<String, LinkedList<Tuple<String, String>>> _sendMessages)
+	public LobbyThread(Map<String, ConnectionDetails> _clients, List<String> _acceptedClients, LinkedList<Tuple<String, String>> _receivedMessages, Map<String, LinkedList<String>> _sendMessages)
 	{
 		clients = _clients;
 		acceptedClients = _acceptedClients;
@@ -101,8 +101,7 @@ public class LobbyThread implements Runnable
 						// FIXME: instantiate send and receive messages maps
 
 						sendMessages.put(name, new LinkedList<>());
-						receivedMessages.put(name, new LinkedList<>());
-						new TCP_Connection(clientSockets.get(name), name, sendMessages.get(name), receivedMessages.get(name));
+						new TCP_Connection(clientSockets.get(name), name, sendMessages.get(name), receivedMessages);
 
 						System.out.println("Creadted TCPStuff for: " + name);
 					}

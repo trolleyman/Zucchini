@@ -8,16 +8,16 @@ import game.networking.util.Tuple;
 public class TCP_Connection
 {
 	LinkedList<Tuple<String, String>> receivedMes;
-	LinkedList<Tuple<String, String>> sendMes;
+	LinkedList<String> sendMes;
 
-	public TCP_Connection(Socket _socket, String _name, LinkedList<Tuple<String, String>> _sendMes, LinkedList<Tuple<String, String>> _receivedMes)
+	public TCP_Connection(Socket _socket, String _name, LinkedList<String> _sendMessages, LinkedList<Tuple<String, String>> _receivedMes)
 	{
 
 		receivedMes = _receivedMes;
-		sendMes = _sendMes;
+		sendMes = _sendMessages;
 
 		TCPListenerLobbyThread tcpListener = new TCPListenerLobbyThread(_socket, _name, _receivedMes);
-		TCPSenderLobbyThread tcpSenderLobby = new TCPSenderLobbyThread(_socket, _name, _sendMes);
+		TCPSenderLobbyThread tcpSenderLobby = new TCPSenderLobbyThread(_socket, _name, _sendMessages);
 
 		(new Thread(tcpListener)).start();
 		(new Thread(tcpSenderLobby)).start();

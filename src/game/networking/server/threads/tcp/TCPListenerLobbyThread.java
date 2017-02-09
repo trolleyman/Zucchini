@@ -32,7 +32,7 @@ public class TCPListenerLobbyThread implements Runnable
 			while (run)
 			{
 				String messageFull = fromClient.readLine().trim();
-				System.out.println(messageFull);
+				// System.out.println(messageFull);
 				/// [ACTION/MESSAGE]stuff
 				if (messageFull == null)
 				{
