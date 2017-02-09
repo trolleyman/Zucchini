@@ -9,11 +9,15 @@ public class Protocol
 	public static final String TCP_Ping = "[PING]";
 	public static final String TCP_Pong = "[PONG]";
 	public static final String TCP_Message = "[MES]";
-	public static final String TCP_LobbyAction = "";
-	public static final String TCP_GameAction = "";
+	public static final String TCP_LobbyAction = "[LOBACT]";
+	public static final String TCP_GameAction = "[GAMEACT]";
 
-	public static final String UDP_playerNameTagBegin = "";
-	public static final String UDP_playerNameTagEnd = "";
+	public static final String UDP_playerNameTagBegin = "[UDP_PNAME]";
+	public static final String UDP_playerNameTagEnd = "[/UDP_PNAME]";
+
+	// public static final String TCP_playerNameTagBegin = "[/TCP_PNAME]";
+	// public static final String TCP_playerNameTagEnd = "[/TCP_PNAME]";
+	public static final String TCPSocketTag = "[TCP_SOCK]";
 
 	// public static final String = "";
 

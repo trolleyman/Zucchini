@@ -14,6 +14,7 @@ import java.util.Map;
 
 import game.networking.server.threads.tcp.TCPConThread;
 import game.networking.server.threads.tcp.TCPListenerLobbyThread;
+import game.networking.server.threads.tcp.TCP_Connection;
 import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
 import game.networking.util.Tuple;
@@ -33,8 +34,10 @@ public class LobbyThread implements Runnable
 	private boolean updated = false;
 	private List<String> updatedList;
 
-	private Map<String, LinkedList<Tuple<String, String>>> messages;
-	private LinkedList<Tuple<String, String>> actions;
+	private TCPConThread tcpConTh;
+
+	private Map<String, LinkedList<Tuple<String, String>>> sendMessages;
+	private Map<String, LinkedList<Tuple<String, String>>> receivedMessages;
 
 	public LobbyThread(int _socketInt, Map<String, ConnectionDetails> _clients, List<String> _acceptedClients)
 	{
@@ -48,13 +51,12 @@ public class LobbyThread implements Runnable
 
 		lobbyConnection = new LobbyConnectionThread(acceptQueue, this, acceptedClients);
 
-		messages = new LinkedHashMap<>();
-		actions = new LinkedList<>();
-
 		Thread lobbyConThread = new Thread(lobbyConnection);
 		lobbyConThread.start();
 
-		Thread TCPconLobby = new Thread(new TCPConThread(_socketInt, clientSockets, this, updatedList));
+		tcpConTh = new TCPConThread(clientSockets, this, updatedList);
+
+		Thread TCPconLobby = new Thread(tcpConTh);
 		TCPconLobby.start();
 
 		// TODO: see if this is good
@@ -85,9 +87,13 @@ public class LobbyThread implements Runnable
 
 					for (String string : updatedList)
 					{
-						Thread thread = new Thread(new TCPListenerLobbyThread(clientSockets.get(string), string, messages, actions));
-						thread.start();
-						System.out.println("Creadted TCPListener for: " + string);
+						// Thread thread = new Thread(new
+						// TCPListenerLobbyThread(clientSockets.get(string),
+						// string, actions));
+						// thread.start();
+						new TCP_Connection(clientSockets.get(string), string, sendMessages.get(string), receivedMessages.get(string));
+
+						System.out.println("Creadted TCPStuff for: " + string);
 					}
 					updatedList.clear();
 				}
@@ -115,7 +121,7 @@ public class LobbyThread implements Runnable
 
 	public synchronized void sendAccept(String name)
 	{
-		byte[] buffer = (Protocol.StoC_DiscoveryAccept + name).getBytes();
+		byte[] buffer = (Protocol.StoC_DiscoveryAccept + name + Protocol.TCPSocketTag + (new Integer(getTCPServerSocket())).toString()).getBytes();
 		ConnectionDetails conn = clients.get(name);
 		DatagramPacket acceptPacket = new DatagramPacket(buffer, buffer.length, conn.address, conn.port);
 		try
@@ -134,9 +140,19 @@ public class LobbyThread implements Runnable
 		updated = true;
 	}
 
-	public synchronized LinkedList<Tuple<String, String>> getActions()
+	public synchronized Map<String, LinkedList<Tuple<String, String>>> getSendMessage()
 	{
-		return actions;
+		return sendMessages;
+	}
+
+	public synchronized Map<String, LinkedList<Tuple<String, String>>> getReceivedMessage()
+	{
+		return receivedMessages;
+	}
+
+	public synchronized int getTCPServerSocket()
+	{
+		return tcpConTh.getTCPServerPort();
 	}
 
 }

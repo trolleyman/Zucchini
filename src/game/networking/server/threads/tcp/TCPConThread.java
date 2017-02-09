@@ -12,20 +12,21 @@ import game.networking.server.threads.LobbyThread;
 
 public class TCPConThread implements Runnable
 {
-	private ServerSocket serverSocke;
+	private ServerSocket serverSocket;
 	private Map<String, Socket> clientSockets;
 	private LobbyThread lobby;
 	private List<String> updatedList;
 
-	public TCPConThread(int _socketInt, Map<String, Socket> _clientSockets, LobbyThread _lobby, List<String> _updatedList)
+	public TCPConThread(Map<String, Socket> _clientSockets, LobbyThread _lobby, List<String> _updatedList)
 	{
 
 		clientSockets = _clientSockets;
 		lobby = _lobby;
 		updatedList = _updatedList;
+
 		try
 		{
-			serverSocke = new ServerSocket(_socketInt + 1);
+			serverSocket = new ServerSocket(0);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
@@ -42,15 +43,17 @@ public class TCPConThread implements Runnable
 			try
 			{
 				// System.out.println("runTCP");
-				Socket socket = serverSocke.accept();
+
+				Socket socket = serverSocket.accept();
 				BufferedReader fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				String name = fromClient.readLine();
 				synchronized (updatedList)
 				{
 					clientSockets.put(name, socket);
-					lobby.newClient();
 					updatedList.add(name);
-					System.out.println("-------------------------" + name);
+					lobby.newClient();
+
+					// System.out.println("-------------------------" + name);
 				}
 
 			} catch (IOException e)
@@ -80,13 +83,18 @@ public class TCPConThread implements Runnable
 		}
 		try
 		{
-			serverSocke.close();
+			serverSocket.close();
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	public synchronized int getTCPServerPort()
+	{
+		return serverSocket.getLocalPort();
 	}
 
 }

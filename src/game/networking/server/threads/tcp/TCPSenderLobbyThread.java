@@ -13,7 +13,7 @@ public class TCPSenderLobbyThread implements Runnable
 
 	private Socket socket;
 	private String name;
-	LinkedList<Tuple<String, String>> messages;
+	private LinkedList<Tuple<String, String>> messages;
 
 	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<Tuple<String, String>> _messages)
 	{
@@ -22,16 +22,16 @@ public class TCPSenderLobbyThread implements Runnable
 		messages = _messages;
 
 		// SEND FIRST PING
-		DataOutputStream toClient;
-		try
-		{
-			toClient = new DataOutputStream(socket.getOutputStream());
-			toClient.writeBytes(Protocol.TCP_Ping + name + "\n");
-		} catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// DataOutputStream toClient;
+		// try
+		// {
+		// toClient = new DataOutputStream(socket.getOutputStream());
+		// toClient.writeBytes(Protocol.TCP_Ping + name + "\n");
+		// } catch (IOException e)
+		// {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 	}
 
@@ -54,7 +54,9 @@ public class TCPSenderLobbyThread implements Runnable
 						try
 						{
 							toClient.writeBytes(Protocol.TCP_Message + t.getFirst() + ": " + t.getSecond() + "\n");
-							System.out.println(name + " should receive:  " + Protocol.TCP_Message + t.getFirst() + ": " + t.getSecond());
+							// System.out.println(name + " should receive: " +
+							// Protocol.TCP_Message + t.getFirst() + ": " +
+							// t.getSecond());
 						} catch (IOException e)
 						{
 							run = false;

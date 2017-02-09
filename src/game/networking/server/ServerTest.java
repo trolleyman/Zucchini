@@ -55,16 +55,4 @@ public class ServerTest implements ServerMainable
 
 	}
 
-	@Override
-	public synchronized LinkedList<Tuple<String, String>> getActions()
-	{
-		return lobby.getActions();
-	}
-
-	@Override
-	public synchronized Tuple<String, String> getAction()
-	{
-		return lobby.getActions().poll();
-	}
-
 }
