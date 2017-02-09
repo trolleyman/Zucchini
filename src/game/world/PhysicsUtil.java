@@ -68,4 +68,42 @@ public class PhysicsUtil {
 			}
 		}
 	}
+
+	/**
+	 * @param x0
+	 * @param y0
+	 * @param radius
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return
+	 */
+	public static Vector2f intersectCircleLine(float x0, float y0, float radius, float x1, float y1, float x2, float y2) {
+		// http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
+		float vx = y2-y1;
+		float vy = x1-x2;
+		
+		float rx = x1-x0;
+		float ry = y1-y0;
+		
+		float rdotv = rx*vx + ry*vy;
+		
+		if (rdotv <= radius) {
+			// intersection
+			
+			// w = vector from x0,y0 to the closest point on the line
+			float wx = vx*rdotv;
+			float wy = vy*rdotv;
+			
+			// u = closest point on the line
+			float ux = x0+wx;
+			float uy = y0+wy;
+			
+			return new Vector2f(ux, uy);
+		} else {
+			// no intersection
+			return null;
+		}
+	}
 }

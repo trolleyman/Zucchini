@@ -39,7 +39,7 @@ public class Map {
 	 * @param y1 End x-coordinate of the line
 	 * @return null if there was no intersection
 	 */
-	public Vector2f intersects(float x0, float y0, float x1, float y1) {
+	public Vector2f intersectsLine(float x0, float y0, float x1, float y1) {
 		Vector2f ret = null;
 		for (int i = 0; i < lines.length - 3; i += 4) {
 			float x2 = lines[i  ];
@@ -48,6 +48,29 @@ public class Map {
 			float y3 = lines[i+3];
 			
 			Vector2f p = PhysicsUtil.intersectLineLine(x0, y0, x1, y1, x2, y2, x3, y3);
+			ret = PhysicsUtil.getClosest(temp.set(x0, y0), ret, p);
+		}
+		return ret;
+	}
+	
+	/**
+	 * Returns the point at which a circle intersects with the map
+	 * <p>
+	 * For times when the circle intersects twice with the map, the average point is returned.
+	 * @param x0 The x-coordinate of the circle
+	 * @param y0 The y-coordinate of the circle
+	 * @param radius The radius of the circle
+	 * @return null if there was no intersection
+	 */
+	public Vector2f intersectsCircle(float x0, float y0, float radius) {
+		Vector2f ret = null;
+		for (int i = 0; i < lines.length - 3; i += 4) {
+			float x1 = lines[i  ];
+			float y1 = lines[i+1];
+			float x2 = lines[i+2];
+			float y2 = lines[i+3];
+			
+			Vector2f p = PhysicsUtil.intersectCircleLine(x0, y0, radius, x1, y1, x2, y2);
 			ret = PhysicsUtil.getClosest(temp.set(x0, y0), ret, p);
 		}
 		return ret;
@@ -70,7 +93,7 @@ public class Map {
 			// Convert angle to cartesian co-ords (length of max)
 			float x = pos.x + max * (float)Math.sin(ang);
 			float y = pos.y + max * (float)Math.cos(ang);
-			Vector2f intersection = this.intersects(pos.x, pos.y, x, y);
+			Vector2f intersection = this.intersectsLine(pos.x, pos.y, x, y);
 			if (intersection == null) {
 				ret[2+i*2  ] = x;
 				ret[2+i*2+1] = y;

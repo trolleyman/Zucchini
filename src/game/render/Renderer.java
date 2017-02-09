@@ -12,7 +12,6 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
-import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.render.shader.Shader;
@@ -20,6 +19,8 @@ import game.render.shader.SimpleShader;
 import game.render.shader.TextureShader;
 
 public class Renderer implements IRenderer {
+	private static final int CIRCLE_VERTICES = 128;
+
 	/** Window handle. See <a target="_top" href="http://www.glfw.org/docs/latest/window_guide.html#window_object">here</a> */
 	private long window;
 	
@@ -30,7 +31,7 @@ public class Renderer implements IRenderer {
 	private SimpleShader simpleShader;
 	private TextureShader textureShader;
 	
-	// Boxes
+	// Meshes
 	/** Box VAO */
 	private VAO box;
 	/** Textured box VAO */
@@ -40,6 +41,9 @@ public class Renderer implements IRenderer {
 	private VBO polygonVBO;
 	/** The actual VAO of the polygon. References polygonVBO */
 	private VAO polygonVAO;
+	
+	/** Circle VAO. This is a circle at 0,0 of radius 1, with CIRCLE_VERTICES number of vertices */
+	private VAO circle;
 	
 	/** Current input handler */
 	private InputHandler ih;
@@ -183,8 +187,8 @@ public class Renderer implements IRenderer {
 		// Load images
 		ib = new TextureBank();
 		
-		// Generate 1x1 boxes
-		generateBoxes();
+		// Generate meshes
+		generateMeshes();
 		
 		// Enable v-sync
 		this.setVSync(true);
@@ -207,9 +211,9 @@ public class Renderer implements IRenderer {
 	}
 
 	/**
-	 * Generate the VAO boxes.
+	 * Generate the VAO meshes.
 	 */
-	private void generateBoxes() {
+	private void generateMeshes() {
 		float[] vertexPositions = {
 			// t0
 			0.0f, 0.0f, // BL
@@ -244,6 +248,24 @@ public class Renderer implements IRenderer {
 		polygonVBO = new VBO(new float[] {}, AccessFrequency.DYNAMIC);
 		polygonVAO = new VAO();
 		polygonVAO.addData(simpleShader, "position", polygonVBO, 2, 0, 0);
+		
+		// Generate circle data
+		int len = 2 * CIRCLE_VERTICES;
+		float[] circleData = new float[len];
+		circleData[0] = 0.0f;
+		circleData[1] = 0.0f;
+		for (int i = 2; i < len-2; i += 2) {
+			double ang = -((double)i-2) / (len-4) * Math.PI * 2;
+			float x = (float)Math.sin(ang);
+			float y = (float)Math.cos(ang);
+			circleData[i  ] = x;
+			circleData[i+1] = y;
+		}
+		circleData[len-2] = 0.0f;
+		circleData[len-1] = 1.0f;
+		VBO circleVBO = new VBO(circleData, AccessFrequency.STATIC);
+		circle = new VAO();
+		circle.addData(simpleShader, "position", circleVBO, 2, 0, 0);
 	}
 	
 	/**
@@ -439,6 +461,22 @@ public class Renderer implements IRenderer {
 		polygonVBO.setData(data);
 		polygonVAO.draw(GL_TRIANGLE_FAN, data.length / 2);
 		
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawCircle(float x, float y, float radius, Vector4f c) {
+		matModelView.pushMatrix();
+		matModelView.translate(x, y, 0.0f);
+		matModelView.scale(radius, radius, 1.0f);
+		
+		simpleShader.setProjectionMatrix(matProjection);
+		simpleShader.setModelViewMatrix(matModelView);
+		simpleShader.setColor(c);
+		simpleShader.use();
+		
+		// Draw circle
+		circle.draw(GL_TRIANGLE_FAN, CIRCLE_VERTICES);
 		matModelView.popMatrix();
 	}
 	

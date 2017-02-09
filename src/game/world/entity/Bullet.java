@@ -51,7 +51,7 @@ public abstract class Bullet extends Entity {
 		temp.set(velocity).mul((float)ua.dt);
 		position.add(temp);
 		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x+x, prevPosition.y+y, position.x+x, position.y+y);
-		Vector2f mi = ua.map.intersects(prevPosition.x+x, prevPosition.y+y, position.x+x, position.y+y);
+		Vector2f mi = ua.map.intersectsLine(prevPosition.x+x, prevPosition.y+y, position.x+x, position.y+y);
 		
 		// Choose closest point
 		Vector2f closest;

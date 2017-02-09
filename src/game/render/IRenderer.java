@@ -175,7 +175,20 @@ public interface IRenderer {
 		this.drawTriangleFan(data, x, y, ColorUtil.WHITE);
 	}
 	
+	/**
+	 * Draws a triangle fan of the data provided. See GL_TRIANGLE_FAN for the details.
+	 * @param data The data points in [x0, y0, x1, y1, x2, y2, ...] format.
+	 * @param x The circle's centre x-coordinate
+	 * @param y The circle's centre y-coordinate
+	 * @param c The color of the object
+	 */
 	public void drawTriangleFan(float[] data, float x, float y, Vector4f c);
+	
+	public default void drawCircle(float x, float y, float radius) {
+		this.drawCircle(x, y, radius, ColorUtil.WHITE);
+	}
+	
+	public void drawCircle(float x, float y, float radius, Vector4f c);
 	
 	/**
 	 * Gets the current mouse x-coordinate
