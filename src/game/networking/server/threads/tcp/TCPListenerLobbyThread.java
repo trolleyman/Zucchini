@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.LinkedList;
-import game.networking.util.Protocol;
 import game.networking.util.Tuple;
 
 public class TCPListenerLobbyThread implements Runnable
@@ -33,6 +32,7 @@ public class TCPListenerLobbyThread implements Runnable
 			while (run)
 			{
 				String messageFull = fromClient.readLine().trim();
+				System.out.println(messageFull);
 				/// [ACTION/MESSAGE]stuff
 				if (messageFull == null)
 				{

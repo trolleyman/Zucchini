@@ -13,6 +13,7 @@ import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
 import game.networking.util.ServerMainable;
 import game.networking.util.TraceLog;
+import game.networking.util.UtilityCode;
 
 public class DiscoveryThread implements Runnable
 {
@@ -23,9 +24,9 @@ public class DiscoveryThread implements Runnable
 	private List<String> acceptedClients;
 	private ServerMainable server;
 
-	public DiscoveryThread(int _socketInt, Map<String, ConnectionDetails> _clients, ServerMainable _server, List<String> _acceptedClients)
+	public DiscoveryThread(Map<String, ConnectionDetails> _clients, ServerMainable _server, List<String> _acceptedClients)
 	{
-		socketInt = _socketInt;
+		socketInt = UtilityCode.getNextAvailabePort();
 		clients = _clients;
 		server = _server;
 		acceptedClients = _acceptedClients;
@@ -36,80 +37,85 @@ public class DiscoveryThread implements Runnable
 	{
 		String name = "";
 		DatagramSocket socket;
-		try
+		if (socketInt != -1)
 		{
-			// Keep a socket open to listen to all the UDP trafic that is
-			// destined for this port
-			socket = new DatagramSocket(socketInt, InetAddress.getByName("0.0.0.0"));
-			socket.setBroadcast(true);
-
-			while (run)
+			try
 			{
-				TraceLog.consoleLog(getClass().getName() + ">>>Ready to receive broadcast packets!");
+				// Keep a socket open to listen to all the UDP trafic that is
+				// destined for this port
+				socket = new DatagramSocket(socketInt, InetAddress.getByName("0.0.0.0"));
+				socket.setBroadcast(true);
 
-				// Receive a packet
-				byte[] recvBuf = new byte[15000];
-				DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
-				socket.receive(packet);
-
-				// Packet received
-				TraceLog.consoleLog(getClass().getName() + ">>>Discovery packet received from: " + packet.getAddress().getHostAddress());
-				TraceLog.consoleLog(getClass().getName() + ">>>Packet received; data: " + new String(packet.getData()));
-
-				// See if the packet holds the right command (message)
-
-				String message = new String(packet.getData()).trim();
-
-				if (message.startsWith(Protocol.CtoS_Discovery))
+				while (run)
 				{
-					name = message.substring(Protocol.CtoS_Discovery.length());
-					message = Protocol.CtoS_Discovery;
-				}
-				if (message.equals(Protocol.CtoS_Discovery))
-				{
+					TraceLog.consoleLog(getClass().getName() + ">>>Ready to receive broadcast packets!");
 
-					// see if we already have a client that has registered with
-					// that name;
+					// Receive a packet
+					byte[] recvBuf = new byte[15000];
+					DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
+					socket.receive(packet);
 
-					if (acceptedClients.contains(name))
+					// Packet received
+					TraceLog.consoleLog(getClass().getName() + ">>>Discovery packet received from: " + packet.getAddress().getHostAddress());
+					TraceLog.consoleLog(getClass().getName() + ">>>Packet received; data: " + new String(packet.getData()));
+
+					// See if the packet holds the right command (message)
+
+					String message = new String(packet.getData()).trim();
+
+					if (message.startsWith(Protocol.CtoS_Discovery))
 					{
-						// reject if we have another client with the same name
-
-						sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
-
-					} else
+						name = message.substring(Protocol.CtoS_Discovery.length());
+						message = Protocol.CtoS_Discovery;
+					}
+					if (message.equals(Protocol.CtoS_Discovery))
 					{
-						// accept and add client to table if he has a unique
-						// name
-						if (!clients.containsKey(name))
+
+						// see if we already have a client that has registered
+						// with
+						// that name;
+
+						if (acceptedClients.contains(name))
 						{
-							// send wait request to client
+							// reject if we have another client with the same
+							// name
 
-							sendData(socket, (Protocol.StoC_DiscoveryWait + name), packet.getAddress(), packet.getPort());
+							sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
 
-							// thread safe way of putting stuff into the map
-							synchronized (this)
+						} else
+						{
+							// accept and add client to table if he has a unique
+							// name
+							if (!clients.containsKey(name))
 							{
-								ConnectionDetails connection = new ConnectionDetails(packet.getAddress(), packet.getPort());
-								clients.put(name, connection);
-								server.acceptClientConnection(name);
+								// send wait request to client
+
+								sendData(socket, (Protocol.StoC_DiscoveryWait + name), packet.getAddress(), packet.getPort());
+
+								// thread safe way of putting stuff into the map
+								synchronized (this)
+								{
+									ConnectionDetails connection = new ConnectionDetails(packet.getAddress(), packet.getPort());
+									clients.put(name, connection);
+									server.acceptClientConnection(name);
+
+								}
+							} else if (!processingClient(name, packet))
+							{
+								// if the client is already online deny access
+								sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
 
 							}
-						} else if (!processingClient(name, packet))
-						{
-							// if the client is already online deny access
-							sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
 
 						}
 
 					}
-
 				}
+				socket.close();
+			} catch (IOException ex)
+			{
+				Logger.getLogger(DiscoveryThread.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			socket.close();
-		} catch (IOException ex)
-		{
-			Logger.getLogger(DiscoveryThread.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
 	}

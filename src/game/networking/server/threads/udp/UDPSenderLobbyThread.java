@@ -21,9 +21,9 @@ public class UDPSenderLobbyThread implements Runnable
 	private LinkedList<Tuple<String, String>> UDP_actions;
 	private Map<String, ConnectionDetails> clients;
 
-	public UDPSenderLobbyThread(DatagramSocket _s, LinkedList<Tuple<String, String>> _udpActions, Map<String, ConnectionDetails> _clients)
+	public UDPSenderLobbyThread(DatagramSocket _socket, LinkedList<Tuple<String, String>> _udpActions, Map<String, ConnectionDetails> _clients)
 	{
-		socket = _s;
+		socket = _socket;
 		UDP_actions = _udpActions;
 		clients = _clients;
 	}

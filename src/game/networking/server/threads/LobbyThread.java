@@ -18,11 +18,10 @@ import game.networking.server.threads.tcp.TCP_Connection;
 import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
 import game.networking.util.Tuple;
+import game.networking.util.UtilityCode;
 
 public class LobbyThread implements Runnable
 {
-
-	private int socketInt;
 	private DatagramSocket datagramSocket;
 
 	// Client accept
@@ -30,6 +29,8 @@ public class LobbyThread implements Runnable
 	private LinkedList<String> acceptQueue;
 	private List<String> acceptedClients;
 	private LobbyConnectionThread lobbyConnection;
+
+	// TCP
 	private Map<String, Socket> clientSockets;
 	private boolean updated = false;
 	private List<String> updatedList;
@@ -39,11 +40,12 @@ public class LobbyThread implements Runnable
 	private Map<String, LinkedList<Tuple<String, String>>> sendMessages;
 	private Map<String, LinkedList<Tuple<String, String>>> receivedMessages;
 
-	public LobbyThread(int _socketInt, Map<String, ConnectionDetails> _clients, List<String> _acceptedClients)
+	public LobbyThread(Map<String, ConnectionDetails> _clients, List<String> _acceptedClients, Map<String, LinkedList<Tuple<String, String>>> _receivedMessages, Map<String, LinkedList<Tuple<String, String>>> _sendMessages)
 	{
-		socketInt = _socketInt;
 		clients = _clients;
 		acceptedClients = _acceptedClients;
+		sendMessages = _sendMessages;
+		receivedMessages = _receivedMessages;
 
 		acceptQueue = new LinkedList<String>();
 		clientSockets = new LinkedHashMap<>();
@@ -60,13 +62,17 @@ public class LobbyThread implements Runnable
 		TCPconLobby.start();
 
 		// TODO: see if this is good
-		try
+		int socketInt = UtilityCode.getNextAvailabePort();
+		if (socketInt != -1)
 		{
-			datagramSocket = new DatagramSocket(socketInt, InetAddress.getByName("0.0.0.0"));
-		} catch (SocketException | UnknownHostException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			try
+			{
+				datagramSocket = new DatagramSocket(socketInt, InetAddress.getByName("0.0.0.0"));
+			} catch (SocketException | UnknownHostException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -85,15 +91,20 @@ public class LobbyThread implements Runnable
 				synchronized (updatedList)
 				{
 
-					for (String string : updatedList)
+					for (String name : updatedList)
 					{
 						// Thread thread = new Thread(new
 						// TCPListenerLobbyThread(clientSockets.get(string),
 						// string, actions));
 						// thread.start();
-						new TCP_Connection(clientSockets.get(string), string, sendMessages.get(string), receivedMessages.get(string));
 
-						System.out.println("Creadted TCPStuff for: " + string);
+						// FIXME: instantiate send and receive messages maps
+
+						sendMessages.put(name, new LinkedList<>());
+						receivedMessages.put(name, new LinkedList<>());
+						new TCP_Connection(clientSockets.get(name), name, sendMessages.get(name), receivedMessages.get(name));
+
+						System.out.println("Creadted TCPStuff for: " + name);
 					}
 					updatedList.clear();
 				}
@@ -138,16 +149,6 @@ public class LobbyThread implements Runnable
 	public void newClient()
 	{
 		updated = true;
-	}
-
-	public synchronized Map<String, LinkedList<Tuple<String, String>>> getSendMessage()
-	{
-		return sendMessages;
-	}
-
-	public synchronized Map<String, LinkedList<Tuple<String, String>>> getReceivedMessage()
-	{
-		return receivedMessages;
 	}
 
 	public synchronized int getTCPServerSocket()

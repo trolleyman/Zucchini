@@ -6,6 +6,7 @@ import java.util.logging.*;
 
 import game.networking.util.Protocol;
 import game.networking.util.TraceLog;
+import game.networking.util.UtilityCode;
 
 import java.io.*;
 
@@ -33,8 +34,11 @@ public class ClientTest
 			// Try the 255.255.255.255 first
 			try
 			{
-				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), 8888);
-				c.send(sendPacket);
+				for (int i = UtilityCode.MIN_PORT_NUMBER; i < UtilityCode.MAX_PORT_NUMBER; i++)
+				{
+					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), i);
+					c.send(sendPacket);
+				}
 				TraceLog.consoleLog(getClass().getName() + name + ">>> Request packet sent to: 255.255.255.255 (DEFAULT)");
 			} catch (Exception e)
 			{
@@ -64,8 +68,12 @@ public class ClientTest
 					// Send the broadcast package!
 					try
 					{
-						DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, 8888);
-						c.send(sendPacket);
+
+						for (int i = UtilityCode.MIN_PORT_NUMBER; i < UtilityCode.MAX_PORT_NUMBER; i++)
+						{
+							DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, i);
+							c.send(sendPacket);
+						}
 					} catch (Exception e)
 					{
 					}
@@ -90,12 +98,16 @@ public class ClientTest
 				TraceLog.consoleLog(getClass().getName() + name + ">>> Broadcast response from server: " + receivePacket.getAddress().getHostAddress());
 
 				// Check if the message is correct
-				String message = new String(receivePacket.getData()).trim();
+				String Omessage = new String(receivePacket.getData()).trim();
+				String message = Omessage;
 
 				TraceLog.consoleLog(getClass().getName() + name + ">>> SERVER MESSAGE: " + message);
 
 				// if message is destined to me deocde it
-				if (message.substring(message.length() - name.length()).equals(name))
+				// FIXME: this is here momentarily
+				// if (message.substring(message.length() -
+				// name.length()).equals(name))
+				if (message.contains(name))
 				{
 					int namePos = message.lastIndexOf(name);
 					// System.out.println(message.substring(0, namePos));
@@ -115,8 +127,10 @@ public class ClientTest
 					TraceLog.consoleLog(getClass().getName() + name + " Exiting!!!!");
 
 					// FIXME: this is not good
-
-					Socket s = new Socket(receivePacket.getAddress(), receivePacket.getPort() + 1);
+					String string = Omessage.substring(Omessage.indexOf(Protocol.TCPSocketTag) + Protocol.TCPSocketTag.length());
+					System.out.println(Omessage + "----------------------------" + string);
+					int port = Integer.parseInt(string);
+					Socket s = new Socket(receivePacket.getAddress(), port);
 					DataOutputStream toServer = new DataOutputStream(s.getOutputStream());
 					BufferedReader bfr = new BufferedReader(new InputStreamReader(s.getInputStream()));
 					toServer.writeBytes(name + "\n");

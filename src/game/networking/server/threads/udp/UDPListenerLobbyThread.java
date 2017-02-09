@@ -26,7 +26,7 @@ public class UDPListenerLobbyThread implements Runnable
 
 		while (run)
 		{
-			byte[] receiveBuffer = new byte[20000];
+			byte[] receiveBuffer = new byte[50000];
 			DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 			try
 			{
