@@ -110,13 +110,16 @@ public class Map {
 	 * @param pos The position of the camera in the world
 	 * @param num The number of samples
 	 * @param max The maximum length of the line of sight
+	 * @param buf Where to store the buffer. If this is null, will allocate a new float array.
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
 	 */
-	public float[] getLineOfSight(Vector2f pos, int num, float max) {
+	public float[] getLineOfSight(Vector2f pos, int num, float max, float[] buf) {
 		Vector2f temp = Util.pushTemporaryVector2f();
-		float[] ret = new float[num * 2 + 4];
-		ret[0] = pos.x;
-		ret[1] = pos.y;
+		int len = num * 2 + 4;
+		if (buf == null || buf.length != len)
+			buf = new float[len];
+		buf[0] = pos.x;
+		buf[1] = pos.y;
 		for (int i = 0; i <= num; i++) {
 			// Get current angle
 			double ang = -((double)i / num * Math.PI * 2);
@@ -125,15 +128,15 @@ public class Map {
 			float y = pos.y + max * (float)Math.cos(ang);
 			Vector2f intersection = this.intersectsLine(pos.x, pos.y, x, y, temp);
 			if (intersection == null) {
-				ret[2+i*2  ] = x;
-				ret[2+i*2+1] = y;
+				buf[2+i*2  ] = x;
+				buf[2+i*2+1] = y;
 			} else {
-				ret[2+i*2  ] = intersection.x;
-				ret[2+i*2+1] = intersection.y;
+				buf[2+i*2  ] = intersection.x;
+				buf[2+i*2+1] = intersection.y;
 			}
 		}
 		Util.popTemporaryVector2f();
-		return ret;
+		return buf;
 	}
 	
 	/**

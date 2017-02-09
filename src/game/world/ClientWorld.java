@@ -91,6 +91,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionFire   = new Action(ActionType.END_FIRE);
 	
+	/** This is the line of sight buffer. This is meant to be null. */
+	private float[] losBuf = null;
+	
 	/**
 	 * Constructs a client world
 	 * @param map The map
@@ -142,8 +145,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
 		// Render line of sight
-		float[] los = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX);
-		r.drawTriangleFan(los, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+		losBuf = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX, losBuf);
+		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 		
 		// Render map
 		this.map.render(r);
