@@ -22,6 +22,7 @@ public class ClientTest
 	public void start()
 	{
 		DatagramSocket socket;
+		// FAST: create TCP connection for client
 		try
 		{
 			socket = new DatagramSocket();
