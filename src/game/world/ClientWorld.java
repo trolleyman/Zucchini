@@ -5,7 +5,9 @@ import static org.lwjgl.glfw.GLFW.*;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.action.Action;
@@ -37,6 +39,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		EntityBank serverBank = new EntityBank();
 		int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
 		int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
+		serverBank.updateEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
 		
 		// Create server world
 		ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
@@ -88,6 +91,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionFire   = new Action(ActionType.END_FIRE);
 	
+	/** This is the line of sight buffer. This is meant to be null. */
+	private float[] losBuf = null;
+	
 	/**
 	 * Constructs a client world
 	 * @param map The map
@@ -137,6 +143,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
 			.scale(cameraZoom)
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+		
+		// Render line of sight
+		losBuf = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX, losBuf);
+		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 		
 		// Render map
 		this.map.render(r);

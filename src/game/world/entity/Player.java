@@ -10,7 +10,6 @@ import game.render.IRenderer;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
-import game.world.World;
 
 /**
  * Represents a player
@@ -18,10 +17,13 @@ import game.world.World;
  * @author Callum
  */
 public class Player extends Entity {
+	/** The size of the player's line of sight */
+	public static final float LINE_OF_SIGHT_MAX = 8.0f;
+	
 	/** The speed of the player in m/s */
 	private static final float SPEED = 2.0f;
-	/** The size of the player in m */
-	private static final float SIZE = 0.5f;
+	/** The radius of the player in m */
+	private static final float RADIUS = 0.3f;
 	
 	/**
 	 * The current velocity of the player.
@@ -98,16 +100,19 @@ public class Player extends Entity {
 		this.position.add(this.velocity);
 		
 		// Make sure weapon keeps up with the player
-		Entity e = ua.bank.getEntity(weaponID).clone();
-		e.position.set(this.position);
-		e.angle = this.angle;
-		ua.bank.updateEntityCached(e);
+		Entity eFinal = ua.bank.getEntity(weaponID);
+		if (eFinal != null) {
+			Entity e = eFinal.clone();
+			e.position.set(this.position);
+			e.angle = this.angle;
+			ua.bank.updateEntityCached(e);
+		}
 	}
 	
 	@Override
 	public void render(IRenderer r) {
 		r.drawBox(Align.BM, position.x, position.y, 0.01f, 20.0f, ColorUtil.RED, this.angle);
-		r.drawBox(Align.MM, position.x, position.y, SIZE, SIZE, ColorUtil.GREEN, this.angle);
+		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 	}
 	
 	/**
@@ -158,16 +163,6 @@ public class Player extends Entity {
 	
 	@Override
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
-		float sx = position.x - SIZE/2;
-		float sy = position.y - SIZE/2;
-		float ex = position.x + SIZE/2;
-		float ey = position.y + SIZE/2;
-		
-		Vector2f ret = null;
-		ret = PhysicsUtil.getClosest(x0, y0, ret, PhysicsUtil.intersectLineLine(x0, y0, x1, y1, sx, ey, ex, ey)); // Top
-		ret = PhysicsUtil.getClosest(x0, y0, ret, PhysicsUtil.intersectLineLine(x0, y0, x1, y1, sx, sy, ex, sy)); // Bottom
-		ret = PhysicsUtil.getClosest(x0, y0, ret, PhysicsUtil.intersectLineLine(x0, y0, x1, y1, sx, sy, sx, ey)); // Left
-		ret = PhysicsUtil.getClosest(x0, y0, ret, PhysicsUtil.intersectLineLine(x0, y0, x1, y1, ex, sy, ex, ey)); // Right
-		return ret;
+		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1, null);
 	}
 }
