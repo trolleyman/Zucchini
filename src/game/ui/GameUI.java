@@ -1,11 +1,15 @@
 package game.ui;
 
+import game.ColorUtil;
 import game.InputHandler;
+import java.lang.Math;
 import game.InputPipeMulti;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.TextureBank;
 import game.world.ClientWorld;
 import game.world.World;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
 import static org.lwjgl.opengl.GL11.*;
 import java.util.ArrayList;
@@ -28,15 +32,18 @@ public class GameUI extends UI implements InputPipeMulti {
 	private float mapSize;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
    private UI nextUI;
+   private TextureBank bank;
 	/**
 	 * Constructs a new GameUI
 	 * @param _world The world
 	 */
-	public GameUI(ClientWorld _world) {
+	public GameUI(TextureBank _bank, ClientWorld _world) {
 		super();
 		this.world = _world;
-		
+		this.bank = _bank;
 		this.inputHandlers.add(world);
+		
+		nextUI = this;
 
 		
 	/*	this.addKeyListener(new KeyListener(){
@@ -60,7 +67,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 			System.out.println("escape pressed");
-			this.nextUI = new EscapeUI(null);//change null to renderer?
+			this.nextUI = new EscapeUI(bank, world);//change null to renderer?
 		}
 	}	 
 
@@ -74,7 +81,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void update(double dt) {
-		stencil();
+	//	stencil();
 		
 		barWidth = (winWidth/3);
 		barHeight = (winHeight/10);
@@ -82,14 +89,37 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.world.update(dt);
 	}
 	
-	public void stencil(){
+	public void stencil(IRenderer r){
 		
-		/*glClear(GL_STENCIL_BUFFER_BIT);
 		
+		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_STENCIL_TEST);
 		
-		glStencilFunc(GL_GEQUAL, 2, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	//	glClear(GL_STENCIL_BUFFER_BIT);
+		
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_NEVER, 1, 0xFF);
+		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+		
+	// draw stencil pattern
+		glStencilMask(0xFF);
+		glClear(GL_STENCIL_BUFFER_BIT); 
+	//	drawCircle();
+		Vector4f colour = ColorUtil.WHITE;
+		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
+		
+		glStencilMask(0x00);
+		
+		// draw where stencil's value is 0
+		glStencilFunc(GL_EQUAL, 0, 0xFF);
+		 
+		/* (nothing to draw) */
+		// draw only where stencil's value is 1
+		//glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glDisable(GL_STENCIL_TEST);
+  
+		//glStencilFunc(GL_GEQUAL, 2, 0xFF);
+	//	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		//glStencilMask(0xFF);
 		
 	/* glClear(GL_STENCIL_BUFFER_BIT);  
@@ -102,15 +132,18 @@ public class GameUI extends UI implements InputPipeMulti {
 	//	glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE 
 		glPopMatrix();		*/
 		
-		
 	}
+	
+
 	
 	@Override
 	public void render(IRenderer r) {
+		stencil(r);
 		this.world.render(r);
 		r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
 	   r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
 	}
+	
 	
 	@Override
 	public UI next() {

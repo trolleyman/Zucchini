@@ -5,6 +5,8 @@ import game.InputHandler;
 import game.InputPipeMulti;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.TextureBank;
+import game.world.ClientWorld;
 
 /**
  * 
@@ -14,7 +16,7 @@ import game.render.IRenderer;
 
 public class EscapeUI extends UI implements InputPipeMulti{
 	
-	private IRenderer renderer;
+	private TextureBank bank;
 	
 	private ButtonComponent fileBtn;
 	private ButtonComponent helpBtn;
@@ -23,55 +25,63 @@ public class EscapeUI extends UI implements InputPipeMulti{
 	private ButtonComponent quitBtn;
 	private int buttonWidth;
 	private int buttonHeight;
+	private ClientWorld world;
+	
+	private UI nextUI;
 	
 	private float winWidth;
 	private float winHeight;
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 
-	public EscapeUI(IRenderer _renderer){
+	public EscapeUI(TextureBank _bank, ClientWorld _world) {
 		super();
-		this.renderer = _renderer;
-		buttonHeight = 20;
-		buttonWidth = 100;
+		this.bank = _bank;
+		nextUI = this;
+		this.world = _world;
+
+		buttonHeight = 300;
+		buttonWidth = 600;
 		
 		start(); //java convention to keep constructor under 10 lines
 	}
 	
 	public void start(){
 		fileBtn = new ButtonComponent(null,
-				Align.BL, buttonWidth, buttonHeight,
-				renderer.getImageBank().getTexture("file.png"),
-				renderer.getImageBank().getTexture("file2.png"),
-				renderer.getImageBank().getTexture("file2.png")
+				Align.BL, 0, 0,
+				bank.getTexture("file.png"),
+				bank.getTexture("file2.png"),
+				bank.getTexture("file2.png")
 		);
 		
 		helpBtn = new ButtonComponent(null,
-				Align.BL, buttonWidth, buttonHeight,
-				renderer.getImageBank().getTexture("help.png"),
-				renderer.getImageBank().getTexture("help2.png"),
-				renderer.getImageBank().getTexture("help2.png")
+				Align.BL, 0, 0,
+				bank.getTexture("help.png"),
+				bank.getTexture("help2.png"),
+				bank.getTexture("help2.png")
 		);
 		
 		audioBtn = new ButtonComponent(null,
-				Align.BL, buttonWidth, buttonHeight,
-				renderer.getImageBank().getTexture("audio.png"),
-				renderer.getImageBank().getTexture("audio2.png"),
-				renderer.getImageBank().getTexture("audio2.png")
+				Align.BL, 0, 0,
+				bank.getTexture("audio.png"),
+				bank.getTexture("audio2.png"),
+				bank.getTexture("audio2.png")
 		);
 		
-		quitBtn = new ButtonComponent(null,
-				Align.BL, buttonWidth, buttonHeight,
-				renderer.getImageBank().getTexture("quit.png"),
-				renderer.getImageBank().getTexture("quit2.png"),
-				renderer.getImageBank().getTexture("quit2.png")
+		quitBtn = new ButtonComponent(
+				() -> { this.nextUI = new StartUI(bank); },
+				Align.BL, 0, 0,
+				bank.getTexture("quit.png"),
+				bank.getTexture("quit2.png"),
+				bank.getTexture("quit2.png")
 		);
 		
-		continueBtn = new ButtonComponent(null,
-				Align.BL, buttonWidth, buttonHeight,
-				renderer.getImageBank().getTexture("continue.png"),
-				renderer.getImageBank().getTexture("continue2.png"),
-				renderer.getImageBank().getTexture("continue2.png")
+		continueBtn = new ButtonComponent(
+				() -> { this.nextUI = new GameUI(bank, world); },
+				Align.BL, 0, 0,
+				bank.getTexture("continue.png"),
+				bank.getTexture("continue2.png"),
+				bank.getTexture("continue2.png")
 		);
 		
 		this.inputHandlers.add(fileBtn);
@@ -79,17 +89,25 @@ public class EscapeUI extends UI implements InputPipeMulti{
 		this.inputHandlers.add(audioBtn);
 		this.inputHandlers.add(quitBtn);
 		this.inputHandlers.add(continueBtn);
+	
 		
 	}
 	
 	public ArrayList<InputHandler> getHandlers() {
 		return this.inputHandlers;
 	}
+	
+
+	@Override
+	public void handleResize(int w, int h) {
+		this.winWidth = w;
+		this.winHeight = h;
+		InputPipeMulti.super.handleResize(w, h);
+	}
 
 	@Override
 	public void update(double dt) {
-		winWidth = renderer.getWidth();
-		winHeight = renderer.getHeight();
+		
 		fileBtn.update(dt);
 		helpBtn.update(dt);
 		audioBtn.update(dt);
@@ -99,16 +117,17 @@ public class EscapeUI extends UI implements InputPipeMulti{
 
 	@Override
 	public void render(IRenderer r) {
+		float height = winHeight - 100;
 		fileBtn.setX(0);
-		fileBtn.setY((int) winHeight);
+		fileBtn.setY((int) height);
 		helpBtn.setX(0);
-		helpBtn.setY((int) winHeight - buttonHeight);
+		helpBtn.setY((int) height - (buttonHeight));
 		audioBtn.setX(0);
-		audioBtn.setY((int) winHeight - (2*buttonHeight));;
+		audioBtn.setY((int) height - (2*buttonHeight));;
 		quitBtn.setX(0);
-		quitBtn.setY((int) winHeight - (3*buttonHeight));
+		quitBtn.setY((int) height - (3*buttonHeight));
 		continueBtn.setX(0);
-		continueBtn.setY((int) winHeight - (4*buttonHeight));
+		continueBtn.setY((int) height - (4*buttonHeight));
 		
 		fileBtn.render(r);
 		helpBtn.render(r);
@@ -121,7 +140,7 @@ public class EscapeUI extends UI implements InputPipeMulti{
 	@Override
 	public UI next() {
 		// TODO Auto-generated method stub
-		return null;
+		return nextUI;
 	}
 
 	@Override
