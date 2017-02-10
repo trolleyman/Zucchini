@@ -7,10 +7,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL-linux"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL-macos"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL-windows"/>
-	<classpathentry kind="lib" path="gson-2.8.0/target/gson-2.8.0.jar" sourcepath="gson-2.8.0/src">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/c3/gson-2.8.0/docs/javadocs.zip!/"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/GSON"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
