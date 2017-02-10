@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.InputHandler;
 import java.lang.Math;
 import game.InputPipeMulti;
+import game.audio.AudioManager;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
@@ -37,8 +38,8 @@ public class GameUI extends UI implements InputPipeMulti {
 	 * Constructs a new GameUI
 	 * @param _world The world
 	 */
-	public GameUI(TextureBank _bank, ClientWorld _world) {
-		super();
+	public GameUI(AudioManager audio, TextureBank _bank, ClientWorld _world) {
+		super(audio);
 		this.world = _world;
 		this.bank = _bank;
 		this.inputHandlers.add(world);
@@ -62,14 +63,15 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 	}
 	
+	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
 		
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 			System.out.println("escape pressed");
-			this.nextUI = new EscapeUI(bank, world);//change null to renderer?
+			this.nextUI = new EscapeUI(audio, bank, world);//change null to renderer?
 		}
-	}	 
+	}
 
 	
 	@Override
@@ -104,7 +106,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 	// draw stencil pattern
 		glStencilMask(0xFF);
-		glClear(GL_STENCIL_BUFFER_BIT); 
+		glClear(GL_STENCIL_BUFFER_BIT);
 	//	drawCircle();
 		Vector4f colour = ColorUtil.WHITE;
 		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
@@ -123,14 +125,14 @@ public class GameUI extends UI implements InputPipeMulti {
 	//	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		//glStencilMask(0xFF);
 		
-	/* glClear(GL_STENCIL_BUFFER_BIT);  
+	/* glClear(GL_STENCIL_BUFFER_BIT);
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_LESS,1,1);
-		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP); 
+		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
 		glPushMatrix();
-		//glTranslatef(0.5,0,0);		
+		//glTranslatef(0.5,0,0);
 	//	glColor3f(0,0,1);
-	//	glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE 
+	//	glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE
 		glPopMatrix();		*/
 		
 	}

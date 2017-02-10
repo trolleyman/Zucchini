@@ -4,6 +4,7 @@ import java.util.Random;
 
 import org.lwjgl.Version;
 
+import game.audio.AudioManager;
 import game.render.Renderer;
 import game.ui.StartUI;
 import game.ui.UI;
@@ -31,11 +32,21 @@ class Client implements Runnable, InputPipe {
 	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
+		// Initialize audio manager
+		AudioManager audio;
+		try {
+			audio = new AudioManager();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+			return;
+		}
+		
 		// Initialize renderer
 		renderer = new Renderer(this, _fullscreen);
 		
 		// Initialize UI
-		ui = new StartUI(renderer.getImageBank());
+		ui = new StartUI(audio, renderer.getImageBank());
 	}
 	
 	@Override

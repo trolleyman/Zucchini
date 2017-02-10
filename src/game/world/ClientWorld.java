@@ -37,7 +37,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * Creates a test single player world
 	 * @throws Exception
 	 */
-	public static ClientWorld createTestWorld() {
+	public static ClientWorld createTestWorld(AudioManager audio) {
 		try {
 			// Create map
 			Map map = Map.createTestMap();
@@ -58,9 +58,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			// Create server
 			Server server = new Server(serverWorld, conns);
-			
-			// Create audio manager
-			AudioManager audio = new AudioManager();
 			
 			// Create client
 			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);
