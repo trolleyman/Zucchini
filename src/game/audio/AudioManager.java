@@ -29,6 +29,11 @@ public class AudioManager implements IAudioManager{
     private final Matrix4f cameraMatrix;
     private final int numberOfSourcesPerFile = 10; //this is the amount of sources each wav file will have available for them
 
+    /**
+     * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
+     * memory to be played. Also initialises Sources, the object from which sounds will be played.
+     * @throws Exception
+     */
     public AudioManager() throws Exception {
     	init();
     	//PLACEHOLDER this can be a players position on a map
@@ -66,6 +71,10 @@ public class AudioManager implements IAudioManager{
 		}        
     }
 
+    /**
+     * Starts OpenAL procedures
+     * @throws Exception
+     */
     public void init() throws Exception {
         this.device = alcOpenDevice((ByteBuffer) null);
         if (device == NULL) {
@@ -143,6 +152,9 @@ public class AudioManager implements IAudioManager{
         alDistanceModel(model);
     }
     
+    /**
+     * removes all sources, buffers and such from memeory
+     */
     public void cleanup() {
         for (List<SoundSource> soundSourcesList : soundSourcesMap.values()) {
         	for (SoundSource soundSource: soundSourcesList){
@@ -183,15 +195,18 @@ public class AudioManager implements IAudioManager{
     
     /**
      * plays a wav file in a continous loop
+     * @return a sourceID that can be used to stop a particular source, returns -1 if no available source
      */
     @Override
-	public void playLoop(String name, float volume) {
+	public int playLoop(String name, float volume) {
     	SoundSource source = findAvailableSoundSource(name);
     	if (source != null){
 			source.setVolume(volume);
 			source.setLooping(true);
 			source.play();
+			return(source.getSourceId());
     	}
+		return -1;
 	}
 
     /**
@@ -199,16 +214,34 @@ public class AudioManager implements IAudioManager{
      */
     //could still use some updating
     @Override
-	public void stopLoop(String name) {
-    	List<SoundSource> sources = this.soundSourcesMap.get(name);
-		for (SoundSource source : sources){
-			if (source.isPlaying()){
-				source.stop();
-				return;
-			}
-		}
+	public void stopLoop(int sourceID) {
+    	SoundSource source = getSoundSource(sourceID);
+//		for (SoundSource source : sources){
+//			if (source.isPlaying()){
+//				source.stop();
+//				return;
+//			}
+//		}
+    	source.stop();
 	}
 	
+    /**
+     * given a sound source ID, this will return the sound source object
+     * @param sourceID
+     * @return SoundSource
+     */
+    private SoundSource getSoundSource(int sourceID){
+    	int index = Math.floorDiv(sourceID,this.numberOfSourcesPerFile);
+    	String filename = this.soundBufferMap.get(index);
+    	List<SoundSource> list =  this.soundSourcesMap.get(filename);
+    	for (SoundSource soundSource : list){
+    		if (soundSource.getSourceId() == sourceID){
+    			return soundSource;
+    		}
+    	}
+    	return null;
+    }
+    
 	/**
 	 * Places all files in resources/audio_assets into a buffer, ready to be played
 	 * @param filename
@@ -254,10 +287,10 @@ public class AudioManager implements IAudioManager{
         while (c != 'q'){
         	c = (char) System.in.read();
         	if (c=='b'){
-        		soundMgr.playLoop("Desolation.wav",0.8f);
+        		idb = soundMgr.playLoop("[bgm]Desolation.wav",0.8f);
         	}
         	if (c=='n'){
-        		soundMgr.stopLoop("Desolation.wav");
+        		soundMgr.stopLoop(idb);
         	}
         	if (c=='e'){
         		soundMgr.play("handgunshot.wav",1f);
@@ -266,10 +299,10 @@ public class AudioManager implements IAudioManager{
         		soundMgr.play("punch.wav",1f);
         	}
         	if (c=='w'){
-        		soundMgr.playLoop("footsteps_walking.wav",0.6f);
+        		idw = soundMgr.playLoop("footsteps_walking.wav",0.6f);
         	}
         	if (c=='s'){
-        		soundMgr.stopLoop("footsteps_walking.wav");
+        		soundMgr.stopLoop(idw);
         	}
         }
         soundMgr.cleanup();
