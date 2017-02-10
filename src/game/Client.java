@@ -24,6 +24,8 @@ class Client implements Runnable, InputPipe {
 	
 	private Renderer renderer;
 	
+	private AudioManager audio;
+	
 	/**
 	 * Previous time in nanoseconds of update.
 	 */
@@ -33,7 +35,6 @@ class Client implements Runnable, InputPipe {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
 		// Initialize audio manager
-		AudioManager audio;
 		try {
 			audio = new AudioManager();
 		} catch (Exception e) {
@@ -62,6 +63,7 @@ class Client implements Runnable, InputPipe {
 		loop();
 		
 		renderer.destroy();
+		audio.cleanup();
 	}
 	
 	private void loop() {
