@@ -2,6 +2,7 @@ package game.world.entity;
 
 import org.joml.Vector2f;
 
+import game.audio.AudioManager;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 
@@ -64,6 +65,7 @@ public abstract class Entity implements Cloneable {
 	 * @param ua The arguments passed to each update function. See {@link game.world.UpdateArgs UpdateArgs}.
 	 */
 	public abstract void update(UpdateArgs ua);
+	
 	/**
 	 * Renders the entity to the screen
 	 * @param r The renderer

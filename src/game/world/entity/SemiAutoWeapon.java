@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import game.audio.AudioManager;
 import game.world.EntityBank;
 import game.world.UpdateArgs;
 
@@ -59,6 +60,7 @@ public abstract class SemiAutoWeapon extends Weapon {
 	public void update(UpdateArgs ua) {
 		if (this.fire && this.currentCooldown <= 0.0f) {
 			// Fire!!!
+			ua.audio.play("handgunshot.wav", 1.0f);
 			System.out.println("BANG!");
 			// Add bullets to entity bank
 			for (Entity e : this.fire())

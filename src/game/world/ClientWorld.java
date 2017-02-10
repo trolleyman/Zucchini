@@ -13,9 +13,14 @@ import game.Util;
 import game.action.Action;
 import game.action.ActionType;
 import game.action.AimAction;
+import game.audio.AudioManager;
+import game.audio.ClientAudioManager;
+import game.audio.event.AudioEvent;
 import game.net.DummyConnection;
 import game.net.IClientConnection;
 import game.net.IClientConnectionHandler;
+import game.net.IServerConnection;
+import game.net.Server;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Handgun;
@@ -30,33 +35,48 @@ import game.world.map.Map;
 public class ClientWorld extends World implements InputHandler, IClientConnectionHandler {
 	/**
 	 * Creates a test single player world
+	 * @throws Exception
 	 */
 	public static ClientWorld createTestWorld() {
-		// Create map
-		Map map = Map.createTestMap();
-		
-		// Create entity bank and add entities
-		EntityBank serverBank = new EntityBank();
-		int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
-		int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
-		serverBank.updateEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
-		
-		// Create server world
-		ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
-		
-		// Create connection
-		DummyConnection connection = new DummyConnection(serverWorld, playerID);
-		
-		// Create client
-		ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, connection);
-		
-		// Start server thread
-		Thread t = new Thread(connection);
-		t.setName("Connection Handler");
-		t.start();
-		
-		// Return client world
-		return clientWorld;
+		try {
+			// Create map
+			Map map = Map.createTestMap();
+			
+			// Create entity bank and add entities
+			EntityBank serverBank = new EntityBank();
+			int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
+			int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
+			serverBank.updateEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
+			
+			// Create server world
+			ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
+			
+			// Create connection
+			DummyConnection connection = new DummyConnection(playerID);
+			ArrayList<IServerConnection> conns = new ArrayList<>();
+			conns.add(connection);
+			
+			// Create server
+			Server server = new Server(serverWorld, conns);
+			
+			// Create audio manager
+			AudioManager audio = new AudioManager();
+			
+			// Create client
+			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);
+			
+			// Start server thread
+			Thread t = new Thread(server);
+			t.setName("Server");
+			t.start();
+			
+			// Return client world
+			return clientWorld;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+			return null;
+		}
 	}
 	
 	/** The ID of the player */
@@ -94,16 +114,24 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	/** This is the line of sight buffer. This is meant to be null. */
 	private float[] losBuf = null;
 	
+	/** Audio Manager */
+	private AudioManager audio;
+	/** Client audio manager. It can handle AudioEvent's */
+	private ClientAudioManager clientAudio;
+	
 	/**
 	 * Constructs a client world
 	 * @param map The map
 	 * @param bank The entity bank
 	 * @param _playerID The player controlled by the client
 	 * @param _connection The connection to the server
+	 * @param _audio The audio manager
 	 */
-	public ClientWorld(Map map, EntityBank bank, int _playerID, IClientConnection _connection) {
+	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection) {
 		super(map, bank);
 		this.playerID = _playerID;
+		this.audio = _audio;
+		this.clientAudio = new ClientAudioManager(audio);
 		this.connection = _connection;
 		connection.setHandler(this);
 		
@@ -129,6 +157,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			connection.sendAction(actionWest);
 			connection.sendAction(actionAim);
 			connection.sendAction(actionFire);
+			
+			this.bank.processCache(new ArrayList<>());
 		}
 	}
 	
@@ -214,5 +244,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 
 	public void destroy() {
 		this.connection.close();
+	}
+
+	@Override
+	public void processAudioEvent(AudioEvent ae) {
+		this.clientAudio.processAudioEvent(ae);
 	}
 }
