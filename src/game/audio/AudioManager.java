@@ -44,6 +44,7 @@ public class AudioManager implements IAudioManager{
         soundSourcesMap = new HashMap<>();
         cameraMatrix = new Matrix4f();
         
+        System.out.println("Loading audio...");
         //place all files into the buffer list
         File folder = new File( System.getProperty("user.dir") + "/resources/audio_assets/" );
 		File[] listOfFiles = folder.listFiles();
@@ -55,6 +56,7 @@ public class AudioManager implements IAudioManager{
 		}
 		
 		//create the sources for each buffer
+		int j = 0;
 		for (SoundBuffer soundBuffer : soundBufferList){
 			List<SoundSource> soundSourcesList = new ArrayList<>();
 			for(int i=0; i<numberOfSourcesPerFile; i++){
@@ -68,7 +70,11 @@ public class AudioManager implements IAudioManager{
 				soundSourcesList.add(source);
 			}
 			soundSourcesMap.put(soundBufferMap.get(soundBuffer.getBufferId()), soundSourcesList);
-		}        
+			System.out.println("Loaded audio: " + listOfFiles[j].getName());
+			j++;
+		}
+		
+		System.out.println(listOfFiles.length + " audio file(s) loaded.");
     }
 
     /**
@@ -92,7 +98,7 @@ public class AudioManager implements IAudioManager{
 //    public void addSoundSources(String name, List<SoundSource> soundSources) {
 //        this.soundSourcesMap.put(name, soundSources);
 //    }
-//    
+//
 //    public SoundSource getSoundSource(String name) {
 //        return this.soundSourcesMap.get(name);
 //    }
@@ -179,7 +185,8 @@ public class AudioManager implements IAudioManager{
      * @param name, the name of the wavfile
      * @param volume, the volume of the sound
      */
-    public void play(String name, float volume) {
+    @Override
+	public void play(String name, float volume) {
 //		//check that we have a source to play, otherwise system exit
 //		if (alGetError() != AL_NO_ERROR) {
 //			System.err.println("No available sources!, Exiting...");
@@ -245,7 +252,7 @@ public class AudioManager implements IAudioManager{
 	/**
 	 * Places all files in resources/audio_assets into a buffer, ready to be played
 	 * @param filename
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private void placeFileInBuffer(String filename) throws Exception{
 		SoundBuffer buffer = new SoundBuffer( System.getProperty("user.dir") + "/resources/audio_assets/"+filename);
@@ -263,7 +270,7 @@ public class AudioManager implements IAudioManager{
 //        sourceBGM.setBuffer(buffBGM.getBufferId());
 //        soundMgr.addSoundSource("[bgm]Entombed.wav", sourceBGM);
 //        sourceBGM.setLooping(true);
-//        
+//
 //        SoundBuffer buffWalk = new SoundBuffer(System.getProperty("user.dir") + "/resources/audio_assets/footsteps_running.wav");
 //        soundMgr.addSoundBuffer(buffWalk);
 //        SoundSource sourceWalk = new SoundSource(true, false);
