@@ -31,7 +31,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		super();
 		
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(ClientWorld.createTestWorld()); },
+			() -> { this.nextUI = new GameUI(tb, ClientWorld.createTestWorld()); },
 			Align.BL, 100, 100,
 			tb.getTexture("joinDefault.png"),
 			tb.getTexture("joinHover.png"),
