@@ -92,8 +92,9 @@ public class GameUI extends UI implements InputPipeMulti {
 	public void stencil(IRenderer r){
 		
 		
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glEnable(GL_STENCIL_TEST);
+		glEnable(GL_STENCIL_FUNC);
 		
 	//	glClear(GL_STENCIL_BUFFER_BIT);
 		

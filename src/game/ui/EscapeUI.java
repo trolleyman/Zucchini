@@ -40,8 +40,8 @@ public class EscapeUI extends UI implements InputPipeMulti{
 		nextUI = this;
 		this.world = _world;
 
-		buttonHeight = 300;
-		buttonWidth = 600;
+		buttonHeight = 200;
+		buttonWidth = 200;
 		
 		start(); //java convention to keep constructor under 10 lines
 	}
@@ -103,6 +103,8 @@ public class EscapeUI extends UI implements InputPipeMulti{
 		this.winWidth = w;
 		this.winHeight = h;
 		InputPipeMulti.super.handleResize(w, h);
+		int btnSize = audioBtn.getHeight();
+		System.out.println(btnSize);
 	}
 
 	@Override
