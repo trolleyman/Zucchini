@@ -68,6 +68,10 @@ public class ServerWorld extends World implements Cloneable {
 		this.audio = new ServerAudioManager();
 	}
 	
+	/**
+	 * Adds a connection to the server
+	 * @param conn The connection
+	 */
 	public void addConnection(IServerConnection conn) {
 		this.conns.add(conn);
 		this.fullConns.add(conn);
