@@ -36,6 +36,12 @@ public class Renderer implements IRenderer {
 	private VAO box;
 	/** Textured box VAO */
 	private VAO boxUV;
+	/** Dynamic textured box VAO */
+	private VAO boxDynamic;
+	/** Dynamic textured box VBO */
+	private VBO boxDynamicVBO;
+	/** Dynamic textured box UVs */
+	private float[] boxDynamicData = new float[12];
 	
 	/** The positions of the polygon */
 	private VBO polygonVBO;
@@ -245,6 +251,11 @@ public class Renderer implements IRenderer {
 		boxUV.addData(textureShader, "position", positions, 2, 0, 0);
 		boxUV.addData(textureShader, "uv", uvs, 2, 0, 0);
 		
+		boxDynamicVBO = new VBO(vertexUVs, AccessFrequency.DYNAMIC);
+		boxDynamic = new VAO();
+		boxDynamic.addData(textureShader, "position", positions, 2, 0, 0);
+		boxDynamic.addData(textureShader, "uv", boxDynamicVBO, 2, 0, 0);
+		
 		polygonVBO = new VBO(new float[] {}, AccessFrequency.DYNAMIC);
 		polygonVAO = new VAO();
 		polygonVAO.addData(simpleShader, "position", polygonVBO, 2, 0, 0);
@@ -445,6 +456,39 @@ public class Renderer implements IRenderer {
 		
 		// Draw 1x1 box (with UV)
 		boxUV.draw(GL_TRIANGLES, 6);
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawTextureUV(
+			Texture tex, Align a, float x, float y, float w, float h, float r,
+			float u0, float v0, float u1, float v1) {
+		
+		matModelView.pushMatrix();
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
+		align(a, -w, -h);
+		matModelView.scale(w, h, 1.0f);
+		
+		textureShader.setProjectionMatrix(matProjection);
+		textureShader.setModelViewMatrix(matModelView);
+		textureShader.bindTexture(tex);
+		textureShader.use();
+		
+		// Upload UV data
+		// t0
+		boxDynamicData[ 0] = u0; boxDynamicData[ 1] = v1; // BL
+		boxDynamicData[ 2] = u1; boxDynamicData[ 3] = v1; // BR
+		boxDynamicData[ 4] = u0; boxDynamicData[ 5] = v0; // TL
+		// t1
+		boxDynamicData[ 6] = u0; boxDynamicData[ 7] = v0; // TL
+		boxDynamicData[ 8] = u1; boxDynamicData[ 9] = v1; // BR
+		boxDynamicData[10] = u1; boxDynamicData[11] = v0; // TR
+		boxDynamicVBO.setData(boxDynamicData);
+		
+		// Draw 1x1 box (with UV)
+		boxDynamic.draw(GL_TRIANGLES, 6);
+		
 		matModelView.popMatrix();
 	}
 	

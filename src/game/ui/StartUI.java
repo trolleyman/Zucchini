@@ -10,6 +10,7 @@ import game.InputPipeMulti;
 import game.audio.AudioManager;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.render.TextureBank;
 import game.world.ClientWorld;
 import game.world.World;
@@ -98,7 +99,8 @@ public class StartUI extends UI implements InputPipeMulti {
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
 		startButton.render(r);
 		exitButton.render(r);
-		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
+		Texture t = r.getImageBank().getTexture("test.png");
+		r.drawTexture(t, Align.MM, 200, 200, testRot);
 	}
 	
 	@Override
