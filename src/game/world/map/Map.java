@@ -88,7 +88,8 @@ public class Map {
 	public Vector2f intersectsCircle(float x0, float y0, float radius, Vector2f dest) {
 		Vector2f p0 = Util.pushTemporaryVector2f().set(x0, y0);
 		Vector2f temp = Util.pushTemporaryVector2f();
-		Vector2f acc = null;
+		Vector2f acc = Util.pushTemporaryVector2f();
+		boolean intersection = false;
 		for (int i = 0; i < lines.length - 3; i += 4) {
 			float x1 = lines[i  ];
 			float y1 = lines[i+1];
@@ -96,11 +97,14 @@ public class Map {
 			float y2 = lines[i+3];
 			
 			Vector2f ret = PhysicsUtil.intersectCircleLine(x0, y0, radius, x1, y1, x2, y2, temp);
-			if (ret != null)
-				acc = PhysicsUtil.getClosest(p0, acc, temp);
+			if (ret != null) {
+				intersection = true;
+				acc.set(PhysicsUtil.getClosest(p0, acc, temp));
+			}
 		}
-		if (acc == null) {
+		if (!intersection) {
 			// No intersection
+			Util.popTemporaryVector2f();
 			Util.popTemporaryVector2f();
 			Util.popTemporaryVector2f();
 			return null;
@@ -109,6 +113,7 @@ public class Map {
 			if (dest == null)
 				dest = new Vector2f();
 			dest.set(acc);
+			Util.popTemporaryVector2f();
 			Util.popTemporaryVector2f();
 			Util.popTemporaryVector2f();
 			return dest;

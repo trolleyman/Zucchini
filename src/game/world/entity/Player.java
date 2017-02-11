@@ -111,10 +111,17 @@ public class Player extends Entity {
 		}
 		
 		// Get intersection
-		Vector2f temp = Util.pushTemporaryVector2f();
-		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, temp) != null) {
+		Vector2f intersection = Util.pushTemporaryVector2f();
+		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
 			// Intersection with map - push out
-			
+			Vector2f temp = Util.pushTemporaryVector2f();
+			temp.set(position)
+				.sub(intersection)
+				.normalize()
+				.mul(RADIUS)
+				.add(intersection);
+			position.set(temp);
+			Util.popTemporaryVector2f();
 		}
 		Util.popTemporaryVector2f();
 	}

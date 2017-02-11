@@ -77,7 +77,7 @@ public class PhysicsUtil {
 		if (ad < 0.0f)
 			return null;
 		
-		if (ab2 < ad*ad)
+		if (ad > ab)
 			return null;
 		
 		// d = a + ad * (ab/|ab|)
