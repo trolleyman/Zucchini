@@ -69,14 +69,16 @@ public abstract class Bullet extends Entity {
 			// Hit nothing
 		} else if (closest == mi) {
 			// Hit map
-			// Remove bullet from the world
 			System.out.println("*Plink*: Bullet hit the map");
+			ua.audio.play("bullet_impact_wall.wav", 1.0f);
+			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		} else if (closest == temp2) {
 			// Hit entity
 			// Hit an entity, damage
 			System.out.println("Ow! Bullet hit entity id " + ei.id);
 			ua.bank.healEntityCached(ei.id, -damage);
+			ua.audio.play("bullet_impact_body.wav", 1.0f);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		}
