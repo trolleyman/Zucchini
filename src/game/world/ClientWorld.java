@@ -137,11 +137,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	@Override
 	protected void updateStep(double dt) {
-		Entity e = this.bank.getEntity(this.playerID);
-		if (e != null && e instanceof Player)
-			this.cameraPos.set(e.position);
-		else
-			System.err.println("Warning: Player does not exist");
+		Player p = getPlayer();
+		if (p != null) this.cameraPos.set(p.position);
+		else           System.err.println("Warning: Player does not exist");
 		
 		// Send server data
 		dtPool += dt;
@@ -184,6 +182,17 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 		
 		r.getModelViewMatrix().popMatrix();
+	}
+	
+	/**
+	 * Returns the Playey object. NB: This may return null in some cases
+	 */
+	public Player getPlayer() {
+		Entity e = this.bank.getEntity(playerID);
+		if (e == null || !(e instanceof Player))
+			return null;
+		else
+			return (Player) e;
 	}
 	
 	@Override
