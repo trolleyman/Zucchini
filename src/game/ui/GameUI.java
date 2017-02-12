@@ -11,6 +11,7 @@ import game.world.ClientWorld;
 import game.world.World;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.*;
 import java.util.ArrayList;
 import static org.lwjgl.glfw.GLFW.*;
@@ -86,29 +87,34 @@ public class GameUI extends UI implements InputPipeMulti {
 		barWidth = (winWidth/3);
 		barHeight = (winHeight/10);
 		mapSize = (winHeight/5);
+		
+		
+		
 		this.world.update(dt);
+		
 	}
+
+	
 	
 	public void stencil(IRenderer r){
 		
 		
+
+		glEnable(GL_STENCIL_TEST);
+		glClearStencil(0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		glEnable(GL_STENCIL_TEST);
-		glEnable(GL_STENCIL_FUNC);
 		
-	//	glClear(GL_STENCIL_BUFFER_BIT);
-		
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_NEVER, 1, 0xFF);
-		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+		glStencilFunc(GL_NEVER, 1, 0xFF); //always fail
+		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP); //set failed pixels to 1
 		
 	// draw stencil pattern
 		glStencilMask(0xFF);
 		glClear(GL_STENCIL_BUFFER_BIT); 
-	//	drawCircle();
+
+		//	drawCircle();
 		Vector4f colour = ColorUtil.WHITE;
 		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
-		
+
 		glStencilMask(0x00);
 		
 		// draw where stencil's value is 0
@@ -130,19 +136,26 @@ public class GameUI extends UI implements InputPipeMulti {
 		glPushMatrix();
 		//glTranslatef(0.5,0,0);		
 	//	glColor3f(0,0,1);
-	//	glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE 
+		glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE 
 		glPopMatrix();		*/
 		
 	}
 	
-
 	
+	public void stencilBuffer(){
+		
+	}
+	
+
 	@Override
 	public void render(IRenderer r) {
 		stencil(r);
 		this.world.render(r);
 		r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
 	   r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
+
+		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
+	   //	GL11.glScissor((int) (winWidth/2) - 200, (int) (winHeight/2) - 200, 400, 400);
 	}
 	
 	
