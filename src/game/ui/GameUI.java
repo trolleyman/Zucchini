@@ -63,11 +63,14 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
-			System.out.println("escape pressed");
+		 	System.out.println("escape pressed");
 			this.nextUI = new EscapeUI(audio, bank, world);//change null to renderer?
+		} else if (key == GLFW_KEY_UP && action == GLFW_PRESS){
+			System.out.println("M pressed");
+			this.nextUI = new MiniMap(audio, bank, world);
 		}
 	}
-
+ 
 	
 	@Override
 	public void handleResize(int w, int h) {
