@@ -2,6 +2,7 @@ package game.ui;
 
 import game.ColorUtil;
 import game.InputHandler;
+import java.awt.Canvas;
 import java.lang.Math;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
@@ -12,10 +13,12 @@ import game.world.ClientWorld;
 import game.world.World;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.*;
 import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.JTextField;
 import static org.lwjgl.glfw.GLFW.*;
-
 
 /**
  * The GameUI is the UI responsible for rendering, updating the game and handling input
@@ -34,6 +37,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
    private UI nextUI;
    private TextureBank bank;
+   
 	/**
 	 * Constructs a new GameUI
 	 * @param _world The world
@@ -45,15 +49,6 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(world);
 		
 		nextUI = this;
-
-		
-	/*	this.addKeyListener(new KeyListener(){
-			public void keyTyped(KeyEvent e){
-				if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
-					System.exit(0);
-				}
-			}
-		});*/
 	}
 	
 	@Override
@@ -89,64 +84,103 @@ public class GameUI extends UI implements InputPipeMulti {
 		barHeight = (winHeight/10);
 		mapSize = (winHeight/5);
 		this.world.update(dt);
-	}
-	
-	public void stencil(IRenderer r){
-		
-		
-		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		glEnable(GL_STENCIL_TEST);
-		glEnable(GL_STENCIL_FUNC);
-		
-	//	glClear(GL_STENCIL_BUFFER_BIT);
-		
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_NEVER, 1, 0xFF);
-		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
-		
-	// draw stencil pattern
-		glStencilMask(0xFF);
-		glClear(GL_STENCIL_BUFFER_BIT);
-	//	drawCircle();
-		Vector4f colour = ColorUtil.WHITE;
-		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
-		
-		glStencilMask(0x00);
-		
-		// draw where stencil's value is 0
-		glStencilFunc(GL_EQUAL, 0, 0xFF);
-		 
-		/* (nothing to draw) */
-		// draw only where stencil's value is 1
-		//glStencilFunc(GL_EQUAL, 1, 0xFF);
-		glDisable(GL_STENCIL_TEST);
-  
-		//glStencilFunc(GL_GEQUAL, 2, 0xFF);
-	//	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		//glStencilMask(0xFF);
-		
-	/* glClear(GL_STENCIL_BUFFER_BIT);
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_LESS,1,1);
-		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
-		glPushMatrix();
-		//glTranslatef(0.5,0,0);
-	//	glColor3f(0,0,1);
-	//	glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE
-		glPopMatrix();		*/
 		
 	}
-	
 
 	
-	@Override
-	public void render(IRenderer r) {
-		stencil(r);
+	
+	public void stencil(IRenderer r){ //CURRENTLY ABSOLUTELY NOT WORKING
+	
+		// Clear Screen, Depth Buffer & Stencil Buffer
+	   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	 
+	   // Clip Plane Equations
+	   double eqr[] = {0.0f,-1.0f, 0.0f, 0.0f};                // Plane Equation To Use For The Reflected Objects
+	   
+	   glColorMask(false, false, false, false);                           // Set Color Mask
+
+	   glEnable(GL_STENCIL_TEST);                  // Enable Stencil Buffer For "marking" The Floor
+	   glStencilFunc(GL_ALWAYS, 1, 1);                // Always Passes, 1 Bit Plane, 1 As Mask
+	   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);              // We Set The Stencil Buffer To 1 Where We Draw Any Polygon
+	                                       // Keep If Test Fails, Keep If Test Passes But Buffer Test Fails
+	                                       // Replace If Test Passes
+	   glDisable(GL_DEPTH_TEST);                       // Disable Depth Testing
+	 //  DrawFloor(); 
 		this.world.render(r);
-		r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
-	   r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
+		
+		glEnable(GL_DEPTH_TEST);                        // Enable Depth Testing
+		glColorMask(true, true, true, true);                           // Set Color Mask to TRUE, TRUE, TRUE, TRUE
+		glStencilFunc(GL_EQUAL, 1, 1);                      // We Draw Only Where The Stencil Is 1
+		                                    // (I.E. Where The Floor Was Drawn)
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);   
+
+		glEnable(GL_CLIP_PLANE0);                       // Enable Clip Plane For Removing Artifacts
+      // (When The Object Crosses The Floor)
+		glClipPlane(GL_CLIP_PLANE0, eqr);                   // Equation For Reflected Objects
+		glPushMatrix();                             // Push The Matrix Onto The Stack
+		glScalef(1.0f, -1.0f, 1.0f);                    // Mirror Y Axis
+	    
+		/*glLightfv(GL_LIGHT0, GL_POSITION, LightPos);            // Set Up Light0
+	   glTranslatef(0.0f, height, 0.0f);               // Position The Object
+	   glRotatef(xrot, 1.0f, 0.0f, 0.0f);              // Rotate Local Coordinate System On X Axis
+	   glRotatef(yrot, 0.0f, 1.0f, 0.0f);              // Rotate Local Coordinate System On Y Axis
+		*/
+		
+	   Vector4f colour = ColorUtil.WHITE;
+		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
+	   
+	   glPopMatrix();                              // Pop The Matrix Off The Stack
+   	glDisable(GL_CLIP_PLANE0);                      // Disable Clip Plane For Drawing The Floor
+   	glDisable(GL_STENCIL_TEST);                     // We Don't Need The Stencil Buffer Any More (Disable)
+	
+   	//glLightfv(GL_LIGHT0, GL_POSITION, LightPos);                // Set Up Light0 Position
+   	glEnable(GL_BLEND);                         // Enable Blending (Otherwise The Reflected Object Wont Show)
+   	glDisable(GL_LIGHTING);                         // Since We Use Blending, We Disable Lighting
+   	glColor4f(1.0f, 1.0f, 1.0f, 0.8f);                  // Set Color To White With 80% Alpha
+   	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);          // Blending Based On Source Alpha And 1 Minus Dest Alpha
+   	this.world.render(r);                                // Draw The Floor To The Screen
+
+   	
 	}
 	
+	
+
+	@Override
+	public void render(IRenderer r) {
+	
+		//stencil(r);
+		this.world.render(r);
+		createMiniMap(r);
+		//r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
+	 //  r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
+
+		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
+	   //GL11.glScissor((int) (winWidth/2) - 200, (int) (winHeight/2) - 200, 400, 400);
+	}
+	
+	
+	public void createMiniMap(IRenderer r){ //ALSO ABSOLUTELY NOT WORKING
+		
+		r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);
+
+		
+		
+	/*	 Canvas openglSurface = new Canvas();
+       JFrame frame = new JFrame();
+       frame.setSize(800, 800);
+       frame.add(openglSurface);
+       frame.setVisible(true);
+       frame.add(new JTextField("Hello World!"));
+       openglSurface.setSize(500, 500);
+  //     Display.setParent(openglSurface);
+  //     Display.create();
+       GL11.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+       GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+  //     Display.update();
+     //  Thread.sleep(2000);
+  //     Display.destroy();
+	*/
+	}
 	
 	@Override
 	public UI next() {
