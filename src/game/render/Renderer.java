@@ -315,6 +315,7 @@ public class Renderer implements IRenderer {
 	public void show() {
 		// Make the window visible
 		glfwShowWindow(window);
+		this.ih.handleResize(windowW, windowH);
 	}
 	
 	@Override
