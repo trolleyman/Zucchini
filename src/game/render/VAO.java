@@ -16,23 +16,19 @@ import game.render.shader.Shader;
  */
 public class VAO {
 	private int vao;
-	private int primitiveType;
-	private int count;
 	
 	/**
-	 * VBOs "owned" by this VAO.
+	 * VBOs referenced by this VAO.
 	 */
-	private ArrayList<Integer> vbos;
+	private ArrayList<VBO> vbos;
 	
 	/**
 	 * Constructs a VAO
 	 * @param _primitiveType The primitive type that OpenGL will use to render, for example GL_QUADS or GL_TRIANGLES
 	 * @param _count The number of vertices in the VAO
 	 */
-	public VAO(int _primitiveType, int _count) {
+	public VAO() {
 		vao = glGenVertexArrays();
-		primitiveType = _primitiveType;
-		count = _count;
 		
 		vbos = new ArrayList<>();
 	}
@@ -50,19 +46,21 @@ public class VAO {
 	 * @param attribName The name of the attribute to bind the data to
 	 * @param data The vertex data
 	 * @param components The number of data points for each vertex. For example, 2 for a vec2.
+	 * @param offset The offset of the first data point in the array
+	 * @param stride The byte offset between consecutive generic vertex attributes.
+	 *               If stride is 0, the generic vertex attributes are understood to be tightly packed in the array.
 	 */
-	public void addData(Shader shader, String attribName, float[] data, int components) {
+	public void addData(Shader shader, String attribName, VBO vbo, int components, int offset, int stride) {
 		shader.use();
 		this.bind();
 		
-		// Generate the VBO
-		int vbo = glGenBuffers();
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
+		// Use the VBO
+		vbo.incrementReference();
+		vbo.bind();
 		vbos.add(vbo);
 		
 		int attribLoc = shader.getAttribLocation(attribName);
-		glVertexAttribPointer(attribLoc, components, GL_FLOAT, false, 0, 0);
+		glVertexAttribPointer(attribLoc, components, GL_FLOAT, false, stride, offset);
 		glEnableVertexAttribArray(attribLoc);
 	}
 	
@@ -71,7 +69,7 @@ public class VAO {
 	 */
 	public void destroy() {
 		for (int i = 0; i < vbos.size(); i++)
-			glDeleteBuffers(vbos.get(i));
+			vbos.get(i).decrementReference();
 		vbos.clear();
 		
 		glDeleteVertexArrays(vao);
@@ -81,8 +79,10 @@ public class VAO {
 	 * Draws this VAO to the screen.
 	 * <p>
 	 * <b>NB:</b> Does not bind the shader, so remember to!
+	 * @param primitiveType The primitive type that OpenGL will use to render, for example GL_POLYGON or GL_TRIANGLES
+	 * @param count The number of vertices
 	 */
-	public void draw() {
+	public void draw(int primitiveType, int count) {
 		this.bind();
 		glDrawArrays(primitiveType, 0, count);
 	}

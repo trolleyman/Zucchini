@@ -4,6 +4,7 @@
 package game.ui;
 
 import game.InputHandler;
+import game.audio.AudioManager;
 import game.render.IRenderer;
 
 /**
@@ -12,6 +13,12 @@ import game.render.IRenderer;
  * @author jackm
  */
 public abstract class UI implements InputHandler {
+	protected AudioManager audio;
+	
+	public UI(AudioManager _audio) {
+		this.audio = _audio;
+	}
+
 	/**
 	 * Updates the UI
 	 * @param dt The number of seconds passed since the last update

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <eclipse-userlibraries version="2">
+    <library name="GSON" systemlibrary="false">
+        <archive javadoc="jar:platform:/resource/c3/gson-2.8.0/docs/javadocs.zip!/" path="/c3/gson-2.8.0/target/gson-2.8.0.jar" source="/c3/gson-2.8.0/src"/>
+    </library>
     <library name="JOML" systemlibrary="false">
         <archive javadoc="jar:platform:/resource/c3/lwjgl-3.1.1/joml-1.9.2-javadoc.jar!/" path="/c3/lwjgl-3.1.1/joml-1.9.2.jar" source="/c3/lwjgl-3.1.1/joml-1.9.2-sources.jar"/>
     </library>

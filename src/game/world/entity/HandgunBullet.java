@@ -12,7 +12,7 @@ public class HandgunBullet extends Bullet {
 	}
 	
 	public HandgunBullet(Vector2f position, float angle) {
-		super(position, new Vector2f(SPEED * (float)Math.sin(angle), SPEED * (float)Math.cos(angle)), 3.0f);
+		super(position, new Vector2f(SPEED * (float)Math.sin(angle), SPEED * (float)Math.cos(angle)), 3.0f, 10.0);
 	}
 	
 	@Override

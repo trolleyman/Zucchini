@@ -1,5 +1,6 @@
 package game.net;
 
+import game.audio.event.AudioEvent;
 import game.world.entity.Entity;
 
 /**
@@ -29,6 +30,12 @@ public interface IServerConnection {
 	public void sendRemoveEntity(int id);
 	
 	/**
+	 * Notifies the client when to process an audio event
+	 * @param ae The audio event
+	 */
+	public void sendAudioEvent(AudioEvent ae);
+	
+	/**
 	 * Sets the current connection event handler
 	 * @param sch The server connection handler
 	 */
@@ -38,4 +45,9 @@ public interface IServerConnection {
 	 * Called when the connection to the client should be closed
 	 */
 	public void close();
+	
+	/**
+	 * Gets the client connect to this' player id.
+	 */
+	public int getPlayerID();
 }

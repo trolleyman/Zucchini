@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.InputHandler;
 import java.lang.Math;
 import game.InputPipeMulti;
+import game.audio.AudioManager;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
@@ -38,22 +39,13 @@ public class GameUI extends UI implements InputPipeMulti {
 	 * Constructs a new GameUI
 	 * @param _world The world
 	 */
-	public GameUI(TextureBank _bank, ClientWorld _world) {
-		super();
+	public GameUI(AudioManager audio, TextureBank _bank, ClientWorld _world) {
+		super(audio);
 		this.world = _world;
 		this.bank = _bank;
 		this.inputHandlers.add(world);
 		
 		nextUI = this;
-
-		
-	/*	this.addKeyListener(new KeyListener(){
-			public void keyTyped(KeyEvent e){
-				if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
-					System.exit(0);
-				}
-			}
-		});*/
 	}
 	
 	@Override
@@ -63,14 +55,15 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 	}
 	
+	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
 		
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 			System.out.println("escape pressed");
-			this.nextUI = new EscapeUI(bank, world);//change null to renderer?
+			this.nextUI = new EscapeUI(audio, bank, world);//change null to renderer?
 		}
-	}	 
+	}
 
 	
 	@Override
@@ -97,9 +90,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	
 	public void stencil(IRenderer r){
-		
-		
-
+	
 		glEnable(GL_STENCIL_TEST);
 		glClearStencil(0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -109,9 +100,9 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 	// draw stencil pattern
 		glStencilMask(0xFF);
+
 		glClear(GL_STENCIL_BUFFER_BIT); 
 
-		//	drawCircle();
 		Vector4f colour = ColorUtil.WHITE;
 		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
 
@@ -129,14 +120,18 @@ public class GameUI extends UI implements InputPipeMulti {
 	//	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		//glStencilMask(0xFF);
 		
-	/* glClear(GL_STENCIL_BUFFER_BIT);  
+	/* glClear(GL_STENCIL_BUFFER_BIT);
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_LESS,1,1);
-		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP); 
+		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
 		glPushMatrix();
-		//glTranslatef(0.5,0,0);		
+		//glTranslatef(0.5,0,0);
 	//	glColor3f(0,0,1);
+<<<<<<< HEAD
 		glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE 
+=======
+	//	glutSolidSphere(0.6,16,16); // DRAWING METHOD SPHERE
+>>>>>>> 02515689c31c37d3244a6e4412f724595787928d
 		glPopMatrix();		*/
 		
 	}

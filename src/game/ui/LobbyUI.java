@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.audio.AudioManager;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
@@ -26,12 +27,12 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
-
-	public LobbyUI(TextureBank tb) {
-		super();
+	
+	public LobbyUI(AudioManager audio, TextureBank tb) {
+		super(audio);
 		
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(tb, ClientWorld.createTestWorld()); },
+			() -> { this.nextUI = new GameUI(audio, tb, ClientWorld.createTestWorld(audio)); },
 			Align.BL, 100, 100,
 			tb.getTexture("joinDefault.png"),
 			tb.getTexture("joinHover.png"),
@@ -39,7 +40,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		);
 		
 		backButton = new ButtonComponent(
-			() -> { this.nextUI = new StartUI(tb); },
+			() -> { this.nextUI = new StartUI(audio, tb); },
 			Align.BL, 100, 100,
 			tb.getTexture("backDefault.png"),
 			tb.getTexture("backHover.png"),
