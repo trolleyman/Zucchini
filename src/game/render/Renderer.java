@@ -5,6 +5,8 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import java.nio.FloatBuffer;
+
 import org.joml.MatrixStackf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -505,6 +507,22 @@ public class Renderer implements IRenderer {
 		
 		polygonVBO.setData(data);
 		polygonVAO.draw(GL_TRIANGLE_FAN, data.length / 2);
+		
+		matModelView.popMatrix();
+	}
+
+	@Override
+	public void drawTriangleFan(FloatBuffer data, float x, float y, Vector4f c) {
+		matModelView.pushMatrix();
+		matModelView.translate(x, y, 0.0f);
+		
+		simpleShader.setProjectionMatrix(matProjection);
+		simpleShader.setModelViewMatrix(matModelView);
+		simpleShader.setColor(c);
+		simpleShader.use();
+		
+		polygonVBO.setData(data);
+		polygonVAO.draw(GL_TRIANGLE_FAN, data.remaining() / 2);
 		
 		matModelView.popMatrix();
 	}

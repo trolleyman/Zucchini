@@ -1,9 +1,8 @@
 package game.render;
 
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
+
+import java.nio.FloatBuffer;
 
 /**
  * Class for interfacing with OpenGL Vertex Buffer Objects
@@ -30,6 +29,14 @@ public class VBO {
 		switch (freq) {
 		case STATIC : glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW); break;
 		case DYNAMIC: glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW); break;
+		}
+	}
+
+	public void setData(FloatBuffer data) {
+		this.bind();
+		switch (freq) {
+			case STATIC : glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW); break;
+			case DYNAMIC: glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW); break;
 		}
 	}
 	
