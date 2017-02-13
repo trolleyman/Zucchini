@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import game.networking.util.Protocol;
+import game.networking.util.interfaces.IConnectionHandler;
 
 public class TCPSenderLobbyThread implements Runnable
 {
@@ -13,12 +14,14 @@ public class TCPSenderLobbyThread implements Runnable
 	private Socket socket;
 	private String name;
 	private LinkedList<String> messages;
+	private IConnectionHandler conHandler;
 
-	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<String> _sendMessages)
+	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<String> _sendMessages, IConnectionHandler _conHandler)
 	{
 		socket = _socket;
 		name = _name;
 		messages = _sendMessages;
+		conHandler = _conHandler;
 
 		// SEND FIRST PING
 		// DataOutputStream toClient;
@@ -84,8 +87,7 @@ public class TCPSenderLobbyThread implements Runnable
 		{
 			e.printStackTrace();
 		}
-		// FIXME: send back a dissconect request to get rid of this client
-		System.out.println(this.getClass().getName() + name + ">>disconected!!");
+		conHandler.TCPSenderUserDisconnect(name);
 
 	}
 

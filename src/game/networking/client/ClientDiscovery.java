@@ -30,7 +30,10 @@ public class ClientDiscovery
 
 	public boolean isAccepted()
 	{
-		(new Thread(new ClientDiscSender(name, socket))).start();
+
+		boolean accepted = false;
+		ClientDiscSender clientDiscSender = new ClientDiscSender(name, socket);
+		(new Thread(clientDiscSender)).start();
 		DatagramSocket c = socket;
 		try
 		{
@@ -97,7 +100,8 @@ public class ClientDiscovery
 					tcpPort = port;
 					serverAddress = receivePacket.getAddress();
 
-					return true;
+					accepted = true;
+					break;
 				}
 				case Protocol.StoC_DiscoveryWait:
 				{
@@ -110,7 +114,8 @@ public class ClientDiscovery
 					TraceLog.consoleLog(getClass().getName() + name + ">>> Rejected by: " + receivePacket.getAddress().getHostAddress());
 					TraceLog.consoleLog(getClass().getName() + name + ">>> Sad Face :(");
 
-					return false;
+					accepted = false;
+					break;
 				}
 
 				default:
@@ -123,9 +128,20 @@ public class ClientDiscovery
 			}
 		} catch (IOException e)
 		{
-			return false;
+			accepted = false;
 		}
-		return false;
+		while (!clientDiscSender.done())
+		{
+			try
+			{
+				Thread.sleep(100);
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return accepted;
 	}
 
 	public int getTCPport()

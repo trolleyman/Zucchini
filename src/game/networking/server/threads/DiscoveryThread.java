@@ -11,9 +11,9 @@ import java.util.logging.Logger;
 
 import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
-import game.networking.util.ServerMainable;
 import game.networking.util.TraceLog;
 import game.networking.util.UtilityCode;
+import game.networking.util.interfaces.IServerMainable;
 
 public class DiscoveryThread implements Runnable
 {
@@ -22,9 +22,9 @@ public class DiscoveryThread implements Runnable
 	private int socketInt;
 	private Map<String, ConnectionDetails> clients;
 	private List<String> acceptedClients;
-	private ServerMainable server;
+	private IServerMainable server;
 
-	public DiscoveryThread(Map<String, ConnectionDetails> _clients, ServerMainable _server, List<String> _acceptedClients)
+	public DiscoveryThread(Map<String, ConnectionDetails> _clients, IServerMainable _server, List<String> _acceptedClients)
 	{
 		socketInt = UtilityCode.getNextAvailabePort();
 		clients = _clients;
@@ -74,41 +74,46 @@ public class DiscoveryThread implements Runnable
 						// see if we already have a client that has registered
 						// with
 						// that name;
-
-						if (acceptedClients.contains(name))
+						synchronized (this)
 						{
-							// reject if we have another client with the same
-							// name
 
-							sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
-
-						} else
-						{
-							// accept and add client to table if he has a unique
-							// name
-							if (!clients.containsKey(name))
+							if (acceptedClients.contains(name))
 							{
-								// send wait request to client
+								// reject if we have another client with the
+								// same name
 
-								sendData(socket, (Protocol.StoC_DiscoveryWait + name), packet.getAddress(), packet.getPort());
-
-								// thread safe way of putting stuff into the map
-								synchronized (this)
-								{
-									ConnectionDetails connection = new ConnectionDetails(packet.getAddress(), packet.getPort());
-									clients.put(name, connection);
-									server.acceptClientConnection(name);
-
-								}
-							} else if (!processingClient(name, packet))
-							{
-								// if the client is already online deny access
 								sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
 
+							} else
+							{
+								// accept and add client to table if he has a
+								// unique name
+								if (!clients.containsKey(name))
+								{
+									// send wait request to client
+
+									sendData(socket, (Protocol.StoC_DiscoveryWait + name), packet.getAddress(), packet.getPort());
+
+									// thread safe way of putting stuff into the
+									// map
+									synchronized (this)
+									{
+										ConnectionDetails connection = new ConnectionDetails(packet.getAddress(), packet.getPort());
+										clients.put(name, connection);
+										server.acceptClientConnection(name);
+
+									}
+								} else if (!processingClient(name, packet))
+								{
+									// if the client is already online deny
+									// access
+									sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
+									System.err.println(name + "is processing");
+
+								}
+
 							}
-
 						}
-
 					}
 				}
 				socket.close();

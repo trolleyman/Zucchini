@@ -1,4 +1,4 @@
-package game.networking.client;
+package game.networking.test;
 
 import java.net.*;
 import java.util.Enumeration;

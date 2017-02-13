@@ -8,6 +8,8 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
+import com.sun.swing.internal.plaf.synth.resources.synth;
+
 import game.networking.util.Protocol;
 import game.networking.util.TraceLog;
 import game.networking.util.UtilityCode;
@@ -16,6 +18,7 @@ public class ClientDiscSender implements Runnable
 {
 	private DatagramSocket socket;
 	private String name;
+	private boolean done = false;
 
 	public ClientDiscSender(String _name, DatagramSocket _socket)
 	{
@@ -29,7 +32,6 @@ public class ClientDiscSender implements Runnable
 
 		// Find the server using UDP broadcast
 		try
-
 		{
 			// Open a random port to send the package
 			DatagramSocket datagramSender = socket;
@@ -48,7 +50,7 @@ public class ClientDiscSender implements Runnable
 				TraceLog.consoleLog(getClass().getName() + name + ">>> Request packet sent to: 255.255.255.255 (DEFAULT)");
 			} catch (Exception e)
 			{
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 
 			// Broadcast the message over all the network interfaces
@@ -94,6 +96,12 @@ public class ClientDiscSender implements Runnable
 		{
 			ex.printStackTrace();
 		}
+		done = true;
+	}
+
+	public synchronized boolean done()
+	{
+		return done;
 	}
 
 }

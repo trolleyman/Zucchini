@@ -8,10 +8,10 @@ import java.util.Map;
 import game.networking.server.threads.DiscoveryThread;
 import game.networking.server.threads.LobbyThread;
 import game.networking.util.ConnectionDetails;
-import game.networking.util.ServerMainable;
 import game.networking.util.Tuple;
+import game.networking.util.interfaces.IServerMainable;
 
-public abstract class ServerAbstract implements ServerMainable
+public abstract class ServerAbstract implements IServerMainable
 {
 
 	// private Thread discoveryThread;

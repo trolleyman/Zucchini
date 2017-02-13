@@ -13,13 +13,15 @@ import java.util.List;
 import java.util.Map;
 
 import game.networking.server.threads.tcp.TCPConThread;
-import game.networking.server.threads.tcp.TCP_Connection;
+import game.networking.server.threads.tcp.TCPConnectionStarter;
 import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
 import game.networking.util.Tuple;
 import game.networking.util.UtilityCode;
+import game.networking.util.interfaces.IConnectionHandler;
+import game.networking.util.interfaces.ITCPConnection;
 
-public class LobbyThread implements Runnable
+public class LobbyThread implements Runnable, IConnectionHandler
 {
 	private DatagramSocket datagramSocket;
 
@@ -33,6 +35,7 @@ public class LobbyThread implements Runnable
 	private Map<String, Socket> clientSockets;
 	private boolean updated = false;
 	private List<String> updatedList;
+	private Map<String, ITCPConnection> tcpConn;
 
 	private TCPConThread tcpConTh;
 
@@ -49,6 +52,8 @@ public class LobbyThread implements Runnable
 		acceptQueue = new LinkedList<String>();
 		clientSockets = new LinkedHashMap<>();
 		updatedList = new LinkedList<String>();
+
+		tcpConn = new LinkedHashMap<>();
 
 		lobbyConnection = new LobbyConnectionThread(acceptQueue, this, acceptedClients);
 
@@ -100,7 +105,7 @@ public class LobbyThread implements Runnable
 						// FIXME: instantiate send and receive messages maps
 
 						sendMessages.put(name, new LinkedList<>());
-						new TCP_Connection(clientSockets.get(name), name, sendMessages.get(name), receivedMessages);
+						tcpConn.put(name, new TCPConnectionStarter(clientSockets.get(name), name, sendMessages.get(name), receivedMessages, this));
 
 						System.out.println("Creadted TCPStuff for: " + name);
 					}
@@ -152,6 +157,67 @@ public class LobbyThread implements Runnable
 	public synchronized int getTCPServerSocket()
 	{
 		return tcpConTh.getTCPServerPort();
+	}
+
+	@Override
+	public void TCPListenerUserDisconnect(String name)
+	{
+		synchronized (this)
+		{
+			while (clients.containsKey(name))
+			{
+				clients.remove(name);
+			}
+			while (acceptedClients.contains(name))
+			{
+				acceptedClients.remove(name);
+			}
+			while (clientSockets.containsKey(name))
+			{
+				clientSockets.remove(name);
+			}
+			while (sendMessages.containsKey(name))
+			{
+				sendMessages.remove(name);
+			}
+			while (tcpConn.containsKey(name))
+			{
+				tcpConn.get(name).closeConnection();
+				tcpConn.remove(name);
+			}
+		}
+
+	}
+
+	@Override
+	public void TCPSenderUserDisconnect(String name)
+	{
+		synchronized (this)
+		{
+			while (clients.containsKey(name))
+			{
+				clients.remove(name);
+			}
+			while (acceptedClients.contains(name))
+			{
+				acceptedClients.remove(name);
+			}
+			while (clientSockets.containsKey(name))
+			{
+				clientSockets.remove(name);
+			}
+			while (sendMessages.containsKey(name))
+			{
+				sendMessages.remove(name);
+			}
+			while (tcpConn.containsKey(name))
+			{
+				tcpConn.get(name).closeConnection();
+				tcpConn.remove(name);
+			}
+
+		}
+
 	}
 
 }
