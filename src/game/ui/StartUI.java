@@ -109,6 +109,8 @@ public class StartUI extends UI implements InputPipeMulti {
 		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
 		
 		r.drawTexture(font.getTexture(), Align.MM, 200, 200);
+		
+		r.drawText(font, "The quick brown fox jumps over the lazy dog", 100, 500, 1.0f);
 	}
 	
 	@Override
