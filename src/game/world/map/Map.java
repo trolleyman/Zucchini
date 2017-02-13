@@ -20,15 +20,15 @@ public class Map {
 		return new MazeMap(maze, 1.5f);
 //		return new TestMap();
 	}
-		
+	
 	/** The "walls" of the map that entities can collide with */
-	private float[] lines;
+	private ArrayList<Wall> walls;
 	
 	/**
-	 * Construct a map with the specified "wall"
+	 * Construct a map with the specified walls
 	 */
-	protected Map(float[] _lines) {
-		this.lines = _lines;
+	protected Map(ArrayList<Wall> _walls) {
+		this.walls = _walls;
 	}
 	
 	/**
@@ -46,11 +46,11 @@ public class Map {
 		Vector2f temp1 = Util.pushTemporaryVector2f();
 		Vector2f temp2 = Util.pushTemporaryVector2f();
 		Vector2f acc = null;
-		for (int i = 0; i < lines.length - 3; i += 4) {
-			float x2 = lines[i  ];
-			float y2 = lines[i+1];
-			float x3 = lines[i+2];
-			float y3 = lines[i+3];
+		for (Wall wall : walls) {
+			float x2 = wall.p0.x;
+			float y2 = wall.p0.y;
+			float x3 = wall.p1.x;
+			float y3 = wall.p1.y;
 			
 			Vector2f intersection = PhysicsUtil.intersectLineLine(x0, y0, x1, y1, x2, y2, x3, y3, temp1);
 			Vector2f closest = PhysicsUtil.getClosest(p0, acc, intersection);
@@ -90,11 +90,11 @@ public class Map {
 		Vector2f temp = Util.pushTemporaryVector2f();
 		Vector2f acc = Util.pushTemporaryVector2f();
 		boolean intersection = false;
-		for (int i = 0; i < lines.length - 3; i += 4) {
-			float x1 = lines[i  ];
-			float y1 = lines[i+1];
-			float x2 = lines[i+2];
-			float y2 = lines[i+3];
+		for (Wall wall : walls) {
+			float x1 = wall.p0.x;
+			float y1 = wall.p0.y;
+			float x2 = wall.p1.x;
+			float y2 = wall.p1.y;
 			
 			Vector2f ret = PhysicsUtil.intersectCircleLine(x0, y0, radius, x1, y1, x2, y2, temp);
 			if (ret != null) {
@@ -159,11 +159,11 @@ public class Map {
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
-		for (int i = 0; i < lines.length - 3; i += 4) {
-			float x0 = lines[i  ];
-			float y0 = lines[i+1];
-			float x1 = lines[i+2];
-			float y1 = lines[i+3];
+		for (Wall wall : walls) {
+			float x0 = wall.p0.x;
+			float y0 = wall.p0.y;
+			float x1 = wall.p1.x;
+			float y1 = wall.p1.y;
 			
 			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
 		}
