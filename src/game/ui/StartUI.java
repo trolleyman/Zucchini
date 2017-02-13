@@ -99,12 +99,14 @@ public class StartUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
 		startButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
 		startButton.render(r);
 		exitButton.render(r);
+		
 		
 		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
 		
