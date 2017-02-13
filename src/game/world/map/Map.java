@@ -162,8 +162,8 @@ public class Map {
 	 * @param buf Where to store the buffer. If this is null, will allocate a new float array.
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
 	 */
+	/*
 	public float[] getLineOfSightNew(Vector2f pos, int num, float max, float[] buf) {
-		Vector2f temp = Util.pushTemporaryVector2f();
 		int len = num * 2 + 4;
 		if (buf == null || buf.length != len)
 			buf = new float[len];
@@ -179,12 +179,50 @@ public class Map {
 		}
 		
 		for (Wall wall : walls) {
+			Vector2f p0 = wall.p0;
+			Vector2f p1 = wall.p1;
 			
+			// Calculate angles for points
+			double a0 = Util.getAngle(pos.x, pos.y, p0.x, p0.y);
+			double a1 = Util.getAngle(pos.x, pos.y, p1.x, p1.y);
+			
+			// Swap a0 & a1 and p0 & p1 so that we are always going clockwise from a0 to a1.
+			boolean swap = false;
+			double d = a1 - a0;
+			if (d < 0.0f) {
+				swap = true;
+			}
+			if (Math.abs(d) > Math.PI) {
+				swap = !swap;
+			}
+			
+			if (swap) {
+				double temp = a1;
+				a1 = a0;
+				a0 = temp;
+				
+				Vector2f tempv = p1;
+				p1 = p0;
+				p0 = tempv;
+			}
+			
+			// Set stuff clockwise from a0 to a1 to interpolated p0/p1 values
+			double ang = a0;
+			while (ang <= a1) {
+				buf[i];
+				buf[i+1];
+				
+				i += 2;
+				if (i >= num * 2 + 2) {
+					i = 2;
+				}
+			}
 		}
 		
-		Util.popTemporaryVector2f();
+		buf[len-2] = buf[2];
+		buf[len-1] = buf[3];
 		return buf;
-	}
+	}*/
 	
 	/**
 	 * Render the map
