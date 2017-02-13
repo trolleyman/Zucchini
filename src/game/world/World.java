@@ -43,7 +43,6 @@ public abstract class World {
 		dtPool += dt;
 		while (dtPool > Util.DT_PER_UPDATE) {
 			updateStep(Util.DT_PER_UPDATE);
-			this.bank.processCache();
 			dtPool -= Util.DT_PER_UPDATE;
 		}
 	}
@@ -53,5 +52,8 @@ public abstract class World {
 	 * @param dt The number of seconds to update the world by
 	 */
 	protected abstract void updateStep(double dt);
+	
+	
+	
 }
 

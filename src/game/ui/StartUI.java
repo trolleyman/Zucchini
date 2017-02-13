@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
+import game.audio.AudioManager;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.render.TextureBank;
 import game.world.ClientWorld;
 import game.world.World;
@@ -34,12 +36,12 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ButtonComponent startButton;
 	/** The exit button */
 	private ButtonComponent exitButton;
-	/** The background image */
-	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
 	
+
 	private Font font;
+	private ImageComponent backgroundImage;
 
 	private float testRot;
 	
@@ -47,13 +49,13 @@ public class StartUI extends UI implements InputPipeMulti {
 	 * Constructs a new StartUI
 	 * @param tb TextureBank used to get textures for components
 	 */
-	public StartUI(TextureBank tb) {
-		super();
+	public StartUI(AudioManager audio, TextureBank tb) {
+		super(audio);
 		
 		font = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
 		
 		startButton = new ButtonComponent(
-			() -> { this.nextUI = new LobbyUI(tb); },
+			() -> { this.nextUI = new LobbyUI(audio, tb); },
 			Align.BL, 100, 100,
 			tb.getTexture("buttonDefault.png"),
 			tb.getTexture("buttonHover.png"),
@@ -71,7 +73,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		backgroundImage = new ImageComponent(
 			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
 		);
-		
+
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
 	}
@@ -101,9 +103,9 @@ public class StartUI extends UI implements InputPipeMulti {
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
-		backgroundImage.render(r);
 		startButton.render(r);
 		exitButton.render(r);
+		
 		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
 		
 		r.drawTexture(font.getTexture(), Align.MM, 200, 200);

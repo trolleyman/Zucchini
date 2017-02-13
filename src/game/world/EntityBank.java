@@ -2,6 +2,7 @@ package game.world;
 
 import java.util.ArrayList;
 
+import game.net.IServerConnection;
 import game.world.entity.Entity;
 
 public class EntityBank {
@@ -63,24 +64,33 @@ public class EntityBank {
 	}
 
 	/**
-	 * Process the cached records
+	 * Process the cached records, and send them to conn.
+	 * @param conns The connections to the clients
 	 */
-	protected synchronized void processCache() {
+	protected synchronized void processCache(ArrayList<IServerConnection> conns) {
 		// Process cached updates
 		for (Entity e : updateEntities) {
 			this.updateEntity(e);
+			for (IServerConnection conn : conns)
+				conn.sendUpdateEntity(e);
 		}
 		updateEntities.clear();
 		
 		// Process health updates
 		for (HealthUpdate hu : healEntities) {
 			this.healEntity(hu.id, hu.health);
+			Entity e = this.getEntity(hu.id);
+			for (IServerConnection conn : conns)
+				if (e != null)
+					conn.sendUpdateEntity(e);
 		}
 		healEntities.clear();
 		
 		// Remove cached entities
 		for (Integer id : removeEntities) {
 			this.removeEntity(id);
+			for (IServerConnection conn : conns)
+				conn.sendRemoveEntity(id);
 		}
 		removeEntities.clear();
 	}

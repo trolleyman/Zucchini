@@ -6,7 +6,7 @@ package game.world.map;
  * @author Callum
  */
 public class MazeMap extends Map {
-	protected MazeMap(Maze maze) {
-		super(maze.toLines());
+	protected MazeMap(Maze maze, float scale) {
+		super(maze.toLines(scale));
 	}
 }

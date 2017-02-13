@@ -191,10 +191,7 @@ public class Maze {
 		l.add(y1);
 	}
 	
-	public float[] toLines() {
-		// TODO
-		//throw new UnsupportedOperationException("Not yet implemented");
-		
+	public float[] toLines(float scale) {
 		ArrayList<Float> list = new ArrayList<>();
 		// Get bottom/left lines
 		for (int y = 0; y < h; y++) {
@@ -218,10 +215,10 @@ public class Maze {
 				addLine(list, w, y, w, y+1);
 		}
 		
-		// Copy from arraylist
+		// Copy from arraylist and scale
 		float[] array = new float[list.size()];
 		for (int i = 0; i < array.length; i++) {
-			array[i] = list.get(i);
+			array[i] = list.get(i) * scale;
 		}
 		return array;
 	}

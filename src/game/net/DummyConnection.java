@@ -3,6 +3,7 @@ package game.net;
 import game.Util;
 import game.action.Action;
 import game.action.ActionType;
+import game.audio.event.AudioEvent;
 import game.ui.UI;
 import game.world.ClientWorld;
 import game.world.EntityBank;
@@ -12,36 +13,27 @@ import game.world.entity.Entity;
 import game.world.entity.Player;
 
 /**
- * A dummy class to implement {@link IClientConnection} so that we can play the game and prototype aspects of it
- * without having to implement networking atm.
+ * A dummy class to implement {@link IClientConnection} and {@link IServerConnection} so that we can
+ * play the game and prototype aspects of it without having to implement networking atm.
  * 
  * @author Callum
  */
-public class DummyConnection extends Thread implements IClientConnection {
-	private ServerWorld serverWorld;
+public class DummyConnection implements IServerConnection, IClientConnection {
+	private IServerConnectionHandler sch = new DummyServerConnectionHandler();
+	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
 	
 	private int playerID;
 	
-	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
-
-	private boolean running;
-	
 	/**
 	 * Constructs a new {@link DummyConnection}.
-	 * @param _serverWorld The server world
-	 * @param _playerID The player id to receive actions from the connection.
 	 */
-	public DummyConnection(ServerWorld _serverWorld, int _playerID) {
-		this.serverWorld = _serverWorld;
+	public DummyConnection(int _playerID) {
 		this.playerID = _playerID;
 	}
 	
 	@Override
 	public void sendAction(Action a) {
-		EntityBank bank = this.serverWorld.getEntityBank();
-		Entity e = bank.getEntity(playerID);
-		if (e != null && e instanceof Player)
-			((Player) e).handleAction(bank, a);
+		sch.handleAction(a);
 	}
 	
 	@Override
@@ -50,30 +42,32 @@ public class DummyConnection extends Thread implements IClientConnection {
 	}
 	
 	@Override
-	public void run() {
-		this.running = true;
-		
-		long prevTime = System.nanoTime();
-		while (this.running) {
-			long now = System.nanoTime();
-			long dtNanos = now - prevTime;
-			prevTime = now;
-			double dt = (double)dtNanos / Util.NANOS_PER_SECOND;
-			
-			ServerWorld prevWorld = (ServerWorld) this.serverWorld.clone();
-			this.serverWorld.update(dt);
-			this.serverWorld.send(prevWorld, cch);
-			
-			try {
-				Thread.sleep(5);
-			} catch (InterruptedException e) {
-				System.err.println("Warning: Sleep Thread Interrupted: " + e.toString());
-			}
-		}
+	public void sendUpdateEntity(Entity e) {
+		cch.updateEntity(e);
+	}
+	
+	@Override
+	public void sendRemoveEntity(int id) {
+		cch.removeEntity(id);
+	}
+	
+	@Override
+	public void sendAudioEvent(AudioEvent ae) {
+		cch.processAudioEvent(ae);
+	}
+	
+	@Override
+	public void setHandler(IServerConnectionHandler _sch) {
+		this.sch = _sch;
+	}
+	
+	@Override
+	public int getPlayerID() {
+		return playerID;
 	}
 	
 	@Override
 	public void close() {
-		this.running = false;
+		// Nothing needs to be here
 	}
 }

@@ -2,8 +2,8 @@ package game.world.entity;
 
 import org.joml.Vector2f;
 
+import game.audio.AudioManager;
 import game.render.IRenderer;
-import game.world.EntityBank;
 import game.world.UpdateArgs;
 
 /**
@@ -47,8 +47,7 @@ public abstract class Entity implements Cloneable {
 		this.id = e.id;
 		this.position = new Vector2f(e.position);
 		this.angle = e.angle;
-		
-		this.health = this.getMaxHealth();
+		this.health = e.health;
 	}
 
 	/**
@@ -57,6 +56,8 @@ public abstract class Entity implements Cloneable {
 	 */
 	public Entity(Vector2f _position) {
 		this.position = _position;
+		
+		this.health = this.getMaxHealth();
 	}
 	
 	/**
@@ -64,6 +65,7 @@ public abstract class Entity implements Cloneable {
 	 * @param ua The arguments passed to each update function. See {@link game.world.UpdateArgs UpdateArgs}.
 	 */
 	public abstract void update(UpdateArgs ua);
+	
 	/**
 	 * Renders the entity to the screen
 	 * @param r The renderer
@@ -72,6 +74,8 @@ public abstract class Entity implements Cloneable {
 	
 	/**
 	 * Calculates an intersection with the entity and a line
+	 * <p>
+	 * By default this function returns null, i.e. no hitbox.
 	 * @param x0 Start x-coordinate of the line
 	 * @param y0 Start y-coordinate of the line
 	 * @param x1 End x-coordinate of the line

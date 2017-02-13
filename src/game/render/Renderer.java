@@ -12,7 +12,6 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
-import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.render.shader.Shader;
@@ -20,6 +19,8 @@ import game.render.shader.SimpleShader;
 import game.render.shader.TextureShader;
 
 public class Renderer implements IRenderer {
+	private static final int CIRCLE_VERTICES = 128;
+
 	/** Window handle. See <a target="_top" href="http://www.glfw.org/docs/latest/window_guide.html#window_object">here</a> */
 	private long window;
 	
@@ -30,11 +31,25 @@ public class Renderer implements IRenderer {
 	private SimpleShader simpleShader;
 	private TextureShader textureShader;
 	
-	// Boxes
+	// Meshes
 	/** Box VAO */
 	private VAO box;
 	/** Textured box VAO */
 	private VAO boxUV;
+	/** Dynamic textured box VAO */
+	private VAO boxDynamic;
+	/** Dynamic textured box VBO */
+	private VBO boxDynamicVBO;
+	/** Dynamic textured box UVs */
+	private float[] boxDynamicData = new float[12];
+	
+	/** The positions of the polygon */
+	private VBO polygonVBO;
+	/** The actual VAO of the polygon. References polygonVBO */
+	private VAO polygonVAO;
+	
+	/** Circle VAO. This is a circle at 0,0 of radius 1, with CIRCLE_VERTICES number of vertices */
+	private VAO circle;
 	
 	/** Current input handler */
 	private InputHandler ih;
@@ -87,6 +102,8 @@ public class Renderer implements IRenderer {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+		// Debug context
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 		
 		long monitor;
 		if (fullscreen) {
@@ -176,8 +193,8 @@ public class Renderer implements IRenderer {
 		// Load images
 		ib = new TextureBank();
 		
-		// Generate 1x1 boxes
-		generateBoxes();
+		// Generate meshes
+		generateMeshes();
 		
 		// Enable v-sync
 		this.setVSync(true);
@@ -200,9 +217,9 @@ public class Renderer implements IRenderer {
 	}
 
 	/**
-	 * Generate the VAO boxes.
+	 * Generate the VAO meshes.
 	 */
-	private void generateBoxes() {
+	private void generateMeshes() {
 		float[] vertexPositions = {
 			// t0
 			0.0f, 0.0f, // BL
@@ -224,12 +241,42 @@ public class Renderer implements IRenderer {
 			1.0f, 0.0f, // TR
 		};
 		
-		box = new VAO(GL_TRIANGLES, 6);
-		box.addData(simpleShader, "position", vertexPositions, 2);
+		VBO positions = new VBO(vertexPositions, AccessFrequency.STATIC);
+		VBO uvs = new VBO(vertexUVs, AccessFrequency.STATIC);
 		
-		boxUV = new VAO(GL_TRIANGLES, 6);
-		boxUV.addData(textureShader, "position", vertexPositions, 2);
-		boxUV.addData(textureShader, "uv", vertexUVs, 2);
+		box = new VAO();
+		box.addData(simpleShader, "position", positions, 2, 0, 0);
+		
+		boxUV = new VAO();
+		boxUV.addData(textureShader, "position", positions, 2, 0, 0);
+		boxUV.addData(textureShader, "uv", uvs, 2, 0, 0);
+		
+		boxDynamicVBO = new VBO(vertexUVs, AccessFrequency.DYNAMIC);
+		boxDynamic = new VAO();
+		boxDynamic.addData(textureShader, "position", positions, 2, 0, 0);
+		boxDynamic.addData(textureShader, "uv", boxDynamicVBO, 2, 0, 0);
+		
+		polygonVBO = new VBO(new float[] {}, AccessFrequency.DYNAMIC);
+		polygonVAO = new VAO();
+		polygonVAO.addData(simpleShader, "position", polygonVBO, 2, 0, 0);
+		
+		// Generate circle data
+		int len = 2 * CIRCLE_VERTICES;
+		float[] circleData = new float[len];
+		circleData[0] = 0.0f;
+		circleData[1] = 0.0f;
+		for (int i = 2; i < len-2; i += 2) {
+			double ang = -((double)i-2) / (len-4) * Math.PI * 2;
+			float x = (float)Math.sin(ang);
+			float y = (float)Math.cos(ang);
+			circleData[i  ] = x;
+			circleData[i+1] = y;
+		}
+		circleData[len-2] = 0.0f;
+		circleData[len-1] = 1.0f;
+		VBO circleVBO = new VBO(circleData, AccessFrequency.STATIC);
+		circle = new VAO();
+		circle.addData(simpleShader, "position", circleVBO, 2, 0, 0);
 	}
 	
 	/**
@@ -388,7 +435,7 @@ public class Renderer implements IRenderer {
 		simpleShader.use();
 		
 		// Draw 1x1 box (without UV)
-		box.draw();
+		box.draw(GL_TRIANGLES, 6);
 		matModelView.popMatrix();
 	}
 	
@@ -408,7 +455,72 @@ public class Renderer implements IRenderer {
 		textureShader.use();
 		
 		// Draw 1x1 box (with UV)
-		boxUV.draw();
+		boxUV.draw(GL_TRIANGLES, 6);
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawTextureUV(
+			Texture tex, Align a, float x, float y, float w, float h, float r,
+			float u0, float v0, float u1, float v1) {
+		
+		matModelView.pushMatrix();
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
+		align(a, -w, -h);
+		matModelView.scale(w, h, 1.0f);
+		
+		textureShader.setProjectionMatrix(matProjection);
+		textureShader.setModelViewMatrix(matModelView);
+		textureShader.bindTexture(tex);
+		textureShader.use();
+		
+		// Upload UV data
+		// t0
+		boxDynamicData[ 0] = u0; boxDynamicData[ 1] = v1; // BL
+		boxDynamicData[ 2] = u1; boxDynamicData[ 3] = v1; // BR
+		boxDynamicData[ 4] = u0; boxDynamicData[ 5] = v0; // TL
+		// t1
+		boxDynamicData[ 6] = u0; boxDynamicData[ 7] = v0; // TL
+		boxDynamicData[ 8] = u1; boxDynamicData[ 9] = v1; // BR
+		boxDynamicData[10] = u1; boxDynamicData[11] = v0; // TR
+		boxDynamicVBO.setData(boxDynamicData);
+		
+		// Draw 1x1 box (with UV)
+		boxDynamic.draw(GL_TRIANGLES, 6);
+		
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawTriangleFan(float[] data, float x, float y, Vector4f c) {
+		matModelView.pushMatrix();
+		matModelView.translate(x, y, 0.0f);
+		
+		simpleShader.setProjectionMatrix(matProjection);
+		simpleShader.setModelViewMatrix(matModelView);
+		simpleShader.setColor(c);
+		simpleShader.use();
+		
+		polygonVBO.setData(data);
+		polygonVAO.draw(GL_TRIANGLE_FAN, data.length / 2);
+		
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawCircle(float x, float y, float radius, Vector4f c) {
+		matModelView.pushMatrix();
+		matModelView.translate(x, y, 0.0f);
+		matModelView.scale(radius, radius, 1.0f);
+		
+		simpleShader.setProjectionMatrix(matProjection);
+		simpleShader.setModelViewMatrix(matModelView);
+		simpleShader.setColor(c);
+		simpleShader.use();
+		
+		// Draw circle
+		circle.draw(GL_TRIANGLE_FAN, CIRCLE_VERTICES);
 		matModelView.popMatrix();
 	}
 	

@@ -4,6 +4,7 @@ import org.joml.MatrixStackf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.render.Align;
@@ -141,7 +142,12 @@ public interface IRenderer {
 	 */
 	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r);
 	
-	//public void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1);
+	public default void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float u0, float v0, float u1, float v1) {
+		this.drawTextureUV(tex, a, x, y, w, h, 0.0f, u0, v0, u1, v1);
+	}
+	
+	public void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1);
+
 	
 	/**
 	 * Draws a solid-color box to the screen at x,y (relative to the
@@ -171,6 +177,25 @@ public interface IRenderer {
 	 * @param r The rotation
 	 */
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r);
+	
+	public default void drawTriangleFan(float[] data, float x, float y) {
+		this.drawTriangleFan(data, x, y, ColorUtil.WHITE);
+	}
+	
+	/**
+	 * Draws a triangle fan of the data provided. See GL_TRIANGLE_FAN for the details.
+	 * @param data The data points in [x0, y0, x1, y1, x2, y2, ...] format.
+	 * @param x The circle's centre x-coordinate
+	 * @param y The circle's centre y-coordinate
+	 * @param c The color of the object
+	 */
+	public void drawTriangleFan(float[] data, float x, float y, Vector4f c);
+	
+	public default void drawCircle(float x, float y, float radius) {
+		this.drawCircle(x, y, radius, ColorUtil.WHITE);
+	}
+	
+	public void drawCircle(float x, float y, float radius, Vector4f c);
 	
 	/**
 	 * Gets the current mouse x-coordinate
