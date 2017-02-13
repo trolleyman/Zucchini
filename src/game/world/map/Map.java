@@ -1,13 +1,13 @@
 package game.world.map;
 
-import java.util.concurrent.ThreadLocalRandom;
-
-import org.joml.Vector2f;
-
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
+import org.joml.Vector2f;
+
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Represents a specified map.
@@ -150,6 +150,38 @@ public class Map {
 				buf[2+i*2+1] = intersection.y;
 			}
 		}
+		Util.popTemporaryVector2f();
+		return buf;
+	}
+	
+	/**
+	 * Gets the line of sight data for the position given.
+	 * @param pos The position of the camera in the world
+	 * @param num The number of samples
+	 * @param max The maximum length of the line of sight
+	 * @param buf Where to store the buffer. If this is null, will allocate a new float array.
+	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
+	 */
+	public float[] getLineOfSightNew(Vector2f pos, int num, float max, float[] buf) {
+		Vector2f temp = Util.pushTemporaryVector2f();
+		int len = num * 2 + 4;
+		if (buf == null || buf.length != len)
+			buf = new float[len];
+		buf[0] = pos.x;
+		buf[1] = pos.y;
+		for (int i = 2; i < len-1; i += 2) {
+			// Get current angle
+			double ang = -((double) (i / 2 - 2) / num * Math.PI * 2);
+			float x = pos.x + max * (float) Math.sin(ang);
+			float y = pos.y + max * (float) Math.cos(ang);
+			buf[i] = x;
+			buf[i + 1] = y;
+		}
+		
+		for (Wall wall : walls) {
+			
+		}
+		
 		Util.popTemporaryVector2f();
 		return buf;
 	}
