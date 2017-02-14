@@ -146,7 +146,7 @@ public interface IRenderer {
 	
 	public void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1);
 
-	public void drawText(Font f, String s, float x, float y, float scale);
+	public void drawText(Font f, String s, Align a, float x, float y, float scale);
 	
 	/**
 	 * Draws a solid-color box to the screen at x,y (relative to the

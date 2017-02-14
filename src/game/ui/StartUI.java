@@ -1,6 +1,3 @@
-/**
- * 
- */
 package game.ui;
 
 import java.util.ArrayList;
@@ -12,11 +9,7 @@ import game.audio.AudioManager;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
-import game.render.Texture;
 import game.render.TextureBank;
-import game.world.ClientWorld;
-import game.world.World;
-import game.world.map.TestMap;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
@@ -42,8 +35,6 @@ public class StartUI extends UI implements InputPipeMulti {
 
 	private Font font;
 	private ImageComponent backgroundImage;
-
-	private float testRot;
 	
 	/**
 	 * Constructs a new StartUI
@@ -94,7 +85,6 @@ public class StartUI extends UI implements InputPipeMulti {
 	public void update(double dt) {
 		startButton.update(dt);
 		exitButton.update(dt);
-		testRot += 3.0f * dt;
 	}
 	
 	@Override
@@ -106,13 +96,6 @@ public class StartUI extends UI implements InputPipeMulti {
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
 		startButton.render(r);
 		exitButton.render(r);
-		
-		
-		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
-		
-		r.drawTexture(font.getTexture(), Align.MM, 200, 200);
-		
-		r.drawText(font, "The quick brown fox jumps over the lazy dog", 100, 500, 1.0f);
 	}
 	
 	@Override

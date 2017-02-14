@@ -596,7 +596,10 @@ public class Renderer implements IRenderer {
 	}
 
 	@Override
-	public void drawText(Font f, String s, float x, float y, float scale) {
-		f.render(this, s, x, y, scale);		
+	public void drawText(Font f, String s, Align a, float x, float y, float scale) {
+		//matModelView.pushMatrix();
+		//align(a, -f.getWidth(s, scale), -f.getHeight(scale));
+		f.render(this, s, x, y, scale);
+		//matModelView.popMatrix();
 	}
 }
