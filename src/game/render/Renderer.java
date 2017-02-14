@@ -524,6 +524,8 @@ public class Renderer implements IRenderer {
 		matModelView.popMatrix();
 	}
 	
+	
+	
 	private double[] xBuf = new double[1];
 	private double[] yBuf = new double[1];
 	@Override
@@ -535,5 +537,10 @@ public class Renderer implements IRenderer {
 	public double getMouseY() {
 		glfwGetCursorPos(window, null, yBuf);
 		return screenToPixelCoordinates(this.windowScreenH - yBuf[0]);
+	}
+
+	@Override
+	public void drawText(Font f, String s, float x, float y, float scale) {
+		f.render(this, s, x, y, scale);		
 	}
 }
