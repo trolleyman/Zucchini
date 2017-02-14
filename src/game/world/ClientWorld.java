@@ -1,13 +1,5 @@
 package game.world;
 
-import static org.lwjgl.glfw.GLFW.*;
-
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-
-import org.joml.Vector2f;
-import org.joml.Vector4f;
-
 import game.InputHandler;
 import game.Util;
 import game.action.Action;
@@ -16,16 +8,18 @@ import game.action.AimAction;
 import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
-import game.net.DummyConnection;
-import game.net.IClientConnection;
-import game.net.IClientConnectionHandler;
-import game.net.IServerConnection;
-import game.net.Server;
+import game.net.*;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Handgun;
 import game.world.entity.Player;
 import game.world.map.Map;
+import org.joml.Vector2f;
+import org.joml.Vector4f;
+
+import java.util.ArrayList;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * The world located on the client
