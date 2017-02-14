@@ -15,6 +15,7 @@ public class TCPSenderLobbyThread implements Runnable
 	private String name;
 	private LinkedList<String> messages;
 	private IConnectionHandler conHandler;
+	boolean run;
 
 	public TCPSenderLobbyThread(Socket _socket, String _name, LinkedList<String> _sendMessages, IConnectionHandler _conHandler)
 	{
@@ -40,7 +41,7 @@ public class TCPSenderLobbyThread implements Runnable
 	@Override
 	public void run()
 	{
-		boolean run = true;
+		run = true;
 		try
 		{
 			DataOutputStream toClient = new DataOutputStream(socket.getOutputStream());
@@ -89,6 +90,11 @@ public class TCPSenderLobbyThread implements Runnable
 		}
 		conHandler.TCPSenderUserDisconnect(name);
 
+	}
+
+	public synchronized void Stop()
+	{
+		run = false;
 	}
 
 }

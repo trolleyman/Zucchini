@@ -50,7 +50,7 @@ public class ClientDiscSender implements Runnable
 				TraceLog.consoleLog(getClass().getName() + name + ">>> Request packet sent to: 255.255.255.255 (DEFAULT)");
 			} catch (Exception e)
 			{
-				// e.printStackTrace();
+				e.printStackTrace();
 			}
 
 			// Broadcast the message over all the network interfaces
@@ -84,6 +84,7 @@ public class ClientDiscSender implements Runnable
 						}
 					} catch (Exception e)
 					{
+						e.printStackTrace();
 					}
 
 					TraceLog.consoleLog(getClass().getName() + name + ">>> Request packet sent to: " + broadcast.getHostAddress() + "; Interface: " + networkInterface.getDisplayName());

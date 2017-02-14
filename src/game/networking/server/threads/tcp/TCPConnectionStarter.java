@@ -15,6 +15,8 @@ public class TCPConnectionStarter implements ITCPConnection
 	LinkedList<Tuple<String, String>> receivedMes;
 	LinkedList<String> sendMes;
 	Socket socket;
+	TCPSenderLobbyThread tcpSender;
+	TCPListenerLobbyThread tcpListener;
 
 	public TCPConnectionStarter(Socket _socket, String _name, LinkedList<String> _sendMessages, LinkedList<Tuple<String, String>> _receivedMes, IConnectionHandler _conHandler)
 	{
@@ -23,17 +25,19 @@ public class TCPConnectionStarter implements ITCPConnection
 		sendMes = _sendMessages;
 		socket = _socket;
 
-		TCPListenerLobbyThread tcpListener = new TCPListenerLobbyThread(_socket, _name, _receivedMes, _conHandler);
-		TCPSenderLobbyThread tcpSenderLobby = new TCPSenderLobbyThread(_socket, _name, _sendMessages, _conHandler);
+		tcpListener = new TCPListenerLobbyThread(_socket, _name, _receivedMes, _conHandler);
+		tcpSender = new TCPSenderLobbyThread(_socket, _name, _sendMessages, _conHandler);
 
 		(new Thread(tcpListener)).start();
-		(new Thread(tcpSenderLobby)).start();
+		(new Thread(tcpSender)).start();
 
 	}
 
 	@Override
 	public void closeConnection()
 	{
+		tcpListener.Stop();
+		tcpSender.Stop();
 		try
 		{
 			socket.close();

@@ -1,11 +1,6 @@
 package game.networking.main;
 
-import java.util.LinkedList;
-
-import game.networking.test.ClientTest;
-import game.networking.test.ClientTest1;
 import game.networking.test.ClientTest2;
-import game.networking.util.Tuple;
 
 public class NetMain2
 {

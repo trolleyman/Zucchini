@@ -14,6 +14,7 @@ public class TCPListenerLobbyThread implements Runnable
 	private String name;
 	private LinkedList<Tuple<String, String>> actions;
 	private IConnectionHandler conHandler;
+	boolean run;
 
 	public TCPListenerLobbyThread(Socket _socket, String _name, LinkedList<Tuple<String, String>> _actions, IConnectionHandler _conHandler)
 	{
@@ -26,7 +27,7 @@ public class TCPListenerLobbyThread implements Runnable
 	@Override
 	public void run()
 	{
-		boolean run = true;
+		run = true;
 
 		try
 		{
@@ -34,29 +35,43 @@ public class TCPListenerLobbyThread implements Runnable
 
 			while (run)
 			{
-				String messageFull = fromClient.readLine();
-				if (messageFull != null)
+				if (fromClient.ready())
 				{
 
-					messageFull = messageFull.trim();
-
-					System.out.println(messageFull);
-					/// [ACTION/MESSAGE]stuff
-					if (messageFull == null)
+					String messageFull = fromClient.readLine();
+					if (messageFull != null)
 					{
-						run = false;
-						continue;
+
+						messageFull = messageFull.trim();
+
+						System.out.println(messageFull);
+						/// [ACTION/MESSAGE]stuff
+						if (messageFull == null)
+						{
+							run = false;
+							continue;
+
+						}
+
+						// String message = messageFull.substring();
+						synchronized (actions)
+						{
+							actions.add(new Tuple<>(name, messageFull));
+							// System.out.println("ACTION from: " + name + " TO
+							// DO:
+							// " + message);
+						}
 
 					}
-
-					// String message = messageFull.substring();
-					synchronized (actions)
-					{
-						actions.add(new Tuple<>(name, messageFull));
-						// System.out.println("ACTION from: " + name + " TO DO:
-						// " + message);
-					}
-
+				}
+				try
+				{
+					Thread.sleep(100);
+				} catch (InterruptedException e)
+				{
+					run = false;
+					// TODO Auto-generated catch block
+					// e.printStackTrace();
 				}
 			}
 		} catch (IOException e)
@@ -66,6 +81,11 @@ public class TCPListenerLobbyThread implements Runnable
 		}
 		conHandler.TCPListenerUserDisconnect(name);
 
+	}
+
+	public synchronized void Stop()
+	{
+		run = false;
 	}
 
 }

@@ -29,27 +29,38 @@ public class TCPListenerClient implements Runnable
 
 			while (run)
 			{
-				String messageFull = fromServer.readLine();
-				if (messageFull != null)
+				if (fromServer.ready())
 				{
-
-					messageFull = messageFull.trim();
-
-					// System.out.println(messageFull);
-					/// [ACTION/MESSAGE]stuff
-					if (messageFull == null)
+					String messageFull = fromServer.readLine();
+					if (messageFull != null)
 					{
-						run = false;
-						continue;
 
+						messageFull = messageFull.trim();
+
+						// System.out.println(messageFull);
+						/// [ACTION/MESSAGE]stuff
+						if (messageFull == null)
+						{
+							run = false;
+							continue;
+
+						}
+
+						// String message = messageFull.substring();
+						synchronized (messages)
+						{
+							messages.add(messageFull);
+						}
 					}
 
-					// String message = messageFull.substring();
-					synchronized (messages)
-					{
-						messages.add(messageFull);
-					}
-
+				}
+				try
+				{
+					Thread.sleep(100);
+				} catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		} catch (IOException e)

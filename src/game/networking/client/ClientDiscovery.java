@@ -37,14 +37,23 @@ public class ClientDiscovery
 		DatagramSocket c = socket;
 		try
 		{
-
 			boolean wait = true;
 			// Wait for a response
 			while (wait)
 			{
 				// we no longer need to wait
+				while (!clientDiscSender.done())
+				{
+					try
+					{
+						Thread.sleep(100);
+					} catch (InterruptedException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				wait = false;
-
 				byte[] recvBuf = new byte[20000];
 				DatagramPacket receivePacket = new DatagramPacket(recvBuf, recvBuf.length);
 				c.receive(receivePacket);
