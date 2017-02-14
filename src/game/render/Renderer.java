@@ -1,12 +1,10 @@
 package game.render;
 
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
-
-import java.nio.FloatBuffer;
-
+import game.InputHandler;
+import game.Util;
+import game.render.shader.Shader;
+import game.render.shader.SimpleShader;
+import game.render.shader.TextureShader;
 import org.joml.MatrixStackf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -14,11 +12,12 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
-import game.InputHandler;
-import game.Util;
-import game.render.shader.Shader;
-import game.render.shader.SimpleShader;
-import game.render.shader.TextureShader;
+import java.nio.FloatBuffer;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Renderer implements IRenderer {
 	private static final int CIRCLE_VERTICES = 128;
@@ -204,8 +203,10 @@ public class Renderer implements IRenderer {
 		// Set OpenGL settings
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
 		glEnable(GL_CULL_FACE);
+		glEnable(GL_STENCIL);
+		glEnable(GL_STENCIL_TEST);
+		this.disableStencil();
 		
 		// Set the clear color
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -352,7 +353,11 @@ public class Renderer implements IRenderer {
 		if (this.dirty)
 			recalcProjectionMatrix();
 		
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+		glStencilMask(0xFF);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
+		
+		this.disableStencilDraw();
+		this.disableStencil();
 		
 		matModelView.clear();
 		
@@ -554,5 +559,37 @@ public class Renderer implements IRenderer {
 	public double getMouseY() {
 		glfwGetCursorPos(window, null, yBuf);
 		return screenToPixelCoordinates(this.windowScreenH - yBuf[0]);
+	}
+	
+	@Override
+	public void enableStencilDraw(int i) {
+		glColorMask(false, false, false, false);
+		glDepthMask(false);
+		glStencilMask(0xFF);
+		
+		glStencilFunc(GL_ALWAYS, i, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	}
+	
+	@Override
+	public void disableStencilDraw() {
+		glColorMask(true, true, true, true);
+		glDepthMask(true);
+		glStencilMask(0x00);
+		
+		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	}
+	
+	@Override
+	public void enableStencil(int i) {
+		glStencilFunc(GL_EQUAL, i, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	}
+	
+	@Override
+	public void disableStencil() {
+		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	}
 }

@@ -2,19 +2,19 @@ package game.ui;
 
 import game.ColorUtil;
 import game.InputHandler;
-import java.lang.Math;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
-import game.world.World;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL;
-import static org.lwjgl.opengl.GL11.*;
+
 import java.util.ArrayList;
-import static org.lwjgl.glfw.GLFW.*;
+
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.opengl.GL11.*;
 
 
 /**
@@ -141,7 +141,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void render(IRenderer r) {
-		stencil(r);
+		//stencil(r);
 		this.world.render(r);
 		r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
 	   r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on

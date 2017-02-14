@@ -1,15 +1,11 @@
 package game.render;
 
-import java.nio.FloatBuffer;
-
-import org.joml.MatrixStackf;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-
 import game.ColorUtil;
 import game.InputHandler;
-import game.Util;
-import game.render.Align;
+import org.joml.MatrixStackf;
+import org.joml.Vector4f;
+
+import java.nio.FloatBuffer;
 
 /**
  * The interface for the renderer.
@@ -206,6 +202,32 @@ public interface IRenderer {
 	}
 	
 	public void drawCircle(float x, float y, float radius, Vector4f c);
+	
+	/**
+	 * Enables stencil drawing
+	 * <p>
+	 * Call {@link #disableStencilDraw()} to disable the stencil buffer drawing.
+	 * @param i The number to fill the buffer with
+	 */
+	public void enableStencilDraw(int i);
+	
+	/**
+	 * Disables stencil drawing.
+	 * <p>
+	 * Remember to call {@link #enableStencil(int)} after to actually enable the stencil check.
+	 */
+	public void disableStencilDraw();
+	
+	/**
+	 * Enables stencil checking
+	 * @param i The number passed to {@link #enableStencilDraw(int)}
+	 */
+	public void enableStencil(int i);
+	
+	/**
+	 * Disables stencil checking
+	 */
+	public void disableStencil();
 	
 	/**
 	 * Gets the current mouse x-coordinate
