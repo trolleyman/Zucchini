@@ -3,11 +3,22 @@ package game.ai;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+
+/**
+ * Simple A* route from (x,y) to (a,b)
+ * 
+ * run by: AStar route = new Astar(new Node(startX, startY), new Node(goalx, goaly), map);
+ * 		   route.findRoute();
+ * If preferred could be converted so that it can be executed in one commanded
+ * @author George
+ */
+
+
 public class AStar {
 	private int[][] heuristicMap;
 	private int[][] movementCostMap;
 	private int[][] totalCostMap;
-	private boolean[][] walkable;
+	
 	private int width;
 	private int height;
 	private Node start;
@@ -22,8 +33,13 @@ public class AStar {
 	
 	private ArrayList<Node> finalPath;
 
-
-	public AStar(Node start, Node goal, Boolean[][] walkable) {
+/*
+ * Constructor of A*Star
+ * @param start the start coordinates 
+ * @param goal the goal coordinates
+ * @param walkable the map
+ */
+	public AStar(Node start, Node goal, boolean[][] walkable) {
 		this.start = start;
 		this.goal = goal;
 		width = walkable.length;
@@ -54,7 +70,7 @@ public class AStar {
 		// creating obstacles in the map
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y++) {
-				if (!walkable[x][y]){
+				if (walkable[x][y]){
 					closeSet.add(new Node(x,y));
 				}
 		
@@ -64,7 +80,10 @@ public class AStar {
 		//this.finalPath = findRoute(start, goal);
 		
 	}
-
+	/*
+	 * finds the path to the goal
+	 * @returns an ArrayList of nodes which is the route from start to goal
+	 */
 	public ArrayList<Node> findRoute() {
 		// adding start node to the openSet
 		openSet.add(start);
@@ -118,10 +137,15 @@ public class AStar {
 		}
 		// no path found
 		new Exception("no path found");
+		System.out.println("no path found");
 		return null;
 
 	}
-
+	/*
+	 * adds the path to an array list
+	 * @param currentNode adds the current node to the path
+	 * @returns path   
+	 */
 	private ArrayList<Node> constructPath(Node currentNode) {
 		ArrayList<Node> path = new ArrayList<>();
 		path.add(currentNode);
@@ -132,11 +156,19 @@ public class AStar {
 
 		return path;
 	}
-
+	/*
+	 * finds the final path
+	 * @returns the path from start to goal
+	 */
 	public ArrayList<Node> getPath() {
 		return this.finalPath;
 	}
-
+	/*
+	 * When a* chooses the next node to follow it will look at the 
+	 * heuristic mapping, this function finds the smallest heuristic
+	 * value in an adjacent nodes (all the nodes in the open set)
+	 * @retuns node the lowest heuristical value of the adjacent nodes (all the nodes in the open set)
+	 */
 	private Node getSmallestValue() {
 		Node min;
 		min = openSet.get(0);

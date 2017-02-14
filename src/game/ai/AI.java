@@ -3,6 +3,7 @@ package game.ai;
 import game.world.ServerWorld;
 import game.world.World;
 import game.world.entity.Entity;
+import game.world.entity.Player;
 
 /**
  * The base class for AI. The AI can see the world and update internal state using the update method.
@@ -22,12 +23,22 @@ public abstract class AI {
 	 *          during this method!!</b>
 	 * @param dt The number of seconds since the last update.
 	 */
-	public abstract void update(ServerWorld w, double dt);
+	public void update(ServerWorld w, double dt){
+
+	}
 	
 	/**
 	 * Returns the {@link game.world.entity.Entity Entity} that this AI controls.
 	 */
 	public Entity getEntity() {
 		return entity;
+	}
+	/*
+	 * Decision: What defines closest player? As the bird flies or A*
+	 * ?
+	 * returns the location of the closest player
+	 */
+	private Node findLocationClosestPlayer(){
+		return new Node(0,0);
 	}
 }
