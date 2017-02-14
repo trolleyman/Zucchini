@@ -31,7 +31,7 @@ public class AudioManager implements IAudioManager{
 
     /**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
-     * memory to be played. Also initialises Sources, the object from which sounds will be played.
+     * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
      * @throws Exception
      */
     public AudioManager() throws Exception {
@@ -60,7 +60,7 @@ public class AudioManager implements IAudioManager{
 		for (SoundBuffer soundBuffer : soundBufferList){
 			List<SoundSource> soundSourcesList = new ArrayList<>();
 			for(int i=0; i<numberOfSourcesPerFile; i++){
-				SoundSource source = new SoundSource(false,true);
+				SoundSource source = new SoundSource(false,true); //ALL SOURCES RELATIVE TO PLAYER CURRENTLY = TRUE, this is the second parameter of this object
 				//check that we have a source to play, otherwise system exit
 				if (alGetError() != AL_NO_ERROR) {
 					System.err.println("Too many sources! reduce the number of sources! Exiting...");
@@ -73,8 +73,18 @@ public class AudioManager implements IAudioManager{
 			System.out.println("Loaded audio: " + listOfFiles[j].getName());
 			j++;
 		}
+
+		//play bgm
+		SoundSource bgm = new SoundSource(true,true);
+		SoundBuffer buffer = new SoundBuffer( System.getProperty("user.dir") + "/resources/audio_assets/[bgm]Desolation.wav");
+		bgm.setBuffer(buffer.getBufferId());
+		bgm.play();
+		
+		
+		
 		
 		System.out.println(listOfFiles.length + " audio file(s) loaded.");
+		
     }
 
     /**
@@ -104,7 +114,7 @@ public class AudioManager implements IAudioManager{
 //    }
     
     /**
-     * iterate available sound sources for a buffer and return it
+     * Iterate available sound sources for a buffer and return it
      * returns null if no sources are available
      * @param wavfile
      */
@@ -159,7 +169,7 @@ public class AudioManager implements IAudioManager{
     }
     
     /**
-     * removes all sources, buffers and such from memeory
+     * Removes all sources, buffers and such from memeory
      */
     public void cleanup() {
         for (List<SoundSource> soundSourcesList : soundSourcesMap.values()) {
@@ -201,8 +211,8 @@ public class AudioManager implements IAudioManager{
     
     
     /**
-     * plays a wav file in a continous loop
-     * @return a sourceID that can be used to stop a particular source, returns -1 if no available source
+     * Plays a wav file in a continous loop
+     * @return A sourceID that can be used to stop a particular source, returns -1 if no available source
      */
     @Override
 	public int playLoop(String name, float volume) {
@@ -217,7 +227,7 @@ public class AudioManager implements IAudioManager{
 	}
 
     /**
-     * stops the first occurance of a wavfile, might not be the intended sound to stop
+     * Stops a source from playing using it's id
      */
     //could still use some updating
     @Override
@@ -233,7 +243,7 @@ public class AudioManager implements IAudioManager{
 	}
 	
     /**
-     * given a sound source ID, this will return the sound source object
+     * Given a sound source ID, this will return the sound source object
      * @param sourceID
      * @return SoundSource
      */

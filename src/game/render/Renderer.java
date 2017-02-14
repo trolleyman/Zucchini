@@ -548,6 +548,8 @@ public class Renderer implements IRenderer {
 		matModelView.popMatrix();
 	}
 	
+	
+	
 	private double[] xBuf = new double[1];
 	private double[] yBuf = new double[1];
 	@Override
@@ -591,5 +593,10 @@ public class Renderer implements IRenderer {
 	public void disableStencil() {
 		glStencilFunc(GL_ALWAYS, 0, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	}
+
+	@Override
+	public void drawText(Font f, String s, float x, float y, float scale) {
+		f.render(this, s, x, y, scale);		
 	}
 }

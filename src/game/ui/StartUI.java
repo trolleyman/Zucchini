@@ -7,8 +7,10 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.Util;
 import game.audio.AudioManager;
 import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
 import game.render.Texture;
 import game.render.TextureBank;
@@ -37,6 +39,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	/** The next UI to return */
 	private UI nextUI = this;
 	
+
+	private Font font;
 	private ImageComponent backgroundImage;
 
 	private float testRot;
@@ -47,6 +51,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	 */
 	public StartUI(AudioManager audio, TextureBank tb) {
 		super(audio);
+		
+		font = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
 		
 		startButton = new ButtonComponent(
 			() -> { this.nextUI = new LobbyUI(audio, tb); },
@@ -93,14 +99,20 @@ public class StartUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
 		startButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
 		startButton.render(r);
 		exitButton.render(r);
-		Texture t = r.getImageBank().getTexture("test.png");
-		r.drawTexture(t, Align.MM, 200, 200, testRot);
+		
+		
+		r.drawTexture(r.getImageBank().getTexture("test.png"), Align.MM, 200, 200, testRot);
+		
+		r.drawTexture(font.getTexture(), Align.MM, 200, 200);
+		
+		r.drawText(font, "The quick brown fox jumps over the lazy dog", 100, 500, 1.0f);
 	}
 	
 	@Override
