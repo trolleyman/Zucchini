@@ -79,6 +79,7 @@ public abstract class Bullet extends Entity {
 			System.out.println("Ow! Bullet hit entity id " + ei.id);
 			ua.bank.healEntityCached(ei.id, -damage);
 			ua.audio.play("bullet_impact_body.wav", 1.0f);
+			ua.audio.play("grunt2.wav", 1.0f);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		}

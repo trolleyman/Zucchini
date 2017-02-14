@@ -31,7 +31,7 @@ public class AudioManager implements IAudioManager{
 
     /**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
-     * memory to be played. Also initialises Sources, the object from which sounds will be played.
+     * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
      * @throws Exception
      */
     public AudioManager() throws Exception {
@@ -60,7 +60,7 @@ public class AudioManager implements IAudioManager{
 		for (SoundBuffer soundBuffer : soundBufferList){
 			List<SoundSource> soundSourcesList = new ArrayList<>();
 			for(int i=0; i<numberOfSourcesPerFile; i++){
-				SoundSource source = new SoundSource(false,true);
+				SoundSource source = new SoundSource(false,true); //ALL SOURCES RELATIVE TO PLAYER CURRENTLY = TRUE, this is the second parameter of this object
 				//check that we have a source to play, otherwise system exit
 				if (alGetError() != AL_NO_ERROR) {
 					System.err.println("Too many sources! reduce the number of sources! Exiting...");
@@ -73,8 +73,18 @@ public class AudioManager implements IAudioManager{
 			System.out.println("Loaded audio: " + listOfFiles[j].getName());
 			j++;
 		}
+
+		//play bgm
+		SoundSource bgm = new SoundSource(true,true);
+		SoundBuffer buffer = new SoundBuffer( System.getProperty("user.dir") + "/resources/audio_assets/[bgm]Desolation.wav");
+		bgm.setBuffer(buffer.getBufferId());
+		bgm.play();
+		
+		
+		
 		
 		System.out.println(listOfFiles.length + " audio file(s) loaded.");
+		
     }
 
     /**
