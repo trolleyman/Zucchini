@@ -7,7 +7,6 @@ import game.world.PhysicsUtil;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Represents a specified map.
@@ -16,9 +15,9 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Map {
 	public static Map createTestMap() {
-		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
-		return new MazeMap(maze, 1.5f);
-//		return new TestMap();
+//		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
+//		return new MazeMap(maze, 1.5f);
+		return new TestMap();
 	}
 	
 	/** The "walls" of the map that entities can collide with */
