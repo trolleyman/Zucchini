@@ -4,13 +4,17 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.audio.AudioManager;
+import game.render.Align;
 import game.render.IRenderer;
+import game.render.TextureBank;
 import game.world.ClientWorld;
 
 public class LobbyUI extends UI implements InputPipeMulti {
-	
-	/** The renderer. Used for getting the window width and height */
-	private IRenderer renderer;
+	/** The current window width */
+	private int windowW;
+	/** The current window height */
+	private int windowH;
 	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
@@ -24,68 +28,61 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	/** The next UI to return */
 	private UI nextUI = this;
 	
-	/** The window width */
-	private float windowW;
-	/** The window height */
-	private float windowH;
-
-	public LobbyUI(IRenderer _renderer) {
-		
-		super();
-		this.renderer = _renderer;
-		
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
+	public LobbyUI(AudioManager audio, TextureBank tb) {
+		super(audio);
 		
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(ClientWorld.createTestWorld()); },
-			100, 100,
-			renderer.getImageBank().getTexture("joinDefault.png"),
-			renderer.getImageBank().getTexture("joinHover.png"),
-			renderer.getImageBank().getTexture("joinPressed.png")
+			() -> { this.nextUI = new GameUI(audio, tb, ClientWorld.createTestWorld(audio)); },
+			Align.BL, 100, 100,
+			tb.getTexture("joinDefault.png"),
+			tb.getTexture("joinHover.png"),
+			tb.getTexture("joinPressed.png")
 		);
-			
+		
 		backButton = new ButtonComponent(
-			() -> { this.nextUI = new StartUI(renderer); },
-			100, 100,
-			renderer.getImageBank().getTexture("backDefault.png"),
-			renderer.getImageBank().getTexture("backHover.png"),
-			renderer.getImageBank().getTexture("backPressed.png")
+			() -> { this.nextUI = new StartUI(audio, tb); },
+			Align.BL, 100, 100,
+			tb.getTexture("backDefault.png"),
+			tb.getTexture("backHover.png"),
+			tb.getTexture("backPressed.png")
 		);
-			
+		
 		backgroundImage = new ImageComponent(
-			0, 0, renderer.getImageBank().getTexture("Start_BG.png")
+			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
 		);
 		
 		this.inputHandlers.add(joinButton);
 		this.inputHandlers.add(backButton);
-		
 	}
 
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
 		return this.inputHandlers;
 	}
-
+	
+	@Override
+	public void handleResize(int w, int h) {
+		this.windowW = w;
+		this.windowH = h;
+		InputPipeMulti.super.handleResize(w, h);
+	}
+	
 	@Override
 	public void update(double dt) {
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
 		joinButton.update(dt);
 		backButton.update(dt);
-		
 	}
 
 	@Override
 	public void render(IRenderer r) {
-		joinButton.setX((int) (windowW/2.0 - backButton.getWidth()/2.0));
-		joinButton.setY((int) (windowH/2.0 - backButton.getHeight()/2.0) + 140);
+		joinButton.setX((int) (windowW/2.0 - joinButton.getWidth()/2.0));
+		joinButton.setY((int) (windowH/2.0 - joinButton.getHeight()/2.0) + 140);
 		backButton.setX((int) (windowW/2.0 - backButton.getWidth()/2.0));
 		backButton.setY((int) (windowH/2.0 - backButton.getHeight()/2.0));
+		
 		backgroundImage.render(r);
 		joinButton.render(r);
 		backButton.render(r);
-		
 	}
 
 	@Override
@@ -96,6 +93,11 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	@Override
 	public String toString() {
 		return "LobbyUI";
+	}
+
+	@Override
+	public void destroy() {
+		// Nothing to destroy
 	}
 
 }

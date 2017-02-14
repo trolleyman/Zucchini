@@ -13,3 +13,7 @@ hs_err_pid*
 
 # classpath to avoid having to reinit the libraries every time we pull
 *.classpath
+
+# IDEA IntelliJ
+/.idea/
+*.iml

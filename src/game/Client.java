@@ -1,10 +1,14 @@
 package game;
 
+import java.util.Random;
+
 import org.lwjgl.Version;
 
+import game.audio.AudioManager;
 import game.render.Renderer;
 import game.ui.StartUI;
 import game.ui.UI;
+import game.world.map.Maze;
 
 /**
  * The main class for the client. It contains a main method that, when run, initializes the client and
@@ -20,6 +24,8 @@ class Client implements Runnable, InputPipe {
 	
 	private Renderer renderer;
 	
+	private AudioManager audio;
+	
 	/**
 	 * Previous time in nanoseconds of update.
 	 */
@@ -31,8 +37,17 @@ class Client implements Runnable, InputPipe {
 		// Initialize renderer
 		renderer = new Renderer(this, _fullscreen);
 		
+		// Initialize audio manager
+		try {
+			audio = new AudioManager();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+			return;
+		}
+		
 		// Initialize UI
-		ui = new StartUI(renderer);
+		ui = new StartUI(audio, renderer.getImageBank());
 	}
 	
 	@Override
@@ -42,16 +57,17 @@ class Client implements Runnable, InputPipe {
 	
 	@Override
 	public void run() {
+		System.out.println("==== UI Start State: " + ui.toString() + " ====");
 		renderer.show();
 		
 		loop();
 		
 		renderer.destroy();
+		audio.cleanup();
 	}
 	
 	private void loop() {
 		prevTime = System.nanoTime();
-		System.out.println("==== UI Start State: " + ui.toString() + " ====");
 		while (!renderer.shouldClose() && ui != null) {
 			loopIter();
 		}
@@ -66,10 +82,11 @@ class Client implements Runnable, InputPipe {
 		prevTime = now;
 		ui.update(dtNanos / (double) Util.NANOS_PER_SECOND);
 		UI next = ui.next();
-		if (next != ui)
-			if (next != null)
-				System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
-		
+		if (next != ui && next != null) {
+			System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
+			next.handleResize(renderer.getWidth(), renderer.getHeight());
+			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
+		}
 		ui = next;
 	}
 	
@@ -81,5 +98,6 @@ class Client implements Runnable, InputPipe {
 	
 	public static void main(String[] args) {
 		new Client(false).run();
+		System.exit(0);
 	}
 }

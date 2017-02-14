@@ -28,4 +28,8 @@ public interface InputPipe extends InputHandler {
 	public default void handleScroll(double xoffset, double yoffset) {
 		getHandler().handleScroll(xoffset, yoffset);
 	}
+	@Override
+	public default void handleResize(int w, int h) {
+		getHandler().handleResize(w, h);
+	}
 }

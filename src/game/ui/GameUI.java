@@ -1,53 +1,199 @@
 package game.ui;
 
+import game.ColorUtil;
 import game.InputHandler;
-import game.InputPipe;
+import game.InputPipeMulti;
+import game.audio.AudioManager;
+import game.render.Align;
 import game.render.IRenderer;
+import game.render.TextureBank;
 import game.world.ClientWorld;
-import game.world.World;
+import org.joml.Vector4f;
+
+import java.util.ArrayList;
+
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * The GameUI is the UI responsible for rendering, updating the game and handling input
  * 
- * @author Callum
+ * @author Abbygayle Wiggins
  */
-public class GameUI extends UI implements InputPipe {
+public class GameUI extends UI implements InputPipeMulti {
+	
 	/** The world of the game */
 	private ClientWorld world;
-	
+	private float winWidth; //window width
+	private float winHeight; //window height
+	private float barWidth;
+	private float barHeight;
+	private float mapSize;
+	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+   private UI nextUI;
+   private TextureBank bank;
+   
 	/**
 	 * Constructs a new GameUI
-	 * @param renderer The renderer of the game
 	 * @param _world The world
 	 */
-	public GameUI(ClientWorld _world) {
-		super();
+	public GameUI(AudioManager audio, TextureBank _bank, ClientWorld _world) {
+		super(audio);
 		this.world = _world;
+		this.bank = _bank;
+		this.inputHandlers.add(world);
+		
+		nextUI = this;
 	}
 	
 	@Override
-	public InputHandler getHandler() {
-		return this.world;
+	public ArrayList<InputHandler> getHandlers() {
+		// TODO Auto-generated method stub
+		return this.inputHandlers;
+		
+	}
+	
+	@Override
+	public void handleKey(int key, int scancode, int action, int mods) {
+		
+		InputPipeMulti.super.handleKey(key, scancode, action, mods);
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
+		 	System.out.println("escape pressed");
+			this.nextUI = new EscapeUI(audio, bank, world);//change null to renderer?
+		} else if (key == GLFW_KEY_UP && action == GLFW_PRESS){
+			System.out.println("M pressed");
+			this.nextUI = new MiniMap(audio, bank, world);
+		}
+	}
+ 
+	
+	@Override
+	public void handleResize(int w, int h) {
+		this.winWidth = w;
+		this.winHeight = h;
+		InputPipeMulti.super.handleResize(w, h);
 	}
 	
 	@Override
 	public void update(double dt) {
+	//	stencil();
+		
+		barWidth = (winWidth/3);
+		barHeight = (winHeight/10);
+		mapSize = (winHeight/5);
 		this.world.update(dt);
+		
+	}
+
+	
+	
+	public void stencil(IRenderer r){ //CURRENTLY ABSOLUTELY NOT WORKING
+	
+		// Clear Screen, Depth Buffer & Stencil Buffer
+	   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	 
+	   // Clip Plane Equations
+	   double eqr[] = {0.0f,-1.0f, 0.0f, 0.0f};                // Plane Equation To Use For The Reflected Objects
+	   
+	   glColorMask(false, false, false, false);                           // Set Color Mask
+
+	   glEnable(GL_STENCIL_TEST);                  // Enable Stencil Buffer For "marking" The Floor
+	   glStencilFunc(GL_ALWAYS, 1, 1);                // Always Passes, 1 Bit Plane, 1 As Mask
+	   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);              // We Set The Stencil Buffer To 1 Where We Draw Any Polygon
+	                                       // Keep If Test Fails, Keep If Test Passes But Buffer Test Fails
+	                                       // Replace If Test Passes
+	   glDisable(GL_DEPTH_TEST);                       // Disable Depth Testing
+	 //  DrawFloor(); 
+		this.world.render(r);
+		
+		glEnable(GL_DEPTH_TEST);                        // Enable Depth Testing
+		glColorMask(true, true, true, true);                           // Set Color Mask to TRUE, TRUE, TRUE, TRUE
+		glStencilFunc(GL_EQUAL, 1, 1);                      // We Draw Only Where The Stencil Is 1
+		                                    // (I.E. Where The Floor Was Drawn)
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);   
+
+		glEnable(GL_CLIP_PLANE0);                       // Enable Clip Plane For Removing Artifacts
+      // (When The Object Crosses The Floor)
+		glClipPlane(GL_CLIP_PLANE0, eqr);                   // Equation For Reflected Objects
+		glPushMatrix();                             // Push The Matrix Onto The Stack
+		glScalef(1.0f, -1.0f, 1.0f);                    // Mirror Y Axis
+	    
+		/*glLightfv(GL_LIGHT0, GL_POSITION, LightPos);            // Set Up Light0
+	   glTranslatef(0.0f, height, 0.0f);               // Position The Object
+	   glRotatef(xrot, 1.0f, 0.0f, 0.0f);              // Rotate Local Coordinate System On X Axis
+	   glRotatef(yrot, 0.0f, 1.0f, 0.0f);              // Rotate Local Coordinate System On Y Axis
+		*/
+		
+	   Vector4f colour = ColorUtil.WHITE;
+		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
+	   
+	   glPopMatrix();                              // Pop The Matrix Off The Stack
+   	glDisable(GL_CLIP_PLANE0);                      // Disable Clip Plane For Drawing The Floor
+   	glDisable(GL_STENCIL_TEST);                     // We Don't Need The Stencil Buffer Any More (Disable)
+	
+   	//glLightfv(GL_LIGHT0, GL_POSITION, LightPos);                // Set Up Light0 Position
+   	glEnable(GL_BLEND);                         // Enable Blending (Otherwise The Reflected Object Wont Show)
+   	glDisable(GL_LIGHTING);                         // Since We Use Blending, We Disable Lighting
+   	glColor4f(1.0f, 1.0f, 1.0f, 0.8f);                  // Set Color To White With 80% Alpha
+   	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);          // Blending Based On Source Alpha And 1 Minus Dest Alpha
+   	this.world.render(r);                                // Draw The Floor To The Screen
+
+   	
 	}
 	
+	
+
 	@Override
 	public void render(IRenderer r) {
+		//stencil(r);
 		this.world.render(r);
+		createMiniMap(r);
+		//r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
+	 //  r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
+
+		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
+	   //GL11.glScissor((int) (winWidth/2) - 200, (int) (winHeight/2) - 200, 400, 400);
+	}
+	
+	
+	public void createMiniMap(IRenderer r){ //ALSO ABSOLUTELY NOT WORKING
+		
+		r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);
+
+		
+		
+	/*	 Canvas openglSurface = new Canvas();
+       JFrame frame = new JFrame();
+       frame.setSize(800, 800);
+       frame.add(openglSurface);
+       frame.setVisible(true);
+       frame.add(new JTextField("Hello World!"));
+       openglSurface.setSize(500, 500);
+  //     Display.setParent(openglSurface);
+  //     Display.create();
+       GL11.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+       GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+  //     Display.update();
+     //  Thread.sleep(2000);
+  //     Display.destroy();
+	*/
 	}
 	
 	@Override
 	public UI next() {
 		// TODO: Handle exiting
-		return this;
+		return nextUI;
 	}
 	
 	@Override
 	public String toString() {
 		return "GameUI";
 	}
+
+	@Override
+	public void destroy() {
+		this.world.destroy();
+	}
+
+
 }
