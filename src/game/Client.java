@@ -34,6 +34,9 @@ class Client implements Runnable, InputPipe {
 	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
+		// Initialize renderer
+		renderer = new Renderer(this, _fullscreen);
+		
 		// Initialize audio manager
 		try {
 			audio = new AudioManager();
@@ -42,9 +45,6 @@ class Client implements Runnable, InputPipe {
 			System.exit(1);
 			return;
 		}
-		
-		// Initialize renderer
-		renderer = new Renderer(this, _fullscreen);
 		
 		// Initialize UI
 		ui = new StartUI(audio, renderer.getImageBank());

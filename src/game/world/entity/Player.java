@@ -3,6 +3,7 @@ package game.world.entity;
 import org.joml.Vector2f;
 
 import game.ColorUtil;
+import game.Util;
 import game.action.Action;
 import game.action.AimAction;
 import game.render.Align;
@@ -98,6 +99,7 @@ public class Player extends Entity {
 		
 		this.velocity.mul(SPEED).mul((float) ua.dt);
 		this.position.add(this.velocity);
+		ua.bank.updateEntityCached(this);
 		
 		// Make sure weapon keeps up with the player
 		Entity eFinal = ua.bank.getEntity(weaponID);
@@ -107,6 +109,21 @@ public class Player extends Entity {
 			e.angle = this.angle;
 			ua.bank.updateEntityCached(e);
 		}
+		
+		// Get intersection
+		Vector2f intersection = Util.pushTemporaryVector2f();
+		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
+			// Intersection with map - push out
+			Vector2f temp = Util.pushTemporaryVector2f();
+			temp.set(position)
+				.sub(intersection)
+				.normalize()
+				.mul(RADIUS)
+				.add(intersection);
+			position.set(temp);
+			Util.popTemporaryVector2f();
+		}
+		Util.popTemporaryVector2f();
 	}
 	
 	@Override

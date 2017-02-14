@@ -91,7 +91,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * 
 	 * For example, a box at 1,2 with a zoom of 2 would render to the screen at 2,4.
 	 */
-	private float cameraZoom = 100;
+	private float cameraZoom = 150;
 	
 	/** Cached window width */
 	private float windowW;
@@ -137,11 +137,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	@Override
 	protected void updateStep(double dt) {
-		Entity e = this.bank.getEntity(this.playerID);
-		if (e != null && e instanceof Player)
-			this.cameraPos.set(e.position);
-		else
-			System.err.println("Warning: Player does not exist");
+		Player p = getPlayer();
+		if (p != null) this.cameraPos.set(p.position);
+		else           System.err.println("Warning: Player does not exist");
 		
 		// Send server data
 		dtPool += dt;
@@ -184,6 +182,17 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 		
 		r.getModelViewMatrix().popMatrix();
+	}
+	
+	/**
+	 * Returns the Playey object. NB: This may return null in some cases
+	 */
+	public Player getPlayer() {
+		Entity e = this.bank.getEntity(playerID);
+		if (e == null || !(e instanceof Player))
+			return null;
+		else
+			return (Player) e;
 	}
 	
 	@Override
@@ -246,5 +255,28 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void processAudioEvent(AudioEvent ae) {
 		this.clientAudio.processAudioEvent(ae);
+	}
+	
+	/** 
+	 * render2 - renders the client world but does not zoom in
+	 * @param r The renderer
+	 * 
+	 * @author Abby Wiggins
+	 */
+	public void render2(IRenderer r) {
+		// Set model view matrix
+		r.getModelViewMatrix()
+			.pushMatrix()
+			.translate(100, 100, 0.0f)
+			.scale(50);
+			//.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+		this.map.render(r);
+		
+		// Render entities
+		for (Entity e : this.bank.entities) {
+			e.render(r);
+		}
+		
+		r.getModelViewMatrix().popMatrix();
 	}
 }

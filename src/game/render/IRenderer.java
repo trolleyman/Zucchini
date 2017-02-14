@@ -142,6 +142,14 @@ public interface IRenderer {
 	 */
 	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r);
 	
+	public default void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float u0, float v0, float u1, float v1) {
+		this.drawTextureUV(tex, a, x, y, w, h, 0.0f, u0, v0, u1, v1);
+	}
+	
+	public void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1);
+
+	public void drawText(Font f, String s, float x, float y, float scale);
+	
 	/**
 	 * Draws a solid-color box to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a) with a specified

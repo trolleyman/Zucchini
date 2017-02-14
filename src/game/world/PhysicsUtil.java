@@ -59,35 +59,45 @@ public class PhysicsUtil {
 			float x1, float y1, float x2, float y2, // Line
 			Vector2f dest) {
 		
-		// See http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
-		float vx = y2-y1;
-		float vy = x1-x2;
+		// See http://stackoverflow.com/a/1079478
+		float ac_x = x0 - x1;
+		float ac_y = y0 - y1;
 		
-		float rx = x1-x0;
-		float ry = y1-y0;
+		float ab_x = x2 - x1;
+		float ab_y = y2 - y1;
 		
-		float rdotv = rx*vx + ry*vy;
+		// |ab|^2
+		float ab2 = ab_x*ab_x + ab_y*ab_y;
+		// |ab|
+		float ab = (float) Math.sqrt(ab2);
 		
-		if (rdotv <= radius) {
-			// intersection
-			
-			// w = vector from x0,y0 to the closest point on the line
-			float wx = vx*rdotv;
-			float wy = vy*rdotv;
-			
-			// u = closest point on the line
-			float ux = x0+wx;
-			float uy = y0+wy;
-			
-			if (dest == null)
-				dest = new Vector2f();
-			
-			dest.set(ux, uy);
-			return dest;
-		} else {
-			// no intersection
+		// |ad| = dot(ac, ab) / |ab|
+		float ad = ac_x*ab_x/ab + ac_y*ab_y/ab;
+		
+		if (ad < 0.0f)
 			return null;
-		}
+		
+		if (ad > ab)
+			return null;
+		
+		// d = a + ad * (ab/|ab|)
+		float abn_x = ab_x / ab;
+		float abn_y = ab_y / ab;
+		float d_x = x1 + ad * abn_x;
+		float d_y = y1 + ad * abn_y;
+		
+		// |cd|^2
+		float cd_x = x0 - d_x;
+		float cd_y = y0 - d_y;
+		float cd2 = cd_x*cd_x + cd_y*cd_y;
+		if (cd2 > radius*radius)
+			return null;
+		
+		if (dest == null)
+			dest = new Vector2f();
+		
+		dest.set(d_x, d_y);
+		return dest;
 	}
 	
 	/**

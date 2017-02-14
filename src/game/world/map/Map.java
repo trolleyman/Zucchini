@@ -18,6 +18,7 @@ public class Map {
 	public static Map createTestMap() {
 		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 		return new MazeMap(maze, 1.5f);
+//		return new TestMap();
 	}
 		
 	/** The "walls" of the map that entities can collide with */
@@ -87,22 +88,36 @@ public class Map {
 	public Vector2f intersectsCircle(float x0, float y0, float radius, Vector2f dest) {
 		Vector2f p0 = Util.pushTemporaryVector2f().set(x0, y0);
 		Vector2f temp = Util.pushTemporaryVector2f();
-		Vector2f acc = null;
+		Vector2f acc = Util.pushTemporaryVector2f();
+		boolean intersection = false;
 		for (int i = 0; i < lines.length - 3; i += 4) {
 			float x1 = lines[i  ];
 			float y1 = lines[i+1];
 			float x2 = lines[i+2];
 			float y2 = lines[i+3];
 			
-			PhysicsUtil.intersectCircleLine(x0, y0, radius, x1, y1, x2, y2, temp);
-			acc = PhysicsUtil.getClosest(p0, acc, temp);
+			Vector2f ret = PhysicsUtil.intersectCircleLine(x0, y0, radius, x1, y1, x2, y2, temp);
+			if (ret != null) {
+				intersection = true;
+				acc.set(PhysicsUtil.getClosest(p0, acc, temp));
+			}
 		}
-		if (dest == null)
-			dest = new Vector2f();
-		dest.set(acc);
-		Util.popTemporaryVector2f();
-		Util.popTemporaryVector2f();
-		return dest;
+		if (!intersection) {
+			// No intersection
+			Util.popTemporaryVector2f();
+			Util.popTemporaryVector2f();
+			Util.popTemporaryVector2f();
+			return null;
+		} else {
+			// Intersection
+			if (dest == null)
+				dest = new Vector2f();
+			dest.set(acc);
+			Util.popTemporaryVector2f();
+			Util.popTemporaryVector2f();
+			Util.popTemporaryVector2f();
+			return dest;
+		}
 	}
 	
 	/**

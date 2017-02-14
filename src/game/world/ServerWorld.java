@@ -10,6 +10,7 @@ import game.net.DummyConnection;
 import game.net.IClientConnectionHandler;
 import game.net.IServerConnection;
 import game.net.IServerConnectionHandler;
+import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -68,6 +69,10 @@ public class ServerWorld extends World implements Cloneable {
 		this.audio = new ServerAudioManager();
 	}
 	
+	/**
+	 * Adds a connection to the server
+	 * @param conn The connection
+	 */
 	public void addConnection(IServerConnection conn) {
 		this.conns.add(conn);
 		this.fullConns.add(conn);
@@ -119,4 +124,7 @@ public class ServerWorld extends World implements Cloneable {
 	public ServerWorld clone() {
 		return new ServerWorld(this);
 	}
+	
+	
+	
 }
