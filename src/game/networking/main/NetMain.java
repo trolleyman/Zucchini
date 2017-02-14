@@ -1,6 +1,7 @@
 package game.networking.main;
 
 import game.networking.server.*;
+import game.networking.test.ServerTest;
 import game.networking.client.*;
 
 public class NetMain
