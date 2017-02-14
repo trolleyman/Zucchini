@@ -7,6 +7,6 @@ package game.world.map;
  */
 public class MazeMap extends Map {
 	protected MazeMap(Maze maze, float scale) {
-		super(maze.toLines(scale));
+		super(maze.toWalls(scale));
 	}
 }

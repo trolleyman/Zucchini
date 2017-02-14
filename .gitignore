@@ -14,3 +14,7 @@ hs_err_pid*
 # classpath to stop messing up libs
 .classpath
 
+# IDEA IntelliJ
+/.idea/
+*.iml
+

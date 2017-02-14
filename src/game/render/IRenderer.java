@@ -1,13 +1,11 @@
 package game.render;
 
-import org.joml.MatrixStackf;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-
 import game.ColorUtil;
 import game.InputHandler;
-import game.Util;
-import game.render.Align;
+import org.joml.MatrixStackf;
+import org.joml.Vector4f;
+
+import java.nio.FloatBuffer;
 
 /**
  * The interface for the renderer.
@@ -86,13 +84,13 @@ public interface IRenderer {
 	 * @param c The color of the line. See {@link game.ColorUtil ColorUtil}.
 	 * @param thickness Thickness in pixels of the line
 	 */
-	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness);
+	public void drawLine(float x0, float y0, float x1, float y1, Vector4f c, float thickness);
 	
 	/**
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a).
 	 * @param tex The texture specified. See {@link #getImageBank()}.
-	 * @param a The alignment. See {@link game.Align}
+	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 */
@@ -104,7 +102,7 @@ public interface IRenderer {
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a) with a specified rotation r.
 	 * @param tex The texture specified. See {@link #getImageBank()}.
-	 * @param a The alignment. See {@link #Align}
+	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 * @param r The rotation
@@ -118,7 +116,7 @@ public interface IRenderer {
 	 * bottom left of the screen and alignment a) with a specified
 	 * width, height and rotation.
 	 * @param tex The texture specified. See {@link #getImageBank()}.
-	 * @param a The alignment. See {@link #Align}
+	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 * @param w The width
@@ -133,7 +131,7 @@ public interface IRenderer {
 	 * bottom left of the screen and alignment a) with a specified
 	 * width, height and rotation.
 	 * @param tex The texture specified. See {@link #getImageBank()}.
-	 * @param a The alignment. See {@link #Align}
+	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 * @param w The width
@@ -152,7 +150,7 @@ public interface IRenderer {
 	 * Draws a solid-color box to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a) with a specified
 	 * width, height, Color. See {@link game.ColorUtil ColorUtil}.
-	 * @param a The alignment. See {@link #Align}
+	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 * @param w The width
@@ -167,7 +165,7 @@ public interface IRenderer {
 	 * Draws a solid-color box to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a) with a specified
 	 * width, height, Color (See {@link game.ColorUtil ColorUtil}) and rotation r.
-	 * @param a The alignment. See {@link #Align}
+	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 * @param w The width
@@ -189,12 +187,47 @@ public interface IRenderer {
 	 * @param c The color of the object
 	 */
 	public void drawTriangleFan(float[] data, float x, float y, Vector4f c);
-	
+
+	/**
+	 * Draws a triangle fan of the data provided. See GL_TRIANGLE_FAN for the details.
+	 * @param data The data points in [x0, y0, x1, y1, x2, y2, ...] format.
+	 * @param x The circle's centre x-coordinate
+	 * @param y The circle's centre y-coordinate
+	 * @param c The color of the object
+	 */
+	public void drawTriangleFan(FloatBuffer data, float x, float y, Vector4f c);
+
 	public default void drawCircle(float x, float y, float radius) {
 		this.drawCircle(x, y, radius, ColorUtil.WHITE);
 	}
 	
 	public void drawCircle(float x, float y, float radius, Vector4f c);
+	
+	/**
+	 * Enables stencil drawing
+	 * <p>
+	 * Call {@link #disableStencilDraw()} to disable the stencil buffer drawing.
+	 * @param i The number to fill the buffer with
+	 */
+	public void enableStencilDraw(int i);
+	
+	/**
+	 * Disables stencil drawing.
+	 * <p>
+	 * Remember to call {@link #enableStencil(int)} after to actually enable the stencil check.
+	 */
+	public void disableStencilDraw();
+	
+	/**
+	 * Enables stencil checking
+	 * @param i The number passed to {@link #enableStencilDraw(int)}
+	 */
+	public void enableStencil(int i);
+	
+	/**
+	 * Disables stencil checking
+	 */
+	public void disableStencil();
 	
 	/**
 	 * Gets the current mouse x-coordinate
