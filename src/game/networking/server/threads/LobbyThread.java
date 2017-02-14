@@ -12,6 +12,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.xml.internal.bind.v2.runtime.Name;
+
+import game.networking.server.SmallGameLobby;
 import game.networking.server.threads.tcp.TCPConThread;
 import game.networking.server.threads.tcp.TCPConnectionStarter;
 import game.networking.util.ConnectionDetails;
@@ -42,12 +45,18 @@ public class LobbyThread implements Runnable, IConnectionHandler
 	private Map<String, LinkedList<String>> sendMessages;
 	private LinkedList<Tuple<String, String>> receivedMessages;
 
+	private Map<String, SmallGameLobby> gameLobbies;
+	private Map<String, LinkedList<Tuple<String, String>>> udp_receivedMessages;
+	private Map<String, LinkedList<Tuple<String, String>>> udp_sendMessages;
+
 	public LobbyThread(Map<String, ConnectionDetails> _clients, List<String> _acceptedClients, LinkedList<Tuple<String, String>> _receivedMessages, Map<String, LinkedList<String>> _sendMessages)
 	{
 		clients = _clients;
 		acceptedClients = _acceptedClients;
 		sendMessages = _sendMessages;
 		receivedMessages = _receivedMessages;
+
+		gameLobbies = new LinkedHashMap<>();
 
 		acceptQueue = new LinkedList<String>();
 		clientSockets = new LinkedHashMap<>();
@@ -218,6 +227,29 @@ public class LobbyThread implements Runnable, IConnectionHandler
 
 		}
 
+	}
+
+	public void joinLobby(String lobbyName, String clientName, ConnectionDetails conn)
+	{
+		if (gameLobbies.containsKey(lobbyName))
+		{
+			gameLobbies.get(lobbyName).addClient(clientName, conn);
+		} else
+		{
+			LinkedList<Tuple<String, String>> receivedList = new LinkedList<>();
+			LinkedList<Tuple<String, String>> sendList = new LinkedList<>();
+			udp_receivedMessages.put(lobbyName, receivedList);
+			udp_sendMessages.put(lobbyName, sendList);
+			SmallGameLobby smallGameLobbyAux = new SmallGameLobby(lobbyName, receivedList, sendList);
+			gameLobbies.put(lobbyName, smallGameLobbyAux);
+			smallGameLobbyAux.addClient(clientName, conn);
+			int receive = smallGameLobbyAux.getReceivePort();
+			int send = smallGameLobbyAux.getSendPort();
+			synchronized (this)
+			{
+				sendMessages.get(clientName).add("[UDPS]" + send + "[UDPR]" + receive);
+			}
+		}
 	}
 
 }

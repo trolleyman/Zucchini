@@ -1,4 +1,4 @@
-package game.networking.server;
+package game.networking.test;
 
 import game.networking.server.abstractClasses.ServerAbstract;
 

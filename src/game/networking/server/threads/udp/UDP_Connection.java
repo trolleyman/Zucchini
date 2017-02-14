@@ -14,22 +14,28 @@ import game.networking.util.UtilityCode;
 public class UDP_Connection
 {
 
-	UDPListenerLobbyThread udpListener;
-	UDPSenderLobbyThread udpSender;
+	private UDPListenerLobbyThread udpListener;
+	private UDPSenderLobbyThread udpSender;
+
+	private int portSender;
+	private int portReceiver;
 
 	public UDP_Connection(Map<String, ConnectionDetails> _gameClients, LinkedList<Tuple<String, String>> _receivedActions, LinkedList<Tuple<String, String>> _sendActions)
 	{
 
-		int port = UtilityCode.getNextAvailabePort();
-		if (port != -1)
+		portSender = UtilityCode.getNextAvailabePort();
+		portReceiver = UtilityCode.getNextAvailabePort();
+		if (portReceiver != -1 && portSender != -1)
 		{
 
 			DatagramSocket datagramSocket;
 			try
 			{
-				datagramSocket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
+				datagramSocket = new DatagramSocket(portReceiver, InetAddress.getByName("0.0.0.0"));
 
 				udpListener = new UDPListenerLobbyThread(datagramSocket, _receivedActions);
+
+				datagramSocket = new DatagramSocket(portSender, InetAddress.getByName("0.0.0.0"));
 				udpSender = new UDPSenderLobbyThread(datagramSocket, _sendActions, _gameClients);
 
 			} catch (SocketException e)
@@ -43,6 +49,16 @@ public class UDP_Connection
 			}
 
 		}
+	}
+
+	public synchronized int getSenderPort()
+	{
+		return portSender;
+	}
+
+	public synchronized int getReceiverPort()
+	{
+		return portReceiver;
 	}
 
 	public synchronized void StartGame()

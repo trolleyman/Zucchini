@@ -28,7 +28,7 @@ public class ClientConnection implements Runnable
 	@Override
 	public void run()
 	{
-		DatagramSocket socket;
+		DatagramSocket socket = null;
 		Socket tcpSocket = null;
 		// FAST: create TCP connection for client
 		try
@@ -70,6 +70,7 @@ public class ClientConnection implements Runnable
 			(new Thread(listener)).start();
 			(new Thread(sender)).start();
 		}
+		socket.close();
 
 	}
 
