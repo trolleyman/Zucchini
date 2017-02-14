@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.LinkedList;
 
-import game.networking.util.Protocol;
-
 public class TCPSenderClient implements Runnable
 {
 	private Socket socket;
@@ -22,7 +20,7 @@ public class TCPSenderClient implements Runnable
 	@Override
 	public void run()
 	{
-		boolean run = true;
+		run = true;
 		try
 		{
 			DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
@@ -31,7 +29,6 @@ public class TCPSenderClient implements Runnable
 			{
 				synchronized (messages)
 				{
-
 					while (!messages.isEmpty())
 					{
 						String t = messages.poll();
@@ -44,15 +41,12 @@ public class TCPSenderClient implements Runnable
 							run = false;
 						}
 					}
-				}
-
-				try
-				{
-					Thread.sleep(100);
-				} catch (InterruptedException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					
+					try {
+						messages.wait(100);
+					} catch (InterruptedException e) {
+						// This is fine
+					}
 				}
 			}
 
@@ -62,5 +56,7 @@ public class TCPSenderClient implements Runnable
 		}
 
 	}
+	
+	public void close() { this.run = false; }
 
 }

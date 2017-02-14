@@ -1,5 +1,11 @@
 package game.networking.server.threads;
 
+import game.networking.util.ConnectionDetails;
+import game.networking.util.Protocol;
+import game.networking.util.TraceLog;
+import game.networking.util.UtilityCode;
+import game.networking.util.interfaces.IServerMainable;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -8,12 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import game.networking.util.ConnectionDetails;
-import game.networking.util.Protocol;
-import game.networking.util.TraceLog;
-import game.networking.util.UtilityCode;
-import game.networking.util.interfaces.IServerMainable;
 
 public class DiscoveryThread implements Runnable
 {
@@ -45,13 +45,13 @@ public class DiscoveryThread implements Runnable
 				// destined for this port
 				socket = new DatagramSocket(socketInt, InetAddress.getByName("0.0.0.0"));
 				socket.setBroadcast(true);
-
+				
+				byte[] recvBuf = new byte[15000];
 				while (run)
 				{
 					TraceLog.consoleLog(getClass().getName() + ">>>Ready to receive broadcast packets!");
 
 					// Receive a packet
-					byte[] recvBuf = new byte[15000];
 					DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
 					socket.receive(packet);
 

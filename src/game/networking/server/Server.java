@@ -1,9 +1,15 @@
-package game.net;
+package game.networking.server;
+
+import game.LobbyInfo;
+import game.Util;
+import game.action.Action;
+import game.net.IServerConnection;
+import game.net.IServerConnectionHandler;
+import game.world.ServerWorld;
+import game.world.entity.Entity;
+import game.world.entity.Player;
 
 import java.util.ArrayList;
-
-import game.Util;
-import game.world.ServerWorld;
 
 public class Server implements Runnable {
 	private ServerWorld world;
@@ -11,8 +17,22 @@ public class Server implements Runnable {
 	
 	public Server(ServerWorld _world, ArrayList<IServerConnection> conns) {
 		this.world = _world;
-		for (IServerConnection conn : conns)
+		for (IServerConnection conn : conns) {
+			conn.setHandler(new IServerConnectionHandler() {
+				@Override
+				public void handleAction(Action a) {
+					Entity e = world.getEntityBank().getEntity(conn.getPlayerID());
+					if (e != null && e instanceof Player)
+						((Player) e).handleAction(world.getEntityBank(), a);
+				}
+				
+				@Override
+				public ArrayList<LobbyInfo> getLobbies() {
+					return ;
+				}
+			});
 			this.world.addConnection(conn);
+		}
 	}
 	
 	@Override

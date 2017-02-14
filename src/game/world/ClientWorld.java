@@ -9,6 +9,7 @@ import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
 import game.net.*;
+import game.networking.server.Server;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Handgun;

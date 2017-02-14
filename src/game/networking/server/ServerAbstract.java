@@ -1,15 +1,15 @@
-package game.networking.server.abstractClasses;
-
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+package game.networking.server;
 
 import game.networking.server.threads.DiscoveryThread;
 import game.networking.server.threads.LobbyThread;
 import game.networking.util.ConnectionDetails;
 import game.networking.util.Tuple;
 import game.networking.util.interfaces.IServerMainable;
+
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class ServerAbstract implements IServerMainable
 {

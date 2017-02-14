@@ -39,6 +39,6 @@ public class AimAction extends Action {
 	
 	@Override
 	public String toString() {
-		return super.toString() + ": " + angle;
+		return super.toString() + ":" + angle;
 	}
 }

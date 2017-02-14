@@ -1,19 +1,13 @@
 package game.world;
 
-import java.util.ArrayList;
-
-import game.action.Action;
 import game.ai.AI;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
-import game.net.DummyConnection;
-import game.net.IClientConnectionHandler;
 import game.net.IServerConnection;
-import game.net.IServerConnectionHandler;
-import game.render.IRenderer;
 import game.world.entity.Entity;
-import game.world.entity.Player;
 import game.world.map.Map;
+
+import java.util.ArrayList;
 
 /**
  * The world located on the server
@@ -59,7 +53,6 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param map The map
 	 * @param bank The entity bank
 	 * @param _ais List of AI controllers
-	 * @param _conns The list of connections to clients
 	 */
 	public ServerWorld(Map map, EntityBank bank, ArrayList<AI> _ais) {
 		super(map, bank);
@@ -76,12 +69,6 @@ public class ServerWorld extends World implements Cloneable {
 	public void addConnection(IServerConnection conn) {
 		this.conns.add(conn);
 		this.fullConns.add(conn);
-		conn.setHandler((a) -> {
-			EntityBank bank = this.getEntityBank();
-			Entity e = bank.getEntity(conn.getPlayerID());
-			if (e != null && e instanceof Player)
-				((Player) e).handleAction(bank, a);
-		});
 	}
 	
 	public EntityBank getEntityBank() {
@@ -124,7 +111,4 @@ public class ServerWorld extends World implements Cloneable {
 	public ServerWorld clone() {
 		return new ServerWorld(this);
 	}
-	
-	
-	
 }

@@ -1,14 +1,16 @@
 package game;
 
-import java.util.Random;
-
-import org.lwjgl.Version;
-
 import game.audio.AudioManager;
+import game.net.IClientConnection;
+import game.networking.client.ClientConnection;
 import game.render.Renderer;
 import game.ui.StartUI;
 import game.ui.UI;
-import game.world.map.Maze;
+import org.lwjgl.Version;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * The main class for the client. It contains a main method that, when run, initializes the client and
@@ -26,6 +28,8 @@ class Client implements Runnable, InputPipe {
 	
 	private AudioManager audio;
 	
+	private IClientConnection connection;
+	
 	/**
 	 * Previous time in nanoseconds of update.
 	 */
@@ -33,6 +37,20 @@ class Client implements Runnable, InputPipe {
 	
 	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
+		
+		// Initialize connection to server
+		try {
+			System.out.print("Enter your name: ");
+			System.out.flush();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			String name = reader.readLine();
+			reader.close();
+			
+			connection = new ClientConnection(name);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		
 		// Initialize renderer
 		renderer = new Renderer(this, _fullscreen);

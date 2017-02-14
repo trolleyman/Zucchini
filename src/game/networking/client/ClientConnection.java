@@ -1,28 +1,47 @@
 package game.networking.client;
 
+import game.LobbyInfo;
+import game.action.Action;
+import game.net.DummyClientConnectionHandler;
+import game.net.IClientConnection;
+import game.net.IClientConnectionHandler;
+import game.net.LobbyCallback;
+import game.networking.client.threads.tcp.TCPListenerClient;
+import game.networking.client.threads.tcp.TCPSenderClient;
+import game.networking.util.Protocol;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
-import game.networking.client.threads.tcp.TCPListenerClient;
-import game.networking.client.threads.tcp.TCPSenderClient;
-
-public class ClientConnection implements Runnable
+public class ClientConnection implements Runnable, IClientConnection
 {
+	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
+	
 	String name;
 	boolean success = false;
 
 	LinkedList<String> toServer;
 	LinkedList<String> fromServer;
+	
+	TCPListenerClient listener;
+	TCPSenderClient sender;
+	
+	private ArrayList<LobbyCallback> lobbyCallbacks = new ArrayList<>();
 
 	public ClientConnection(String _name)
 	{
 		name = _name;
 		toServer = new LinkedList<>();
 		fromServer = new LinkedList<>();
+		
+		Thread t = new Thread(this);
+		t.setName("Connection Handler Thread");
+		t.start();
 	}
 
 	@Override
@@ -64,24 +83,85 @@ public class ClientConnection implements Runnable
 		if (success)
 		{
 
-			TCPListenerClient listener = new TCPListenerClient(tcpSocket, fromServer);
-			TCPSenderClient sender = new TCPSenderClient(tcpSocket, toServer);
+			listener = new TCPListenerClient(tcpSocket, fromServer);
+			sender = new TCPSenderClient(tcpSocket, toServer);
 
 			(new Thread(listener)).start();
 			(new Thread(sender)).start();
 		}
 		socket.close();
-
+		
+//		while (true) {
+//			// handle incoming messages
+//			synchronized (fromServer) {
+//				try {
+//					fromServer.wait();
+//				} catch (InterruptedException e) {
+//					// This is fine
+//				}
+//				for (String message : fromServer)
+//					this.handleMessage(message);
+//				fromServer.clear();
+//			}
+//		}
 	}
 
-	public synchronized LinkedList<String> getToServerOutput()
+	public LinkedList<String> getToServerOutput()
 	{
 		return toServer;
 	}
 
-	public synchronized LinkedList<String> getFromServerOutput()
+	public LinkedList<String> getFromServerOutput()
 	{
 		return fromServer;
 	}
-
+	
+	private void handleMessage(String message) {
+		if (Protocol.isEntityUpdate(message)) {
+			cch.updateEntity(Protocol.parseEntityUpdate(message));
+		} else if (Protocol.isRemoveEntity(message)) {
+			cch.removeEntity(Protocol.parseRemoveEntity(message));
+		} else if (Protocol.isAudioEvent(message)) {
+			cch.processAudioEvent(Protocol.parseAudioEvent(message));
+		} else if (Protocol.isLobbiesReply(message)) {
+			ArrayList<LobbyInfo> lobbies = Protocol.parseLobbiesReply(message);
+			synchronized (this.lobbyCallbacks) {
+				for (LobbyCallback cb : this.lobbyCallbacks)
+					cb.success(lobbies);
+				this.lobbyCallbacks.clear();
+			}
+		} else {
+			System.err.println("Warning: Unknown message received: " + message);
+		}
+	}
+	
+	@Override
+	public void setHandler(IClientConnectionHandler _cch) {
+		this.cch = cch;
+	}
+	
+	@Override
+	public void sendAction(Action a) {
+		synchronized (toServer) {
+			toServer.add(Protocol.sendAction(a));
+			toServer.notifyAll();
+		}
+	}
+	
+	@Override
+	public void getLobbies(LobbyCallback cb) {
+		synchronized (this.lobbyCallbacks) {
+			this.lobbyCallbacks.add(cb);
+		}
+		synchronized (toServer) {
+			toServer.add(Protocol.sendLobbiesRequest());
+			toServer.notifyAll();
+		}
+	}
+	
+	@Override
+	public void close() {
+		listener.close();
+		sender.close();
+	}
 }

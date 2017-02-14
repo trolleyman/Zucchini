@@ -12,9 +12,7 @@ public class Action {
 	 * Constructs an action of a specific {@link game.action.ActionType ActionType}.
 	 * @param _type The type of the action.
 	 */
-	public Action(ActionType _type) {
-		this.type = _type;
-	}
+	public Action(ActionType _type) { this.type = _type; }
 	
 	/**
 	 * Sets the current type of the action

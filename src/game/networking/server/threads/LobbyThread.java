@@ -1,19 +1,5 @@
 package game.networking.server.threads;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import com.sun.xml.internal.bind.v2.runtime.Name;
-
 import game.networking.server.SmallGameLobby;
 import game.networking.server.threads.tcp.TCPConThread;
 import game.networking.server.threads.tcp.TCPConnectionStarter;
@@ -23,6 +9,13 @@ import game.networking.util.Tuple;
 import game.networking.util.UtilityCode;
 import game.networking.util.interfaces.IConnectionHandler;
 import game.networking.util.interfaces.ITCPConnection;
+
+import java.io.IOException;
+import java.net.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class LobbyThread implements Runnable, IConnectionHandler
 {
@@ -119,16 +112,13 @@ public class LobbyThread implements Runnable, IConnectionHandler
 						System.out.println("Creadted TCPStuff for: " + name);
 					}
 					updatedList.clear();
+					
+					try {
+						updatedList.wait(50);
+					} catch (InterruptedException e) {
+						// This is fine
+					}
 				}
-			}
-
-			try
-			{
-				Thread.sleep(100);
-			} catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 		datagramSocket.close();

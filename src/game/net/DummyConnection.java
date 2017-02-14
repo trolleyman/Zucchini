@@ -1,16 +1,8 @@
 package game.net;
 
-import game.Util;
 import game.action.Action;
-import game.action.ActionType;
 import game.audio.event.AudioEvent;
-import game.ui.UI;
-import game.world.ClientWorld;
-import game.world.EntityBank;
-import game.world.ServerWorld;
-import game.world.World;
 import game.world.entity.Entity;
-import game.world.entity.Player;
 
 /**
  * A dummy class to implement {@link IClientConnection} and {@link IServerConnection} so that we can
@@ -35,6 +27,9 @@ public class DummyConnection implements IServerConnection, IClientConnection {
 	public void sendAction(Action a) {
 		sch.handleAction(a);
 	}
+	
+	@Override
+	public void getLobbies(LobbyCallback cb) { cb.success(sch.getLobbies()); }
 	
 	@Override
 	public void setHandler(IClientConnectionHandler _cch) {

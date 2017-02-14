@@ -41,7 +41,7 @@ public abstract class UI implements InputHandler {
 	 */
 	public abstract void destroy();
 	
-	/** Inheriting classes must implement {@link java.lang.Object#toString toString()} */
+	/** Inheriting classes must implement {@link java.lang.Object#toString entityToString()} */
 	@Override
 	public abstract String toString();
 }

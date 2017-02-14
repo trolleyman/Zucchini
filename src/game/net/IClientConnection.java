@@ -23,6 +23,12 @@ public interface IClientConnection {
 	public void sendAction(Action a);
 	
 	/**
+	 * Requests the lobbies from the server
+	 * @param cb Calls this when the operation finishes
+	 */
+	public void getLobbies(LobbyCallback cb);
+	
+	/**
 	 * Sets the current connection event handler
 	 * @param cch The client connection handler
 	 */
