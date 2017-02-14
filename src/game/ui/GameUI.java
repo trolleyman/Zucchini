@@ -11,6 +11,7 @@ import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
 import game.world.World;
+import game.world.entity.Player;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -37,6 +38,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
    private UI nextUI;
    private TextureBank bank;
+   private Player player;
    
 	/**
 	 * Constructs a new GameUI
@@ -47,7 +49,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.world = _world;
 		this.bank = _bank;
 		this.inputHandlers.add(world);
-		
+		this.player = world.getPlayer();
 		nextUI = this;
 	}
 	
@@ -64,13 +66,12 @@ public class GameUI extends UI implements InputPipeMulti {
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 		 	System.out.println("escape pressed");
-			this.nextUI = new EscapeUI(audio, bank, world);//change null to renderer?
-		} else if (key == GLFW_KEY_UP && action == GLFW_PRESS){
+			this.nextUI = new EscapeUI(audio, bank, world);
+		} else if (key == GLFW_KEY_UP && action == GLFW_PRESS){ //up arrow for now - may change to "M" later 
 			System.out.println("M pressed");
 			this.nextUI = new MiniMap(audio, bank, world);
 		}
 	}
- 
 	
 	@Override
 	public void handleResize(int w, int h) {
@@ -90,7 +91,26 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 	}
 
+	@Override
+	public void render(IRenderer r) {
+		this.world.render(r);
+		createMiniMap(r);
+		createHealthBar(r);
+		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
+	   //GL11.glScissor((int) (winWidth/2) - 200, (int) (winHeight/2) - 200, 400, 400);
+	}
 	
+	public void createHealthBar(IRenderer r){
+		float maxHealth;
+		//if(player.getMaxHealth() == 0.0f){
+		maxHealth = 10.0f;
+		//}else{
+		//	maxHealth = player.getMaxHealth();
+		//}
+		float currentHealth = 6.0f; //player.getCurrentHealth(); ??
+		r.drawBox(Align.TR, (float) winWidth - 20, (float) winHeight - 20, (float) 30 * maxHealth, (float) 20, ColorUtil.GREEN);//max health
+		r.drawBox(Align.TR, winWidth - 20, winHeight - 20, 30 * (maxHealth - currentHealth), 20, ColorUtil.RED);
+	}
 	
 	public void stencil(IRenderer r){ //CURRENTLY ABSOLUTELY NOT WORKING
 	
@@ -146,28 +166,10 @@ public class GameUI extends UI implements InputPipeMulti {
    	
 	}
 	
-	
-
-	@Override
-	public void render(IRenderer r) {
-	
-		//stencil(r);
-		this.world.render(r);
-		createMiniMap(r);
-		//r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
-	 //  r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
-
-		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
-	   //GL11.glScissor((int) (winWidth/2) - 200, (int) (winHeight/2) - 200, 400, 400);
-	}
-	
-	
 	public void createMiniMap(IRenderer r){ //ALSO ABSOLUTELY NOT WORKING
 		
-		r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);
-
-		
-		
+		//r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);	
+	
 	/*	 Canvas openglSurface = new Canvas();
        JFrame frame = new JFrame();
        frame.setSize(800, 800);
@@ -175,13 +177,13 @@ public class GameUI extends UI implements InputPipeMulti {
        frame.setVisible(true);
        frame.add(new JTextField("Hello World!"));
        openglSurface.setSize(500, 500);
-  //     Display.setParent(openglSurface);
-  //     Display.create();
+       Display.setParent(openglSurface);
+       Display.create();
        GL11.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-  //     Display.update();
-     //  Thread.sleep(2000);
-  //     Display.destroy();
+       Display.update();
+       Thread.sleep(2000);
+       Display.destroy();
 	*/
 	}
 	

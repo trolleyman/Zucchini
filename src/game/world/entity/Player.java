@@ -77,7 +77,7 @@ public class Player extends Entity {
 	}
 	
 	@Override
-	protected float getMaxHealth() {
+	public float getMaxHealth() {
 		return 10.0f;
 	}
 	

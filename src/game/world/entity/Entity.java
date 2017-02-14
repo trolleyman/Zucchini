@@ -99,8 +99,16 @@ public abstract class Entity implements Cloneable {
 	/**
 	 * Returns the maximum health of the entity
 	 */
-	protected float getMaxHealth() {
+	public float getMaxHealth() {
 		return DEFAULT_MAX_HEALTH;
+	}
+	
+	/**
+	 * @author abby
+	 * @return health, the current health
+	 */
+	public float getCurrentHealth(){
+		return this.health;
 	}
 	
 	/**

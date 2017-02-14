@@ -16,7 +16,6 @@ public class MiniMap extends UI implements InputPipeMulti{
 	private ClientWorld world;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private TextureBank bank;
-
 	
 	public MiniMap(AudioManager _audio, TextureBank _bank, ClientWorld _world) {
 		super(_audio);
@@ -59,14 +58,13 @@ public class MiniMap extends UI implements InputPipeMulti{
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
+		this.world.destroy();
 	}
 
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return null;
+		return "MiniMap UI";
 	}
 
 }
