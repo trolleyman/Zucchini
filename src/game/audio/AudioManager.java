@@ -98,7 +98,7 @@ public class AudioManager implements IAudioManager{
 //    }
     
     /**
-     * iterate available sound sources for a buffer and return it
+     * Iterate available sound sources for a buffer and return it
      * returns null if no sources are available
      * @param wavfile
      */
@@ -153,7 +153,7 @@ public class AudioManager implements IAudioManager{
     }
     
     /**
-     * removes all sources, buffers and such from memeory
+     * Removes all sources, buffers and such from memeory
      */
     public void cleanup() {
         for (List<SoundSource> soundSourcesList : soundSourcesMap.values()) {
@@ -194,8 +194,8 @@ public class AudioManager implements IAudioManager{
     
     
     /**
-     * plays a wav file in a continous loop
-     * @return a sourceID that can be used to stop a particular source, returns -1 if no available source
+     * Plays a wav file in a continous loop
+     * @return A sourceID that can be used to stop a particular source, returns -1 if no available source
      */
     @Override
 	public int playLoop(String name, float volume) {
@@ -210,7 +210,7 @@ public class AudioManager implements IAudioManager{
 	}
 
     /**
-     * stops the first occurance of a wavfile, might not be the intended sound to stop
+     * Stops a source from playing using it's id
      */
     //could still use some updating
     @Override
@@ -226,7 +226,7 @@ public class AudioManager implements IAudioManager{
 	}
 	
     /**
-     * given a sound source ID, this will return the sound source object
+     * Given a sound source ID, this will return the sound source object
      * @param sourceID
      * @return SoundSource
      */
