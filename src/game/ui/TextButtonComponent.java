@@ -1,16 +1,12 @@
 package game.ui;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-
-import org.joml.Vector4f;
-
 import game.ColorUtil;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
-import game.render.Texture;
+import org.joml.Vector4f;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class TextButtonComponent extends UIComponent {
 
@@ -104,7 +100,6 @@ public class TextButtonComponent extends UIComponent {
 	public void render(IRenderer r) {
 		r.drawBox(a, x, y, BOX_W, BOX_H, colour);
 		r.drawText(f, s, Align.TL, x+10, y+14, scale);
-		
 	}
 	
 	public boolean getSelected() {
