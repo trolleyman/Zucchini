@@ -20,9 +20,9 @@ public class TestMap extends Map {
 	private static final float CH = 1.5f;
 	private static final float CI = CH + (float) Math.cos(Math.toRadians(60));
 	private static final float CJ = 2.5f;
-	private static final float CM = CL + (float) Math.sin(Math.toRadia
 	private static final float CK = 4.5f;
-	private static final float CL = 7.0f;ns(45));
+	private static final float CL = 7.0f;
+	private static final float CM = CL + (float) Math.sin(Math.toRadians(45));
 	private static final float CN = CM + (float) Math.sin(Math.toRadians(45));
 	private static final float CO = CN;
 	private static final float CP = 6.5f;
