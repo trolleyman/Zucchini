@@ -26,7 +26,7 @@ public class TestMap extends Map {
 	private static final float CN = CM + (float) Math.sin(Math.toRadians(45));
 	private static final float CO = CN;
 	private static final float CP = 6.5f;
-	private static final float CQ = 7.5f;
+	private static final float CQ = 6.5f;
 	private static final float CR = 1.5f;
 	private static final float CS = 2.0f;
 	private static final float CT = 2.5f;
@@ -50,7 +50,7 @@ public class TestMap extends Map {
 	private static final float RN = 7.0f;
 	private static final float RO = RL + Math.abs(CO - CG) * (float) Math.sin(Math.toRadians(45));
 	private static final float RP = 6.5f;
-	private static final float RQ = 7.5f;
+	private static final float RQ = 7.8f;
 	private static final float RR = 7.5f;
 	private static final float RS = 7.0f;
 	
