@@ -95,8 +95,8 @@ public class Player extends Entity {
 	public void update(UpdateArgs ua) {
 		this.velocity.zero();
 		if (!soundSourceInit){
-			walkingSoundID = ua.audio.playLoop("footsteps_walking.wav", 1.0f);
-			ua.audio.pauseLoop(walkingSoundID);
+			this.walkingSoundID = ua.audio.playLoop("footsteps_walking.wav", 1.0f);
+			ua.audio.pauseLoop(this.walkingSoundID);
 			soundSourceInit = true;
 		}
 				
@@ -115,18 +115,18 @@ public class Player extends Entity {
 		
 		//Play walking sounds
 		//System.out.println(moveNorth + " " +moveSouth+ " " +moveEast+ " " +moveWest);
-		if(moveNorth || moveSouth || moveEast || moveWest){
-			//System.out.println("Player Moving");
-			ua.audio.continueLoop(walkingSoundID);
+		if(moveNorth || moveSouth || moveEast || moveWest ){
+			//System.out.println("Starting sound id: " + walkingSoundID);
+			ua.audio.continueLoop(this.walkingSoundID);
 		} else {
-			ua.audio.pauseLoop(walkingSoundID);
-			//System.out.println("Player Stopped");
+			ua.audio.pauseLoop(this.walkingSoundID);
+			//System.out.println("Stopping sound id: " + walkingSoundID);
 		}
 		
-		//System detects two players currently, unable to implement walking sounds using this model currently
-		System.out.println("Velocity: " + velocity);
-		System.out.println("Position: " + position);
-		
+//		if (this.walkingSoundID==1){
+//			System.out.println("Velocity: " + velocity);
+//			System.out.println("Position: " + position);
+//		}
 		this.velocity.mul(SPEED).mul((float) ua.dt);
 		this.position.add(this.velocity);
 		ua.bank.updateEntityCached(this);

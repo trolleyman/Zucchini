@@ -1,8 +1,5 @@
 package game.audio;
-import game.*;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -27,7 +24,7 @@ public class AudioManager implements IAudioManager{
     private final Map<Integer,String> soundBufferMap;
     private final Map<String, List<SoundSource>> soundSourcesMap;
     private final Matrix4f cameraMatrix;
-    private final int numberOfSourcesPerFile = 10; //this is the amount of sources each wav file will have available for them
+    private final int numberOfSourcesPerFile = 15; //this is the amount of sources each wav file will have available for them
 
     /**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
@@ -218,6 +215,7 @@ public class AudioManager implements IAudioManager{
 	public int playLoop(String name, float volume) {
     	SoundSource source = findAvailableSoundSource(name);
     	if (source != null){
+        	System.out.println("Found and using (client) sourceID: " + source.getSourceId());
 			source.setVolume(volume);
 			source.setLooping(true);
 			source.play();
@@ -324,6 +322,7 @@ public class AudioManager implements IAudioManager{
         char c =' ' ;
         int idb = 0;
         int idw = 0;
+        int idw2 = 0;
 
         while (c != 'q'){
         	c = (char) System.in.read();
@@ -350,6 +349,15 @@ public class AudioManager implements IAudioManager{
         	}
         	if (c=='t'){
         		soundMgr.continueLoop(idw);
+        	}
+        	if (c=='r'){
+        		idw2 = soundMgr.playLoop("footsteps_walking.wav",0.6f);
+        	}
+        	if (c=='f'){
+        		soundMgr.pauseLoop(idw2);
+        	}
+        	if (c=='v'){
+        		soundMgr.continueLoop(idw2);
         	}
         }
         soundMgr.cleanup();

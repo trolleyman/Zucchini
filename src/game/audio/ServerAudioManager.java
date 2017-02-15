@@ -10,7 +10,7 @@ import game.audio.event.AudioPlayLoopEvent;
 import game.audio.event.AudioStopEvent;
 
 public class ServerAudioManager implements IAudioManager {
-	private int nextAudioID = 1;
+	private int nextAudioID = 0;
 	
 	//array list of all current audio events
 	private ArrayList<AudioEvent> events = new ArrayList<>();
