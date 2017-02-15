@@ -1,7 +1,5 @@
 package game.ui;
 
-import java.util.ArrayList;
-
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
@@ -9,6 +7,8 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
+
+import java.util.ArrayList;
 
 public class LobbyUI extends UI implements InputPipeMulti {
 	/** The current window width */

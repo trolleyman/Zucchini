@@ -21,7 +21,7 @@ public class Map {
 	}
 	
 	/** The "walls" of the map that entities can collide with */
-	private ArrayList<Wall> walls;
+	protected ArrayList<Wall> walls;
 	
 	/**
 	 * Construct a map with the specified walls
