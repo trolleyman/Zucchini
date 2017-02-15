@@ -1,26 +1,26 @@
-/**
- * 
- */
 package game.ui;
 
 import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.Util;
+import game.audio.AudioManager;
+import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
-import game.world.ClientWorld;
-import game.world.TestMap;
-import game.world.World;
+import game.render.TextureBank;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
  * 
- * @author jackm
+ * @author Jack
  */
 public class StartUI extends UI implements InputPipeMulti {
-	
-	/** The renderer. Used for getting the window width and height */
-	private IRenderer renderer;
+	/** The current window width */
+	private int windowW;
+	/** The current window height */
+	private int windowH;
 	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
@@ -32,38 +32,39 @@ public class StartUI extends UI implements InputPipeMulti {
 	/** The next UI to return */
 	private UI nextUI = this;
 	
-	/** The window width */
-	private float windowW;
-	/** The window height */
-	private float windowH;
+
+	private Font font;
+	private ImageComponent backgroundImage;
 	
 	/**
-	 * Constructs a new StartUI with a specified renderer to gather the window width and height
-	 * @param _renderer The renderer
+	 * Constructs a new StartUI
+	 * @param tb TextureBank used to get textures for components
 	 */
-	public StartUI(IRenderer _renderer) {
-		super();
-		this.renderer = _renderer;
+	public StartUI(AudioManager audio, TextureBank tb) {
+		super(audio);
 		
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
+		font = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
 		
 		startButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(ClientWorld.createTestWorld()); },
-			100, 100,
-			renderer.getImageBank().getTexture("buttonDefault.png"),
-			renderer.getImageBank().getTexture("buttonHover.png"),
-			renderer.getImageBank().getTexture("buttonPressed.png")
+			() -> { this.nextUI = new LobbyUI(audio, tb); },
+			Align.BL, 100, 100,
+			tb.getTexture("buttonDefault.png"),
+			tb.getTexture("buttonHover.png"),
+			tb.getTexture("buttonPressed.png")
 		);
 		
 		exitButton = new ButtonComponent(
-				() -> { this.nextUI = null; },
-				100, 100,
-				renderer.getImageBank().getTexture("exitButtonDefault.png"),
-				renderer.getImageBank().getTexture("exitButtonHover.png"),
-				renderer.getImageBank().getTexture("exitButtonPressed.png")
-			);
-				
+			() -> { this.nextUI = null; },
+			Align.BL, 100, 100,
+			tb.getTexture("exitButtonDefault.png"),
+			tb.getTexture("exitButtonHover.png"),
+			tb.getTexture("exitButtonPressed.png")
+		);
+		
+		backgroundImage = new ImageComponent(
+			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
+		);
+
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
 	}
@@ -74,15 +75,21 @@ public class StartUI extends UI implements InputPipeMulti {
 	}
 	
 	@Override
+	public void handleResize(int w, int h) {
+		this.windowW = w;
+		this.windowH = h;
+		InputPipeMulti.super.handleResize(w, h);
+	}
+	
+	@Override
 	public void update(double dt) {
-		windowW = renderer.getWidth();
-		windowH = renderer.getHeight();
 		startButton.update(dt);
 		exitButton.update(dt);
 	}
 	
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
 		startButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
@@ -99,5 +106,10 @@ public class StartUI extends UI implements InputPipeMulti {
 	@Override
 	public String toString() {
 		return "StartUI";
+	}
+
+	@Override
+	public void destroy() {
+		// Nothing to destroy
 	}
 }

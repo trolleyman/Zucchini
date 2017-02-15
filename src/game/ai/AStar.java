@@ -107,7 +107,7 @@ public class AStar {
 
 			for (int x = currentNode.getX() - 1; x <= currentNode.getX() + 1; x++) {
 				for (int y = currentNode.getY() - 1; y <= currentNode.getY() + 1; y++) {
-					if (x < width && x >= 0 && y >= 0 && y < height && (x == currentNode.getX() || y == currentNode.getY())) {
+					if (x < width && x >= 0 && y >= 0 && y < height) {
 							
 					
 						
@@ -138,7 +138,7 @@ public class AStar {
 		// no path found
 		new Exception("no path found");
 		System.out.println("no path found");
-		return null;
+		return new ArrayList<Node>();
 
 	}
 	/*

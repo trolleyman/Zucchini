@@ -1,6 +1,8 @@
 package game.ai;
 
+import game.world.EntityBank;
 import game.world.ServerWorld;
+import game.world.UpdateArgs;
 import game.world.World;
 import game.world.entity.Entity;
 import game.world.entity.Player;
@@ -10,35 +12,34 @@ import game.world.entity.Player;
  * 
  * @author Callum
  */
-public abstract class AI {
-	private Entity entity;
+public abstract class AI implements Cloneable {
+	private int entity;
 	
-	public AI(Entity _entity) {
+	/**
+	 * Clones the specified AI
+	 * @param ai The AI
+	 */
+	public AI(AI ai) {
+		this.entity = ai.entity;
+	}
+	
+	/**
+	 * Constructs an AI that tracks a specified entity
+	 * @param _entity The entity
+	 */
+	public AI(int _entity) {
 		this.entity = _entity;
 	}
 	
 	/**
 	 * This is the main method for the AI. Every world update this is called.
-	 * @param w This is the world state at the world update. <b>This *should not* be modified in any way
-	 *          during this method!!</b>
-	 * @param dt The number of seconds since the last update.
+	 * @param ua The UpdateArgs object. See {@link game.world.UpdateArgs UpdateArgs}.
 	 */
-	public void update(ServerWorld w, double dt){
-
-	}
+	public abstract void update(UpdateArgs ua);
 	
 	/**
-	 * Returns the {@link game.world.entity.Entity Entity} that this AI controls.
+	 * Implementations must override {@link java.lang.Object#clone clone}
 	 */
-	public Entity getEntity() {
-		return entity;
-	}
-	/*
-	 * Decision: What defines closest player? As the bird flies or A*
-	 * ?
-	 * returns the location of the closest player
-	 */
-	private Node findLocationClosestPlayer(){
-		return new Node(0,0);
-	}
+	@Override
+	public abstract AI clone();
 }
