@@ -74,11 +74,35 @@ public class PhysicsUtil {
 		// |ad| = dot(ac, ab) / |ab|
 		float ad = ac_x*ab_x/ab + ac_y*ab_y/ab;
 		
-		if (ad < 0.0f)
-			return null;
+		if (ad < 0.0f) {
+			// Check if p0 is < radius away from a
+			// |ac|^2
+			float ac2 = ac_x*ac_x + ac_y*ac_y;
+			if (ac2 > radius*radius)
+				return null;
+			
+			if (dest == null)
+				dest = new Vector2f();
+			
+			dest.set(x1, y1);
+			return dest;
+		}
 		
-		if (ad > ab)
-			return null;
+		if (ad > ab) {
+			// Check if p0 is < radius away from b
+			float bc_x = x2 - x0;
+			float bc_y = y2 - y0;
+			// |bc|^2
+			float bc2 = bc_x*bc_x + bc_y*bc_y;
+			if (bc2 > radius*radius)
+				return null;
+			
+			if (dest == null)
+				dest = new Vector2f();
+			
+			dest.set(x2, y2);
+			return dest;
+		}
 		
 		// d = a + ad * (ab/|ab|)
 		float abn_x = ab_x / ab;

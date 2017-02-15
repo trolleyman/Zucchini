@@ -1,6 +1,7 @@
 package game.render;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -38,14 +39,16 @@ public class Font {
 	int BITMAP_W = 512;
 	int BITMAP_H = 512;
 	
+	IntBuffer ascent = MemoryUtil.memAllocInt(1);
+	IntBuffer descent = MemoryUtil.memAllocInt(1);
+	IntBuffer lineGap = MemoryUtil.memAllocInt(1);
+	
 	public Font(String path) {
 		
 		fontInfo = STBTTFontinfo.malloc();
 		cdata = STBTTBakedChar.malloc(96);
 		
 		try {
-			
-			
 			RandomAccessFile file = new RandomAccessFile(path, "r");
 			FileChannel channel = file.getChannel();
 			ByteBuffer ttf = ByteBuffer.allocateDirect((int)channel.size());
@@ -73,6 +76,8 @@ public class Font {
 			
 			MemoryUtil.memFree(rgba);
 			MemoryUtil.memFree(bitmap);
+			
+			stbtt_GetFontVMetrics(fontInfo, ascent, descent, lineGap);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -81,6 +86,14 @@ public class Font {
 
 	public Texture getTexture() {
 		return this.text;
+	}
+	
+	public float getWidth(String s, float scale) {
+		return 0.0f; // TODO
+	}
+	
+	public float getHeight(float scale) {
+		return (ascent.get(0) - descent.get(0)) * scale;
 	}
 	
 	private float[] xBuf = new float[1];

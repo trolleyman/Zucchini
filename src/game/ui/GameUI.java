@@ -2,23 +2,18 @@ package game.ui;
 
 import game.ColorUtil;
 import game.InputHandler;
-import java.awt.Canvas;
-import java.lang.Math;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
-import game.world.World;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import static org.lwjgl.opengl.GL11.*;
+
 import java.util.ArrayList;
-import javax.swing.JFrame;
-import javax.swing.JTextField;
+
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * The GameUI is the UI responsible for rendering, updating the game and handling input
@@ -150,7 +145,6 @@ public class GameUI extends UI implements InputPipeMulti {
 
 	@Override
 	public void render(IRenderer r) {
-	
 		//stencil(r);
 		this.world.render(r);
 		createMiniMap(r);
