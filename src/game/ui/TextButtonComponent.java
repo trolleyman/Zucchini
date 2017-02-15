@@ -99,8 +99,7 @@ public class TextButtonComponent extends UIComponent {
 	@Override
 	public void render(IRenderer r) {
 		r.drawBox(a, x, y, BOX_W, BOX_H, colour);
-		r.drawText(f, s, Align.BL, x+10, y+14, scale);
-		
+		r.drawText(f, s, Align.TL, x+10, y+14, scale);
 	}
 	
 	public boolean getSelected() {
