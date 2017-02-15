@@ -23,7 +23,7 @@ public class Player extends Entity {
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
-	private static final float SPEED = 1.5f;
+	private static final float SPEED = 2.0f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.3f;
 	
@@ -95,7 +95,7 @@ public class Player extends Entity {
 	public void update(UpdateArgs ua) {
 		this.velocity.zero();
 		if (!soundSourceInit){
-			this.walkingSoundID = ua.audio.playLoop("footsteps_walking.wav", 1.0f);
+			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f);
 			ua.audio.pauseLoop(this.walkingSoundID);
 			soundSourceInit = true;
 		}
