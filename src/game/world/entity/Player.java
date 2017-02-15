@@ -10,6 +10,9 @@ import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 /**
  * Represents a player
  *
@@ -40,8 +43,8 @@ public class Player extends Entity {
 	/** If the player is moving west */
 	private transient boolean moveWest  = false;
 	
-	/** Entity ID of the weapon */
-	private int weaponID = Entity.INVALID_ID;
+	/** Entity ID of the item held. Not necessarily a weapon */
+	private int itemID = Entity.INVALID_ID;
 	
 	private transient boolean beganFire = false;
 	
@@ -59,7 +62,7 @@ public class Player extends Entity {
 		this.moveEast = p.moveEast;
 		this.moveWest = p.moveWest;
 		
-		this.weaponID = p.weaponID;
+		this.itemID = p.itemID;
 		
 		this.beganFire = p.beganFire;
 	}
@@ -67,11 +70,11 @@ public class Player extends Entity {
 	/**
 	 * Constructs a new player at the specified position holding a weapon
 	 * @param position The position
-	 * @param _weaponID The current weapon ID
+	 * @param _itemID The current weapon ID
 	 */
-	public Player(Vector2f position, int _weaponID) {
+	public Player(Vector2f position, int _itemID) {
 		super(position);
-		this.weaponID = _weaponID;
+		this.itemID = _itemID;
 	}
 	
 	@Override
@@ -79,8 +82,19 @@ public class Player extends Entity {
 		return 10.0f;
 	}
 	
-	public void setWeapon(int _weaponID) {
-		this.weaponID = _weaponID;
+	public void setItem(int _itemID) {
+		this.itemID = _itemID;
+	}
+	
+	public void dropItem(EntityBank bank) {
+		Entity e = bank.getEntity(itemID);
+		if (e == null || !(e instanceof Item)) {
+			itemID = Entity.INVALID_ID;
+			return;
+		}
+		bank.removeEntityCached(itemID);
+		bank.updateEntityCached(new Pickup(this.position, (Item)e));
+		itemID = Entity.INVALID_ID;
 	}
 	
 	@Override
@@ -99,7 +113,7 @@ public class Player extends Entity {
 				temp.add(-1.0f, 0.0f);
 			temp.mul(MAX_SPEED);
 			
-			this.velocity.lerp(temp, (float) ua.dt);
+			this.velocity.lerp(temp, (float) ua.dt / 5.0f);
 			this.velocity.set(temp);
 			
 			// Apply velocity
@@ -109,8 +123,8 @@ public class Player extends Entity {
 			Util.popTemporaryVector2f();
 		}
 		
-		// FIXME: Make sure weapon keeps up with the player
-		Entity eFinal = ua.bank.getEntity(weaponID);
+		// FIXME: Make sure held item keeps up with the player
+		Entity eFinal = ua.bank.getEntity(itemID);
 		if (eFinal != null) {
 			Entity e = eFinal.clone();
 			e.position.set(this.position);
@@ -161,7 +175,7 @@ public class Player extends Entity {
 		case BEGIN_FIRE: {
 			if (!this.beganFire) {
 				this.beganFire = true;
-				Entity e = bank.getEntity(weaponID);
+				Entity e = bank.getEntity(itemID);
 				if (e != null && e instanceof Weapon) {
 					Weapon wp = (Weapon)e;
 					wp.fireBegin();
@@ -173,7 +187,7 @@ public class Player extends Entity {
 		break;
 		case END_FIRE: {
 			this.beganFire = false;
-			Entity e = bank.getEntity(weaponID);
+			Entity e = bank.getEntity(itemID);
 			if (e != null && e instanceof Weapon) {
 				Weapon wp = (Weapon)e;
 				wp.fireEnd();
@@ -182,6 +196,16 @@ public class Player extends Entity {
 		break;
 		case PICKUP: {
 			// Get entities around to the player
+			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.3f);
+			Optional<Entity> oe = es.stream()
+					.filter((e) -> e instanceof Pickup)
+					.min((l, r) -> Float.compare(l.position.distanceSquared(this.position), r.position.distanceSquared(this.position)));
+			if (oe.isPresent()) {
+				Pickup p = (Pickup) oe.get();
+				int id = p.pickup(bank);
+				this.dropItem(bank);
+				this.itemID = id;
+			}
 			break;
 		}
 		}

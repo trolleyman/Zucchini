@@ -1,5 +1,6 @@
 package game.world.entity;
 
+import game.render.IRenderer;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
@@ -19,7 +20,7 @@ public abstract class Weapon extends Item {
 	private boolean reloading = false;
 	
 	/** Has fireStart been called since the last update? */
-	private boolean fire = false;
+	private transient boolean fire = false;
 	
 	private boolean semiAuto;
 	
@@ -44,6 +45,8 @@ public abstract class Weapon extends Item {
 		this.cooldown = g.cooldown;
 		this.shots = g.shots;
 		this.reloadingTime = g.reloadingTime;
+		
+		this.fire = g.fire;
 	}
 	
 	/**
@@ -78,8 +81,11 @@ public abstract class Weapon extends Item {
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
 				this.currentShots = this.shots;
+			} else {
+				this.currentCooldown = this.cooldown;
 			}
 		}
+		//System.out.println("cooldown: " + this.currentCooldown);
 		if (this.semiAuto)
 			this.fire = false;
 		

@@ -15,7 +15,7 @@ public class Handgun extends Weapon {
 	}
 	
 	public Handgun(Vector2f position) {
-		super(position, true, 0.1f, 8, 2.0f);
+		super(position, true, 0.2f, 8, 1.0f);
 	}
 
 	@Override

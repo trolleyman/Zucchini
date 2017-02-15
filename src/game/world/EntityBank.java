@@ -2,8 +2,10 @@ package game.world;
 
 import java.util.ArrayList;
 
+import game.Util;
 import game.net.IServerConnection;
 import game.world.entity.Entity;
+import org.joml.Vector2f;
 
 public class EntityBank {
 	/** Next sequential entity ID to use */
@@ -122,9 +124,13 @@ public class EntityBank {
 	 * If the id of the entity already exists, then the entity will be updated
 	 * 
 	 * @param e The entity
+	 * @return The id of the entity added to the EntityBank.
 	 */
-	public synchronized void updateEntityCached(Entity e) {
+	public synchronized int updateEntityCached(Entity e) {
+		if (e.getId() == Entity.INVALID_ID)
+			e.setId(this.nextEntityId++);
 		this.updateEntities.add(e);
+		return e.getId();
 	}
 	
 	/**
@@ -221,14 +227,35 @@ public class EntityBank {
 		return null;
 	}
 	
-	protected void healEntity(int _id, float _health) {
+	protected synchronized void healEntity(int _id, float _health) {
 		Entity e = this.getEntity(_id);
 		if (e != null) {
 			e.addHealth(_health);
 		}
 	}
 	
-	public void healEntityCached(int _id, float _health) {
+	public synchronized void healEntityCached(int _id, float _health) {
 		this.healEntities.add(new HealthUpdate(_id, _health));
+	}
+	
+	/**
+	 * Gets all entities within a certain distance of a specified position
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param radius The maximum distance between x,y and the Entity.
+	 * @return A list of entities
+	 */
+	public synchronized ArrayList<Entity> getEntitiesNear(float x, float y, float radius) {
+		float r2 = radius*radius;
+		Vector2f temp = Util.pushTemporaryVector2f();
+		temp.set(x, y);
+		ArrayList<Entity> l = new ArrayList<>();
+		for (Entity e : this.entities) {
+			float d2 = temp.distanceSquared(e.position);
+			if (d2 <= r2)
+				l.add(e);
+		}
+		Util.popTemporaryVector2f();
+		return l;
 	}
 }
