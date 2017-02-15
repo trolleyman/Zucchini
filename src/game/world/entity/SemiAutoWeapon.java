@@ -70,6 +70,7 @@ public abstract class SemiAutoWeapon extends Weapon {
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload
+				ua.audio.play("gun_reload[2sec].wav", 1.0f);
 				System.out.println("Reloading...");
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;

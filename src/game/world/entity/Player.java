@@ -22,7 +22,7 @@ public class Player extends Entity {
 	public static final float LINE_OF_SIGHT_MAX = 8.0f;
 	
 	/** The speed of the player in m/s */
-	private static final float SPEED = 2.0f;
+	private static final float SPEED = 1.5f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.3f;
 	
@@ -33,6 +33,7 @@ public class Player extends Entity {
 	 */
 	private Vector2f velocity = new Vector2f();
 	
+	private boolean isMoving = false;
 	/** If the player is moving north */
 	private boolean moveNorth = false;
 	/** If the player is moving south */
@@ -41,6 +42,10 @@ public class Player extends Entity {
 	private boolean moveEast  = false;
 	/** If the player is moving west */
 	private boolean moveWest  = false;
+	
+	/** Has the player been assigned a footstep sound source? */
+	private boolean soundSourceInit = false;
+	private int walkingSoundID;//sound source id associated with player movement
 	
 	/** Entity ID of the weapon */
 	private int weaponID = Entity.INVALID_ID;
@@ -88,19 +93,45 @@ public class Player extends Entity {
 	@Override
 	public void update(UpdateArgs ua) {
 		this.velocity.zero();
-		if (this.moveNorth)
+		if (!soundSourceInit){
+			walkingSoundID = ua.audio.playLoop("footsteps_walking.wav", 1.0f);
+			ua.audio.pauseLoop(walkingSoundID);
+			soundSourceInit = true;
+		}
+				
+		if (this.moveNorth){
 			this.velocity.add( 0.0f,  1.0f);
-		if (this.moveSouth)
+		}
+		if (this.moveSouth){
 			this.velocity.add( 0.0f, -1.0f);
-		if (this.moveEast)
+		}
+		if (this.moveEast){
 			this.velocity.add( 1.0f,  0.0f);
-		if (this.moveWest)
+		}
+		if (this.moveWest){
 			this.velocity.add(-1.0f,  0.0f);
+		}
+		
+		//Play walking sounds
+		//System.out.println(moveNorth + " " +moveSouth+ " " +moveEast+ " " +moveWest);
+		if(moveNorth || moveSouth || moveEast || moveWest){
+			//System.out.println("Player Moving");
+			ua.audio.continueLoop(walkingSoundID);
+		} else {
+			ua.audio.pauseLoop(walkingSoundID);
+			//System.out.println("Player Stopped");
+		}
+		
+		//System detects two players currently, unable to implement walking sounds using this model currently
+		System.out.println("Velocity: " + velocity);
+		System.out.println("Position: " + position);
 		
 		this.velocity.mul(SPEED).mul((float) ua.dt);
 		this.position.add(this.velocity);
 		ua.bank.updateEntityCached(this);
 		
+		
+
 		// Make sure weapon keeps up with the player
 		Entity eFinal = ua.bank.getEntity(weaponID);
 		if (eFinal != null) {
@@ -124,6 +155,7 @@ public class Player extends Entity {
 			Util.popTemporaryVector2f();
 		}
 		Util.popTemporaryVector2f();
+		
 	}
 	
 	@Override

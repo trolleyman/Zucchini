@@ -2,7 +2,9 @@ package game.audio;
 
 import java.util.HashMap;
 
+import game.audio.event.AudioContinueLoopEvent;
 import game.audio.event.AudioEvent;
+import game.audio.event.AudioPauseLoopEvent;
 import game.audio.event.AudioPlayEvent;
 import game.audio.event.AudioPlayLoopEvent;
 import game.audio.event.AudioStopEvent;
@@ -37,6 +39,23 @@ public class ClientAudioManager {
 			}
 			int sourceID = ids.get(e.id);
 			audio.stopLoop(sourceID);
+		} else if (ae instanceof AudioContinueLoopEvent){
+			AudioContinueLoopEvent e = (AudioContinueLoopEvent) ae;
+			if (!ids.containsKey(e.id)) {
+				System.err.println("Warning: Unknown audio (networked) id: " + e.id);
+				return;
+			}
+			int sourceID = ids.get(e.id);
+			audio.continueLoop(sourceID);
+		} else if (ae instanceof AudioPauseLoopEvent){
+			AudioPauseLoopEvent e = (AudioPauseLoopEvent) ae;
+			if (!ids.containsKey(e.id)) {
+				System.err.println("Warning: Unknown audio (networked) id: " + e.id);
+				return;
+			}
+			int sourceID = ids.get(e.id);
+			audio.pauseLoop(sourceID);
 		}
+		
 	}
 }

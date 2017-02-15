@@ -225,7 +225,31 @@ public class AudioManager implements IAudioManager{
     	}
 		return -1;
 	}
-
+    
+    /**
+     * Like play loop, but this funtion takes a sourceID instead to continue or pause a loop
+     * @param sourceID, the source from which a sound will continue or be paused from playing from
+     */
+    @Override
+    public void continueLoop(int sourceID){
+    	SoundSource source = getSoundSource(sourceID);
+    	if (!source.isPlaying()){
+    		source.play();
+    	}
+    }
+    
+    /**
+     * Like play loop, but this funtion takes a sourceID instead to continue or pause a loop
+     * @param sourceID, the source from which a sound will continue or be paused from playing from
+     */
+    @Override
+    public void pauseLoop(int sourceID){
+    	SoundSource source = getSoundSource(sourceID);
+    	if (source.isPlaying()){
+    		source.pause();
+    	}
+    }
+    
     /**
      * Stops a source from playing using it's id
      */
@@ -307,7 +331,10 @@ public class AudioManager implements IAudioManager{
         		idb = soundMgr.playLoop("[bgm]Desolation.wav",0.8f);
         	}
         	if (c=='n'){
-        		soundMgr.stopLoop(idb);
+        		soundMgr.pauseLoop(idb);
+        	}
+        	if (c=='m'){
+        		soundMgr.continueLoop(idb);
         	}
         	if (c=='e'){
         		soundMgr.play("handgunshot.wav",1f);
@@ -319,7 +346,10 @@ public class AudioManager implements IAudioManager{
         		idw = soundMgr.playLoop("footsteps_walking.wav",0.6f);
         	}
         	if (c=='s'){
-        		soundMgr.stopLoop(idw);
+        		soundMgr.pauseLoop(idw);
+        	}
+        	if (c=='t'){
+        		soundMgr.continueLoop(idw);
         	}
         }
         soundMgr.cleanup();
