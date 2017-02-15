@@ -4,7 +4,10 @@ import game.ColorUtil;
 import game.Util;
 import game.action.Action;
 import game.action.AimAction;
+import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
+import game.render.TextureBank;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
@@ -129,7 +132,9 @@ public class Player extends Entity {
 		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
 		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
 		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
-		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+		Texture playerTexture = r.getImageBank().getTexture("player_v1.png");
+		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 	}
 	
 	/**
