@@ -10,6 +10,7 @@ import game.net.DummyConnection;
 import game.net.IClientConnectionHandler;
 import game.net.IServerConnection;
 import game.net.IServerConnectionHandler;
+import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -123,4 +124,7 @@ public class ServerWorld extends World implements Cloneable {
 	public ServerWorld clone() {
 		return new ServerWorld(this);
 	}
+	
+	
+	
 }

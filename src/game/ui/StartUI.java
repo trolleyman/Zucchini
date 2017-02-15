@@ -1,20 +1,15 @@
-/**
- * 
- */
 package game.ui;
 
 import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.Util;
 import game.audio.AudioManager;
 import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
-import game.render.Texture;
 import game.render.TextureBank;
-import game.world.ClientWorld;
-import game.world.World;
-import game.world.map.TestMap;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
@@ -37,9 +32,9 @@ public class StartUI extends UI implements InputPipeMulti {
 	/** The next UI to return */
 	private UI nextUI = this;
 	
-	private ImageComponent backgroundImage;
 
-	private float testRot;
+	private Font font;
+	private ImageComponent backgroundImage;
 	
 	/**
 	 * Constructs a new StartUI
@@ -47,6 +42,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	 */
 	public StartUI(AudioManager audio, TextureBank tb) {
 		super(audio);
+		
+		font = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
 		
 		startButton = new ButtonComponent(
 			() -> { this.nextUI = new LobbyUI(audio, tb); },
@@ -88,19 +85,17 @@ public class StartUI extends UI implements InputPipeMulti {
 	public void update(double dt) {
 		startButton.update(dt);
 		exitButton.update(dt);
-		testRot += 3.0f * dt;
 	}
 	
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
 		startButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
 		startButton.render(r);
 		exitButton.render(r);
-		Texture t = r.getImageBank().getTexture("test.png");
-		r.drawTexture(t, Align.MM, 200, 200, testRot);
 	}
 	
 	@Override
