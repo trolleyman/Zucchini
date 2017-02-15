@@ -170,6 +170,10 @@ public class Player extends Entity {
 			}
 		}
 		break;
+		case PICKUP: {
+			// Get entities around to the player
+			break;
+		}
 		}
 	}
 	

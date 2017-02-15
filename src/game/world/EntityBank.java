@@ -134,7 +134,7 @@ public class EntityBank {
 	 * <br>
 	 * If the id of the entity already exists, then the entity is updated
 	 * <b>NB:</b> This should *not* be called when iterating through entities, like in the main update
-	 *            loop. See {@link updateEntityCached(Entity)}
+	 *            loop. See {@link #updateEntityCached(Entity)}
 	 * 
 	 * @param e The entity
 	 * @return The new id of the entity if it was Entity.INVALID_ID, the current id otherwise

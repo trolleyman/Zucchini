@@ -38,6 +38,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			// Create entity bank and add entities
 			EntityBank serverBank = new EntityBank();
+			for (Entity e : map.getInitialEntities())
+				serverBank.updateEntity(e);
 			int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
 			int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
 			serverBank.updateEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
@@ -148,6 +150,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			connection.sendAction(actionFire);
 			
 			this.bank.processCache(new ArrayList<>());
+			
+			for (Entity e : this.bank.entities)
+				e.clientUpdate(Util.DT_PER_SNAPSHOT_UPDATE);
 		}
 	}
 	
@@ -214,6 +219,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); break;
 			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); break;
 			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); break;
+			case GLFW_KEY_E: connection.sendAction(new Action(ActionType.PICKUP)); break;
 			}
 		} else if (action == GLFW_RELEASE) { // End move
 			switch (key) {

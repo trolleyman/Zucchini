@@ -1,5 +1,8 @@
 package game.world.map;
 
+import game.entity.MachineGun;
+import game.world.entity.Pickup;
+
 import java.util.ArrayList;
 
 /**
@@ -98,5 +101,7 @@ public class TestMap extends Map {
 			prevX = x;
 			prevY = y;
 		}
+		
+		initialEntities.add(new Pickup(new MachineGun()));
 	}
 }

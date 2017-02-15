@@ -3,7 +3,9 @@ package game.world.map;
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
+import game.world.EntityBank;
 import game.world.PhysicsUtil;
+import game.world.entity.Entity;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -22,12 +24,22 @@ public class Map {
 	
 	/** The "walls" of the map that entities can collide with */
 	protected ArrayList<Wall> walls;
+	/** The intiial starting entities in the map */
+	protected ArrayList<Entity> initialEntities;
 	
 	/**
 	 * Construct a map with the specified walls
 	 */
 	protected Map(ArrayList<Wall> _walls) {
+		this(_walls, new ArrayList<>());
+	}
+	
+	/**
+	 * Construct a map with the specified walls and initial entities
+	 */
+	protected Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities) {
 		this.walls = _walls;
+		this.initialEntities = _initialEntities;
 	}
 	
 	/**
@@ -236,6 +248,10 @@ public class Map {
 			
 			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
 		}
+	}
+	
+	public ArrayList<Entity> getInitialEntities() {
+		return initialEntities;
 	}
 }
 
