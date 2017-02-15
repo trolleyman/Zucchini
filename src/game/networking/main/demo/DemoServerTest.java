@@ -1,6 +1,6 @@
 package game.networking.main.demo;
 
-import game.networking.server.abstractClasses.ServerAbstract;
+import game.networking.server.ServerAbstract;
 import game.networking.util.Tuple;
 
 public class DemoServerTest extends ServerAbstract implements Runnable

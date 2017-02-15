@@ -21,7 +21,7 @@ public class ServerWorld extends World implements Cloneable {
 	/** The AIs/Players in the world. */
 	private ArrayList<AI> ais;
 	
-	/** Server Audio Manager */
+	/** GameServer Audio Manager */
 	private ServerAudioManager audio;
 	
 	/** The connections to the clients */

@@ -1,5 +1,7 @@
 package game.networking.test;
 
+import game.networking.server.ServerAbstract;
+
 public class ServerTest extends ServerAbstract
 {
 	// // private Thread discoveryThread;

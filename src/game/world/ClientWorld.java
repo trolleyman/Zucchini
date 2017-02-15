@@ -9,7 +9,7 @@ import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
 import game.net.*;
-import game.networking.server.Server;
+import game.networking.server.GameServer;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Handgun;
@@ -52,14 +52,14 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			conns.add(connection);
 			
 			// Create server
-			Server server = new Server(serverWorld, conns);
+			GameServer server = new GameServer(serverWorld, conns);
 			
 			// Create client
 			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);
 			
 			// Start server thread
 			Thread t = new Thread(server);
-			t.setName("Server");
+			t.setName("GameServer");
 			t.start();
 			
 			// Return client world

@@ -45,7 +45,6 @@ public abstract class ServerAbstract implements IServerMainable
 		{
 			discoveryThread = new Thread(new DiscoveryThread(clients, this, acceptedClients));
 			discoveryThread.start();
-
 		}
 	}
 
@@ -53,7 +52,6 @@ public abstract class ServerAbstract implements IServerMainable
 	public void acceptClientConnection(String ClientName)
 	{
 		lobby.addToAcceptQueue(ClientName);
-
 	}
 
 	public synchronized Map<String, LinkedList<String>> getSendMess()

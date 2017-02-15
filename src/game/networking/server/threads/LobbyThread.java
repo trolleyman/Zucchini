@@ -112,14 +112,10 @@ public class LobbyThread implements Runnable, IConnectionHandler
 						System.out.println("Creadted TCPStuff for: " + name);
 					}
 					updatedList.clear();
-					
-					try {
-						updatedList.wait(50);
-					} catch (InterruptedException e) {
-						// This is fine
-					}
 				}
 			}
+			
+			
 		}
 		datagramSocket.close();
 	}
