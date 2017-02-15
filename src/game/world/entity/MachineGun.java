@@ -1,13 +1,9 @@
-package game.entity;
+package game.world.entity;
 
 import game.ColorUtil;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
-import game.world.entity.Handgun;
-import game.world.entity.HandgunBullet;
-import game.world.entity.MachineGunBullet;
-import game.world.entity.Weapon;
 import org.joml.Vector2f;
 
 public class MachineGun extends Weapon {

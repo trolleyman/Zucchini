@@ -20,16 +20,16 @@ public class Player extends Entity {
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
-	private static final float SPEED = 2.0f;
+	private static final float MAX_SPEED = 2.5f;
 	/** The radius of the player in m */
-	private static final float RADIUS = 0.3f;
+	private static final float RADIUS = 0.2f;
 	
 	/**
 	 * The current velocity of the player.
 	 * <p>
 	 * Used so that we don't have to construct a new Vector2f every update.
 	 */
-	private transient Vector2f velocity = new Vector2f();
+	private Vector2f velocity = new Vector2f();
 	
 	/** If the player is moving north */
 	private transient boolean moveNorth = false;
@@ -85,21 +85,31 @@ public class Player extends Entity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		this.velocity.zero();
-		if (this.moveNorth)
-			this.velocity.add( 0.0f,  1.0f);
-		if (this.moveSouth)
-			this.velocity.add( 0.0f, -1.0f);
-		if (this.moveEast)
-			this.velocity.add( 1.0f,  0.0f);
-		if (this.moveWest)
-			this.velocity.add(-1.0f,  0.0f);
+		// Calculate velocity
+		{
+			Vector2f temp = Util.pushTemporaryVector2f();
+			temp.zero();
+			if (this.moveNorth)
+				temp.add(0.0f, 1.0f);
+			if (this.moveSouth)
+				temp.add(0.0f, -1.0f);
+			if (this.moveEast)
+				temp.add(1.0f, 0.0f);
+			if (this.moveWest)
+				temp.add(-1.0f, 0.0f);
+			temp.mul(MAX_SPEED);
+			
+			this.velocity.lerp(temp, (float) ua.dt);
+			this.velocity.set(temp);
+			
+			// Apply velocity
+			temp.set(this.velocity).mul((float) ua.dt);
+			this.position.add(temp);
+			ua.bank.updateEntityCached(this);
+			Util.popTemporaryVector2f();
+		}
 		
-		this.velocity.mul(SPEED).mul((float) ua.dt);
-		this.position.add(this.velocity);
-		ua.bank.updateEntityCached(this);
-		
-		// Make sure weapon keeps up with the player
+		// FIXME: Make sure weapon keeps up with the player
 		Entity eFinal = ua.bank.getEntity(weaponID);
 		if (eFinal != null) {
 			Entity e = eFinal.clone();

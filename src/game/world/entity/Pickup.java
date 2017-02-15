@@ -41,7 +41,7 @@ public class Pickup extends Entity {
 		// Render the contained item
 		this.item.position
 				.set(this.position)
-				.add(0.0f, (float) Math.sin(time) * 0.2f);
+				.add(0.0f, (float) Math.sin(time * 2.0f) * 0.1f);
 		this.item.render(r);
 	}
 	
