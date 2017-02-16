@@ -1,6 +1,8 @@
 package game.world;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import game.action.Action;
 import game.ai.AI;
@@ -68,25 +70,35 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param conn The connection
 	 */
 	public synchronized void addConnection(IServerConnection conn) {
+		if (this.conns.contains(conn)) {
+			System.err.println("Warning: Connection already added");
+			return;
+		}
 		this.conns.add(conn);
 		ServerWorld that = this;
 		conn.setHandler(new IServerConnectionHandler() {
 			@Override
 			public void handleAction(Action a) {
-				EntityBank bank = that.getEntityBank();
-				Entity e = bank.getEntity(conn.getPlayerID());
-				if (e != null && e instanceof Player)
-					((Player) e).handleAction(bank, a);
+				synchronized (that) {
+					EntityBank bank = that.getEntityBank();
+					Entity e = bank.getEntity(conn.getPlayerID());
+					if (e != null && e instanceof Player)
+						((Player) e).handleAction(bank, a);
+				}
 			}
 			
 			@Override
 			public void handleFullUpdateRequest() {
-				that.fullUpdateRequests.add(conn);
+				synchronized (that) {
+					if (!that.fullUpdateRequests.contains(conn))
+						that.fullUpdateRequests.add(conn);
+				}
 			}
 		});
 		
 		// Send a full update of the world
-		this.fullUpdateRequests.add(conn);
+		if (!this.fullUpdateRequests.contains(conn))
+			this.fullUpdateRequests.add(conn);
 	}
 	
 	public EntityBank getEntityBank() {
@@ -99,6 +111,9 @@ public class ServerWorld extends World implements Cloneable {
 		ua.bank = bank;
 		ua.map = map;
 		ua.audio = audio;
+		
+		// Ensure that no entity updates are left out
+		ua.bank.processCache(conns);
 		
 		// Update entities
 		for (Entity e : this.bank.entities) {

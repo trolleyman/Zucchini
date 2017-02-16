@@ -11,7 +11,9 @@ import game.render.TextureBank;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.update.AngleUpdate;
 import game.world.update.PositionUpdate;
+import game.world.update.SetItemUpdate;
 import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
 
@@ -97,12 +99,12 @@ public class Player extends MovableEntity {
 	public void dropItem(EntityBank bank) {
 		Entity e = bank.getEntity(itemID);
 		if (e == null || !(e instanceof Item)) {
-			itemID = Entity.INVALID_ID;
+			bank.updateEntityCached(new SetItemUpdate(this.getId(), Entity.INVALID_ID));
 			return;
 		}
 		bank.removeEntityCached(itemID);
 		bank.addEntityCached(new Pickup(this.position, (Item)e));
-		this.setItem(Entity.INVALID_ID); // TODO: EntityUpdate this
+		bank.updateEntityCached(new SetItemUpdate(this.getId(), Entity.INVALID_ID));
 	}
 	
 	@Override
@@ -153,14 +155,9 @@ public class Player extends MovableEntity {
 //			System.out.println("Position: " + position);
 //		}
 		
-		// FIXME: Make sure held item keeps up with the player
-		Entity eFinal = ua.bank.getEntity(itemID);
-		if (eFinal != null) {
-			Entity e = eFinal.clone();
-			e.position.set(this.position);
-			e.angle = this.angle;
-			ua.bank.addEntityCached(e);
-		}
+		// Ensure that the item stays with the player
+		ua.bank.updateEntityCached(new PositionUpdate(itemID, this.position));
+		ua.bank.updateEntityCached(new AngleUpdate(itemID, this.angle));
 		
 		// Get intersection
 		Vector2f intersection = Util.pushTemporaryVector2f();
@@ -184,7 +181,6 @@ public class Player extends MovableEntity {
 		
 		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
 		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
-<<<<<<< HEAD
 		
 		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
@@ -193,13 +189,9 @@ public class Player extends MovableEntity {
 	@Override
 	public void render(IRenderer r) {
 		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
-		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
-=======
-		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 		Texture playerTexture = r.getImageBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
->>>>>>> master
 	}
 	
 	/**
@@ -242,7 +234,7 @@ public class Player extends MovableEntity {
 		break;
 		case PICKUP: {
 			// Get entities around to the player
-			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.3f);
+			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.4f);
 			Optional<Entity> oe = es.stream()
 					.filter((e) -> e instanceof Pickup)
 					.min((l, r) -> Float.compare(l.position.distanceSquared(this.position), r.position.distanceSquared(this.position)));
@@ -250,7 +242,7 @@ public class Player extends MovableEntity {
 				Pickup p = (Pickup) oe.get();
 				int id = p.pickup(bank);
 				this.dropItem(bank);
-				this.itemID = id;
+				bank.updateEntityCached(new SetItemUpdate(this.getId(), id));
 			}
 			break;
 		}

@@ -133,6 +133,7 @@ public class EntityBank {
 		if (e.getId() == Entity.INVALID_ID)
 			e.setId(this.nextEntityId++);
 		this.addEntities.add(e);
+		//System.out.println("EntityBank: Added Entity ID: " + e.getId());
 		return e.getId();
 	}
 	
@@ -163,7 +164,10 @@ public class EntityBank {
 				entities.set(i, e);
 			} else {
 				// Insert the entity into the array
-				entities.add(i, e);
+				if (i == entities.size() - 1)
+					entities.add(i + 1, e);
+				else
+					entities.add(i, e);
 			}
 		}
 		return e.getId();
@@ -192,6 +196,7 @@ public class EntityBank {
 	 * @param id The entity id
 	 */
 	public synchronized void removeEntityCached(int id) {
+		System.out.println("EntityBank: Removed Entity ID: " + id);
 		this.removeEntities.add(id);
 	}
 	

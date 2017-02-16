@@ -12,7 +12,7 @@ public class MachineGun extends Weapon {
 }
 	
 	public MachineGun(Vector2f position) {
-		super(position, false, 1.0f, 30, 2.0f);
+		super(position, false, 0.05f, 30, 2.0f);
 	}
 	
 	@Override
