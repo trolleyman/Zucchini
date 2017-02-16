@@ -2,8 +2,6 @@ package game.ui;
 
 import game.ColorUtil;
 import game.InputHandler;
-import java.awt.Canvas;
-import java.lang.Math;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
 import game.render.Align;
@@ -13,13 +11,11 @@ import game.world.ClientWorld;
 import game.world.World;
 import game.world.entity.Player;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import static org.lwjgl.opengl.GL11.*;
+
 import java.util.ArrayList;
-import javax.swing.JFrame;
-import javax.swing.JTextField;
+
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * The GameUI is the UI responsible for rendering, updating the game and handling input
@@ -165,7 +161,7 @@ public class GameUI extends UI implements InputPipeMulti {
 
    	
 	}
-	
+
 	public void createMiniMap(IRenderer r){ //ALSO ABSOLUTELY NOT WORKING
 		
 		//r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);	

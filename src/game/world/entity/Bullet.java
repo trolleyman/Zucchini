@@ -1,24 +1,22 @@
 package game.world.entity;
 
-import org.joml.Vector2f;
-
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
-import game.world.EntityBank;
 import game.world.EntityIntersection;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import org.joml.Vector2f;
 
 public abstract class Bullet extends Entity {
-	private Vector2f prevPosition = new Vector2f();
-	private Vector2f velocity;
+	private transient Vector2f prevPosition = new Vector2f();
+	private transient Vector2f velocity;
 	
 	/** Damage of the bullet */
-	private float damage;
+	private transient float damage;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
-	private double ttl;
+	private transient double ttl;
 	
 	public Bullet(Bullet b) {
 		super(b);
@@ -79,6 +77,7 @@ public abstract class Bullet extends Entity {
 			System.out.println("Ow! Bullet hit entity id " + ei.id);
 			ua.bank.healEntityCached(ei.id, -damage);
 			ua.audio.play("bullet_impact_body.wav", 1.0f);
+			ua.audio.play("grunt2.wav", 1.0f);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		}

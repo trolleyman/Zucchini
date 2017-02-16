@@ -74,8 +74,10 @@ public class PhysicsUtil {
 		// |ad| = dot(ac, ab) / |ab|
 		float ad = ac_x*ab_x/ab + ac_y*ab_y/ab;
 		
-		if (ad < 0.0f)
+		if (ad < 0.0f) {
+			
 			return null;
+		}
 		
 		if (ad > ab)
 			return null;

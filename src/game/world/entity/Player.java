@@ -1,20 +1,18 @@
 package game.world.entity;
 
-import org.joml.Vector2f;
-
 import game.ColorUtil;
 import game.Util;
 import game.action.Action;
 import game.action.AimAction;
-import game.render.Align;
 import game.render.IRenderer;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import org.joml.Vector2f;
 
 /**
  * Represents a player
- * 
+ *
  * @author Callum
  */
 public class Player extends Entity {
@@ -31,21 +29,21 @@ public class Player extends Entity {
 	 * <p>
 	 * Used so that we don't have to construct a new Vector2f every update.
 	 */
-	private Vector2f velocity = new Vector2f();
+	private transient Vector2f velocity = new Vector2f();
 	
 	/** If the player is moving north */
-	private boolean moveNorth = false;
+	private transient boolean moveNorth = false;
 	/** If the player is moving south */
-	private boolean moveSouth = false;
+	private transient boolean moveSouth = false;
 	/** If the player is moving east */
-	private boolean moveEast  = false;
+	private transient boolean moveEast  = false;
 	/** If the player is moving west */
-	private boolean moveWest  = false;
+	private transient boolean moveWest  = false;
 	
 	/** Entity ID of the weapon */
 	private int weaponID = Entity.INVALID_ID;
-
-	private boolean beganFire = false;
+	
+	private transient boolean beganFire = false;
 	
 	/**
 	 * Clones the specified player
@@ -128,7 +126,9 @@ public class Player extends Entity {
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(Align.BM, position.x, position.y, 0.01f, 20.0f, ColorUtil.RED, this.angle);
+		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
+		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
+		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
 		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 	}
 	
