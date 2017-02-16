@@ -39,4 +39,7 @@ public abstract class MovableEntity extends Entity {
 		
 		ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
 	}
+	
+	@Override
+	public abstract MovableEntity clone();
 }

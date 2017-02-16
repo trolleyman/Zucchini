@@ -21,10 +21,8 @@ public class Pickup extends Entity {
 		this.item = _item;
 	}
 	
-	public int pickup(EntityBank bank) {
-		bank.removeEntityCached(this.getId());
-		int id = bank.addEntityCached(item);
-		return id;
+	public Item getItem() {
+		return item;
 	}
 	
 	@Override

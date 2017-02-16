@@ -12,6 +12,7 @@ import game.net.*;
 import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Handgun;
+import game.world.entity.Item;
 import game.world.entity.Player;
 import game.world.map.Map;
 import game.world.update.EntityUpdate;
@@ -40,9 +41,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			EntityBank serverBank = new EntityBank();
 			for (Entity e : map.getInitialEntities())
 				serverBank.addEntity(e);
-			int weaponID = serverBank.addEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
-			int playerID = serverBank.addEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
-			//serverBank.addEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
+			Item weapon = new Handgun(new Vector2f(0.5f, 0.5f));
+			int playerID = serverBank.addEntity(new Player(new Vector2f(0.5f, 0.5f), weapon));
+			serverBank.addEntity(new Player(new Vector2f(-2.0f, -2.0f), weapon.clone()));
 			
 			// Create server world
 			ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
@@ -102,7 +103,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private Action actionEast   = new Action(ActionType.END_MOVE_EAST );
 	private Action actionWest   = new Action(ActionType.END_MOVE_WEST );
 	private AimAction actionAim = new AimAction(0.0f);
-	private Action actionFire   = new Action(ActionType.END_FIRE);
+	private Action actionFire   = new Action(ActionType.END_USE);
 	
 	/** This is the line of sight buffer. This is meant to be null. */
 	private float[] losBuf = null;
@@ -251,9 +252,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Send input to server
 		if (button == GLFW_MOUSE_BUTTON_1)
 			if (action == GLFW_PRESS)
-				actionFire.setType(ActionType.BEGIN_FIRE);
+				actionFire.setType(ActionType.BEGIN_USE);
 			else if (action == GLFW_RELEASE)
-				actionFire.setType(ActionType.END_FIRE);
+				actionFire.setType(ActionType.END_USE);
 	}
 
 	@Override

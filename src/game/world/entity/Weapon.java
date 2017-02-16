@@ -90,13 +90,20 @@ public abstract class Weapon extends Item {
 		}
 	}
 	
-	public void fireBegin() {
+	@Override
+	public void beginUse() {
 		this.fire = true;
 	}
 	
-	public void fireEnd() { this.fire = false; }
+	@Override
+	public void endUse() {
+		this.fire = false;
+	}
 	
 	protected abstract void fire(UpdateArgs ua);
 	
 	protected abstract void reload(UpdateArgs ua);
+	
+	@Override
+	public abstract Weapon clone();
 }

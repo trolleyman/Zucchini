@@ -156,9 +156,9 @@ public class EntityUpdateReflect<E extends Entity> {
 	public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
 		Entity mgun = new MachineGun(new Vector2f());
 		Entity hgun = new Handgun(new Vector2f());
-		Entity player = new Player(new Vector2f(), Entity.INVALID_ID);
+		Entity player = new Player(new Vector2f(), null);
 		
-		EntityUpdateReflect positionUpdate = new EntityUpdateReflect(Entity.class, Entity.INVALID_ID);
+		EntityUpdateReflect positionUpdate = new EntityUpdateReflect<>(Entity.class, Entity.INVALID_ID);
 		positionUpdate.setProperty("position", new Vector2f(1.0f, 2.0f));
 		
 		// Apply update
@@ -171,7 +171,7 @@ public class EntityUpdateReflect<E extends Entity> {
 		System.out.println("player pos: " + player.position);
 		
 		// Generate update to position property, but restrict it to Weapons
-		EntityUpdateReflect weaponUpdate = new EntityUpdateReflect(Weapon.class, Entity.INVALID_ID);
+		EntityUpdateReflect weaponUpdate = new EntityUpdateReflect<>(Weapon.class, Entity.INVALID_ID);
 		weaponUpdate.setProperty("position", new Vector2f(-1.0f, -2.0f));
 		
 		// Apply update

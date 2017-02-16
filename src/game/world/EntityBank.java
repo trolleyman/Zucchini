@@ -196,7 +196,7 @@ public class EntityBank {
 	 * @param id The entity id
 	 */
 	public synchronized void removeEntityCached(int id) {
-		System.out.println("EntityBank: Removed Entity ID: " + id);
+		//System.out.println("EntityBank: Removed Entity ID: " + id);
 		this.removeEntities.add(id);
 	}
 	

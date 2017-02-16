@@ -7,13 +7,10 @@ import game.action.AimAction;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
-import game.render.TextureBank;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
-import game.world.update.AngleUpdate;
 import game.world.update.PositionUpdate;
-import game.world.update.SetItemUpdate;
 import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
 
@@ -47,14 +44,14 @@ public class Player extends MovableEntity {
 	/** Where the line of sight intersects with the map */
 	private transient Vector2f lineOfSightIntersecton;
 	
-	/** Entity ID of the item held. Not necessarily a weapon */
-	private int itemID = Entity.INVALID_ID;
+	/**The currently held item. Not necessarily a weapon */
+	private Item heldItem;
 	
 	/** Has the player been assigned a footstep sound source? */
 	private boolean soundSourceInit = false;
 	private int walkingSoundID;//sound source id associated with player movement
 	
-	private transient boolean beganFire = false;
+	private transient boolean beganUse = false;
 	
 	/**
 	 * Clones the specified player
@@ -68,9 +65,9 @@ public class Player extends MovableEntity {
 		this.moveEast = p.moveEast;
 		this.moveWest = p.moveWest;
 		
-		this.itemID = p.itemID;
+		this.heldItem = (Item) p.heldItem.clone();
 		
-		this.beganFire = p.beganFire;
+		this.beganUse = p.beganUse;
 		
 		this.lineOfSightIntersecton = p.lineOfSightIntersecton;
 	}
@@ -78,11 +75,11 @@ public class Player extends MovableEntity {
 	/**
 	 * Constructs a new player at the specified position holding a weapon
 	 * @param position The position
-	 * @param _itemID The current weapon ID
+	 * @param _heldItem The currently held item
 	 */
-	public Player(Vector2f position, int _itemID) {
+	public Player(Vector2f position, Item _heldItem) {
 		super(position);
-		this.itemID = _itemID;
+		this.heldItem = _heldItem;
 		
 		this.lineOfSightIntersecton = new Vector2f();
 	}
@@ -92,19 +89,16 @@ public class Player extends MovableEntity {
 		return 10.0f;
 	}
 	
-	public void setItem(int _itemID) {
-		this.itemID = _itemID;
+	public void pickupItem(EntityBank bank, Item item) {
+		if (this.heldItem != null)
+			this.dropHeldItem(bank, this.position);
+		
+		this.heldItem = item;
 	}
 	
-	public void dropItem(EntityBank bank) {
-		Entity e = bank.getEntity(itemID);
-		if (e == null || !(e instanceof Item)) {
-			bank.updateEntityCached(new SetItemUpdate(this.getId(), Entity.INVALID_ID));
-			return;
-		}
-		bank.removeEntityCached(itemID);
-		bank.addEntityCached(new Pickup(this.position, (Item)e));
-		bank.updateEntityCached(new SetItemUpdate(this.getId(), Entity.INVALID_ID));
+	public void dropHeldItem(EntityBank bank, Vector2f position) {
+		bank.addEntityCached(new Pickup(position, this.heldItem));
+		this.heldItem = null;
 	}
 	
 	@Override
@@ -155,10 +149,6 @@ public class Player extends MovableEntity {
 //			System.out.println("Position: " + position);
 //		}
 		
-		// Ensure that the item stays with the player
-		ua.bank.updateEntityCached(new PositionUpdate(itemID, this.position));
-		ua.bank.updateEntityCached(new AngleUpdate(itemID, this.angle));
-		
 		// Get intersection
 		Vector2f intersection = Util.pushTemporaryVector2f();
 		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
@@ -173,6 +163,9 @@ public class Player extends MovableEntity {
 		}
 		Util.popTemporaryVector2f();
 		
+		this.heldItem.position = this.position;
+		this.heldItem.angle = this.angle;
+		this.heldItem.update(ua);
 	}
 	
 	@Override
@@ -192,6 +185,10 @@ public class Player extends MovableEntity {
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 		Texture playerTexture = r.getImageBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
+		
+		this.heldItem.position = this.position;
+		this.heldItem.angle = this.angle;
+		this.heldItem.render(r);
 	}
 	
 	/**
@@ -210,39 +207,29 @@ public class Player extends MovableEntity {
 		case END_MOVE_EAST   : this.moveEast  = false; break;
 		case END_MOVE_WEST   : this.moveWest  = false; break;
 		case AIM: super.angle = ((AimAction)a).getAngle(); break;
-		case BEGIN_FIRE: {
-			if (!this.beganFire) {
-				this.beganFire = true;
-				Entity e = bank.getEntity(itemID);
-				if (e != null && e instanceof Weapon) {
-					Weapon wp = (Weapon)e;
-					wp.fireBegin();
-				} else {
-					System.out.println("*Click*: No weapon.");
-				}
+		case BEGIN_USE: {
+			if (!this.beganUse) {
+				this.beganUse = true;
+				this.heldItem.beginUse();
 			}
 		}
 		break;
-		case END_FIRE: {
-			this.beganFire = false;
-			Entity e = bank.getEntity(itemID);
-			if (e != null && e instanceof Weapon) {
-				Weapon wp = (Weapon)e;
-				wp.fireEnd();
-			}
+		case END_USE: {
+			this.beganUse = false;
+			this.heldItem.endUse();
 		}
 		break;
 		case PICKUP: {
-			// Get entities around to the player
+			// Get pickups around to the player
 			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.4f);
 			Optional<Entity> oe = es.stream()
 					.filter((e) -> e instanceof Pickup)
 					.min((l, r) -> Float.compare(l.position.distanceSquared(this.position), r.position.distanceSquared(this.position)));
 			if (oe.isPresent()) {
 				Pickup p = (Pickup) oe.get();
-				int id = p.pickup(bank);
-				this.dropItem(bank);
-				bank.updateEntityCached(new SetItemUpdate(this.getId(), id));
+				Item item = p.getItem();
+				bank.removeEntityCached(p.getId());
+				this.pickupItem(bank, item);
 			}
 			break;
 		}
