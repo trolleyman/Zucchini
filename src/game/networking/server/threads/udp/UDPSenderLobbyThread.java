@@ -19,13 +19,13 @@ public class UDPSenderLobbyThread implements Runnable
 	private DatagramSocket socket;
 	private boolean run = false;
 	private LinkedList<Tuple<String, String>> UDP_actions;
-	private Map<String, ConnectionDetails> clients;
+	private Map<String, Tuple<InetAddress, Tuple<Integer, Integer>>> clients;
 
-	public UDPSenderLobbyThread(DatagramSocket _socket, LinkedList<Tuple<String, String>> _udpActions, Map<String, ConnectionDetails> _clients)
+	public UDPSenderLobbyThread(DatagramSocket _socket, LinkedList<Tuple<String, String>> _udpActions, Map<String, Tuple<InetAddress, Tuple<Integer, Integer>>> _gameClients)
 	{
 		socket = _socket;
 		UDP_actions = _udpActions;
-		clients = _clients;
+		clients = _gameClients;
 	}
 
 	@Override
@@ -45,8 +45,8 @@ public class UDPSenderLobbyThread implements Runnable
 				byte[] buffer = message.getBytes();
 				for (String name : clients.keySet())
 				{
-					InetAddress address = clients.get(name).address;
-					int port = clients.get(name).port;
+					InetAddress address = clients.get(name).getFirst();
+					int port = clients.get(name).getSecond().getSecond();
 					DatagramPacket dp = new DatagramPacket(buffer, buffer.length, address, port);
 					try
 					{

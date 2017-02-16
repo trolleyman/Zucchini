@@ -44,7 +44,7 @@ public class TCPListenerLobbyThread implements Runnable
 
 						messageFull = messageFull.trim();
 
-						System.out.println(messageFull);
+						System.out.println("from :" + name + " received: " + messageFull);
 						/// [ACTION/MESSAGE]stuff
 						if (messageFull == null)
 						{

@@ -15,7 +15,7 @@ public abstract class ServerAbstract implements IServerMainable
 {
 
 	// private Thread discoveryThread;
-	private LobbyThread lobby;
+	protected LobbyThread lobby;
 	private Map<String, ConnectionDetails> clients;
 	private List<String> acceptedClients;
 	private LinkedList<Tuple<String, String>> receivedMess;

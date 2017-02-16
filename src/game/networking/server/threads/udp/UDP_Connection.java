@@ -20,35 +20,36 @@ public class UDP_Connection
 	private int portSender;
 	private int portReceiver;
 
-	public UDP_Connection(Map<String, ConnectionDetails> _gameClients, LinkedList<Tuple<String, String>> _receivedActions, LinkedList<Tuple<String, String>> _sendActions)
+	public UDP_Connection(Map<String, Tuple<InetAddress, Tuple<Integer, Integer>>> _gameClients, LinkedList<Tuple<String, String>> _receivedActions, LinkedList<Tuple<String, String>> _sendActions)
 	{
 
-		portSender = UtilityCode.getNextAvailabePort();
-		portReceiver = UtilityCode.getNextAvailabePort();
-		if (portReceiver != -1 && portSender != -1)
+		DatagramSocket datagramSocket;
+		try
 		{
-
-			DatagramSocket datagramSocket;
-			try
+			portReceiver = UtilityCode.getNextAvailabePort();
+			if (portReceiver != -1)
 			{
 				datagramSocket = new DatagramSocket(portReceiver, InetAddress.getByName("0.0.0.0"));
-
-				udpListener = new UDPListenerLobbyThread(datagramSocket, _receivedActions);
-
-				datagramSocket = new DatagramSocket(portSender, InetAddress.getByName("0.0.0.0"));
-				udpSender = new UDPSenderLobbyThread(datagramSocket, _sendActions, _gameClients);
-
-			} catch (SocketException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnknownHostException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				udpListener = new UDPListenerLobbyThread(datagramSocket, _receivedActions, _gameClients);
 			}
 
+			portSender = UtilityCode.getNextAvailabePort();
+			if (portSender != -1)
+			{
+				datagramSocket = new DatagramSocket(portSender, InetAddress.getByName("0.0.0.0"));
+				udpSender = new UDPSenderLobbyThread(datagramSocket, _sendActions, _gameClients);
+			}
+
+		} catch (SocketException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownHostException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 	}
 
 	public synchronized int getSenderPort()

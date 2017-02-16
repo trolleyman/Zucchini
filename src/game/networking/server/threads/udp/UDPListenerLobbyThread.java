@@ -3,7 +3,9 @@ package game.networking.server.threads.udp;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.LinkedList;
+import java.util.Map;
 
 import game.networking.util.Protocol;
 import game.networking.util.Tuple;
@@ -13,11 +15,13 @@ public class UDPListenerLobbyThread implements Runnable
 	private DatagramSocket socket;
 	private boolean run = false;
 	private LinkedList<Tuple<String, String>> UDP_actions;
+	private Map<String, Tuple<InetAddress, Tuple<Integer, Integer>>> clients;
 
-	public UDPListenerLobbyThread(DatagramSocket _socket, LinkedList<Tuple<String, String>> _udpActions)
+	public UDPListenerLobbyThread(DatagramSocket _socket, LinkedList<Tuple<String, String>> _udpActions, Map<String, Tuple<InetAddress, Tuple<Integer, Integer>>> _gameClients)
 	{
 		socket = _socket;
 		UDP_actions = _udpActions;
+		clients = _gameClients;
 	}
 
 	@Override

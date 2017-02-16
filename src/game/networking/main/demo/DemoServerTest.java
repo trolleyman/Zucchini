@@ -16,10 +16,25 @@ public class DemoServerTest extends ServerAbstract implements Runnable
 				Tuple<String, String> tup = getReceivedMess().poll();
 				if (tup != null)
 				{
-					for (String name : getSendMess().keySet())
+					if (tup.getSecond().startsWith("[UDPStart]"))
 					{
-						getSendMess().get(name).add(tup.getFirst() + ": " + tup.getSecond());
-					}
+						String message = tup.getSecond();
+						String lobbyName = message.substring("[UDPStart]".length(), message.indexOf("[UDPS]"));
+						int sendport = Integer.parseInt(message.substring(message.indexOf("[UDPS]") + "[UDPS]".length(), message.indexOf("[UDPR]")));
+						int receiveport = Integer.parseInt(message.substring(message.indexOf("[UDPR]") + "[UDPR]".length()));
+
+						System.out.println(message);
+						System.out.println("lobby name: " + lobbyName);
+						System.out.println("SP: " + sendport);
+						System.out.println("RP: " + receiveport);
+
+						lobby.joinLobby(lobbyName, tup.getFirst(), lobby.getClientIP(tup.getFirst()), receiveport, sendport);
+
+					} else
+						for (String name : getSendMess().keySet())
+						{
+							getSendMess().get(name).add(tup.getFirst() + ": " + tup.getSecond());
+						}
 				}
 			}
 			try

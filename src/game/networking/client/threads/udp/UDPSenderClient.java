@@ -13,6 +13,7 @@ public class UDPSenderClient implements Runnable
 	private int port;
 	private LinkedList<String> toServer;
 	private InetAddress address;
+	private boolean run;
 
 	public UDPSenderClient(DatagramSocket _UDPsocket, InetAddress _address, int _port, LinkedList<String> _udpToServer)
 	{
@@ -20,12 +21,13 @@ public class UDPSenderClient implements Runnable
 		port = _port;
 		toServer = _udpToServer;
 		address = _address;
+		run = false;
 	}
 
 	@Override
 	public void run()
 	{
-		while (true)
+		while (run)
 		{
 			String message = null;
 			message = toServer.poll();
@@ -48,6 +50,18 @@ public class UDPSenderClient implements Runnable
 			}
 		}
 
+	}
+
+	public void start()
+	{
+		run = true;
+		(new Thread(this)).start();
+
+	}
+
+	public synchronized void stop()
+	{
+		run = false;
 	}
 
 }

@@ -24,7 +24,7 @@ public class ClientTest3 implements Runnable
 		(new Thread(clientConnection)).start();
 		if (isHuman)
 		{
-			(new Thread(new UserInput(toServer))).start();
+			(new Thread(new UserInput(toServer, clientConnection))).start();
 		}
 	}
 

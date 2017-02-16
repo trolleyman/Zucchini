@@ -9,20 +9,21 @@ public class UDPListenerClient implements Runnable
 {
 
 	private DatagramSocket socket;
-	private int port;
 	private LinkedList<String> fromServer;
 
-	public UDPListenerClient(DatagramSocket _UDPsocket, int _port, LinkedList<String> _udpFromServer)
+	private boolean run;
+
+	public UDPListenerClient(DatagramSocket _UDPsocket, LinkedList<String> _udpFromServer)
 	{
 		socket = _UDPsocket;
-		port = _port;
 		fromServer = _udpFromServer;
+		run = false;
 	}
 
 	@Override
 	public void run()
 	{
-		while (true)
+		while (run)
 		{
 			try
 			{
@@ -43,6 +44,18 @@ public class UDPListenerClient implements Runnable
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public void start()
+	{
+		run = true;
+		(new Thread(this)).start();
+
+	}
+
+	public synchronized void stop()
+	{
+		run = false;
 	}
 
 }

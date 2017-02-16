@@ -1,5 +1,6 @@
 package game.networking.server;
 
+import java.net.InetAddress;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -12,7 +13,7 @@ public class SmallGameLobby
 {
 	private UDP_Connection connection;
 	private String name;
-	private Map<String, ConnectionDetails> clients;
+	private Map<String, Tuple<InetAddress, Tuple<Integer, Integer>>> clients;
 
 	public SmallGameLobby(String _name, LinkedList<Tuple<String, String>> _receivedActions, LinkedList<Tuple<String, String>> _sendActions)
 	{
@@ -41,9 +42,9 @@ public class SmallGameLobby
 		return connection.getSenderPort();
 	}
 
-	public synchronized void addClient(String name, ConnectionDetails conn)
+	public synchronized void addClient(String name, InetAddress address, int receiveport, int sendport)
 	{
-		clients.put(name, conn);
+		clients.put(name, new Tuple<>(address, new Tuple<>(receiveport, sendport)));
 	}
 
 	@Override

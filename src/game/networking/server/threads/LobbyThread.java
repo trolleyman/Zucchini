@@ -56,6 +56,9 @@ public class LobbyThread implements Runnable, IConnectionHandler
 		sendMessages = _sendMessages;
 		receivedMessages = _receivedMessages;
 
+		udp_receivedMessages = new LinkedHashMap<>();
+		udp_sendMessages = new LinkedHashMap<>();
+
 		gameLobbies = new LinkedHashMap<>();
 
 		acceptQueue = new LinkedList<String>();
@@ -229,11 +232,32 @@ public class LobbyThread implements Runnable, IConnectionHandler
 
 	}
 
-	public void joinLobby(String lobbyName, String clientName, ConnectionDetails conn)
+	public InetAddress getClientIP(String name)
+	{
+		synchronized (this)
+		{
+			return clients.get(name).address;
+		}
+	}
+
+	/**
+	 * 
+	 * @param lobbyName
+	 *            - String lobby name
+	 * @param clientName
+	 *            - String client name
+	 * @param address
+	 *            - InetAddress client address
+	 * @param receiveport
+	 *            - int receive port of the client
+	 * @param sendport
+	 *            - int send port of the client
+	 */
+	public void joinLobby(String lobbyName, String clientName, InetAddress address, int receiveport, int sendport)
 	{
 		if (gameLobbies.containsKey(lobbyName))
 		{
-			gameLobbies.get(lobbyName).addClient(clientName, conn);
+			gameLobbies.get(lobbyName).addClient(clientName, address, receiveport, sendport);
 		} else
 		{
 			LinkedList<Tuple<String, String>> receivedList = new LinkedList<>();
@@ -242,7 +266,7 @@ public class LobbyThread implements Runnable, IConnectionHandler
 			udp_sendMessages.put(lobbyName, sendList);
 			SmallGameLobby smallGameLobbyAux = new SmallGameLobby(lobbyName, receivedList, sendList);
 			gameLobbies.put(lobbyName, smallGameLobbyAux);
-			smallGameLobbyAux.addClient(clientName, conn);
+			smallGameLobbyAux.addClient(clientName, address, receiveport, sendport);
 			int receive = smallGameLobbyAux.getReceivePort();
 			int send = smallGameLobbyAux.getSendPort();
 			synchronized (this)
