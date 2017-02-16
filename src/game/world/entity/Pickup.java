@@ -23,7 +23,7 @@ public class Pickup extends Entity {
 	
 	public int pickup(EntityBank bank) {
 		bank.removeEntityCached(this.getId());
-		int id = bank.updateEntityCached(item);
+		int id = bank.addEntityCached(item);
 		return id;
 	}
 	
@@ -31,9 +31,9 @@ public class Pickup extends Entity {
 	public void update(UpdateArgs ua) {}
 	
 	@Override
-	public void clientUpdate(double dt) {
-		super.clientUpdate(dt);
-		this.time += dt;
+	public void clientUpdate(UpdateArgs ua) {
+		super.clientUpdate(ua);
+		this.time += ua.dt;
 	}
 	
 	@Override

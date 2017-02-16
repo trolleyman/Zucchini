@@ -15,6 +15,9 @@ import org.joml.Vector3f;
  * @author Callum
  */
 public class Util {
+	/** A small float */
+	public static final float EPSILON = 0.000001f;
+	
 	/** The number of nanoseconds per second */
 	public static long NANOS_PER_SECOND = 1_000_000_000;
 	

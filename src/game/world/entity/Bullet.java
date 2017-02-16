@@ -6,6 +6,7 @@ import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
 public abstract class Bullet extends Entity {
@@ -75,7 +76,7 @@ public abstract class Bullet extends Entity {
 			// Hit entity
 			// Hit an entity, damage
 			System.out.println("Ow! Bullet hit entity id " + ei.id);
-			ua.bank.healEntityCached(ei.id, -damage);
+			ua.bank.updateEntityCached(new HealthUpdate(ei.id, -damage));
 			ua.audio.play("bullet_impact_body.wav", 1.0f);
 			ua.audio.play("grunt2.wav", 1.0f);
 			// Remove bullet from the world

@@ -69,9 +69,9 @@ public abstract class Entity implements Cloneable {
 	/**
 	 * Updates the entity. Only called on the client - use this for things that don't have a gameplay impact - simple
 	 * rendering changes. By default this function does nothing.
-	 * @param dt The time since the last clientUpdate.
+	 * @param ua The UpdateArgs class
 	 */
-	public void clientUpdate(double dt) {}
+	public void clientUpdate(UpdateArgs ua) {}
 	
 	/**
 	 * Renders the entity to the screen

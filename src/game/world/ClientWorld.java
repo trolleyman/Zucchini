@@ -14,6 +14,7 @@ import game.world.entity.Entity;
 import game.world.entity.Handgun;
 import game.world.entity.Player;
 import game.world.map.Map;
+import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -38,16 +39,16 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			// Create entity bank and add entities
 			EntityBank serverBank = new EntityBank();
 			for (Entity e : map.getInitialEntities())
-				serverBank.updateEntity(e);
-			int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
-			int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
-			serverBank.updateEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
+				serverBank.addEntity(e);
+			int weaponID = serverBank.addEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
+			int playerID = serverBank.addEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
+			serverBank.addEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
 			
 			// Create server world
 			ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
 			
 			// Create connection
-			DummyConnection connection = new DummyConnection(playerID);
+			LinkConnection connection = new LinkConnection(playerID);
 			ArrayList<IServerConnection> conns = new ArrayList<>();
 			conns.add(connection);
 			
@@ -111,6 +112,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	/** Client audio manager. It can handle AudioEvent's */
 	private ClientAudioManager clientAudio;
 	
+	/** Client UpdateArgs structure */
+	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null);
+	
 	/**
 	 * Constructs a client world
 	 * @param map The map
@@ -150,8 +154,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			this.bank.processCache(new ArrayList<>());
 			
+			clientUpdateArgs.dt = Util.DT_PER_SNAPSHOT_UPDATE;
+			clientUpdateArgs.bank = this.bank;
+			clientUpdateArgs.map = this.map;
+			clientUpdateArgs.audio = this.audio;
+			
 			for (Entity e : this.bank.entities)
-				e.clientUpdate(Util.DT_PER_SNAPSHOT_UPDATE);
+				e.clientUpdate(clientUpdateArgs);
 		}
 	}
 	
@@ -248,10 +257,15 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 
 	@Override
-	public void updateEntity(Entity e) {
-		this.bank.updateEntityCached(e);
+	public void addEntity(Entity e) {
+		this.bank.addEntityCached(e);
 	}
-
+	
+	@Override
+	public void updateEntity(EntityUpdate update) {
+		this.bank.updateEntityCached(update);
+	}
+	
 	@Override
 	public void removeEntity(int id) {
 		this.bank.removeEntityCached(id);

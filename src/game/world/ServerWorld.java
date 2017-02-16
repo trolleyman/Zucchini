@@ -6,11 +6,8 @@ import game.action.Action;
 import game.ai.AI;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
-import game.net.DummyConnection;
-import game.net.IClientConnectionHandler;
 import game.net.IServerConnection;
 import game.net.IServerConnectionHandler;
-import game.render.IRenderer;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -32,6 +29,7 @@ public class ServerWorld extends World implements Cloneable {
 	
 	/** The connections to the clients */
 	private ArrayList<IServerConnection> conns = new ArrayList<>();
+	private ArrayList<IServerConnection> fullUpdateRequests = new ArrayList<>();
 	
 	/**
 	 * Clones a ServerWorld
@@ -48,6 +46,7 @@ public class ServerWorld extends World implements Cloneable {
 		this.audio = w.audio;
 		
 		this.conns = w.conns;
+		this.fullUpdateRequests = w.fullUpdateRequests;
 	}
 	
 	/**
@@ -68,14 +67,26 @@ public class ServerWorld extends World implements Cloneable {
 	 * Adds a connection to the server
 	 * @param conn The connection
 	 */
-	public void addConnection(IServerConnection conn) {
+	public synchronized void addConnection(IServerConnection conn) {
 		this.conns.add(conn);
-		conn.setHandler((a) -> {
-			EntityBank bank = this.getEntityBank();
-			Entity e = bank.getEntity(conn.getPlayerID());
-			if (e != null && e instanceof Player)
-				((Player) e).handleAction(bank, a);
+		ServerWorld that = this;
+		conn.setHandler(new IServerConnectionHandler() {
+			@Override
+			public void handleAction(Action a) {
+				EntityBank bank = that.getEntityBank();
+				Entity e = bank.getEntity(conn.getPlayerID());
+				if (e != null && e instanceof Player)
+					((Player) e).handleAction(bank, a);
+			}
+			
+			@Override
+			public void handleFullUpdateRequest() {
+				that.fullUpdateRequests.add(conn);
+			}
 		});
+		
+		// Send a full update of the world
+		this.fullUpdateRequests.add(conn);
 	}
 	
 	public EntityBank getEntityBank() {
@@ -83,7 +94,7 @@ public class ServerWorld extends World implements Cloneable {
 	}
 
 	@Override
-	protected void updateStep(double dt) {
+	protected synchronized void updateStep(double dt) {
 		ua.dt = dt;
 		ua.bank = bank;
 		ua.map = map;
@@ -107,17 +118,15 @@ public class ServerWorld extends World implements Cloneable {
 		// Send entity updates
 		ua.bank.processCache(conns);
 		
-		// Send full entity updates
-		for (Entity e : this.bank.entities)
-			for (IServerConnection conn : conns)
-				conn.sendUpdateEntity(e);
+		// Send full updates to those who need it
+		for (IServerConnection conn : fullUpdateRequests)
+			for (Entity e : this.bank.entities)
+				conn.sendAddEntity(e);
+		fullUpdateRequests.clear();
 	}
 	
 	@Override
 	public ServerWorld clone() {
 		return new ServerWorld(this);
 	}
-	
-	
-	
 }

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import game.Util;
 import game.net.IServerConnection;
 import game.world.entity.Entity;
+import game.world.update.EntityUpdate;
+import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
 public class EntityBank {
@@ -15,15 +17,15 @@ public class EntityBank {
 	 * List of all entities in the world.
 	 * <p>
 	 * <b>NB:</b> This list is sorted ascending by entity ID.
-	 *            Use {@link #updateEntity(Entity)}/{@link #updateEntityCached(Entity)} to add entities to this safely
+	 *            Use {@link #addEntity(Entity)}/{@link #addEntityCached(Entity)} to add entities to this safely
 	 */
 	protected ArrayList<Entity> entities;
 	
-	/** The cache of entities to update */
-	private ArrayList<Entity> updateEntities = new ArrayList<>();
+	/** The cache of entities to add */
+	private ArrayList<Entity> addEntities = new ArrayList<>();
 	
-	/** The cache of entities to heal */
-	private ArrayList<HealthUpdate> healEntities = new ArrayList<>();
+	/** The cache of entities to update */
+	private ArrayList<EntityUpdate> updateEntities = new ArrayList<>();
 	
 	/** The cache of entities to remove */
 	private ArrayList<Integer> removeEntities = new ArrayList<>();
@@ -32,7 +34,7 @@ public class EntityBank {
 		this.entities = new ArrayList<>();
 		for (Entity e : _entities) {
 			// Do this to ensure that the entity IDs are set correctly
-			updateEntity(e);
+			addEntity(e);
 		}
 	}
 	
@@ -44,14 +46,14 @@ public class EntityBank {
 		// Clone entities
 		this.entities = new ArrayList<>();
 		for (Entity e : bank.entities) {
-			this.updateEntity(e.clone());
+			this.addEntity(e.clone());
 		}
 		// Clone caches
-		for (Entity e : bank.updateEntities) {
-			this.updateEntityCached(e.clone());
+		for (Entity e : bank.addEntities) {
+			this.addEntityCached(e.clone());
 		}
-		for (HealthUpdate hu : bank.healEntities) {
-			this.healEntities.add(hu.clone());
+		for (EntityUpdate eu : bank.updateEntities) {
+			this.updateEntityCached(eu);
 		}
 		for (Integer id : bank.removeEntities) {
 			this.removeEntityCached(id);
@@ -70,23 +72,24 @@ public class EntityBank {
 	 * @param conns The connections to the clients
 	 */
 	protected synchronized void processCache(ArrayList<IServerConnection> conns) {
-		// Process cached updates
-		for (Entity e : updateEntities) {
-			this.updateEntity(e);
+		// Process cached entity adds
+		for (Entity e : addEntities) {
+			this.addEntity(e);
 			for (IServerConnection conn : conns)
-				conn.sendUpdateEntity(e);
+				conn.sendAddEntity(e);
+		}
+		addEntities.clear();
+		
+		// Process updates
+		for (EntityUpdate eu : updateEntities) {
+			Entity e = this.getEntity(eu.getId());
+			if (e != null)
+				eu.updateEntity(e);
+			
+			for (IServerConnection conn : conns)
+				conn.sendUpdateEntity(eu);
 		}
 		updateEntities.clear();
-		
-		// Process health updates
-		for (HealthUpdate hu : healEntities) {
-			this.healEntity(hu.id, hu.health);
-			Entity e = this.getEntity(hu.id);
-			for (IServerConnection conn : conns)
-				if (e != null)
-					conn.sendUpdateEntity(e);
-		}
-		healEntities.clear();
 		
 		// Remove cached entities
 		for (Integer id : removeEntities) {
@@ -117,35 +120,35 @@ public class EntityBank {
 	}
 	
 	/**
-	 * Caches an addition to the world of an entity, or a modification of a current entity.
+	 * Caches an addition to the world of an entity.
 	 * <p>
 	 * If the id of the entity is Entity.INVALID_ID, then the id is set to a valid id
 	 * <br>
-	 * If the id of the entity already exists, then the entity will be updated
+	 * If the id of the entity already exists, then the entity will be replaced
 	 * 
 	 * @param e The entity
 	 * @return The id of the entity added to the EntityBank.
 	 */
-	public synchronized int updateEntityCached(Entity e) {
+	public synchronized int addEntityCached(Entity e) {
 		if (e.getId() == Entity.INVALID_ID)
 			e.setId(this.nextEntityId++);
-		this.updateEntities.add(e);
+		this.addEntities.add(e);
 		return e.getId();
 	}
 	
 	/**
-	 * Adds/updates an entity to/in the world.
+	 * Adds an entity to the world.
 	 * <p>
 	 * If the id of the entity is Entity.INVALID_ID, then the id is set to a valid id
 	 * <br>
-	 * If the id of the entity already exists, then the entity is updated
+	 * If the id of the entity already exists, then the entity is replaced.
 	 * <b>NB:</b> This should *not* be called when iterating through entities, like in the main update
-	 *            loop. See {@link #updateEntityCached(Entity)}
+	 *            loop. See {@link #addEntityCached(Entity)}
 	 * 
 	 * @param e The entity
 	 * @return The new id of the entity if it was Entity.INVALID_ID, the current id otherwise
 	 */
-	protected synchronized int updateEntity(Entity e) {
+	protected synchronized int addEntity(Entity e) {
 		if (e.getId() == Entity.INVALID_ID) {
 			// Insert entity at the end of the array
 			int id = this.nextEntityId++;
@@ -164,6 +167,24 @@ public class EntityBank {
 			}
 		}
 		return e.getId();
+	}
+	
+	/**
+	 * Caches the update of the entity
+	 * @param update The entity update
+	 */
+	public synchronized void updateEntityCached(EntityUpdate update) {
+		this.updateEntities.add(update);
+	}
+	
+	/**
+	 * Applies the EntityUpdate
+	 * @param update The entity update
+	 */
+	protected synchronized void updateEntity(EntityUpdate update) {
+		Entity e = getEntity(update.getId());
+		if (e != null)
+			update.updateEntity(e);
 	}
 	
 	/**
@@ -225,17 +246,6 @@ public class EntityBank {
 	public EntityIntersection getIntersection(float x0, float y0, float x1, float y1) {
 		// TODO: Implement entity collision
 		return null;
-	}
-	
-	protected synchronized void healEntity(int _id, float _health) {
-		Entity e = this.getEntity(_id);
-		if (e != null) {
-			e.addHealth(_health);
-		}
-	}
-	
-	public synchronized void healEntityCached(int _id, float _health) {
-		this.healEntities.add(new HealthUpdate(_id, _health));
 	}
 	
 	/**

@@ -1,7 +1,5 @@
 package game.world.entity;
 
-import java.util.ArrayList;
-
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
@@ -15,7 +13,7 @@ public class Handgun extends Weapon {
 	}
 	
 	public Handgun(Vector2f position) {
-		super(position, true, 0.2f, 8, 1.0f);
+		super(position, true, 0.1f, 8, 1.0f);
 	}
 
 	@Override
@@ -23,7 +21,7 @@ public class Handgun extends Weapon {
 		ua.audio.play("handgunshot.wav", 0.9f);
 		System.out.println("BANG!");
 		// Add bullets to entity bank
-		ua.bank.updateEntityCached(new HandgunBullet(new Vector2f(position), angle));
+		ua.bank.addEntityCached(new HandgunBullet(new Vector2f(position), angle));
 	}
 
 	@Override

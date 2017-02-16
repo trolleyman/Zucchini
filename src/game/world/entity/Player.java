@@ -8,6 +8,8 @@ import game.render.IRenderer;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.update.PositionUpdate;
+import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import java.util.Optional;
  *
  * @author Callum
  */
-public class Player extends Entity {
+public class Player extends MovableEntity {
 	/** The size of the player's line of sight */
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
@@ -26,13 +28,6 @@ public class Player extends Entity {
 	private static final float MAX_SPEED = 2.5f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
-	
-	/**
-	 * The current velocity of the player.
-	 * <p>
-	 * Used so that we don't have to construct a new Vector2f every update.
-	 */
-	private Vector2f velocity = new Vector2f();
 	
 	/** If the player is moving north */
 	private transient boolean moveNorth = false;
@@ -42,6 +37,9 @@ public class Player extends Entity {
 	private transient boolean moveEast  = false;
 	/** If the player is moving west */
 	private transient boolean moveWest  = false;
+	
+	/** Where the line of sight intersects with the map */
+	private transient Vector2f lineOfSightIntersecton;
 	
 	/** Entity ID of the item held. Not necessarily a weapon */
 	private int itemID = Entity.INVALID_ID;
@@ -55,8 +53,6 @@ public class Player extends Entity {
 	public Player(Player p) {
 		super(p);
 		
-		this.velocity = p.velocity;
-		
 		this.moveNorth = p.moveNorth;
 		this.moveSouth = p.moveSouth;
 		this.moveEast = p.moveEast;
@@ -65,6 +61,8 @@ public class Player extends Entity {
 		this.itemID = p.itemID;
 		
 		this.beganFire = p.beganFire;
+		
+		this.lineOfSightIntersecton = p.lineOfSightIntersecton;
 	}
 	
 	/**
@@ -75,6 +73,8 @@ public class Player extends Entity {
 	public Player(Vector2f position, int _itemID) {
 		super(position);
 		this.itemID = _itemID;
+		
+		this.lineOfSightIntersecton = new Vector2f();
 	}
 	
 	@Override
@@ -93,14 +93,16 @@ public class Player extends Entity {
 			return;
 		}
 		bank.removeEntityCached(itemID);
-		bank.updateEntityCached(new Pickup(this.position, (Item)e));
-		itemID = Entity.INVALID_ID;
+		bank.addEntityCached(new Pickup(this.position, (Item)e));
+		this.setItem(Entity.INVALID_ID); // TODO: EntityUpdate this
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
 		// Calculate velocity
+		super.update(ua);
 		{
+			Vector2f newVelocity = new Vector2f();
 			Vector2f temp = Util.pushTemporaryVector2f();
 			temp.zero();
 			if (this.moveNorth)
@@ -112,14 +114,12 @@ public class Player extends Entity {
 			if (this.moveWest)
 				temp.add(-1.0f, 0.0f);
 			temp.mul(MAX_SPEED);
-			
-			this.velocity.lerp(temp, (float) ua.dt / 5.0f);
-			this.velocity.set(temp);
-			
-			// Apply velocity
-			temp.set(this.velocity).mul((float) ua.dt);
-			this.position.add(temp);
-			ua.bank.updateEntityCached(this);
+			if (Math.abs(temp.distanceSquared(this.velocity)) > Util.EPSILON) {
+				newVelocity.set(this.velocity);
+				newVelocity.lerp(temp, (float) ua.dt * 8.0f);
+				
+				ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), newVelocity));
+			}
 			Util.popTemporaryVector2f();
 		}
 		
@@ -129,30 +129,38 @@ public class Player extends Entity {
 			Entity e = eFinal.clone();
 			e.position.set(this.position);
 			e.angle = this.angle;
-			ua.bank.updateEntityCached(e);
+			ua.bank.addEntityCached(e);
 		}
 		
 		// Get intersection
 		Vector2f intersection = Util.pushTemporaryVector2f();
 		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
 			// Intersection with map - push out
-			Vector2f temp = Util.pushTemporaryVector2f();
-			temp.set(position)
+			Vector2f newPosition = new Vector2f();
+			newPosition.set(position)
 				.sub(intersection)
 				.normalize()
-				.mul(RADIUS)
+				.mul(RADIUS + Util.EPSILON)
 				.add(intersection);
-			position.set(temp);
-			Util.popTemporaryVector2f();
+			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
 		}
 		Util.popTemporaryVector2f();
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void clientUpdate(UpdateArgs ua) {
+		super.clientUpdate(ua);
+		
 		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
 		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
-		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
+		
+		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
+			lineOfSightIntersecton.set(x, y);
+	}
+	
+	@Override
+	public void render(IRenderer r) {
+		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
 		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 	}
 	
