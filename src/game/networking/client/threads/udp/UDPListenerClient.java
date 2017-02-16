@@ -34,7 +34,7 @@ public class UDPListenerClient implements Runnable
 				socket.receive(packet);
 
 				String message = new String(packet.getData());
-				// System.out.println(message);
+				System.out.println(message);
 				synchronized (fromServer)
 				{
 					// fromServer.add(message);
