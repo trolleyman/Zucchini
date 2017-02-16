@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -26,6 +27,14 @@ public class UDPSenderLobbyThread implements Runnable
 		socket = _socket;
 		UDP_actions = _udpActions;
 		clients = _gameClients;
+		try
+		{
+			socket.setBroadcast(true);
+		} catch (SocketException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -37,7 +46,7 @@ public class UDPSenderLobbyThread implements Runnable
 			Tuple<String, String> tuple = null;
 			synchronized (UDP_actions)
 			{
-				tuple = UDP_actions.poll();
+				tuple = new Tuple<String, String>("Server", "udp");// UDP_actions.poll();
 			}
 			if (tuple != null)
 			{
@@ -46,10 +55,12 @@ public class UDPSenderLobbyThread implements Runnable
 				for (String name : clients.keySet())
 				{
 					InetAddress address = clients.get(name).getFirst();
-					int port = clients.get(name).getSecond().getSecond();
+					int port = clients.get(name).getSecond().getFirst();
 					DatagramPacket dp = new DatagramPacket(buffer, buffer.length, address, port);
 					try
 					{
+						// System.out.println("Sending to" + dp.getAddress() + "
+						// - " + dp.getPort());
 						socket.send(dp);
 					} catch (IOException e)
 					{

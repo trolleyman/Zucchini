@@ -24,6 +24,7 @@ public class ClientConnection implements Runnable
 	LinkedList<String> udpfromServer;
 
 	InetAddress server;
+	UDPConnectionClient conn;
 
 	public ClientConnection(String _name)
 	{
@@ -96,16 +97,21 @@ public class ClientConnection implements Runnable
 
 	public void startUDP()
 	{
-		UDPConnectionClient conn = new UDPConnectionClient(server, udptoServer, udpfromServer);
+		conn = new UDPConnectionClient(server, udptoServer, udpfromServer);
 		if (conn.getReceivePort() != -1 && conn.getSendPort() != -1)
 		{
 			synchronized (this)
 			{
 				toServer.add("[UDPStart]lobbyname[UDPS]" + conn.getSendPort() + "[UDPR]" + conn.getReceivePort());
 			}
-			conn.Start();
 		}
 
+	}
+
+	public void setUpUDP(int send, int receive)
+	{
+		conn.setUDPports(send, receive);
+		conn.Start();
 	}
 
 	public synchronized LinkedList<String> getToServerOutput()

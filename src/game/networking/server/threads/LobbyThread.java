@@ -273,6 +273,7 @@ public class LobbyThread implements Runnable, IConnectionHandler
 			{
 				sendMessages.get(clientName).add("[UDPS]" + send + "[UDPR]" + receive);
 			}
+			smallGameLobbyAux.StartConnections();
 		}
 	}
 

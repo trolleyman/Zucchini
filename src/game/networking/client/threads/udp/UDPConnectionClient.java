@@ -14,22 +14,26 @@ public class UDPConnectionClient
 	private int portReceiver;
 	private UDPSenderClient sender;
 	private UDPListenerClient receiver;
+	private InetAddress server;
 
 	public UDPConnectionClient(InetAddress _address, LinkedList<String> _udpToServer, LinkedList<String> _udpFromServer)
 	{
 
 		DatagramSocket datagramSocket;
+		server = _address;
 		try
 		{
 			portSender = UtilityCode.getNextAvailabePort();
 			if (portSender != -1)
 			{
+				System.out.println("client sender port:" + portSender);
 				datagramSocket = new DatagramSocket(portSender, InetAddress.getByName("0.0.0.0"));
-				sender = new UDPSenderClient(datagramSocket, _address, portSender, _udpToServer);
+				sender = new UDPSenderClient(datagramSocket, _udpToServer);
 			}
 			portReceiver = UtilityCode.getNextAvailabePort();
 			if (portReceiver != -1)
 			{
+				System.out.println("client receiver port:" + portReceiver);
 				datagramSocket = new DatagramSocket(portReceiver, InetAddress.getByName("0.0.0.0"));
 				receiver = new UDPListenerClient(datagramSocket, _udpFromServer);
 			}
@@ -58,5 +62,12 @@ public class UDPConnectionClient
 	public synchronized int getSendPort()
 	{
 		return portSender;
+	}
+
+	public void setUDPports(int sendPort, int receivePort)
+	{
+		sender.setServerPort(receivePort, server);
+		receiver.setServerPort(sendPort, server);
+
 	}
 }

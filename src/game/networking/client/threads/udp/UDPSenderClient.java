@@ -10,17 +10,13 @@ public class UDPSenderClient implements Runnable
 {
 
 	private DatagramSocket socket;
-	private int port;
 	private LinkedList<String> toServer;
-	private InetAddress address;
 	private boolean run;
 
-	public UDPSenderClient(DatagramSocket _UDPsocket, InetAddress _address, int _port, LinkedList<String> _udpToServer)
+	public UDPSenderClient(DatagramSocket _UDPsocket, LinkedList<String> _udpToServer)
 	{
 		socket = _UDPsocket;
-		port = _port;
 		toServer = _udpToServer;
-		address = _address;
 		run = false;
 	}
 
@@ -37,7 +33,7 @@ public class UDPSenderClient implements Runnable
 				try
 				{
 					byte[] buffer = message.getBytes();
-					DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
+					DatagramPacket packet = new DatagramPacket(buffer, buffer.length, socket.getInetAddress(), socket.getPort());
 
 					socket.send(packet);
 
@@ -52,7 +48,7 @@ public class UDPSenderClient implements Runnable
 
 	}
 
-	public void start()
+	public synchronized void start()
 	{
 		run = true;
 		(new Thread(this)).start();
@@ -62,6 +58,14 @@ public class UDPSenderClient implements Runnable
 	public synchronized void stop()
 	{
 		run = false;
+	}
+
+	public synchronized void setServerPort(int port, InetAddress server)
+	{
+		socket.connect(server, port);
+
+		System.out.println(socket.getInetAddress() + " - " + socket.getPort());
+
 	}
 
 }

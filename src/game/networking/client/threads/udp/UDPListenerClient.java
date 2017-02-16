@@ -3,6 +3,7 @@ package game.networking.client.threads.udp;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.LinkedList;
 
 public class UDPListenerClient implements Runnable
@@ -27,12 +28,13 @@ public class UDPListenerClient implements Runnable
 		{
 			try
 			{
-
+				System.out.println("Listening to " + socket.getPort());
 				byte[] buffer = new byte[50000];
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
 
 				String message = new String(packet.getData());
+				System.out.println(message);
 				synchronized (fromServer)
 				{
 					fromServer.add(message);
@@ -46,7 +48,7 @@ public class UDPListenerClient implements Runnable
 		}
 	}
 
-	public void start()
+	public synchronized void start()
 	{
 		run = true;
 		(new Thread(this)).start();
@@ -56,6 +58,13 @@ public class UDPListenerClient implements Runnable
 	public synchronized void stop()
 	{
 		run = false;
+	}
+
+	public synchronized void setServerPort(int port, InetAddress server)
+	{
+		socket.connect(server, port);
+		System.out.println(socket.getInetAddress() + " - " + socket.getPort());
+
 	}
 
 }

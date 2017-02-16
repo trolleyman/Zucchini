@@ -10,12 +10,13 @@ public class ClientTest3 implements Runnable
 	LinkedList<String> fromServer;
 	String name;
 	boolean isHuman = false;
+	ClientConnection clientConnection;
 
 	public ClientTest3(String _name, boolean _isHuman)
 	{
 		name = _name;
 		isHuman = _isHuman;
-		ClientConnection clientConnection = new ClientConnection(_name);
+		clientConnection = new ClientConnection(_name);
 		synchronized (this)
 		{
 			toServer = clientConnection.getToServerOutput();
@@ -49,7 +50,13 @@ public class ClientTest3 implements Runnable
 			synchronized (fromServer)
 			{
 				String message = fromServer.poll();
-				if (message != null && !message.contains("[PING]"))
+				if (message != null && message.contains("[UDPS]"))
+				{
+					int send = Integer.parseInt(message.substring(message.indexOf("[UDPS]") + "[UDPS]".length(), message.indexOf("[UDPR]")));
+					int rec = Integer.parseInt(message.substring(message.indexOf("[UDPR]") + "[UDPR]".length()));
+					clientConnection.setUpUDP(send, rec);
+
+				} else if (message != null && !message.contains("[PING]"))
 					System.out.println(name + " - " + message);
 			}
 			try

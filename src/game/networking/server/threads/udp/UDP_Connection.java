@@ -26,7 +26,9 @@ public class UDP_Connection
 		DatagramSocket datagramSocket;
 		try
 		{
+
 			portReceiver = UtilityCode.getNextAvailabePort();
+			System.out.println("server receiver port:" + portReceiver);
 			if (portReceiver != -1)
 			{
 				datagramSocket = new DatagramSocket(portReceiver, InetAddress.getByName("0.0.0.0"));
@@ -34,6 +36,7 @@ public class UDP_Connection
 			}
 
 			portSender = UtilityCode.getNextAvailabePort();
+			System.out.println("server sender port:" + portSender);
 			if (portSender != -1)
 			{
 				datagramSocket = new DatagramSocket(portSender, InetAddress.getByName("0.0.0.0"));
