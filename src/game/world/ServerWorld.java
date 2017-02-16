@@ -33,9 +33,6 @@ public class ServerWorld extends World implements Cloneable {
 	/** The connections to the clients */
 	private ArrayList<IServerConnection> conns = new ArrayList<>();
 	
-	/** The list of connections to give full updates to */
-	private ArrayList<IServerConnection> fullConns = new ArrayList<>();
-	
 	/**
 	 * Clones a ServerWorld
 	 */
@@ -51,7 +48,6 @@ public class ServerWorld extends World implements Cloneable {
 		this.audio = w.audio;
 		
 		this.conns = w.conns;
-		this.fullConns = new ArrayList<>(w.fullConns);
 	}
 	
 	/**
@@ -59,7 +55,6 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param map The map
 	 * @param bank The entity bank
 	 * @param _ais List of AI controllers
-	 * @param _conns The list of connections to clients
 	 */
 	public ServerWorld(Map map, EntityBank bank, ArrayList<AI> _ais) {
 		super(map, bank);
@@ -75,7 +70,6 @@ public class ServerWorld extends World implements Cloneable {
 	 */
 	public void addConnection(IServerConnection conn) {
 		this.conns.add(conn);
-		this.fullConns.add(conn);
 		conn.setHandler((a) -> {
 			EntityBank bank = this.getEntityBank();
 			Entity e = bank.getEntity(conn.getPlayerID());
@@ -115,9 +109,8 @@ public class ServerWorld extends World implements Cloneable {
 		
 		// Send full entity updates
 		for (Entity e : this.bank.entities)
-			for (IServerConnection conn : fullConns)
+			for (IServerConnection conn : conns)
 				conn.sendUpdateEntity(e);
-		fullConns.clear();
 	}
 	
 	@Override

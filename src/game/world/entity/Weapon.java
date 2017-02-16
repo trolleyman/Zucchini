@@ -12,8 +12,6 @@ import java.util.ArrayList;
  * @author Callum
  */
 public abstract class Weapon extends Item {
-	private ArrayList<Entity> toFire = new ArrayList<>();
-	
 	private float currentCooldown = 0.0f;
 	/** Current shots left in clip */
 	private int currentShots;
@@ -30,11 +28,6 @@ public abstract class Weapon extends Item {
 	
 	public Weapon(Weapon g) {
 		super(g);
-		
-		this.toFire = new ArrayList<>();
-		for (Entity e : g.toFire) {
-			this.toFire.add(e.clone());
-		}
 		
 		this.currentCooldown = g.currentCooldown;
 		this.currentShots = g.currentShots;

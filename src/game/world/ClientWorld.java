@@ -29,7 +29,6 @@ import static org.lwjgl.glfw.GLFW.*;
 public class ClientWorld extends World implements InputHandler, IClientConnectionHandler {
 	/**
 	 * Creates a test single player world
-	 * @throws Exception
 	 */
 	public static ClientWorld createTestWorld(AudioManager audio) {
 		try {
