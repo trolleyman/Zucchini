@@ -24,6 +24,11 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
+	protected void reload(UpdateArgs ua) {
+		ua.audio.play("gun_reload[2sec].wav", 1.0f);
+	}
+	
+	@Override
 	public void render(IRenderer r) {
 		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN);
 	}

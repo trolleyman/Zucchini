@@ -13,7 +13,7 @@ public class Handgun extends Weapon {
 	}
 	
 	public Handgun(Vector2f position) {
-		super(position, true, 0.1f, 8, 1.0f);
+		super(position, true, 0.1f, 8, 2.0f);
 	}
 
 	@Override
@@ -23,7 +23,12 @@ public class Handgun extends Weapon {
 		// Add bullets to entity bank
 		ua.bank.addEntityCached(new HandgunBullet(new Vector2f(position), angle));
 	}
-
+	
+	@Override
+	protected void reload(UpdateArgs ua) {
+		ua.audio.play("gun_reload[2sec].wav", 1.0f);
+	}
+	
 	@Override
 	public void render(IRenderer r) {
 		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.PINK);

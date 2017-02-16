@@ -4,7 +4,10 @@ import game.ColorUtil;
 import game.Util;
 import game.action.Action;
 import game.action.AimAction;
+import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
+import game.render.TextureBank;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
@@ -29,6 +32,7 @@ public class Player extends MovableEntity {
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
 	
+	private boolean isMoving = false;
 	/** If the player is moving north */
 	private transient boolean moveNorth = false;
 	/** If the player is moving south */
@@ -43,6 +47,10 @@ public class Player extends MovableEntity {
 	
 	/** Entity ID of the item held. Not necessarily a weapon */
 	private int itemID = Entity.INVALID_ID;
+	
+	/** Has the player been assigned a footstep sound source? */
+	private boolean soundSourceInit = false;
+	private int walkingSoundID;//sound source id associated with player movement
 	
 	private transient boolean beganFire = false;
 	
@@ -101,6 +109,13 @@ public class Player extends MovableEntity {
 	public void update(UpdateArgs ua) {
 		// Calculate velocity
 		super.update(ua);
+		
+		if (!soundSourceInit){
+			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f);
+			ua.audio.pauseLoop(this.walkingSoundID);
+			soundSourceInit = true;
+		}
+		
 		{
 			Vector2f newVelocity = new Vector2f();
 			Vector2f temp = Util.pushTemporaryVector2f();
@@ -122,6 +137,21 @@ public class Player extends MovableEntity {
 			}
 			Util.popTemporaryVector2f();
 		}
+		
+		//Play walking sounds
+		//System.out.println(moveNorth + " " +moveSouth+ " " +moveEast+ " " +moveWest);
+		if(moveNorth || moveSouth || moveEast || moveWest ){
+			//System.out.println("Starting sound id: " + walkingSoundID);
+			ua.audio.continueLoop(this.walkingSoundID);
+		} else {
+			ua.audio.pauseLoop(this.walkingSoundID);
+			//System.out.println("Stopping sound id: " + walkingSoundID);
+		}
+
+//		if (this.walkingSoundID==1){
+//			System.out.println("Velocity: " + velocity);
+//			System.out.println("Position: " + position);
+//		}
 		
 		// FIXME: Make sure held item keeps up with the player
 		Entity eFinal = ua.bank.getEntity(itemID);
@@ -145,6 +175,7 @@ public class Player extends MovableEntity {
 			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
 		}
 		Util.popTemporaryVector2f();
+		
 	}
 	
 	@Override
@@ -153,6 +184,7 @@ public class Player extends MovableEntity {
 		
 		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
 		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
+<<<<<<< HEAD
 		
 		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
@@ -162,6 +194,12 @@ public class Player extends MovableEntity {
 	public void render(IRenderer r) {
 		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
 		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+=======
+		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
+		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+		Texture playerTexture = r.getImageBank().getTexture("player_v1.png");
+		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
+>>>>>>> master
 	}
 	
 	/**
