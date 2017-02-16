@@ -52,9 +52,9 @@ public class ClientTest3 implements Runnable
 				String message = fromServer.poll();
 				if (message != null && message.contains("[UDPS]"))
 				{
-					int send = Integer.parseInt(message.substring(message.indexOf("[UDPS]") + "[UDPS]".length(), message.indexOf("[UDPR]")));
-					int rec = Integer.parseInt(message.substring(message.indexOf("[UDPR]") + "[UDPR]".length()));
-					clientConnection.setUpUDP(send, rec);
+					int sendFromServer = Integer.parseInt(message.substring(message.indexOf("[UDPS]") + "[UDPS]".length(), message.indexOf("[UDPR]")));
+					int recFromServer = Integer.parseInt(message.substring(message.indexOf("[UDPR]") + "[UDPR]".length()));
+					clientConnection.setUpUDP(recFromServer, sendFromServer);
 
 				} else if (message != null && !message.contains("[PING]"))
 					System.out.println(name + " - " + message);

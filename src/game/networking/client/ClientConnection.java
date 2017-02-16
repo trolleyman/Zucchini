@@ -97,7 +97,7 @@ public class ClientConnection implements Runnable
 
 	public void startUDP()
 	{
-		conn = new UDPConnectionClient(server, udptoServer, udpfromServer);
+		conn = new UDPConnectionClient(name, server, udptoServer, udpfromServer);
 		if (conn.getReceivePort() != -1 && conn.getSendPort() != -1)
 		{
 			synchronized (this)

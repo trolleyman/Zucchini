@@ -16,7 +16,7 @@ public class UDPConnectionClient
 	private UDPListenerClient receiver;
 	private InetAddress server;
 
-	public UDPConnectionClient(InetAddress _address, LinkedList<String> _udpToServer, LinkedList<String> _udpFromServer)
+	public UDPConnectionClient(String _name, InetAddress _address, LinkedList<String> _udpToServer, LinkedList<String> _udpFromServer)
 	{
 
 		DatagramSocket datagramSocket;
@@ -28,7 +28,7 @@ public class UDPConnectionClient
 			{
 				System.out.println("client sender port:" + portSender);
 				datagramSocket = new DatagramSocket(portSender, InetAddress.getByName("0.0.0.0"));
-				sender = new UDPSenderClient(datagramSocket, _udpToServer);
+				sender = new UDPSenderClient(_name, datagramSocket, _udpToServer);
 			}
 			portReceiver = UtilityCode.getNextAvailabePort();
 			if (portReceiver != -1)
@@ -66,8 +66,8 @@ public class UDPConnectionClient
 
 	public void setUDPports(int sendPort, int receivePort)
 	{
-		sender.setServerPort(receivePort, server);
-		receiver.setServerPort(sendPort, server);
+		sender.setServerPort(sendPort, server);
+		receiver.setServerPort(receivePort, server);
 
 	}
 }

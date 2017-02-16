@@ -28,16 +28,16 @@ public class UDPListenerClient implements Runnable
 		{
 			try
 			{
-				System.out.println("Listening to " + socket.getPort());
+				// System.out.println("Listening to " + socket.getPort());
 				byte[] buffer = new byte[50000];
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
 
 				String message = new String(packet.getData());
-				System.out.println(message);
+				// System.out.println(message);
 				synchronized (fromServer)
 				{
-					fromServer.add(message);
+					// fromServer.add(message);
 				}
 
 			} catch (IOException e)
@@ -63,7 +63,7 @@ public class UDPListenerClient implements Runnable
 	public synchronized void setServerPort(int port, InetAddress server)
 	{
 		socket.connect(server, port);
-		System.out.println(socket.getInetAddress() + " - " + socket.getPort());
+		System.out.println("client list: " + socket.getInetAddress() + " - " + socket.getPort());
 
 	}
 

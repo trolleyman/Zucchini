@@ -55,7 +55,7 @@ public class UDPSenderLobbyThread implements Runnable
 				for (String name : clients.keySet())
 				{
 					InetAddress address = clients.get(name).getFirst();
-					int port = clients.get(name).getSecond().getFirst();
+					int port = clients.get(name).getSecond().getSecond();
 					DatagramPacket dp = new DatagramPacket(buffer, buffer.length, address, port);
 					try
 					{

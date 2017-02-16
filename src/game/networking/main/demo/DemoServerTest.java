@@ -20,15 +20,15 @@ public class DemoServerTest extends ServerAbstract implements Runnable
 					{
 						String message = tup.getSecond();
 						String lobbyName = message.substring("[UDPStart]".length(), message.indexOf("[UDPS]"));
-						int sendport = Integer.parseInt(message.substring(message.indexOf("[UDPS]") + "[UDPS]".length(), message.indexOf("[UDPR]")));
-						int receiveport = Integer.parseInt(message.substring(message.indexOf("[UDPR]") + "[UDPR]".length()));
+						int sendportFromClient = Integer.parseInt(message.substring(message.indexOf("[UDPS]") + "[UDPS]".length(), message.indexOf("[UDPR]")));
+						int receiveportFromClient = Integer.parseInt(message.substring(message.indexOf("[UDPR]") + "[UDPR]".length()));
 
 						System.out.println(message);
 						System.out.println("lobby name: " + lobbyName);
-						System.out.println("SP: " + sendport);
-						System.out.println("RP: " + receiveport);
+						System.out.println("SP: " + sendportFromClient);
+						System.out.println("RP: " + receiveportFromClient);
 
-						lobby.joinLobby(lobbyName, tup.getFirst(), lobby.getClientIP(tup.getFirst()), receiveport, sendport);
+						lobby.joinLobby(lobbyName, tup.getFirst(), lobby.getClientIP(tup.getFirst()), sendportFromClient, receiveportFromClient);
 
 					} else
 						for (String name : getSendMess().keySet())

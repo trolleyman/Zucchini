@@ -6,15 +6,19 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.LinkedList;
 
+import game.networking.util.Protocol;
+
 public class UDPSenderClient implements Runnable
 {
 
 	private DatagramSocket socket;
 	private LinkedList<String> toServer;
 	private boolean run;
+	private String name;
 
-	public UDPSenderClient(DatagramSocket _UDPsocket, LinkedList<String> _udpToServer)
+	public UDPSenderClient(String _name, DatagramSocket _UDPsocket, LinkedList<String> _udpToServer)
 	{
+		name = _name;
 		socket = _UDPsocket;
 		toServer = _udpToServer;
 		run = false;
@@ -26,7 +30,8 @@ public class UDPSenderClient implements Runnable
 		while (run)
 		{
 			String message = null;
-			message = toServer.poll();
+			message = "hello Server UDP";// toServer.poll();
+			message = Protocol.UDP_playerNameTagBegin + name + Protocol.UDP_playerNameTagEnd + message;
 			if (message != null)
 			{
 
@@ -64,7 +69,7 @@ public class UDPSenderClient implements Runnable
 	{
 		socket.connect(server, port);
 
-		System.out.println(socket.getInetAddress() + " - " + socket.getPort());
+		System.out.println("client send: " + socket.getInetAddress() + " - " + socket.getPort());
 
 	}
 
