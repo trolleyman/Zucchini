@@ -13,15 +13,15 @@ public abstract class MovableEntity extends Entity {
 	 */
 	public Vector2f velocity;
 	
+	public MovableEntity(int team, Vector2f position) {
+		super(team, position);
+		
+		this.velocity = new Vector2f();
+	}
+	
 	public MovableEntity(MovableEntity e) {
 		super(e);
 		this.velocity = e.velocity;
-	}
-	
-	public MovableEntity(Vector2f position) {
-		super(position);
-		
-		this.velocity = new Vector2f();
 	}
 	
 	@Override

@@ -54,6 +54,18 @@ public class Player extends MovableEntity {
 	private transient boolean beganUse = false;
 	
 	/**
+	 * Constructs a new player at the specified position holding a weapon
+	 * @param position The position
+	 * @param _heldItem The currently held item
+	 */
+	public Player(int team, Vector2f position, Item _heldItem) {
+		super(team, position);
+		this.heldItem = _heldItem;
+		
+		this.lineOfSightIntersecton = new Vector2f();
+	}
+	
+	/**
 	 * Clones the specified player
 	 * @param p The player
 	 */
@@ -70,18 +82,6 @@ public class Player extends MovableEntity {
 		this.beganUse = p.beganUse;
 		
 		this.lineOfSightIntersecton = p.lineOfSightIntersecton;
-	}
-	
-	/**
-	 * Constructs a new player at the specified position holding a weapon
-	 * @param position The position
-	 * @param _heldItem The currently held item
-	 */
-	public Player(Vector2f position, Item _heldItem) {
-		super(position);
-		this.heldItem = _heldItem;
-		
-		this.lineOfSightIntersecton = new Vector2f();
 	}
 	
 	@Override

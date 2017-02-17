@@ -5,6 +5,7 @@ import game.Util;
 import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.PhysicsUtil;
+import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
@@ -19,20 +20,20 @@ public abstract class Bullet extends Entity {
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
 	
+	public Bullet(Vector2f position, Vector2f _velocity, float _damage, double _ttl) {
+		super(Team.PASSIVE_TEAM, position);
+		this.prevPosition.set(position);
+		this.velocity = _velocity;
+		this.damage = _damage;
+		this.ttl = _ttl;
+	}
+	
 	public Bullet(Bullet b) {
 		super(b);
 		this.prevPosition = new Vector2f(b.prevPosition);
 		this.velocity = b.velocity;
 		this.damage = b.damage;
 		this.ttl = b.ttl;
-	}
-	
-	public Bullet(Vector2f position, Vector2f _velocity, float _damage, double _ttl) {
-		super(position);
-		this.prevPosition.set(position);
-		this.velocity = _velocity;
-		this.damage = _damage;
-		this.ttl = _ttl;
 	}
 	
 	@Override

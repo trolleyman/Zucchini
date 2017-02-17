@@ -165,14 +165,13 @@ public class Map {
 		return buf;
 	}
 	
-	/**
+	/*
 	 * Gets the line of sight data for the position given.
 	 * @param pos The position of the camera in the world
 	 * @param num The number of samples
 	 * @param max The maximum length of the line of sight
 	 * @param buf Where to store the buffer. If this is null, will allocate a new float array.
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
-	 */
 	/*
 	public float[] getLineOfSightNew(Vector2f pos, int num, float max, float[] buf) {
 		int len = num * 2 + 4;

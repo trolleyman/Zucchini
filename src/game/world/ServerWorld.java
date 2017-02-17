@@ -113,7 +113,7 @@ public class ServerWorld extends World implements Cloneable {
 		ua.audio = audio;
 		
 		// Ensure that no entity updates are left out
-		ua.bank.processCache(conns);
+		this.bank.processCache(conns);
 		
 		// Update entities
 		for (Entity e : this.bank.entities) {
@@ -131,7 +131,15 @@ public class ServerWorld extends World implements Cloneable {
 				conn.sendAudioEvent(ae);
 		
 		// Send entity updates
-		ua.bank.processCache(conns);
+		this.bank.processCache(conns);
+		
+		// *DING-DONG* *DING-DONG* bring out yer dead
+		for (Entity e : this.bank.entities) {
+			if (e.getHealth() <= 0.0f) {
+				e.death(ua);
+				this.bank.removeEntityCached(e.getId());
+			}
+		}
 		
 		// Send full updates to those who need it
 		for (IServerConnection conn : fullUpdateRequests)

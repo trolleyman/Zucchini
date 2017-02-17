@@ -13,6 +13,9 @@ public class EntityBank {
 	/** Next sequential entity ID to use */
 	private int nextEntityId = 0;
 	
+	/** Next sequential team ID to use */
+	private int nextFreeTeam = Team.START_FREE_TEAM;
+	
 	/**
 	 * List of all entities in the world.
 	 * <p>
@@ -68,8 +71,15 @@ public class EntityBank {
 	}
 
 	/**
+	 * Process the cached records.
+	 */
+	protected synchronized void processCacheClient() {
+		this.processCache(new ArrayList<>());
+	}
+	
+	/**
 	 * Process the cached records, and send them to conn.
-	 * @param conns The connections to the clients
+	 * @param conns The connections to the clients.
 	 */
 	protected synchronized void processCache(ArrayList<IServerConnection> conns) {
 		// Process cached entity adds
@@ -249,8 +259,26 @@ public class EntityBank {
 	 * @return null if there was no intersection, the closest intersection to x0,y0 otherwise
 	 */
 	public EntityIntersection getIntersection(float x0, float y0, float x1, float y1) {
-		// TODO: Implement entity collision
-		return null;
+		int id = Entity.INVALID_ID;
+		Vector2f ret = null;
+		for (Entity e : entities) {
+			Vector2f intersection = e.intersects(x0, y0, x1, y1);
+			if (ret == null) {
+				ret = intersection;
+				id = e.getId();
+			} else if (intersection != null) {
+				float retd2 = ret.distanceSquared(x0, y0);
+				float intersectiond2 = intersection.distanceSquared(x0, y0);
+				if (retd2 > intersectiond2) {
+					ret = intersection;
+					id = e.getId();
+				}
+			}
+		}
+		if (ret == null)
+			return null;
+		
+		return new EntityIntersection(id, ret.x, ret.y);
 	}
 	
 	/**
@@ -272,5 +300,9 @@ public class EntityBank {
 		}
 		Util.popTemporaryVector2f();
 		return l;
+	}
+	
+	public int getNextFreeTeam() {
+		return nextFreeTeam++;
 	}
 }

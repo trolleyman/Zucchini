@@ -10,10 +10,7 @@ import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
 import game.net.*;
 import game.render.IRenderer;
-import game.world.entity.Entity;
-import game.world.entity.Handgun;
-import game.world.entity.Item;
-import game.world.entity.Player;
+import game.world.entity.*;
 import game.world.map.Map;
 import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
@@ -42,8 +39,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			for (Entity e : map.getInitialEntities())
 				serverBank.addEntity(e);
 			Item weapon = new Handgun(new Vector2f(0.5f, 0.5f));
-			int playerID = serverBank.addEntity(new Player(new Vector2f(0.5f, 0.5f), weapon));
-			serverBank.addEntity(new Player(new Vector2f(-2.0f, -2.0f), weapon.clone()));
+			int playerID = serverBank.addEntity(new Player(serverBank.getNextFreeTeam(), new Vector2f(0.5f, 0.5f), weapon));
 			
 			// Create server world
 			ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
@@ -103,7 +99,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private Action actionEast   = new Action(ActionType.END_MOVE_EAST );
 	private Action actionWest   = new Action(ActionType.END_MOVE_WEST );
 	private AimAction actionAim = new AimAction(0.0f);
-	private Action actionFire   = new Action(ActionType.END_USE);
+	private Action actionUse    = new Action(ActionType.END_USE);
 	
 	/** This is the line of sight buffer. This is meant to be null. */
 	private float[] losBuf = null;
@@ -151,9 +147,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			connection.sendAction(actionEast);
 			connection.sendAction(actionWest);
 			connection.sendAction(actionAim);
-			connection.sendAction(actionFire);
+			connection.sendAction(actionUse);
 			
-			this.bank.processCache(new ArrayList<>());
+			this.bank.processCacheClient();
 			
 			clientUpdateArgs.dt = Util.DT_PER_SNAPSHOT_UPDATE;
 			clientUpdateArgs.bank = this.bank;
@@ -252,9 +248,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Send input to server
 		if (button == GLFW_MOUSE_BUTTON_1)
 			if (action == GLFW_PRESS)
-				actionFire.setType(ActionType.BEGIN_USE);
+				actionUse.setType(ActionType.BEGIN_USE);
 			else if (action == GLFW_RELEASE)
-				actionFire.setType(ActionType.END_USE);
+				actionUse.setType(ActionType.END_USE);
 	}
 
 	@Override

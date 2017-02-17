@@ -2,6 +2,7 @@ package game.world.entity;
 
 import game.render.IRenderer;
 import game.world.EntityBank;
+import game.world.Team;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
@@ -12,13 +13,13 @@ public class Pickup extends Entity {
 	private Item item;
 	private transient double time = 0.0f;
 	
-	public Pickup(Pickup p) {
-		super(p);
+	public Pickup(Vector2f position, Item _item) {
+		super(Team.PASSIVE_TEAM, position);
+		this.item = _item;
 	}
 	
-	public Pickup(Vector2f position, Item _item) {
-		super(position);
-		this.item = _item;
+	public Pickup(Pickup p) {
+		super(p);
 	}
 	
 	public Item getItem() {

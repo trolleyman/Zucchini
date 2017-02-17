@@ -1,14 +1,15 @@
 package game.world.entity;
 
+import game.world.Team;
 import org.joml.Vector2f;
 
 public abstract class Item extends Entity {
-	public Item(Item i) {
-		super(i);
+	public Item(Vector2f position) {
+		super(Team.PASSIVE_TEAM, position);
 	}
 	
-	public Item(Vector2f position) {
-		super(position);
+	public Item(Item i) {
+		super(i);
 	}
 	
 	/** Called when the user presses the mouse button */

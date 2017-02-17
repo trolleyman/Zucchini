@@ -1,6 +1,7 @@
 package game.world.entity;
 
 import game.render.IRenderer;
+import game.world.Team;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 

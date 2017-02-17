@@ -11,7 +11,7 @@ public class MachineGunBullet extends Bullet {
 	}
 	
 	public MachineGunBullet(Vector2f position, float angle) {
-		super(position, new Vector2f(SPEED * (float)Math.sin(angle), SPEED * (float)Math.cos(angle)), 3.0f, 10.0);
+		super(position, new Vector2f(SPEED * (float)Math.sin(angle), SPEED * (float)Math.cos(angle)), 0.5f, 10.0);
 	}
 	
 	@Override
