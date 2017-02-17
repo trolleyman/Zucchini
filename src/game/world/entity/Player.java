@@ -183,7 +183,7 @@ public class Player extends MovableEntity {
 	public void render(IRenderer r) {
 		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
-		Texture playerTexture = r.getImageBank().getTexture("player_v1.png");
+		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 		
 		this.heldItem.position = this.position;

@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -84,6 +85,10 @@ public class Util {
 	 */
 	public static String getBasePath() {
 		return "./";
+	}
+	
+	public static String getResourcesDir() {
+		return Util.getBasePath() + '/' + "resources/";
 	}
 	
 	private static final ThreadLocal<Vector3f> vector3f = new ThreadLocal<Vector3f>() {

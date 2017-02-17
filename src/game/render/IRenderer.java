@@ -65,7 +65,7 @@ public interface IRenderer {
 	/**
 	 * Returns the {@link TextureBank} instance.
 	 */
-	public TextureBank getImageBank();
+	public TextureBank getTextureBank();
 	
 	/**
 	 * Gets the ModelView matrix stack.
@@ -89,7 +89,7 @@ public interface IRenderer {
 	/**
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a).
-	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
@@ -101,7 +101,7 @@ public interface IRenderer {
 	/**
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a) with a specified rotation r.
-	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
@@ -115,7 +115,7 @@ public interface IRenderer {
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a) with a specified
 	 * width, height and rotation.
-	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
@@ -130,7 +130,7 @@ public interface IRenderer {
 	 * Draws the texture specified to the screen at x,y (relative to the
 	 * bottom left of the screen and alignment a) with a specified
 	 * width, height and rotation.
-	 * @param tex The texture specified. See {@link #getImageBank()}.
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate

@@ -372,7 +372,7 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public TextureBank getImageBank() {
+	public TextureBank getTextureBank() {
 		return ib;
 	}
 	
