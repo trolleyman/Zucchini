@@ -1,9 +1,9 @@
 package game.ai;
 import java.util.ArrayList;
 
+import game.world.map.PathFindingMap;
 import org.joml.Vector2f;
 
-import game.world.pathFindingMap;
 import game.world.map.TestMap;
 import game.world.map.Wall;
 public class AStarTesting {
@@ -21,7 +21,7 @@ public class AStarTesting {
 		
 		
 		
-		boolean [][] map = pathFindingMap.convertWallsToGrid(walls, width, height);
+		boolean [][] map = PathFindingMap.convertWallsToGrid(walls, width, height);
 		
 		ArrayList<Node> node = new ArrayList<Node>();
 		node = new AStar(new Node(1,1), new Node(width - 5,height -5),map).findRoute();

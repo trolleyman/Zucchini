@@ -23,7 +23,7 @@ public class Map {
 	}
 	
 	/** The "walls" of the map that entities can collide with */
-	protected ArrayList<Wall> walls;
+	public ArrayList<Wall> walls;
 	/** The intiial starting entities in the map */
 	protected ArrayList<Entity> initialEntities;
 	
