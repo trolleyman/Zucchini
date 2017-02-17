@@ -5,6 +5,7 @@ import game.world.ServerWorld;
 import game.world.UpdateArgs;
 import game.world.World;
 import game.world.entity.Entity;
+import game.world.entity.Player;
 
 /**
  * The base class for AI. The AI can see the world and update internal state using the update method.
