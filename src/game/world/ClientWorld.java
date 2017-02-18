@@ -42,7 +42,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			int playerID = serverBank.addEntity(new Player(serverBank.getNextFreeTeam(), new Vector2f(0.5f, 0.5f), weapon));
 			
 			// Create server world
-			ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
+			ServerWorld serverWorld = new ServerWorld(map, serverBank);
 			
 			// Create connection
 			LinkConnection connection = new LinkConnection(playerID);
