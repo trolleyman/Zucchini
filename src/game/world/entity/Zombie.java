@@ -60,8 +60,8 @@ public class Zombie extends AutonomousEntity {
 	
 	@Override
 	public void render(IRenderer r) {
-		float x = position.x + 0.2f * (float) Math.sin(angle);
-		float y = position.y + 0.2f * (float) Math.cos(angle);
+		float x = position.x + 0.25f * (float) Math.sin(angle);
+		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
 		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
 		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);

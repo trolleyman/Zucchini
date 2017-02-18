@@ -5,6 +5,7 @@ import game.ai.AStar;
 import game.ai.Node;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
+import game.world.update.AngleUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ public abstract class AutonomousEntity extends MovableEntity {
 					.normalize()
 					.mul(maxSpeed);
 			
+			ua.bank.updateEntityCached(new AngleUpdate(this.getId(), Util.getAngle(velocity.x, velocity.y)));
 		}
 		this.addTargetVelocity(ua, target);
 		
