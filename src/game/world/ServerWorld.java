@@ -1,11 +1,8 @@
 package game.world;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 import game.action.Action;
-import game.ai.AI;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.net.IServerConnection;
@@ -23,9 +20,6 @@ public class ServerWorld extends World implements Cloneable {
 	/** Cached UpdateArgs object */
 	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null);
 	
-	/** The AIs/Players in the world. */
-	private ArrayList<AI> ais;
-	
 	/** Server Audio Manager */
 	private ServerAudioManager audio;
 	
@@ -39,12 +33,6 @@ public class ServerWorld extends World implements Cloneable {
 	public ServerWorld(ServerWorld w) {
 		super(w.map, new EntityBank(w.bank));
 		
-		// Clone & update AIs
-		this.ais = new ArrayList<>();
-		for (AI ai : w.ais) {
-			this.ais.add(ai.clone());
-		}
-		
 		this.audio = w.audio;
 		
 		this.conns = w.conns;
@@ -55,12 +43,9 @@ public class ServerWorld extends World implements Cloneable {
 	 * Constructs the world
 	 * @param map The map
 	 * @param bank The entity bank
-	 * @param _ais List of AI controllers
 	 */
-	public ServerWorld(Map map, EntityBank bank, ArrayList<AI> _ais) {
+	public ServerWorld(Map map, EntityBank bank) {
 		super(map, bank);
-		
-		this.ais = _ais;
 		
 		this.audio = new ServerAudioManager();
 	}
@@ -118,11 +103,6 @@ public class ServerWorld extends World implements Cloneable {
 		// Update entities
 		for (Entity e : this.bank.entities) {
 			e.update(ua);
-		}
-		
-		// Update AI/players
-		for (AI ai : ais) {
-			ai.update(ua);
 		}
 		
 		// Send audio

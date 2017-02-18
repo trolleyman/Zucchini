@@ -2,17 +2,13 @@ package game.world.entity;
 
 import game.ColorUtil;
 import game.Util;
-import game.ai.AI;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
 import game.world.update.PositionUpdate;
-import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
-
-import java.util.Vector;
 
 public class Zombie extends AutonomousEntity {
 	private static final float MAX_SPEED = 1.0f;
