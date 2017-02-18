@@ -27,11 +27,10 @@ public class Player extends MovableEntity {
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
-	private static final float MAX_SPEED = 2.5f;
+	private static final float MAX_SPEED = 2.75f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
 	
-	private boolean isMoving = false;
 	/** If the player is moving north */
 	private transient boolean moveNorth = false;
 	/** If the player is moving south */
@@ -59,7 +58,7 @@ public class Player extends MovableEntity {
 	 * @param _heldItem The currently held item
 	 */
 	public Player(int team, Vector2f position, Item _heldItem) {
-		super(team, position);
+		super(team, position, 1.0f);
 		this.heldItem = _heldItem;
 		
 		this.lineOfSightIntersecton = new Vector2f();
@@ -77,7 +76,7 @@ public class Player extends MovableEntity {
 		this.moveEast = p.moveEast;
 		this.moveWest = p.moveWest;
 		
-		this.heldItem = (Item) p.heldItem.clone();
+		this.heldItem = p.heldItem.clone();
 		
 		this.beganUse = p.beganUse;
 		
@@ -103,17 +102,7 @@ public class Player extends MovableEntity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		// Calculate velocity
-		super.update(ua);
-		
-		if (!soundSourceInit){
-			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f);
-			ua.audio.pauseLoop(this.walkingSoundID);
-			soundSourceInit = true;
-		}
-		
 		{
-			Vector2f newVelocity = new Vector2f();
 			Vector2f temp = Util.pushTemporaryVector2f();
 			temp.zero();
 			if (this.moveNorth)
@@ -124,30 +113,16 @@ public class Player extends MovableEntity {
 				temp.add(1.0f, 0.0f);
 			if (this.moveWest)
 				temp.add(-1.0f, 0.0f);
+			if (temp.x != 0.0f && temp.y != 0.0f)
+				temp.normalize();
 			temp.mul(MAX_SPEED);
-			if (Math.abs(temp.distanceSquared(this.velocity)) > Util.EPSILON) {
-				newVelocity.set(this.velocity);
-				newVelocity.lerp(temp, (float) ua.dt * 8.0f);
-				
-				ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), newVelocity));
-			}
+			
+			this.addTargetVelocity(ua, temp);
 			Util.popTemporaryVector2f();
 		}
 		
-		//Play walking sounds
-		//System.out.println(moveNorth + " " +moveSouth+ " " +moveEast+ " " +moveWest);
-		if(moveNorth || moveSouth || moveEast || moveWest ){
-			//System.out.println("Starting sound id: " + walkingSoundID);
-			ua.audio.continueLoop(this.walkingSoundID);
-		} else {
-			ua.audio.pauseLoop(this.walkingSoundID);
-			//System.out.println("Stopping sound id: " + walkingSoundID);
-		}
-
-//		if (this.walkingSoundID==1){
-//			System.out.println("Velocity: " + velocity);
-//			System.out.println("Position: " + position);
-//		}
+		// Update velocity
+		super.update(ua);
 		
 		// Get intersection
 		Vector2f intersection = Util.pushTemporaryVector2f();
@@ -159,13 +134,30 @@ public class Player extends MovableEntity {
 				.normalize()
 				.mul(RADIUS + Util.EPSILON)
 				.add(intersection);
+			this.position.set(newPosition);
 			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
+			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
 		}
 		Util.popTemporaryVector2f();
 		
 		this.heldItem.position = this.position;
 		this.heldItem.angle = this.angle;
 		this.heldItem.update(ua);
+		
+		// Play walking sounds
+		if (moveNorth || moveSouth || moveEast || moveWest) {
+			//System.out.println("Starting sound id: " + walkingSoundID);
+			ua.audio.continueLoop(this.walkingSoundID);
+		} else {
+			//System.out.println("Stopping sound id: " + walkingSoundID);
+			ua.audio.pauseLoop(this.walkingSoundID);
+		}
+		
+		if (!soundSourceInit) {
+			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f);
+			ua.audio.pauseLoop(this.walkingSoundID);
+			soundSourceInit = true;
+		}
 	}
 	
 	@Override

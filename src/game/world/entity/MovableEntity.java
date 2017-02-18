@@ -3,29 +3,36 @@ package game.world.entity;
 import game.Util;
 import game.world.UpdateArgs;
 import game.world.update.PositionUpdate;
+import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 public abstract class MovableEntity extends Entity {
-	public static final float VELOCITY_EPSILON = 0.00000001f;
 	
-	/**
-	 * The current velocity of the entity.
-	 */
+	/** A scale for how much momentum the entity has.
+	 * <p>
+	 * The higher this is, the "heavier" the entity will feel
+	 **/
+	protected float momentumScale;
+	
+	/** The current velocity of the entity. */
 	public Vector2f velocity;
 	
-	public MovableEntity(int team, Vector2f position) {
+	public MovableEntity(int team, Vector2f position, float _momentumScale) {
 		super(team, position);
 		
 		this.velocity = new Vector2f();
+		this.momentumScale = _momentumScale;
 	}
 	
 	public MovableEntity(MovableEntity e) {
 		super(e);
 		this.velocity = e.velocity;
+		this.momentumScale = e.momentumScale;
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		// Apply velocity
 		if (this.velocity.distanceSquared(0.0f, 0.0f) <= Util.EPSILON)
 			return;
 		
@@ -38,6 +45,19 @@ public abstract class MovableEntity extends Entity {
 		Util.popTemporaryVector2f();
 		
 		ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
+	}
+	
+	/**
+	 * Add a target velocity, taking into account the momentum scaling
+	 */
+	public void addTargetVelocity(UpdateArgs ua, Vector2f target) {
+		if (Math.abs(target.distanceSquared(this.velocity)) > Util.EPSILON) {
+			Vector2f newVelocity = new Vector2f();
+			newVelocity.set(this.velocity);
+			newVelocity.lerp(target, (float) ua.dt * 8.0f / momentumScale);
+			
+			ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), newVelocity));
+		}
 	}
 	
 	@Override

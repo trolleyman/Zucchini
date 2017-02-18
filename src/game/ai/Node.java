@@ -15,8 +15,8 @@ public class Node{
     }
     public int getY(){
     	return this.y;
-    	
     }
+    
     @Override
     public boolean equals(Object o){
         Node n = (Node) o;

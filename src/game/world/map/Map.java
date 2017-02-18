@@ -3,7 +3,6 @@ package game.world.map;
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
-import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.entity.Entity;
 import org.joml.Vector2f;
@@ -26,20 +25,34 @@ public class Map {
 	public ArrayList<Wall> walls;
 	/** The intiial starting entities in the map */
 	protected ArrayList<Entity> initialEntities;
+	/** What scale the pathfinding algorithm should use */
+	private float pathFindingScale;
+	/** The cached pathfinding map */
+	private PathFindingMap pathFindingMap = null;
 	
 	/**
 	 * Construct a map with the specified walls
 	 */
-	protected Map(ArrayList<Wall> _walls) {
-		this(_walls, new ArrayList<>());
+	protected Map(ArrayList<Wall> _walls, float _pathfindingScale) {
+		this(_walls, new ArrayList<>(), _pathfindingScale);
 	}
 	
 	/**
 	 * Construct a map with the specified walls and initial entities
 	 */
-	protected Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities) {
+	protected Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale) {
 		this.walls = _walls;
 		this.initialEntities = _initialEntities;
+		this.pathFindingScale = _pathFindingScale;
+	}
+	
+	/**
+	 * Gets the cached current pathfinding map
+	 */
+	public PathFindingMap getPathFindingMap() {
+		if (pathFindingMap == null)
+			this.pathFindingMap = new PathFindingMap(this, pathFindingScale);
+		return pathFindingMap;
 	}
 	
 	/**

@@ -1,6 +1,7 @@
 package game.world;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import game.Util;
 import game.net.IServerConnection;
@@ -279,6 +280,24 @@ public class EntityBank {
 			return null;
 		
 		return new EntityIntersection(id, ret.x, ret.y);
+	}
+	
+	/**
+	 * Gets the closest hostile entity to x,y
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param team The team that the returned entity is hostile to
+	 * @return null if an entity could not be found
+	 */
+	public synchronized Entity getClosestHostileEntity(float x, float y, int team) {
+		Optional<Entity> oe = entities.stream()
+				.filter((e) -> Team.isHostileTeam(team, e.getTeam()))
+				.min((l, r) -> Float.compare(l.position.distanceSquared(x, y),
+						r.position.distanceSquared(x, y)));
+		
+		if (oe.isPresent())
+			return oe.get();
+		return null;
 	}
 	
 	/**

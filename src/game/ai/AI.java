@@ -1,11 +1,6 @@
 package game.ai;
 
-import game.world.EntityBank;
-import game.world.ServerWorld;
 import game.world.UpdateArgs;
-import game.world.World;
-import game.world.entity.Entity;
-import game.world.entity.Player;
 
 /**
  * The base class for AI. The AI can see the world and update internal state using the update method.
@@ -13,22 +8,18 @@ import game.world.entity.Player;
  * @author Callum
  */
 public abstract class AI implements Cloneable {
-	private int entity;
+	protected int entityID;
+	
+	public AI(int _entityID) {
+		this.entityID = _entityID;
+	}
 	
 	/**
 	 * Clones the specified AI
 	 * @param ai The AI
 	 */
 	public AI(AI ai) {
-		this.entity = ai.entity;
-	}
-	
-	/**
-	 * Constructs an AI that tracks a specified entity
-	 * @param _entity The entity
-	 */
-	public AI(int _entity) {
-		this.entity = _entity;
+		this.entityID = ai.entityID;
 	}
 	
 	/**
