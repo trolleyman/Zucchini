@@ -136,10 +136,8 @@ public class AStar {
 
 		}
 		// no path found
-		new Exception("no path found");
-		System.out.println("no path found");
-		return new ArrayList<Node>();
-
+		System.out.println("AStar: no path found from " + start + " to " + goal);
+		return new ArrayList<>();
 	}
 	/*
 	 * adds the path to an array list

@@ -7,7 +7,7 @@ public class Node{
 
     public Node(int x, int y){
         this.x = x;
-        this. y = y;
+        this.y = y;
     }
     public int getX(){
     	return this.x;
@@ -15,6 +15,11 @@ public class Node{
     }
     public int getY(){
     	return this.y;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(this.x) * 139 + Integer.hashCode(this.y);
     }
     
     @Override

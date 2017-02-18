@@ -53,7 +53,7 @@ public class Zombie extends AutonomousEntity {
 					.mul(RADIUS + Util.EPSILON)
 					.add(intersection);
 			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
-			ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
+			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
 		}
 		Util.popTemporaryVector2f();
 	}

@@ -1,6 +1,8 @@
 package game.world.map;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import game.ai.AStar;
 import game.ai.Node;
 import org.joml.Vector2f;
 
@@ -13,6 +15,8 @@ public class PathFindingMap {
 	public float height;
 	
 	public boolean[][] grid;
+	
+	private HashMap<Node, HashMap<Node, ArrayList<Node>>> routeCache = new HashMap<>();
 	
 	/*
 	 * https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm seems like a good solution
@@ -150,6 +154,27 @@ public class PathFindingMap {
 		return node.getY() / scale;
 	}
 	
+	public ArrayList<Node> findRoute(Node start, Node end) {
+		HashMap<Node, ArrayList<Node>> startMap = routeCache.get(start);
+		if (startMap != null) {
+			ArrayList<Node> cachedRoute = startMap.get(end);
+			if (cachedRoute != null)
+				if (cachedRoute.size() == 0)
+					return cachedRoute;
+				else
+					return new ArrayList<>(cachedRoute);
+		} else {
+			startMap = new HashMap<>();
+			routeCache.put(start, startMap);
+		}
+		
+		ArrayList<Node> route = new AStar(start, end, this.grid).findRoute();
+		startMap.put(end, route);
+		if (route.size() == 0)
+			return route;
+		return new ArrayList<>(route);
+	}
+
 //	No longer needed walls are now arraylist of wall
 //	private static ArrayList<Point> convertToPointList (float[] lines){
 //		int x;

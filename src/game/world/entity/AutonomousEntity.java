@@ -66,6 +66,7 @@ public abstract class AutonomousEntity extends MovableEntity {
 					.sub(position)
 					.normalize()
 					.mul(maxSpeed);
+			
 		}
 		this.addTargetVelocity(ua, target);
 		
@@ -82,7 +83,7 @@ public abstract class AutonomousEntity extends MovableEntity {
 		Node start = map.getClosestNodeTo(this.position);
 		Node end = map.getClosestNodeTo(this.destination);
 		
-		this.route = new AStar(start, end, map.grid).findRoute();
+		this.route = map.findRoute(start, end);
 	}
 	
 	public void setDestination(PathFindingMap map, Vector2f newDest) {
@@ -92,7 +93,15 @@ public abstract class AutonomousEntity extends MovableEntity {
 		else
 			prevDest = Util.pushTemporaryVector2f().set(this.destination);
 		
-		if (this.destination == null)
+		if (newDest != null) {
+			if (this.destination == null)
+				this.destination = new Vector2f();
+			this.destination.set(newDest);
+		} else {
+			this.destination = null;
+		}
+			
+		if (this.destination == null && newDest != null)
 			this.destination = new Vector2f();
 		this.destination.set(newDest);
 		
@@ -102,8 +111,9 @@ public abstract class AutonomousEntity extends MovableEntity {
 			Node prevDestNode = map.getClosestNodeTo(prevDest);
 			Node destinationNode = map.getClosestNodeTo(destination);
 			
-			if (!prevDestNode.equals(destinationNode))
+			if (!prevDestNode.equals(destinationNode)) {
 				regenRoute(map);
+			}
 		}
 		
 		if (prevDest != null)
