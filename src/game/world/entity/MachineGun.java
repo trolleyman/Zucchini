@@ -20,7 +20,7 @@ public class MachineGun extends Weapon {
 		ua.audio.play("handgunshot.wav", 1.0f);
 		System.out.println("BANG!");
 		// Add bullets to entity bank
-		ua.bank.addEntityCached(new MachineGunBullet(new Vector2f(position), angle));
+		ua.bank.addEntityCached(new MachineGunBullet(new Vector2f(position), this.ownerTeam, angle));
 	}
 	
 	@Override

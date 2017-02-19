@@ -2,6 +2,7 @@ package game.world.entity.codec;
 
 import java.lang.reflect.Type;
 
+import game.world.Team;
 import org.joml.Vector2f;
 
 import com.google.gson.Gson;
@@ -40,7 +41,7 @@ public class EntityCodec {
 	}
 	
 	public static void main(String[] args) {
-		HandgunBullet b = new HandgunBullet(new Vector2f(2.0f, 3.0f), 1.0f);
+		HandgunBullet b = new HandgunBullet(new Vector2f(2.0f, 3.0f), Team.START_FREE_TEAM, 1.0f);
 		String s = EntityCodec.toString(b);
 		System.out.println("JSON: " + s);
 		Entity e = EntityCodec.fromString(s);

@@ -12,6 +12,10 @@ import org.joml.Vector2f;
 
 public abstract class Bullet extends Entity {
 	private transient Vector2f prevPosition = new Vector2f();
+	
+	/** Identifies the source team of the bullet */
+	private int sourceTeamID;
+	
 	private transient Vector2f velocity;
 	
 	/** Damage of the bullet */
@@ -20,9 +24,10 @@ public abstract class Bullet extends Entity {
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
 	
-	public Bullet(Vector2f position, Vector2f _velocity, float _damage, double _ttl) {
+	public Bullet(Vector2f position, int _sourceTeamID, Vector2f _velocity, float _damage, double _ttl) {
 		super(Team.PASSIVE_TEAM, position);
 		this.prevPosition.set(position);
+		this.sourceTeamID = _sourceTeamID;
 		this.velocity = _velocity;
 		this.damage = _damage;
 		this.ttl = _ttl;
@@ -31,6 +36,7 @@ public abstract class Bullet extends Entity {
 	public Bullet(Bullet b) {
 		super(b);
 		this.prevPosition = new Vector2f(b.prevPosition);
+		this.sourceTeamID = b.sourceTeamID;
 		this.velocity = b.velocity;
 		this.damage = b.damage;
 		this.ttl = b.ttl;
@@ -53,8 +59,10 @@ public abstract class Bullet extends Entity {
 		
 		temp1.set(velocity).mul((float)ua.dt);
 		position.add(temp1);
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x+x, prevPosition.y+y, position.x+x, position.y+y);
-		Vector2f mi = ua.map.intersectsLine(prevPosition.x+x, prevPosition.y+y, position.x+x, position.y+y, temp1);
+		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y, (e) -> {
+			return Team.isHostileTeam(this.sourceTeamID, e.getTeam());
+		});
+		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
 		
 		// Choose closest point
 		Vector2f closest;
