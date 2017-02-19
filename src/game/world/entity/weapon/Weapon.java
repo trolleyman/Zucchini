@@ -1,11 +1,8 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
-import game.render.IRenderer;
-import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.entity.Item;
 import org.joml.Vector2f;
-
-import java.util.ArrayList;
 
 /**
  * A weapon is something that the player can hold, and fire.

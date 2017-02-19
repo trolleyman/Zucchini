@@ -1,4 +1,4 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
 import game.ColorUtil;
 import game.render.Align;

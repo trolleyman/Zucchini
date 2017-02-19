@@ -13,7 +13,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 import game.world.entity.Entity;
-import game.world.entity.HandgunBullet;
+import game.world.entity.weapon.HandgunBullet;
 
 public class EntityCodec {
 	private static Gson gson = new GsonBuilder().create();

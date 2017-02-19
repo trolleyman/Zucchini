@@ -2,6 +2,9 @@ package game.world.update;
 
 import game.world.Team;
 import game.world.entity.*;
+import game.world.entity.weapon.Handgun;
+import game.world.entity.weapon.MachineGun;
+import game.world.entity.weapon.Weapon;
 import org.joml.Vector2f;
 
 import java.lang.reflect.Field;

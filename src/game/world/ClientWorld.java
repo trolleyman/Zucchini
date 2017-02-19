@@ -11,6 +11,7 @@ import game.audio.event.AudioEvent;
 import game.net.*;
 import game.render.IRenderer;
 import game.world.entity.*;
+import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
 import game.world.update.EntityUpdate;
 import org.joml.Vector2f;

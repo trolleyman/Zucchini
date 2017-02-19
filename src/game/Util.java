@@ -188,4 +188,12 @@ public class Util {
 		}
 		return angle;
 	}
+	
+	public static float getDirX(float angle) {
+		return (float)Math.sin(angle);
+	}
+	
+	public static float getDirY(float angle) {
+		return (float)Math.cos(angle);
+	}
 }

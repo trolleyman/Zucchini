@@ -1,4 +1,4 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
 import game.world.UpdateArgs;
 import org.joml.Vector2f;

@@ -11,35 +11,35 @@ import game.world.entity.Entity;
 import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
-public abstract class Bullet extends Entity {
+public abstract class Projectile extends Entity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
 	/** Identifies the source team of the bullet */
 	private int sourceTeamID;
 	
-	private transient Vector2f velocity;
-	
-	/** Damage of the bullet */
-	private transient float damage;
+	/** The current velocity of the projectile */
+	protected transient Vector2f velocity;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
 	
-	public Bullet(Vector2f position, int _sourceTeamID, Vector2f _velocity, float _damage, double _ttl) {
+	public Projectile(Vector2f position, int sourceTeamID, float angle, float speed, double ttl) {
+		this(position, sourceTeamID, new Vector2f(speed * (float)Math.sin(angle), speed * (float)Math.cos(angle)), ttl);
+	}
+	
+	public Projectile(Vector2f position, int _sourceTeamID, Vector2f _velocity, double _ttl) {
 		super(Team.PASSIVE_TEAM, position);
 		this.prevPosition.set(position);
 		this.sourceTeamID = _sourceTeamID;
 		this.velocity = _velocity;
-		this.damage = _damage;
 		this.ttl = _ttl;
 	}
 	
-	public Bullet(Bullet b) {
+	public Projectile(Projectile b) {
 		super(b);
 		this.prevPosition = new Vector2f(b.prevPosition);
 		this.sourceTeamID = b.sourceTeamID;
 		this.velocity = b.velocity;
-		this.damage = b.damage;
 		this.ttl = b.ttl;
 	}
 	
@@ -55,8 +55,9 @@ public abstract class Bullet extends Entity {
 		}
 		
 		// Calculate intersection
-		float x = getSizeX();
-		float y = getSizeY();
+		float ang = Util.getAngle(velocity.x, velocity.y);
+		float x = getLength() * Util.getDirX(ang);
+		float y = getLength() * Util.getDirY(ang);
 		
 		temp1.set(velocity).mul((float)ua.dt);
 		position.add(temp1);
@@ -77,18 +78,13 @@ public abstract class Bullet extends Entity {
 			// Hit nothing
 		} else if (closest == mi) {
 			// Hit map
-			System.out.println("*Plink*: Bullet hit the map");
-			ua.audio.play("bullet_impact_wall.wav", 1.0f);
+			this.hitMap(ua, mi);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		} else if (closest == temp2) {
 			// Hit entity
-			// Hit an entity, damage
-			System.out.println("Ow! Bullet hit entity id " + ei.id);
-			ua.bank.updateEntityCached(new HealthUpdate(ei.id, -damage));
-			ua.audio.play("bullet_impact_body.wav", 1.0f);
-			ua.audio.play("grunt2.wav", 1.0f);
-			// Remove bullet from the world
+			this.hitEntity(ua, ei);
+			// Remove projectile from the world
 			ua.bank.removeEntityCached(this.getId());
 		}
 		
@@ -98,27 +94,11 @@ public abstract class Bullet extends Entity {
 		Util.popTemporaryVector2f();
 	}
 	
-	private final float SCALE = 1/80f;
+	protected abstract void hitMap(UpdateArgs ua, Vector2f mi);
+	protected abstract void hitEntity(UpdateArgs ua, EntityIntersection ei);
 	
-	private float getSizeX() {
-		return velocity.x*SCALE;
-	}
-	private float getSizeY() {
-		return velocity.y*SCALE;
-	}
-	
-	@Override
-	public void render(IRenderer r) {
-		float x = getSizeX();
-		float y = getSizeY();
-		
-		r.drawLine(
-			position.x, position.y,
-			position.x+x, position.y+y,
-			ColorUtil.WHITE, 2.0f
-		);
-	}
+	protected abstract float getLength();
 
 	@Override
-	public abstract Bullet clone();
+	public abstract Projectile clone();
 }

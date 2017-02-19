@@ -1,4 +1,4 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
 import org.joml.Vector2f;
 
@@ -11,7 +11,12 @@ public class MachineGunBullet extends Bullet {
 	}
 	
 	public MachineGunBullet(Vector2f position, int teamID, float angle) {
-		super(position, teamID, new Vector2f(SPEED * (float)Math.sin(angle), SPEED * (float)Math.cos(angle)), 0.5f, 10.0);
+		super(position, teamID, angle, SPEED, 10.0, 0.5f);
+	}
+	
+	@Override
+	protected float getLength() {
+		return velocity.length() / 80.0f;
 	}
 	
 	@Override

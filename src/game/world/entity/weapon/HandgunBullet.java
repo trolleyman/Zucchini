@@ -1,8 +1,6 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
 import org.joml.Vector2f;
-
-import game.render.IRenderer;
 
 public class HandgunBullet extends Bullet {
 	private static final float SPEED = 50.0f;
@@ -12,7 +10,12 @@ public class HandgunBullet extends Bullet {
 	}
 	
 	public HandgunBullet(Vector2f position, int teamID, float angle) {
-		super(position, teamID, new Vector2f(SPEED * (float)Math.sin(angle), SPEED * (float)Math.cos(angle)), 1.5f, 10.0);
+		super(position, teamID, angle, SPEED, 10.0, 1.5f);
+	}
+	
+	@Override
+	protected float getLength() {
+		return velocity.length() / 80.0f;
 	}
 	
 	@Override
