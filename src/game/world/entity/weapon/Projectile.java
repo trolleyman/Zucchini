@@ -1,4 +1,4 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
 import game.ColorUtil;
 import game.Util;
@@ -7,6 +7,7 @@ import game.world.EntityIntersection;
 import game.world.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.entity.Entity;
 import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
@@ -59,9 +60,8 @@ public abstract class Bullet extends Entity {
 		
 		temp1.set(velocity).mul((float)ua.dt);
 		position.add(temp1);
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y, (e) -> {
-			return Team.isHostileTeam(this.sourceTeamID, e.getTeam());
-		});
+		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y,
+				(e) -> Team.isHostileTeam(this.sourceTeamID, e.getTeam()));
 		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
 		
 		// Choose closest point

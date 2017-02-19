@@ -118,8 +118,8 @@ public class Renderer implements IRenderer {
 			windowH = mode.height();
 		} else {
 			monitor = NULL;
-			windowW = 1000;
-			windowH = 800;
+			windowW = 1400;
+			windowH = 1000;
 		}
 		window = glfwCreateWindow(windowW, windowH, "Zucchini", monitor, NULL);
 		if (window == NULL)
