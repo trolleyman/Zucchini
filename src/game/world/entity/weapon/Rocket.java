@@ -35,7 +35,7 @@ public class Rocket extends Projectile {
 	
 	@Override
 	protected void hitMap(UpdateArgs ua, Vector2f mi) {
-		this.hit(ua, mi);
+		this.hit(ua, new Vector2f(mi));
 	}
 	
 	@Override
