@@ -1,6 +1,7 @@
 package game.world.entity.weapon;
 
 import game.ColorUtil;
+import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.EntityIntersection;
@@ -8,13 +9,13 @@ import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
 public class Rocket extends Projectile {
-	private static final float SPEED = 2.0f;
+	private static final float SPEED = 10.0f;
 	
 	private static final float W = 0.05f;
-	private static final float H = 0.3f;
+	private static final float H = 0.2f;
 	
 	public Rocket(Vector2f position, int sourceTeamID, float angle) {
-		super(position, sourceTeamID, angle, SPEED, 10.0);
+		super(position, sourceTeamID, angle, SPEED, 12.0);
 	}
 	
 	public Rocket(Rocket r) {
@@ -23,7 +24,7 @@ public class Rocket extends Projectile {
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(Align.BM, position.x, position.y, W, H, ColorUtil.RED, angle);
+		r.drawBox(Align.BM, position.x, position.y, W, H, ColorUtil.WHITE, Util.getAngle(velocity.x, velocity.y));
 	}
 	
 	@Override

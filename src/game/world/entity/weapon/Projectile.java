@@ -9,6 +9,7 @@ import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
 import game.world.update.HealthUpdate;
+import game.world.update.PositionUpdate;
 import org.joml.Vector2f;
 
 public abstract class Projectile extends Entity {
@@ -24,7 +25,7 @@ public abstract class Projectile extends Entity {
 	private transient double ttl;
 	
 	public Projectile(Vector2f position, int sourceTeamID, float angle, float speed, double ttl) {
-		this(position, sourceTeamID, new Vector2f(speed * (float)Math.sin(angle), speed * (float)Math.cos(angle)), ttl);
+		this(position, sourceTeamID, new Vector2f(speed * Util.getDirX(angle), speed * Util.getDirY(angle)), ttl);
 	}
 	
 	public Projectile(Vector2f position, int _sourceTeamID, Vector2f _velocity, double _ttl) {
@@ -60,10 +61,11 @@ public abstract class Projectile extends Entity {
 		float y = getLength() * Util.getDirY(ang);
 		
 		temp1.set(velocity).mul((float)ua.dt);
-		position.add(temp1);
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y,
+		Vector2f newPos = new Vector2f(position).add(temp1);
+		ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPos));
+		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y,
 				(e) -> Team.isHostileTeam(this.sourceTeamID, e.getTeam()));
-		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
+		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y, temp1);
 		
 		// Choose closest point
 		Vector2f closest;
