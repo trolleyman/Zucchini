@@ -6,6 +6,7 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.UpdateArgs;
+import game.world.entity.Explosion;
 import org.joml.Vector2f;
 
 public class Rocket extends Projectile {
@@ -34,17 +35,18 @@ public class Rocket extends Projectile {
 	
 	@Override
 	protected void hitMap(UpdateArgs ua, Vector2f mi) {
-		this.hit(ua, mi.x, mi.y);
+		this.hit(ua, mi);
 	}
 	
 	@Override
 	protected void hitEntity(UpdateArgs ua, EntityIntersection ei) {
-		this.hit(ua, ei.x, ei.y);
+		this.hit(ua, new Vector2f(ei.x, ei.y));
 	}
 	
-	private void hit(UpdateArgs ua, float x, float y) {
+	private void hit(UpdateArgs ua, Vector2f pos) {
 		// TODO: Implement explosion
-		System.out.println("BOOM! Explosion at " + x + ", " + y);
+		System.out.println("BOOM! Explosion at " + pos.x + ", " + pos.y);
+		ua.bank.addEntityCached(new Explosion(pos));
 	}
 	
 	@Override
