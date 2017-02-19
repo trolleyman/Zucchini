@@ -1,40 +1,62 @@
 package game.world.entity;
 
+import game.ColorUtil;
 import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
-import game.world.entity.particle.ExplosionParticleSystem;
-import game.world.entity.particle.ParticleSystem;
+import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
-public class Explosion extends ParticleSystem {
-	/** true if the object has just been constructed */
-	private boolean init;
+import java.util.ArrayList;
+
+public class Explosion extends Entity {
+	/** The damage suffered at distance 1. The maxDamage at distance is determined by the inverse square law */
+	private transient float maxDamage;
 	
-	/** The damage suffered at 0 distance. The damage at distance is determined by the inverse square law */
-	private transient float damage;
+	/** The radius of the explosion */
+	private transient float radius;
 	
-	public Explosion(Vector2f pos, float _damage) {
+	public Explosion(Vector2f pos, float _damage, float _radius) {
 		super(Team.PASSIVE_TEAM, pos);
-		init = true;
-		this.damage = _damage;
+		this.maxDamage = _damage;
+		this.radius = _radius;
 	}
 	
 	public Explosion(Explosion e) {
 		super(e);
-		this.init = e.init;
-		this.damage = e.damage;
+		this.maxDamage = e.maxDamage;
+		this.radius = e.radius;
+	}
+	
+	@Override
+	public void clientUpdate(UpdateArgs ua) {
+		super.clientUpdate(ua);
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		ua.bank.addEntityCached(new ExplosionParticleSystem(this.position));
-		ua.bank.removeEntityCached(this.getId());
+		if (this.getHealth() >= this.getMaxHealth()) {
+			// Damage nearby entities
+			ArrayList<Entity> entities = ua.bank.getEntitiesNear(this.position.x, this.position.y, this.radius);
+			for (Entity e : entities) {
+				if (e.getTeam() != Team.PASSIVE_TEAM) {
+					float d2 = e.position.distanceSquared(this.position);
+					float damage = maxDamage / Math.min(maxDamage, d2);
+					ua.bank.updateEntityCached(new HealthUpdate(e.getId(), -damage));
+				}
+			}
+		}
+		ua.bank.updateEntityCached(new HealthUpdate(this.getId(), (float) -ua.dt));
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		
+		r.drawCircle(this.position.x, this.position.y, this.radius, ColorUtil.RED);
+	}
+	
+	@Override
+	protected float getMaxHealth() {
+		return 1.0f;
 	}
 	
 	@Override

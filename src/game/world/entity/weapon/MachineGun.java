@@ -30,7 +30,7 @@ public class MachineGun extends Weapon {
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN);
+		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN, this.angle);
 	}
 	
 	@Override

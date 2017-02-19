@@ -31,7 +31,7 @@ public class Handgun extends Weapon {
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.PINK);
+		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.PINK, this.angle);
 	}
 
 	@Override

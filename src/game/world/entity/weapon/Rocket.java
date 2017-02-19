@@ -44,9 +44,8 @@ public class Rocket extends Projectile {
 	}
 	
 	private void hit(UpdateArgs ua, Vector2f pos) {
-		// TODO: Implement explosion
 		System.out.println("BOOM! Explosion at " + pos.x + ", " + pos.y);
-		ua.bank.addEntityCached(new Explosion(pos));
+		ua.bank.addEntityCached(new Explosion(pos, 10.0f, 1.5f));
 	}
 	
 	@Override
