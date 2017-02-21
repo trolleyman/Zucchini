@@ -50,39 +50,39 @@ public class EscapeUI extends UI implements InputPipeMulti{
 	public void start(){
 		fileBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("file.png"),
-				bank.getTexture("file2.png"),
-				bank.getTexture("file2.png")
+				bank.getTexture("filebtn.png"),
+				bank.getTexture("fileclicked.png"),
+				bank.getTexture("fileclicked.png")
 		);
 		
 		helpBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("help.png"),
-				bank.getTexture("help2.png"),
-				bank.getTexture("help2.png")
+				bank.getTexture("helpbtn.png"),
+				bank.getTexture("helpclicked.png"),
+				bank.getTexture("helpclicked.png")
 		);
 		
 		audioBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("audio.png"),
-				bank.getTexture("audio2.png"),
-				bank.getTexture("audio2.png")
+				bank.getTexture("audiobtn.png"),
+				bank.getTexture("audioclicked.png"),
+				bank.getTexture("audioclicked.png")
 		);
 		
 		quitBtn = new ButtonComponent(
 				() -> { this.nextUI = new StartUI(audio, bank); },
 				Align.BL, 0, 0,
-				bank.getTexture("quit.png"),
-				bank.getTexture("quit2.png"),
-				bank.getTexture("quit2.png")
+				bank.getTexture("quitbtn.png"),
+				bank.getTexture("quitclicked.png"),
+				bank.getTexture("quitclicked.png")
 		);
 		
 		continueBtn = new ButtonComponent(
 				() -> { this.nextUI = new GameUI(audio, bank, world); },
 				Align.BL, 0, 0,
-				bank.getTexture("continue.png"),
-				bank.getTexture("continue2.png"),
-				bank.getTexture("continue2.png")
+				bank.getTexture("continuebtn.png"),
+				bank.getTexture("continueclicked.png"),
+				bank.getTexture("continueclicked.png")
 		);
 		
 		this.inputHandlers.add(fileBtn);
@@ -121,7 +121,7 @@ public class EscapeUI extends UI implements InputPipeMulti{
 
 	@Override
 	public void render(IRenderer r) {
-		float height = winHeight - 100;
+		float height = winHeight - 200;
 		fileBtn.setX(0);
 		fileBtn.setY((int) height);
 		helpBtn.setX(0);

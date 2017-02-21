@@ -6,8 +6,13 @@ import static org.lwjgl.openal.AL10.*;
 public class SoundListener {
 	public SoundListener() {
         this(new Vector3f(0, 0, 0));
+        
     }
 
+	/**
+	 * Represents a listener, or a player in other words
+	 * @param position, the postion of a player
+	 */
     public SoundListener(Vector3f position) {
         alListener3f(AL_POSITION, position.x, position.y, position.z);
         alListener3f(AL_VELOCITY, 0, 0, 0);

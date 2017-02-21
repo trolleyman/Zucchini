@@ -4,7 +4,10 @@ import game.ColorUtil;
 import game.Util;
 import game.action.Action;
 import game.action.AimAction;
+import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
+import game.render.TextureBank;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
@@ -17,7 +20,7 @@ import org.joml.Vector2f;
  */
 public class Player extends Entity {
 	/** The size of the player's line of sight */
-	public static final float LINE_OF_SIGHT_MAX = 8.0f;
+	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
 	private static final float SPEED = 2.0f;
@@ -31,6 +34,7 @@ public class Player extends Entity {
 	 */
 	private transient Vector2f velocity = new Vector2f();
 	
+	private boolean isMoving = false;
 	/** If the player is moving north */
 	private transient boolean moveNorth = false;
 	/** If the player is moving south */
@@ -39,6 +43,10 @@ public class Player extends Entity {
 	private transient boolean moveEast  = false;
 	/** If the player is moving west */
 	private transient boolean moveWest  = false;
+	
+	/** Has the player been assigned a footstep sound source? */
+	private boolean soundSourceInit = false;
+	private int walkingSoundID;//sound source id associated with player movement
 	
 	/** Entity ID of the weapon */
 	private int weaponID = Entity.INVALID_ID;
@@ -86,19 +94,45 @@ public class Player extends Entity {
 	@Override
 	public void update(UpdateArgs ua) {
 		this.velocity.zero();
-		if (this.moveNorth)
+		if (!soundSourceInit){
+			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f);
+			ua.audio.pauseLoop(this.walkingSoundID);
+			soundSourceInit = true;
+		}
+				
+		if (this.moveNorth){
 			this.velocity.add( 0.0f,  1.0f);
-		if (this.moveSouth)
+		}
+		if (this.moveSouth){
 			this.velocity.add( 0.0f, -1.0f);
-		if (this.moveEast)
+		}
+		if (this.moveEast){
 			this.velocity.add( 1.0f,  0.0f);
-		if (this.moveWest)
+		}
+		if (this.moveWest){
 			this.velocity.add(-1.0f,  0.0f);
+		}
 		
+		//Play walking sounds
+		//System.out.println(moveNorth + " " +moveSouth+ " " +moveEast+ " " +moveWest);
+		if(moveNorth || moveSouth || moveEast || moveWest ){
+			//System.out.println("Starting sound id: " + walkingSoundID);
+			ua.audio.continueLoop(this.walkingSoundID);
+		} else {
+			ua.audio.pauseLoop(this.walkingSoundID);
+			//System.out.println("Stopping sound id: " + walkingSoundID);
+		}
+		
+//		if (this.walkingSoundID==1){
+//			System.out.println("Velocity: " + velocity);
+//			System.out.println("Position: " + position);
+//		}
 		this.velocity.mul(SPEED).mul((float) ua.dt);
 		this.position.add(this.velocity);
 		ua.bank.updateEntityCached(this);
 		
+		
+
 		// Make sure weapon keeps up with the player
 		Entity eFinal = ua.bank.getEntity(weaponID);
 		if (eFinal != null) {
@@ -122,6 +156,7 @@ public class Player extends Entity {
 			Util.popTemporaryVector2f();
 		}
 		Util.popTemporaryVector2f();
+		
 	}
 	
 	@Override
@@ -129,7 +164,9 @@ public class Player extends Entity {
 		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
 		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
 		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
-		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+		Texture playerTexture = r.getImageBank().getTexture("player_v1.png");
+		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 	}
 	
 	/**
