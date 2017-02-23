@@ -46,6 +46,38 @@ public class Map {
 		this.pathFindingScale = _pathFindingScale;
 	}
 	
+	public float getWidth() {
+		if (walls.size() == 0)
+			return 0;
+		
+		Wall wall = walls.get(0);
+		float xMin = Math.min(wall.p0.x, wall.p1.x);
+		float xMax = Math.max(wall.p0.x, wall.p1.x);
+		for (Wall w : walls) {
+			xMin = Math.min(xMin, w.p0.x);
+			xMin = Math.min(xMin, w.p1.x);
+			xMax = Math.max(xMax, w.p0.x);
+			xMax = Math.max(xMax, w.p1.x);
+		}
+		return xMax - xMin;
+	}
+	
+	public float getHeight() {
+		if (walls.size() == 0)
+			return 0;
+		
+		Wall wall = walls.get(0);
+		float yMin = Math.min(wall.p0.y, wall.p1.y);
+		float yMax = Math.max(wall.p0.y, wall.p1.y);
+		for (Wall w : walls) {
+			yMin = Math.min(yMin, w.p0.y);
+			yMin = Math.min(yMin, w.p1.y);
+			yMax = Math.max(yMax, w.p0.y);
+			yMax = Math.max(yMax, w.p1.y);
+		}
+		return yMax - yMin;
+	}
+	
 	/**
 	 * Gets the cached current pathfinding map
 	 */
