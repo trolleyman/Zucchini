@@ -97,4 +97,10 @@ public class TCPSenderLobbyThread implements Runnable
 		run = false;
 	}
 
+	public synchronized void setList(LinkedList<String> newMessages)
+	{
+		messages = newMessages;
+
+	}
+
 }

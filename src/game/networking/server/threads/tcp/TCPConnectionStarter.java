@@ -52,7 +52,8 @@ public class TCPConnectionStarter implements ITCPConnection
 	@Override
 	public void setNewProcessor(LinkedList<String> send, LinkedList<Tuple<String, String>> receive)
 	{
-
+		tcpSender.setList(send);
+		tcpListener.setList(receive);
 	}
 
 	// public synchronized LinkedList<Tuple<String, String>>

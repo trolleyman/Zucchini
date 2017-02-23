@@ -45,7 +45,9 @@ public class LobbyThread implements Runnable, IConnectionHandler
 	private Map<String, LinkedList<String>> sendMessages;
 	private LinkedList<Tuple<String, String>> receivedMessages;
 
+	// Game Lobbies
 	private Map<String, SmallGameLobby> gameLobbies;
+	private Map<String, String> userGameLobby;
 	private Map<String, LinkedList<Tuple<String, String>>> udp_receivedMessages;
 	private Map<String, LinkedList<Tuple<String, String>>> udp_sendMessages;
 
@@ -60,6 +62,7 @@ public class LobbyThread implements Runnable, IConnectionHandler
 		udp_sendMessages = new LinkedHashMap<>();
 
 		gameLobbies = new LinkedHashMap<>();
+		userGameLobby = new LinkedHashMap<>();
 
 		acceptQueue = new LinkedList<String>();
 		clientSockets = new LinkedHashMap<>();
@@ -197,6 +200,12 @@ public class LobbyThread implements Runnable, IConnectionHandler
 				tcpConn.get(name).closeConnection();
 				tcpConn.remove(name);
 			}
+			while (userGameLobby.containsKey(name))
+			{
+				gameLobbies.get(userGameLobby.get(name)).dissconnectPlayer(name);
+				userGameLobby.remove(name);
+			}
+			System.out.println("TCP disc for: " + name);
 		}
 
 	}
@@ -227,6 +236,19 @@ public class LobbyThread implements Runnable, IConnectionHandler
 				tcpConn.get(name).closeConnection();
 				tcpConn.remove(name);
 			}
+			while (userGameLobby.containsKey(name))
+			{
+				String lobbyName = userGameLobby.get(name);
+				SmallGameLobby lobbyaux = gameLobbies.get(lobbyName);
+				lobbyaux.dissconnectPlayer(name);
+				userGameLobby.remove(name);
+				if (lobbyaux.IsEmpty())
+				{
+					gameLobbies.remove(lobbyName);
+					System.out.println("deleted lobby: " + lobbyName);
+				}
+			}
+			System.out.println("TCP disc for: " + name);
 
 		}
 
@@ -257,24 +279,32 @@ public class LobbyThread implements Runnable, IConnectionHandler
 	{
 		if (gameLobbies.containsKey(lobbyName))
 		{
-			gameLobbies.get(lobbyName).addClient(clientName, address, receiveport, sendport);
+			SmallGameLobby lobbyaux = gameLobbies.get(lobbyName);
+			lobbyaux.addClient(clientName, address, receiveport, sendport);
+			Tuple<LinkedList<String>, LinkedList<Tuple<String, String>>> lists = lobbyaux.getSendAndReceive(clientName);
+			tcpConn.get(clientName).setNewProcessor(lists.getFirst(), lists.getSecond());
+			userGameLobby.put(clientName, lobbyName);
 		} else
 		{
-			LinkedList<Tuple<String, String>> receivedList = new LinkedList<>();
-			LinkedList<Tuple<String, String>> sendList = new LinkedList<>();
-			udp_receivedMessages.put(lobbyName, receivedList);
-			udp_sendMessages.put(lobbyName, sendList);
-			SmallGameLobby smallGameLobbyAux = new SmallGameLobby(lobbyName, receivedList, sendList);
+			userGameLobby.put(clientName, lobbyName);
+			LinkedList<Tuple<String, String>> UDPreceivedList = new LinkedList<>();
+			LinkedList<Tuple<String, String>> UDPsendList = new LinkedList<>();
+			udp_receivedMessages.put(lobbyName, UDPreceivedList);
+			udp_sendMessages.put(lobbyName, UDPsendList);
+			SmallGameLobby smallGameLobbyAux = new SmallGameLobby(lobbyName, UDPreceivedList, UDPsendList);
 			gameLobbies.put(lobbyName, smallGameLobbyAux);
 			smallGameLobbyAux.addClient(clientName, address, receiveport, sendport);
 			int receive = smallGameLobbyAux.getReceivePort();
 			int send = smallGameLobbyAux.getSendPort();
 
+			Tuple<LinkedList<String>, LinkedList<Tuple<String, String>>> lists = smallGameLobbyAux.getSendAndReceive(clientName);
+			tcpConn.get(clientName).setNewProcessor(lists.getFirst(), lists.getSecond());
+
 			synchronized (this)
 			{
-				sendMessages.get(clientName).add("[UDPS]" + send + "[UDPR]" + receive);
+				lists.getFirst().add("[UDPS]" + send + "[UDPR]" + receive);
 			}
-			smallGameLobbyAux.StartConnections();
+			smallGameLobbyAux.StartGame();
 		}
 	}
 

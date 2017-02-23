@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class UDPListenerLobbyThread implements Runnable
 			DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 			try
 			{
+				socket.setSoTimeout(100);
 				socket.receive(packet);
 				String message = new String(packet.getData()).trim();
 				int tagEnd = message.indexOf(Protocol.UDP_playerNameTagEnd);
@@ -48,6 +50,8 @@ public class UDPListenerLobbyThread implements Runnable
 						UDP_actions.add(new Tuple<>(plName, stuff));
 					}
 				}
+			} catch (SocketTimeoutException e)
+			{
 			} catch (IOException e)
 			{
 				// TODO Auto-generated catch block
@@ -56,6 +60,7 @@ public class UDPListenerLobbyThread implements Runnable
 				run = false;
 			}
 		}
+		System.out.println("udp listener exit");
 
 	}
 

@@ -70,6 +70,7 @@ public class UDPSenderLobbyThread implements Runnable
 				}
 			}
 		}
+		System.out.println("udp Sender exit");
 
 	}
 

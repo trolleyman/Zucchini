@@ -88,4 +88,10 @@ public class TCPListenerLobbyThread implements Runnable
 		run = false;
 	}
 
+	public synchronized void setList(LinkedList<Tuple<String, String>> newActions)
+	{
+		actions = newActions;
+
+	}
+
 }

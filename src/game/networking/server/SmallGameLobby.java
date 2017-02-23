@@ -14,15 +14,23 @@ public class SmallGameLobby
 	private UDP_Connection connection;
 	private String name;
 	private Map<String, Tuple<InetAddress, Tuple<Integer, Integer>>> clients;
+	private boolean isEmpty;
+
+	private Map<String, LinkedList<String>> sendMessages;
+	private LinkedList<Tuple<String, String>> receivedMessages;
 
 	public SmallGameLobby(String _name, LinkedList<Tuple<String, String>> _receivedActions, LinkedList<Tuple<String, String>> _sendActions)
 	{
 		name = _name;
 		clients = new LinkedHashMap<>();
 		connection = new UDP_Connection(clients, _receivedActions, _sendActions);
+
+		sendMessages = new LinkedHashMap<String, LinkedList<String>>();
+		receivedMessages = new LinkedList<>();
+
 	}
 
-	public void StartConnections()
+	public void StartGame()
 	{
 		connection.StartGame();
 	}
@@ -45,6 +53,8 @@ public class SmallGameLobby
 	public synchronized void addClient(String name, InetAddress address, int receiveport, int sendport)
 	{
 		clients.put(name, new Tuple<>(address, new Tuple<>(receiveport, sendport)));
+		sendMessages.put(name, new LinkedList<>());
+		isEmpty = false;
 	}
 
 	@Override
@@ -52,6 +62,27 @@ public class SmallGameLobby
 	{
 		SmallGameLobby gameLobby = (SmallGameLobby) obj;
 		return name.equals(gameLobby.getName());
+	}
+
+	public synchronized Tuple<LinkedList<String>, LinkedList<Tuple<String, String>>> getSendAndReceive(String name)
+	{
+		return (new Tuple<LinkedList<String>, LinkedList<Tuple<String, String>>>(sendMessages.get(name), receivedMessages));
+	}
+
+	public synchronized void dissconnectPlayer(String name)
+	{
+		clients.remove(name);
+		System.out.println("UDP disc for: " + name);
+		if (clients.size() == 0)
+		{
+			connection.StopGame();
+			isEmpty = true;
+		}
+	}
+
+	public synchronized boolean IsEmpty()
+	{
+		return isEmpty;
 	}
 
 }
