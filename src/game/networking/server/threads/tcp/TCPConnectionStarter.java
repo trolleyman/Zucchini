@@ -49,6 +49,12 @@ public class TCPConnectionStarter implements ITCPConnection
 
 	}
 
+	@Override
+	public void setNewProcessor(LinkedList<String> send, LinkedList<Tuple<String, String>> receive)
+	{
+
+	}
+
 	// public synchronized LinkedList<Tuple<String, String>>
 	// getReceivedMessages()
 	// {

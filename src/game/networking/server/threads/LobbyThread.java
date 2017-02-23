@@ -269,6 +269,7 @@ public class LobbyThread implements Runnable, IConnectionHandler
 			smallGameLobbyAux.addClient(clientName, address, receiveport, sendport);
 			int receive = smallGameLobbyAux.getReceivePort();
 			int send = smallGameLobbyAux.getSendPort();
+
 			synchronized (this)
 			{
 				sendMessages.get(clientName).add("[UDPS]" + send + "[UDPR]" + receive);
