@@ -310,7 +310,7 @@ public class LobbyThread implements Runnable, IConnectionHandler
 			LinkedList<Tuple<String, String>> UDPsendList = new LinkedList<>();
 			udp_receivedMessages.put(lobbyName, UDPreceivedList);
 			udp_sendMessages.put(lobbyName, UDPsendList);
-			SmallGameLobby smallGameLobbyAux = new SmallGameLobby(lobbyName, UDPreceivedList, UDPsendList);
+			SmallGameLobby smallGameLobbyAux = new SmallGameLobby(lobbyName, UDPreceivedList, UDPsendList, this);
 			gameLobbies.put(lobbyName, smallGameLobbyAux);
 			smallGameLobbyAux.addClient(clientName, address, receiveport, sendport);
 			int receive = smallGameLobbyAux.getReceivePort();

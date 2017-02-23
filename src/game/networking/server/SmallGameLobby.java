@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.sun.org.apache.xalan.internal.xslt.Process;
 
+import game.networking.server.threads.LobbyThread;
 import game.networking.server.threads.udp.UDP_Connection;
 import game.networking.test.Processor;
 import game.networking.util.ConnectionDetails;
@@ -22,7 +23,7 @@ public class SmallGameLobby
 	private Map<String, LinkedList<String>> sendMessages;
 	private LinkedList<Tuple<String, String>> receivedMessages;
 
-	public SmallGameLobby(String _name, LinkedList<Tuple<String, String>> _receivedActions, LinkedList<Tuple<String, String>> _sendActions)
+	public SmallGameLobby(String _name, LinkedList<Tuple<String, String>> _receivedActions, LinkedList<Tuple<String, String>> _sendActions, LobbyThread _lobbyThread)
 	{
 		name = _name;
 		clients = new LinkedHashMap<>();
@@ -31,7 +32,8 @@ public class SmallGameLobby
 		sendMessages = new LinkedHashMap<>();
 		receivedMessages = new LinkedList<>();
 
-		Processor processor = new Processor(sendMessages, receivedMessages);
+		Processor processor = new Processor(sendMessages, receivedMessages, _lobbyThread);
+		(new Thread(processor)).start();
 
 	}
 

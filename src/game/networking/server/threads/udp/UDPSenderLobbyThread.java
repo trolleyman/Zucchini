@@ -52,20 +52,24 @@ public class UDPSenderLobbyThread implements Runnable
 			{
 				String message = Protocol.UDP_playerNameTagBegin + tuple.getFirst() + Protocol.UDP_playerNameTagEnd + tuple.getSecond();
 				byte[] buffer = message.getBytes();
-				for (String name : clients.keySet())
+				synchronized (this)
 				{
-					InetAddress address = clients.get(name).getFirst();
-					int port = clients.get(name).getSecond().getSecond();
-					DatagramPacket dp = new DatagramPacket(buffer, buffer.length, address, port);
-					try
+					for (String name : clients.keySet())
 					{
-						// System.out.println("Sending to" + dp.getAddress() + "
-						// - " + dp.getPort());
-						socket.send(dp);
-					} catch (IOException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						InetAddress address = clients.get(name).getFirst();
+						int port = clients.get(name).getSecond().getSecond();
+						DatagramPacket dp = new DatagramPacket(buffer, buffer.length, address, port);
+						try
+						{
+							// System.out.println("Sending to" + dp.getAddress()
+							// + "
+							// - " + dp.getPort());
+							socket.send(dp);
+						} catch (IOException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}
