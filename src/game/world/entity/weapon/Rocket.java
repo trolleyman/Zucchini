@@ -4,7 +4,7 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
-import game.world.EntityIntersection;
+import game.world.physics.EntityIntersection;
 import game.world.UpdateArgs;
 import game.world.entity.Explosion;
 import org.joml.Vector2f;

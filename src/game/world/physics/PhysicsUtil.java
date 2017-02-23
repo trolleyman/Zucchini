@@ -1,5 +1,8 @@
-package game.world;
+package game.world.physics;
 
+import game.world.physics.shape.Circle;
+import game.world.physics.shape.Line;
+import game.world.physics.shape.Shape;
 import org.joml.Vector2f;
 
 public class PhysicsUtil {
@@ -30,13 +33,10 @@ public class PhysicsUtil {
 		if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
 		{
 			// Collision detected
-			if (dest == null)
-				dest = new Vector2f();
+			float destX = p0_x + (t * s1_x);
+			float destY = p0_y + (t * s1_y);
 			
-			dest.x = p0_x + (t * s1_x);
-			dest.y = p0_y + (t * s1_y);
-			
-			return dest;
+			return intersectionHelper(dest, destX, destY);
 		}
 		return null; // No collision
 	}
@@ -81,11 +81,7 @@ public class PhysicsUtil {
 			if (ac2 > radius*radius)
 				return null;
 			
-			if (dest == null)
-				dest = new Vector2f();
-			
-			dest.set(x1, y1);
-			return dest;
+			return intersectionHelper(dest, x1, y1);
 		}
 		
 		if (ad > ab) {
@@ -97,11 +93,7 @@ public class PhysicsUtil {
 			if (bc2 > radius*radius)
 				return null;
 			
-			if (dest == null)
-				dest = new Vector2f();
-			
-			dest.set(x2, y2);
-			return dest;
+			return intersectionHelper(dest, x2, y2);
 		}
 		
 		// d = a + ad * (ab/|ab|)
@@ -117,11 +109,90 @@ public class PhysicsUtil {
 		if (cd2 > radius*radius)
 			return null;
 		
+		return intersectionHelper(dest, d_x, d_y);
+	}
+	
+	/**
+	 * Calculates the intersection point between two circles
+	 * @param x0 Circle #1 x-coordinate
+	 * @param y0 Circle #1 y-coordinate
+	 * @param radius0 Circle #1 radius
+	 * @param x1 Circle #2 x-coordinate
+	 * @param y1 Circle #2 y-coordinate
+	 * @param radius1 Circle #2 radius
+	 * @param dest Where to store the intersection point. Can be null.
+	 * @return null if no intersection, the intersection point otherwise.
+	 */
+	public static Vector2f intersectCircleCircle(
+			float x0, float y0, float radius0, // First circle
+			float x1, float y1, float radius1, // Second circle
+			Vector2f dest) {
+		// If distance between points is <= radius0 + radius1 then we have an intersection
+		float dx = x1 - x0;
+		float dy = y1 - y0;
+		
+		float dist = dx*dx + dy*dy;
+		
+		if (dist <= radius0 + radius1) {
+			// We have an intersection
+			
+			// % the way from 0->1 the intersection point is
+			float p = radius0 / (radius0 + radius1);
+			float x = x0 + dx * p;
+			float y = y0 + dy * p;
+			
+			return intersectionHelper(dest, x, y);
+		}
+		// No intersection
+		return null;
+	}
+	
+	private static Vector2f intersectionHelper(Vector2f dest, float x, float y) {
 		if (dest == null)
 			dest = new Vector2f();
-		
-		dest.set(d_x, d_y);
+		dest.set(x, y);
 		return dest;
+	}
+	
+	/**
+	 * Computes an intersection point between a and b.
+	 * @param a The first shape
+	 * @param b The second shape
+	 * @param dest Where to store the intersection point. Can be null.
+	 * @return null if there was no intersecion, the point if there was
+	 */
+	public static Vector2f intersectShapeShape(Shape a, Shape b, Vector2f dest) {
+		if (a instanceof Circle) {
+			if (b instanceof Circle) {
+				// CircleCircle
+				return PhysicsUtil.intersectCircleCircle(
+						a.getPositionX(), a.getPositionY(), ((Circle) a).getRadius(),
+						b.getPositionX(), b.getPositionY(), ((Circle) b).getRadius(),
+						dest
+				);
+			} else if (b instanceof Line) {
+				// CircleLine
+				return PhysicsUtil.intersectCircleLine(
+						a.getPositionX(), a.getPositionY(), ((Circle) a).getRadius(),
+						b.getPositionX(), b.getPositionY(), ((Line) b).getEndX(), ((Line) b).getEndY(),
+						dest
+				);
+			}
+		} else if (a instanceof Line) {
+			if (b instanceof Circle) {
+				// LineCircle -> CircleLine
+				return intersectShapeShape(b, a, dest);
+			} else if (b instanceof Line) {
+				// LineLine
+				return intersectLineLine(
+						a.getPositionX(), a.getPositionY(), ((Line) a).getEndX(), ((Line) a).getEndY(),
+						b.getPositionY(), b.getPositionY(), ((Line) b).getEndY(), ((Line) b).getEndY(),
+						dest
+				);
+			}
+		}
+		System.err.println("Warning: Shape intersection not recognised: " + a + " -> " + b + ".");
+		return null;
 	}
 	
 	/**

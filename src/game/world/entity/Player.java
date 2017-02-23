@@ -8,10 +8,9 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
 import game.world.EntityBank;
-import game.world.PhysicsUtil;
+import game.world.physics.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.update.PositionUpdate;
-import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;

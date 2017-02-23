@@ -7,8 +7,8 @@ import java.util.function.Predicate;
 import game.Util;
 import game.net.IServerConnection;
 import game.world.entity.Entity;
+import game.world.physics.EntityIntersection;
 import game.world.update.EntityUpdate;
-import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
 public class EntityBank {

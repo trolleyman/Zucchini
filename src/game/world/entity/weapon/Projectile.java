@@ -1,14 +1,11 @@
 package game.world.entity.weapon;
 
-import game.ColorUtil;
 import game.Util;
-import game.render.IRenderer;
-import game.world.EntityIntersection;
-import game.world.PhysicsUtil;
+import game.world.physics.EntityIntersection;
+import game.world.physics.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
-import game.world.update.HealthUpdate;
 import game.world.update.PositionUpdate;
 import org.joml.Vector2f;
 

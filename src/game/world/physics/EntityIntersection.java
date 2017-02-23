@@ -1,4 +1,4 @@
-package game.world;
+package game.world.physics;
 
 public class EntityIntersection {
 	public int id;

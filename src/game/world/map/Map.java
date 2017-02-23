@@ -3,7 +3,7 @@ package game.world.map;
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
-import game.world.PhysicsUtil;
+import game.world.physics.PhysicsUtil;
 import game.world.entity.Entity;
 import org.joml.Vector2f;
 

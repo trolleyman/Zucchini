@@ -3,7 +3,7 @@ package game.world.entity.monster;
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
-import game.world.PhysicsUtil;
+import game.world.physics.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
