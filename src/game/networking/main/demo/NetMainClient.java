@@ -18,6 +18,6 @@ public class NetMainClient
 		ClientTest3 t5 = new ClientTest3("T1000");
 		(new Thread(t5)).start();
 		ClientTest3 t6 = new ClientTest3("T1000");
-		(new Thread(t6)).start();
+		(new Thread(t6)).start(); 
 	}
 }
