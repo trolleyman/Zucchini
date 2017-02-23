@@ -44,7 +44,8 @@ public class UDPListenerLobbyThread implements Runnable
 				{
 					String plName = message.substring(tagBegin + Protocol.UDP_playerNameTagBegin.length(), tagEnd);
 					String stuff = message.substring(tagEnd + Protocol.UDP_playerNameTagEnd.length());
-					System.out.println("from: " + plName + " received this 'stuff': " + stuff);
+					// System.out.println("from: " + plName + " received this
+					// 'stuff': " + stuff);
 					synchronized (UDP_actions)
 					{
 						UDP_actions.add(new Tuple<>(plName, stuff));

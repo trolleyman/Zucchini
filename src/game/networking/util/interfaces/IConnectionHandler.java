@@ -5,4 +5,6 @@ public interface IConnectionHandler
 	public void TCPListenerUserDisconnect(String name);
 
 	public void TCPSenderUserDisconnect(String name);
+
+	public void gameLobbyDissconnect(String name);
 }

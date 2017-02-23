@@ -254,6 +254,25 @@ public class LobbyThread implements Runnable, IConnectionHandler
 
 	}
 
+	@Override
+	public synchronized void gameLobbyDissconnect(String name)
+	{
+		while (userGameLobby.containsKey(name))
+		{
+			String lobbyName = userGameLobby.get(name);
+			SmallGameLobby lobbyaux = gameLobbies.get(lobbyName);
+			lobbyaux.dissconnectPlayer(name);
+			userGameLobby.remove(name);
+			if (lobbyaux.IsEmpty())
+			{
+				gameLobbies.remove(lobbyName);
+				System.out.println("deleted lobby: " + lobbyName);
+			}
+		}
+		sendMessages.get(name).clear();
+		tcpConn.get(name).setNewProcessor(sendMessages.get(name), receivedMessages);
+	}
+
 	public InetAddress getClientIP(String name)
 	{
 		synchronized (this)

@@ -5,7 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import com.sun.org.apache.xalan.internal.xslt.Process;
+
 import game.networking.server.threads.udp.UDP_Connection;
+import game.networking.test.Processor;
 import game.networking.util.ConnectionDetails;
 import game.networking.util.Tuple;
 
@@ -25,8 +28,10 @@ public class SmallGameLobby
 		clients = new LinkedHashMap<>();
 		connection = new UDP_Connection(clients, _receivedActions, _sendActions);
 
-		sendMessages = new LinkedHashMap<String, LinkedList<String>>();
+		sendMessages = new LinkedHashMap<>();
 		receivedMessages = new LinkedList<>();
+
+		Processor processor = new Processor(sendMessages, receivedMessages);
 
 	}
 
