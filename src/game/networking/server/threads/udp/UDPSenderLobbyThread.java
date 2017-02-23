@@ -56,6 +56,8 @@ public class UDPSenderLobbyThread implements Runnable
 				{
 					for (String name : clients.keySet())
 					{
+						if(clients.get(name)==null)
+							System.out.println("dar de ce??");
 						InetAddress address = clients.get(name).getFirst();
 						int port = clients.get(name).getSecond().getSecond();
 						DatagramPacket dp = new DatagramPacket(buffer, buffer.length, address, port);
@@ -72,6 +74,12 @@ public class UDPSenderLobbyThread implements Runnable
 						}
 					}
 				}
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		System.out.println("udp Sender exit");
