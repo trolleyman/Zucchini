@@ -122,9 +122,10 @@ public class QTNode extends QuadTree {
 			if (dest == null)
 				dest = new Vector2f();
 			
-			dest.set(PhysicsUtil.getClosest(s.getPosition(), blInt, brInt));
-			dest.set(PhysicsUtil.getClosest(s.getPosition(), dest , tlInt));
-			dest.set(PhysicsUtil.getClosest(s.getPosition(), dest , trInt));
+			ret = PhysicsUtil.getClosest(s.getPosition(), blInt, brInt);
+			ret = PhysicsUtil.getClosest(s.getPosition(), ret , tlInt);
+			ret = PhysicsUtil.getClosest(s.getPosition(), ret , trInt);
+			dest.set(ret);
 			
 			ret = dest;
 		}

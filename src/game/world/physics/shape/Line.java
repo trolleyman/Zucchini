@@ -39,6 +39,7 @@ public class Line extends Shape {
 		float nx = x * c - y * s;
 		float ny = x * s + y * c;
 		this.diff.set(nx, ny);
+		this.end.set(x, y);
 	}
 	
 	public Vector2f getEnd() {
