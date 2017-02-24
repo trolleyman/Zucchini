@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import game.Util;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -27,7 +29,7 @@ public class AudioManager implements IAudioManager{
     private final Map<String, List<SoundSource>> soundSourcesMap;
     private final Matrix4f cameraMatrix;
     private final int numberOfSourcesPerFile = 15; //this is the amount of sources each wav file will have available for them
-    private final float zPos =1.0f; //fixed z pos sice the game will be in 2D
+    private final float zPos = 1.0f; //fixed z pos sice the game will be in 2D
     private static Vector2f listenerPos = new Vector2f(0, 0);
     
     /**
@@ -49,7 +51,7 @@ public class AudioManager implements IAudioManager{
         
         System.out.println("Loading audio...");
         //place all files into the buffer list
-        File folder = new File( System.getProperty("user.dir") + "/resources/audio_assets/" );
+        File folder = new File( Util.getResourcesDir() + "/audio_assets/" );
 		File[] listOfFiles = folder.listFiles();
 		//create array and hashmaps of all sounds
 		for (File file : listOfFiles) {
@@ -79,7 +81,7 @@ public class AudioManager implements IAudioManager{
 
 		//play bgm
 		SoundSource bgm = new SoundSource(true,true);
-		SoundBuffer buffer = new SoundBuffer( System.getProperty("user.dir") + "/resources/audio_assets/[bgm]Desolation.wav");
+		SoundBuffer buffer = new SoundBuffer(Util.getResourcesDir() + "/audio_assets/[bgm]Desolation.wav");
 		bgm.setBuffer(buffer.getBufferId());
 		bgm.play();
 		
@@ -272,7 +274,7 @@ public class AudioManager implements IAudioManager{
 	 * @throws Exception
 	 */
 	private void placeFileInBuffer(String filename) throws Exception{
-		SoundBuffer buffer = new SoundBuffer( System.getProperty("user.dir") + "/resources/audio_assets/"+filename);
+		SoundBuffer buffer = new SoundBuffer( Util.getResourcesDir() + "/audio_assets/"+filename);
 		//add buffer to list and add name to hash map array for easy referencing
 		this.soundBufferList.add(buffer);
 		this.soundBufferMap.put(buffer.getBufferId(), filename);
@@ -281,14 +283,14 @@ public class AudioManager implements IAudioManager{
     public static void main(String args[]) throws Exception{
     	AudioManager soundMgr = new AudioManager();
     	
-//        SoundBuffer buffBGM = new SoundBuffer(System.getProperty("user.dir") + "/resources/audio_assets/[bgm]Entombed.wav");
+//        SoundBuffer buffBGM = new SoundBuffer(Util.getResourcesDir() + "/audio_assets/[bgm]Entombed.wav");
 //        soundMgr.addSoundBuffer(buffBGM);
 //        SoundSource sourceBGM = new SoundSource(true, true);
 //        sourceBGM.setBuffer(buffBGM.getBufferId());
 //        soundMgr.addSoundSource("[bgm]Entombed.wav", sourceBGM);
 //        sourceBGM.setLooping(true);
 //
-//        SoundBuffer buffWalk = new SoundBuffer(System.getProperty("user.dir") + "/resources/audio_assets/footsteps_running.wav");
+//        SoundBuffer buffWalk = new SoundBuffer(Util.getResourcesDir() + "/audio_assets/footsteps_running.wav");
 //        soundMgr.addSoundBuffer(buffWalk);
 //        SoundSource sourceWalk = new SoundSource(true, false);
 //        sourceWalk.setBuffer(buffWalk.getBufferId());
