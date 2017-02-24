@@ -11,7 +11,6 @@ import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.update.PositionUpdate;
-import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;

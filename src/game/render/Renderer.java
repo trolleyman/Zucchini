@@ -407,7 +407,7 @@ public class Renderer implements IRenderer {
 	@Override
 	public void drawLine(float _x0, float _y0, float _x1, float _y1, Vector4f c, float thickness) {
 		// Change to pixel co-ords
-		Vector3f temp = Util.getThreadLocalVector3f();
+		Vector3f temp = Util.pushTemporaryVector3f();
 		temp.set(_x0, _y0, 0.0f).mulPosition(matModelView);
 		float x0 = temp.x;
 		float y0 = temp.y;
@@ -425,6 +425,7 @@ public class Renderer implements IRenderer {
 		getModelViewMatrix().identity();
 		drawBox(Align.BM, x0, y0, thickness, length, c, ang);
 		getModelViewMatrix().popMatrix();
+		Util.popTemporaryVector3f();
 	}
 	
 	@Override

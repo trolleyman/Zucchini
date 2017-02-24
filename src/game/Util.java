@@ -91,18 +91,46 @@ public class Util {
 		return Util.getBasePath() + '/' + "resources/";
 	}
 	
-	private static final ThreadLocal<Vector3f> vector3f = new ThreadLocal<Vector3f>() {
+	// ======= Vector3f Stack =======
+	private static final ThreadLocal<ArrayList<Vector3f>> vector3fStack = new ThreadLocal<ArrayList<Vector3f>>() {
 		@Override
-		protected Vector3f initialValue() { return new Vector3f(); }
+		protected ArrayList<Vector3f> initialValue() { return new ArrayList<>(); }
+	};
+	private static final ThreadLocal<Integer> vector3fStackSize = new ThreadLocal<Integer>() {
+		@Override
+		protected Integer initialValue() { return 0; }
 	};
 	
 	/**
-	 * Gets the thread local temporary Vector3f
+	 * Pushes a new temporary Vector3f onto the stack
+	 * @returns the new temporary Vector3f
 	 */
-	public static Vector3f getThreadLocalVector3f() {
-		return vector3f.get();
+	public static Vector3f pushTemporaryVector3f() {
+		ArrayList<Vector3f> stack = vector3fStack.get();
+		int stackSize = vector3fStackSize.get();
+		if (stack.size() == stackSize) {
+			stack.add(new Vector3f());
+		}
+		Vector3f v = stack.get(stackSize);
+		v.zero();
+		stackSize++;
+		vector3fStackSize.set(stackSize);
+		if (stackSize > 256) {
+			System.err.println("Warning: Vector3f stack size: " + stackSize);
+		}
+		return v;
 	}
 	
+	/**
+	 * Pops a temporary Vector3f off of the stack
+	 */
+	public static void popTemporaryVector3f() {
+		int stackSize = vector3fStackSize.get();
+		stackSize--;
+		vector3fStackSize.set(stackSize);
+	}
+	
+	// ======= Vector2f Stack =======
 	private static final ThreadLocal<ArrayList<Vector2f>> vector2fStack = new ThreadLocal<ArrayList<Vector2f>>() {
 		@Override
 		protected ArrayList<Vector2f> initialValue() { return new ArrayList<>(); }
@@ -123,7 +151,7 @@ public class Util {
 			stack.add(new Vector2f());
 		}
 		Vector2f v = stack.get(stackSize);
-		v.set(0.0f, 0.0f);
+		v.zero();
 		stackSize++;
 		vector2fStackSize.set(stackSize);
 		if (stackSize > 256) {
@@ -195,5 +223,9 @@ public class Util {
 	
 	public static float getDirY(float angle) {
 		return (float)Math.cos(angle);
+	}
+	
+	public static boolean isDebugRenderMode() {
+		return false;
 	}
 }

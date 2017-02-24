@@ -1,5 +1,6 @@
 package game.world;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.action.Action;
@@ -16,7 +17,9 @@ import game.world.map.Map;
 import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -103,7 +106,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
 	/** This is the line of sight buffer. This is meant to be null. */
-	private float[] losBuf = null;
+	private FloatBuffer losBuf = MemoryUtil.memAllocFloat(16);
 	
 	/** Audio Manager */
 	private AudioManager audio;
@@ -175,8 +178,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
 		// Render line of sight
-		losBuf = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX, losBuf);
+		losBuf = map.getLineOfSight(cameraPos, Player.LINE_OF_SIGHT_MAX, losBuf);
 		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+		
+		if (Util.isDebugRenderMode()) {
+			float x = losBuf.limit() <= 1 ? 0.0f : losBuf.get(0);
+			float y = losBuf.limit() <= 1 ? 0.0f : losBuf.get(1);
+			for (int i = 2; i < losBuf.limit() - 3; i += 2) {
+				float nx = losBuf.get(i);
+				float ny = losBuf.get(i + 1);
+				r.drawLine(x, y, nx, ny, ColorUtil.PINK, 1.0f);
+			}
+		}
 		
 		// Render map
 		this.map.render(r);
@@ -184,7 +197,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Draw stencil
 		r.enableStencilDraw(1);
 		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-		
+
 		// Disable stencil draw
 		r.disableStencilDraw();
 		r.enableStencil(1);
