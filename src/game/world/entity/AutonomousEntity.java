@@ -5,6 +5,7 @@ import game.ai.AStar;
 import game.ai.Node;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
+import game.world.physics.shape.Shape;
 import game.world.update.AngleUpdate;
 import org.joml.Vector2f;
 
@@ -23,8 +24,8 @@ public abstract class AutonomousEntity extends MovableEntity {
 	/** The max speed of the entity */
 	private transient float maxSpeed;
 	
-	public AutonomousEntity(int team, Vector2f position, float momentumScale, float _maxSpeed) {
-		super(team, position, momentumScale);
+	public AutonomousEntity(int team, Shape shape, Vector2f position, float momentumScale, float _maxSpeed) {
+		super(team, shape, position, momentumScale);
 		this.maxSpeed = _maxSpeed;
 	}
 	

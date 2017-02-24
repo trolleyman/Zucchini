@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
+import game.world.entity.Entity;
 import game.world.physics.EntityIntersection;
 import game.world.UpdateArgs;
 import game.world.entity.Explosion;
@@ -34,13 +35,13 @@ public class Rocket extends Projectile {
 	}
 	
 	@Override
-	protected void hitMap(UpdateArgs ua, Vector2f mi) {
-		this.hit(ua, new Vector2f(mi));
+	protected void hitMap(UpdateArgs ua, Vector2f point) {
+		this.hit(ua, new Vector2f(point));
 	}
 	
 	@Override
-	protected void hitEntity(UpdateArgs ua, EntityIntersection ei) {
-		this.hit(ua, new Vector2f(ei.x, ei.y));
+	protected void hitEntity(UpdateArgs ua, Entity e, Vector2f point) {
+		this.hit(ua, new Vector2f(point));
 	}
 	
 	private void hit(UpdateArgs ua, Vector2f pos) {

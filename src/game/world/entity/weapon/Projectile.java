@@ -1,11 +1,14 @@
 package game.world.entity.weapon;
 
 import game.Util;
+import game.world.physics.Collision;
 import game.world.physics.EntityIntersection;
 import game.world.physics.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
+import game.world.physics.shape.Line;
+import game.world.physics.shape.Shape;
 import game.world.update.PositionUpdate;
 import org.joml.Vector2f;
 
@@ -26,7 +29,7 @@ public abstract class Projectile extends Entity {
 	}
 	
 	public Projectile(Vector2f position, int _sourceTeamID, Vector2f _velocity, double _ttl) {
-		super(Team.PASSIVE_TEAM, position);
+		super(Team.PASSIVE_TEAM, null, position);
 		this.prevPosition.set(position);
 		this.sourceTeamID = _sourceTeamID;
 		this.velocity = _velocity;
@@ -60,30 +63,17 @@ public abstract class Projectile extends Entity {
 		temp1.set(velocity).mul((float)ua.dt);
 		Vector2f newPos = new Vector2f(position).add(temp1);
 		ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPos));
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y,
-				(e) -> Team.isHostileTeam(this.sourceTeamID, e.getTeam()));
-		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y, temp1);
 		
-		// Choose closest point
-		Vector2f closest;
-		if (ei == null) {
-			closest = mi;
-		} else {
-			temp2.set(ei.x, ei.y);
-			closest = PhysicsUtil.getClosest(prevPosition, mi, temp2);
-		}
+		Collision c = ua.physics.getClosestCollision(new Line(this.getId(), prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y));
 		
-		if (closest == null) {
+		if (c == null) {
 			// Hit nothing
-		} else if (closest == mi) {
-			// Hit map
-			this.hitMap(ua, mi);
-			// Remove bullet from the world
-			ua.bank.removeEntityCached(this.getId());
-		} else if (closest == temp2) {
-			// Hit entity
-			this.hitEntity(ua, ei);
-			// Remove projectile from the world
+		} else {
+			Entity e = ua.bank.getEntity(c.b.getEntityID());
+			if (e == null)
+				this.hitMap(ua, c.point);
+			else
+				this.hitEntity(ua, e, c.point);
 			ua.bank.removeEntityCached(this.getId());
 		}
 		
@@ -93,8 +83,8 @@ public abstract class Projectile extends Entity {
 		Util.popTemporaryVector2f();
 	}
 	
-	protected abstract void hitMap(UpdateArgs ua, Vector2f mi);
-	protected abstract void hitEntity(UpdateArgs ua, EntityIntersection ei);
+	protected abstract void hitMap(UpdateArgs ua, Vector2f point);
+	protected abstract void hitEntity(UpdateArgs ua, Entity e, Vector2f point);
 	
 	protected abstract float getLength();
 

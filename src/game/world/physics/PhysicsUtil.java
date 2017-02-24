@@ -166,15 +166,15 @@ public class PhysicsUtil {
 			if (b instanceof Circle) {
 				// CircleCircle
 				return PhysicsUtil.intersectCircleCircle(
-						a.getPositionX(), a.getPositionY(), ((Circle) a).getRadius(),
-						b.getPositionX(), b.getPositionY(), ((Circle) b).getRadius(),
+						a.getPosition().x, a.getPosition().y, ((Circle) a).getRadius(),
+						b.getPosition().x, b.getPosition().y, ((Circle) b).getRadius(),
 						dest
 				);
 			} else if (b instanceof Line) {
 				// CircleLine
 				return PhysicsUtil.intersectCircleLine(
-						a.getPositionX(), a.getPositionY(), ((Circle) a).getRadius(),
-						b.getPositionX(), b.getPositionY(), ((Line) b).getEndX(), ((Line) b).getEndY(),
+						a.getPosition().x, a.getPosition().y, ((Circle) a).getRadius(),
+						b.getPosition().x, b.getPosition().y, ((Line) b).getEnd().x, ((Line) b).getEnd().y,
 						dest
 				);
 			}
@@ -185,14 +185,46 @@ public class PhysicsUtil {
 			} else if (b instanceof Line) {
 				// LineLine
 				return intersectLineLine(
-						a.getPositionX(), a.getPositionY(), ((Line) a).getEndX(), ((Line) a).getEndY(),
-						b.getPositionY(), b.getPositionY(), ((Line) b).getEndY(), ((Line) b).getEndY(),
+						a.getPosition().x, a.getPosition().y, ((Line) a).getEnd().x, ((Line) a).getEnd().y,
+						b.getPosition().x, b.getPosition().y, ((Line) b).getEnd().x, ((Line) b).getEnd().y,
 						dest
 				);
 			}
 		}
 		System.err.println("Warning: Shape intersection not recognised: " + a + " -> " + b + ".");
 		return null;
+	}
+	
+	/**
+	 * Returns the closest collision to the origin
+	 * @param origin The origin
+	 * @param a Collision #1
+	 * @param b Collision #2
+	 */
+	public static Collision getClosest(Vector2f origin, Collision a, Collision b) {
+		return getClosest(origin.x, origin.y, a, b);
+	}
+	
+	/**
+	 * Returns the closest collision to the origin
+	 * @param originX The origin's x-coordinate
+	 * @param originY The origin's y-coordinate
+	 * @param a Collision #1
+	 * @param b Collision #2
+	 */
+	public static Collision getClosest(float originX, float originY, Collision a, Collision b) {
+		if (a == null)
+			return b;
+		else if (b == null)
+			return a;
+		
+		float ad2 = a.point.distanceSquared(originX, originY);
+		float bd2 = b.point.distanceSquared(originX, originY);
+		
+		if (ad2 < bd2)
+			return a;
+		else
+			return b;
 	}
 	
 	/**

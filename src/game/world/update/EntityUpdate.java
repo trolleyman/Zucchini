@@ -1,6 +1,7 @@
 package game.world.update;
 
 import game.world.entity.Entity;
+import game.world.physics.PhysicsWorld;
 
 public abstract class EntityUpdate {
 	private int id;
@@ -17,7 +18,7 @@ public abstract class EntityUpdate {
 		return id;
 	}
 	
-	public abstract void updateEntity(Entity e);
+	public abstract void applyUpdate(PhysicsWorld physics, Entity e);
 	
 	@Override
 	public abstract EntityUpdate clone();

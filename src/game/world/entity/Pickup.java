@@ -14,7 +14,7 @@ public class Pickup extends Entity {
 	private transient double time = 0.0f;
 	
 	public Pickup(Vector2f position, Item _item) {
-		super(Team.PASSIVE_TEAM, position);
+		super(Team.PASSIVE_TEAM, null, position);
 		this.item = _item;
 	}
 	

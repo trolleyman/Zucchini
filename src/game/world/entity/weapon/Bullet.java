@@ -3,6 +3,7 @@ package game.world.entity.weapon;
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
+import game.world.entity.Entity;
 import game.world.physics.EntityIntersection;
 import game.world.UpdateArgs;
 import game.world.update.HealthUpdate;
@@ -28,16 +29,16 @@ public abstract class Bullet extends Projectile {
 	}
 	
 	@Override
-	protected void hitMap(UpdateArgs ua, Vector2f mi) {
+	protected void hitMap(UpdateArgs ua, Vector2f point) {
 		System.out.println("*Plink*: Bullet hit the map");
 		ua.audio.play("bullet_impact_wall.wav", 1.0f);
 	}
 	
 	@Override
-	protected void hitEntity(UpdateArgs ua, EntityIntersection ei) {
+	protected void hitEntity(UpdateArgs ua, Entity e, Vector2f point) {
 		// Hit an entity, damage
-		System.out.println("Ow! Bullet hit entity id " + ei.id);
-		ua.bank.updateEntityCached(new HealthUpdate(ei.id, -damage));
+		System.out.println("Ow! Bullet hit entity id " + e.getId());
+		ua.bank.updateEntityCached(new HealthUpdate(e.getId(), -damage));
 		ua.audio.play("bullet_impact_body.wav", 1.0f);
 		ua.audio.play("grunt2.wav", 1.0f);
 	}

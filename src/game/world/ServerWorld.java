@@ -10,6 +10,7 @@ import game.net.IServerConnectionHandler;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
+import game.world.physics.PhysicsWorld;
 
 /**
  * The world located on the server
@@ -18,7 +19,7 @@ import game.world.map.Map;
  */
 public class ServerWorld extends World implements Cloneable {
 	/** Cached UpdateArgs object */
-	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null);
+	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null, null);
 	
 	/** Server Audio Manager */
 	private ServerAudioManager audio;
@@ -31,7 +32,7 @@ public class ServerWorld extends World implements Cloneable {
 	 * Clones a ServerWorld
 	 */
 	public ServerWorld(ServerWorld w) {
-		super(w.map, new EntityBank(w.bank));
+		super(w.map, new EntityBank(w.bank), new PhysicsWorld(w.physics));
 		
 		this.audio = w.audio;
 		
@@ -44,8 +45,8 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param map The map
 	 * @param bank The entity bank
 	 */
-	public ServerWorld(Map map, EntityBank bank) {
-		super(map, bank);
+	public ServerWorld(Map map, EntityBank bank, PhysicsWorld physics) {
+		super(map, bank, physics);
 		
 		this.audio = new ServerAudioManager();
 	}
@@ -89,11 +90,12 @@ public class ServerWorld extends World implements Cloneable {
 	public EntityBank getEntityBank() {
 		return this.bank;
 	}
-
+	
 	@Override
 	protected synchronized void updateStep(double dt) {
 		ua.dt = dt;
 		ua.bank = bank;
+		ua.physics = physics;
 		ua.map = map;
 		ua.audio = audio;
 		
@@ -126,6 +128,8 @@ public class ServerWorld extends World implements Cloneable {
 			for (Entity e : this.bank.entities)
 				conn.sendAddEntity(e);
 		fullUpdateRequests.clear();
+		
+		physics.clean();
 	}
 	
 	@Override

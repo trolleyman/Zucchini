@@ -1,6 +1,7 @@
 package game.world.update;
 
 import game.world.entity.Entity;
+import game.world.physics.PhysicsWorld;
 
 public class HealthUpdate extends EntityUpdate {
 	private float health;
@@ -16,7 +17,7 @@ public class HealthUpdate extends EntityUpdate {
 	}
 	
 	@Override
-	public void updateEntity(Entity e) {
+	public void applyUpdate(PhysicsWorld physics, Entity e) {
 		e.addHealth(health);
 	}
 	

@@ -1,5 +1,6 @@
 package game.world.entity;
 
+import game.world.physics.shape.Shape;
 import org.joml.Vector2f;
 
 import game.audio.AudioManager;
@@ -30,6 +31,11 @@ public abstract class Entity implements Cloneable {
 	private int team;
 	
 	/**
+	 * The collision shape of the Entity. Can be null.
+	 */
+	protected Shape shape;
+	
+	/**
 	 * Position of the entity
 	 */
 	public Vector2f position;
@@ -53,6 +59,7 @@ public abstract class Entity implements Cloneable {
 	public Entity(Entity e) {
 		this.id = e.id;
 		this.team = e.team;
+		this.shape = e.shape.clone();
 		this.position = new Vector2f(e.position);
 		this.angle = e.angle;
 		this.health = e.health;
@@ -62,8 +69,11 @@ public abstract class Entity implements Cloneable {
 	 * Constructs an entity at the position specified
 	 * @param _position The position
 	 */
-	public Entity(int _team, Vector2f _position) {
+	public Entity(int _team, Shape _shape, Vector2f _position) {
 		this.team = _team;
+		this.shape = _shape;
+		if (this.shape != null)
+			this.shape.setPosition(_position);
 		this.position = _position;
 		
 		this.health = this.getMaxHealth();
@@ -99,20 +109,6 @@ public abstract class Entity implements Cloneable {
 	public abstract void render(IRenderer r);
 	
 	/**
-	 * Calculates an intersection with the entity and a line
-	 * <p>
-	 * By default this function returns null, i.e. no hitbox.
-	 * @param x0 Start x-coordinate of the line
-	 * @param y0 Start y-coordinate of the line
-	 * @param x1 End x-coordinate of the line
-	 * @param y1 End y-coordinate of the line
-	 * @return null if there was not an intersection, the point of intersection otherwise
-	 */
-	public Vector2f intersects(float x0, float y0, float x1, float y1) {
-		return null;
-	}
-	
-	/**
 	 * Adds the specified amount of health to an entity.
 	 * <p>
 	 * To damage an entity, use a negative health.
@@ -144,6 +140,8 @@ public abstract class Entity implements Cloneable {
 	 */
 	public void setId(int _id) {
 		this.id = _id;
+		if (this.shape != null)
+			this.shape.setEntityID(_id);
 	}
 	
 	/**
@@ -157,6 +155,13 @@ public abstract class Entity implements Cloneable {
 	 */
 	public int getTeam() {
 		return this.team;
+	}
+	
+	/**
+	 * Gets the shape of the Entity
+	 */
+	public Shape getShape() {
+		return shape;
 	}
 	
 	/**

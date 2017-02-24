@@ -1,6 +1,8 @@
 package game.world.update;
 
 import game.world.entity.Entity;
+import game.world.physics.PhysicsWorld;
+import game.world.physics.shape.Shape;
 
 public class AngleUpdate extends EntityUpdate {
 	private float angle;
@@ -18,7 +20,13 @@ public class AngleUpdate extends EntityUpdate {
 	}
 	
 	@Override
-	public void updateEntity(Entity e) {
+	public void applyUpdate(PhysicsWorld physics, Entity e) {
+		Shape s = e.getShape();
+		if (s != null) {
+			physics.removeShape(s);
+			s.setAngle(this.angle);
+			physics.addShape(s);
+		}
 		e.angle = this.angle;
 	}
 	

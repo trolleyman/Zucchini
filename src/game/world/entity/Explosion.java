@@ -17,7 +17,7 @@ public class Explosion extends Entity {
 	private transient float radius;
 	
 	public Explosion(Vector2f pos, float _damage, float _radius) {
-		super(Team.PASSIVE_TEAM, pos);
+		super(Team.PASSIVE_TEAM, null, pos);
 		this.maxDamage = _damage;
 		this.radius = _radius;
 	}

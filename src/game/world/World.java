@@ -2,6 +2,7 @@ package game.world;
 
 import game.Util;
 import game.world.map.Map;
+import game.world.physics.PhysicsWorld;
 
 /**
  * The base class for the worlds (the common functionality is located here)
@@ -18,15 +19,20 @@ public abstract class World {
 	/** Entity bank */
 	protected EntityBank bank;
 	
+	/** Physics world */
+	protected PhysicsWorld physics;
+	
 	/**
 	 * Constructs the world
 	 * @param _map The map
 	 * @param _bank The list of entities in the world
 	 */
-	protected World(Map _map, EntityBank _bank) {
+	protected World(Map _map, EntityBank _bank, PhysicsWorld _physics) {
 		this.map = _map;
 		
 		this.bank = _bank;
+		
+		this.physics = _physics;
 	}
 	
 	/**
@@ -42,12 +48,9 @@ public abstract class World {
 	}
 	
 	/**
-	 * An update step. This is called with a constant dt ({@link #DT_PER_UPDATE})
+	 * An update step. This is called with a constant dt ({@link Util#DT_PER_UPDATE})
 	 * @param dt The number of seconds to update the world by
 	 */
 	protected abstract void updateStep(double dt);
-	
-	
-	
 }
 

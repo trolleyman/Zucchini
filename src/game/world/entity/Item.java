@@ -8,7 +8,7 @@ public abstract class Item extends Entity {
 	protected int ownerTeam;
 	
 	public Item(Vector2f position) {
-		super(Team.PASSIVE_TEAM, position);
+		super(Team.PASSIVE_TEAM, null, position);
 		this.ownerTeam = Team.PASSIVE_TEAM;
 	}
 	

@@ -8,6 +8,8 @@ import game.Util;
 import game.net.IServerConnection;
 import game.world.entity.Entity;
 import game.world.physics.EntityIntersection;
+import game.world.physics.PhysicsWorld;
+import game.world.physics.shape.Shape;
 import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
 
@@ -35,7 +37,11 @@ public class EntityBank {
 	/** The cache of entities to remove */
 	private ArrayList<Integer> removeEntities = new ArrayList<>();
 	
-	public EntityBank(ArrayList<Entity> _entities) {
+	/** The physics world for the object */
+	private PhysicsWorld physics;
+	
+	public EntityBank(PhysicsWorld _physics, ArrayList<Entity> _entities) {
+		this.physics = _physics;
 		this.entities = new ArrayList<>();
 		for (Entity e : _entities) {
 			// Do this to ensure that the entity IDs are set correctly
@@ -49,6 +55,7 @@ public class EntityBank {
 	 */
 	public EntityBank(EntityBank bank) {
 		// Clone entities
+		this.physics = bank.physics.clone();
 		this.entities = new ArrayList<>();
 		for (Entity e : bank.entities) {
 			this.addEntity(e.clone());
@@ -68,8 +75,8 @@ public class EntityBank {
 	/**
 	 * Create an empty EntityBank
 	 */
-	public EntityBank() {
-		this(new ArrayList<>());
+	public EntityBank(PhysicsWorld physics) {
+		this(physics, new ArrayList<>());
 	}
 
 	/**
@@ -96,7 +103,7 @@ public class EntityBank {
 		for (EntityUpdate eu : updateEntities) {
 			Entity e = this.getEntity(eu.getId());
 			if (e != null)
-				eu.updateEntity(e);
+				eu.applyUpdate(physics, e);
 			
 			for (IServerConnection conn : conns)
 				conn.sendUpdateEntity(eu);
@@ -150,7 +157,7 @@ public class EntityBank {
 	}
 	
 	/**
-	 * Adds an entity to the world.
+	 * Adds an entity to the world. If the entity ID already exists, returns a new entity ID.
 	 * <p>
 	 * If the id of the entity is Entity.INVALID_ID, then the id is set to a valid id
 	 * <br>
@@ -172,8 +179,10 @@ public class EntityBank {
 			int i = getEntityInsertIndex(e.getId());
 			
 			if (i < entities.size() && entities.get(i).getId() == e.getId()) {
-				// Replace the entity with the new one
-				entities.set(i, e);
+				// Re-add entity with fresh entityID.
+				System.err.println("Warning: Added new entity that has same ID as old entity (" + e.getId() + "). Re-adding.");
+				e.setId(Entity.INVALID_ID);
+				this.addEntity(e);
 			} else {
 				// Insert the entity into the array
 				if (i == entities.size() - 1)
@@ -182,6 +191,7 @@ public class EntityBank {
 					entities.add(i, e);
 			}
 		}
+		physics.addShape(e.getShape());
 		return e.getId();
 	}
 	
@@ -200,7 +210,7 @@ public class EntityBank {
 	protected synchronized void updateEntity(EntityUpdate update) {
 		Entity e = getEntity(update.getId());
 		if (e != null)
-			update.updateEntity(e);
+			update.applyUpdate(physics, e);
 	}
 	
 	/**
@@ -221,7 +231,8 @@ public class EntityBank {
 		
 		if (i < this.entities.size() && this.entities.get(i).getId() == id) {
 			// Remove entity
-			this.entities.remove(i);
+			Entity e = this.entities.remove(i);
+			physics.removeShape(e.getShape());
 		}
 	}
 	
@@ -250,41 +261,6 @@ public class EntityBank {
 				min = mid + 1;
 		}
 		return min;
-	}
-	
-	/**
-	 * Checks if a line intersects with any collideable entity. Only tests entities that the predicate returns true for.
-	 * @param x0 Start x-coordinate of the line
-	 * @param y0 Start y-coordinate of the line
-	 * @param x1 End x-coordinate of the line
-	 * @param y1 End y-coordinate of the line
-	 * @param pred The predicate
-	 * @return null if there was no intersection, the closest intersection to x0,y0 otherwise
-	 */
-	public EntityIntersection getIntersection(float x0, float y0, float x1, float y1, Predicate<Entity> pred) {
-		int id = Entity.INVALID_ID;
-		Vector2f ret = null;
-		for (Entity e : entities) {
-			if (!pred.test(e))
-				continue;
-			
-			Vector2f intersection = e.intersects(x0, y0, x1, y1);
-			if (ret == null) {
-				ret = intersection;
-				id = e.getId();
-			} else if (intersection != null) {
-				float retd2 = ret.distanceSquared(x0, y0);
-				float intersectiond2 = intersection.distanceSquared(x0, y0);
-				if (retd2 > intersectiond2) {
-					ret = intersection;
-					id = e.getId();
-				}
-			}
-		}
-		if (ret == null)
-			return null;
-		
-		return new EntityIntersection(id, ret.x, ret.y);
 	}
 	
 	/**

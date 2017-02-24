@@ -2,6 +2,7 @@ package game.world.entity;
 
 import game.Util;
 import game.world.UpdateArgs;
+import game.world.physics.shape.Shape;
 import game.world.update.PositionUpdate;
 import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
@@ -17,8 +18,8 @@ public abstract class MovableEntity extends Entity {
 	/** The current velocity of the entity. */
 	public Vector2f velocity;
 	
-	public MovableEntity(int team, Vector2f position, float _momentumScale) {
-		super(team, position);
+	public MovableEntity(int team, Shape shape, Vector2f position, float _momentumScale) {
+		super(team, shape, position);
 		
 		this.velocity = new Vector2f();
 		this.momentumScale = _momentumScale;

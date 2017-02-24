@@ -13,4 +13,10 @@ public class Collision {
 	public Shape b;
 	/** The point of intersection */
 	public Vector2f point;
+	
+	public Collision(Shape a, Shape b, Vector2f point) {
+		this.a = a;
+		this.b = b;
+		this.point = point;
+	}
 }

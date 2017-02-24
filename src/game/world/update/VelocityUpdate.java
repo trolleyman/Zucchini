@@ -2,6 +2,7 @@ package game.world.update;
 
 import game.world.entity.Entity;
 import game.world.entity.MovableEntity;
+import game.world.physics.PhysicsWorld;
 import org.joml.Vector2f;
 
 public class VelocityUpdate extends EntityUpdate {
@@ -19,7 +20,7 @@ public class VelocityUpdate extends EntityUpdate {
 	}
 	
 	@Override
-	public void updateEntity(Entity e) {
+	public void applyUpdate(PhysicsWorld physics, Entity e) {
 		if (e instanceof MovableEntity) {
 			((MovableEntity) e).velocity = this.velocity;
 		} else {

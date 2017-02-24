@@ -8,8 +8,10 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
 import game.world.EntityBank;
+import game.world.physics.Collision;
 import game.world.physics.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.physics.shape.Circle;
 import game.world.update.PositionUpdate;
 import org.joml.Vector2f;
 
@@ -57,7 +59,7 @@ public class Player extends MovableEntity {
 	 * @param _heldItem The currently held item
 	 */
 	public Player(int team, Vector2f position, Item _heldItem) {
-		super(team, position, 1.0f);
+		super(team, new Circle(Entity.INVALID_ID, position, RADIUS), position, 1.0f);
 		this.heldItem = _heldItem;
 		if (this.heldItem != null)
 			this.heldItem.setOwnerTeam(this.getTeam());
@@ -128,21 +130,22 @@ public class Player extends MovableEntity {
 		// Update velocity
 		super.update(ua);
 		
-		// Get intersection
-		Vector2f intersection = Util.pushTemporaryVector2f();
-		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
-			// Intersection with map - push out
+		// Get intersections
+		ArrayList<Collision> collisions = ua.physics.getCollisions(this.shape, null);
+		if (collisions.size() != 0) {
+			// Intersection - push out
 			Vector2f newPosition = new Vector2f();
-			newPosition.set(position)
-				.sub(intersection)
-				.normalize()
-				.mul(RADIUS + Util.EPSILON)
-				.add(intersection);
-			this.position.set(newPosition);
+			for (Collision c : collisions) {
+				newPosition.set(position)
+						.sub(c.point)
+						.normalize()
+						.mul(RADIUS + Util.EPSILON)
+						.add(c.point);
+				this.position.set(newPosition);
+			}
 			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
 			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
 		}
-		Util.popTemporaryVector2f();
 		
 		this.heldItem.position.set(this.position);
 		this.heldItem.angle = this.angle;
@@ -171,7 +174,7 @@ public class Player extends MovableEntity {
 		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
 		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
 		
-		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
+		if (ua.physics.getClosestIntersectionLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
 	}
 	
@@ -237,10 +240,5 @@ public class Player extends MovableEntity {
 	@Override
 	public Player clone() {
 		return new Player(this);
-	}
-	
-	@Override
-	public Vector2f intersects(float x0, float y0, float x1, float y1) {
-		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1, null);
 	}
 }

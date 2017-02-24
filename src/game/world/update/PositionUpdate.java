@@ -1,6 +1,8 @@
 package game.world.update;
 
 import game.world.entity.Entity;
+import game.world.physics.PhysicsWorld;
+import game.world.physics.shape.Shape;
 import org.joml.Vector2f;
 
 public class PositionUpdate extends EntityUpdate {
@@ -17,7 +19,13 @@ public class PositionUpdate extends EntityUpdate {
 	}
 	
 	@Override
-	public void updateEntity(Entity e) {
+	public void applyUpdate(PhysicsWorld physics, Entity e) {
+		Shape s = e.getShape();
+		if (s != null) {
+			physics.removeShape(s);
+			s.setPosition(this.position);
+			physics.addShape(s);
+		}
 		e.position = this.position;
 	}
 	

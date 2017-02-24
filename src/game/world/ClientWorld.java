@@ -13,6 +13,7 @@ import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
+import game.world.physics.PhysicsWorld;
 import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -36,14 +37,15 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			Map map = Map.createTestMap();
 			
 			// Create entity bank and add entities
-			EntityBank serverBank = new EntityBank();
+			PhysicsWorld physicsServer = new PhysicsWorld(map);
+			EntityBank serverBank = new EntityBank(physicsServer);
 			for (Entity e : map.getInitialEntities())
 				serverBank.addEntity(e);
 			Item weapon = new Handgun(new Vector2f(0.5f, 0.5f));
 			int playerID = serverBank.addEntity(new Player(serverBank.getNextFreeTeam(), new Vector2f(0.5f, 0.5f), weapon));
 			
 			// Create server world
-			ServerWorld serverWorld = new ServerWorld(map, serverBank);
+			ServerWorld serverWorld = new ServerWorld(map, serverBank, physicsServer);
 			
 			// Create connection
 			LinkConnection connection = new LinkConnection(playerID);
@@ -54,7 +56,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			Server server = new Server(serverWorld, conns);
 			
 			// Create client
-			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);
+			PhysicsWorld physicsClient = new PhysicsWorld(map);
+			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(physicsClient), physicsClient, playerID, audio, connection);
 			
 			// Start server thread
 			Thread t = new Thread(server);
@@ -111,7 +114,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private ClientAudioManager clientAudio;
 	
 	/** Client UpdateArgs structure */
-	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null);
+	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, null);
 	
 	/**
 	 * Constructs a client world
@@ -121,8 +124,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param _connection The connection to the server
 	 * @param _audio The audio manager
 	 */
-	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection) {
-		super(map, bank);
+	public ClientWorld(Map map, EntityBank bank, PhysicsWorld physics, int _playerID, AudioManager _audio, IClientConnection _connection) {
+		super(map, bank, physics);
 		this.playerID = _playerID;
 		this.audio = _audio;
 		this.clientAudio = new ClientAudioManager(audio);
@@ -135,7 +138,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	protected void updateStep(double dt) {
 		Player p = getPlayer();
-		if (p != null) this.cameraPos.set(p.position);
+		if (p != null) this.cameraPos.lerp(p.position, (float)dt / 5.0f);
 		else           System.err.println("Warning: Player does not exist");
 		
 		// Send server data
@@ -154,12 +157,15 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			clientUpdateArgs.dt = Util.DT_PER_SNAPSHOT_UPDATE;
 			clientUpdateArgs.bank = this.bank;
+			clientUpdateArgs.physics = this.physics;
 			clientUpdateArgs.map = this.map;
 			clientUpdateArgs.audio = this.audio;
 			
 			for (Entity e : this.bank.entities)
 				e.clientUpdate(clientUpdateArgs);
 		}
+		
+		physics.clean();
 	}
 	
 	/**
@@ -175,7 +181,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
 		// Render line of sight
-		losBuf = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX, losBuf);
+		Player p = getPlayer();
+		losBuf = this.physics.getLineOfSight(p == null ? cameraPos : p.position, 1024, Player.LINE_OF_SIGHT_MAX, losBuf);
 		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 		
 		// Render map
