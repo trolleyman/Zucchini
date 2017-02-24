@@ -69,7 +69,7 @@ public class QTLeaf extends QuadTree {
 	@Override
 	public ArrayList<Collision> getCollisions(Shape s, ArrayList<Collision> dest) {
 		for (Shape o : shapes) {
-			if (s == o) // Skip intersection with itself
+			if (s == o || s.getEntityID() == o.getEntityID()) // Skip intersection with itself
 				continue;
 			
 			Vector2f v = s.queryCollision(o, null);

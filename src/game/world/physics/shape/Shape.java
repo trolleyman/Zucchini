@@ -88,6 +88,7 @@ public abstract class Shape {
 	public Vector4f getAABB() {
 		if (this.aabbDirty)
 			calculateAABB(this.aabb);
+		this.aabbDirty = false;
 		
 		return this.aabb;
 	}

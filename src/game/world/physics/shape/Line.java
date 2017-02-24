@@ -1,11 +1,12 @@
 package game.world.physics.shape;
 
 import game.Util;
+import game.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class Line extends Shape {
-	private final Vector2f diff = new Vector2f();
+	private float length;
 	
 	private boolean endDirty;
 	private final Vector2f end = new Vector2f();
@@ -16,6 +17,10 @@ public class Line extends Shape {
 	
 	public Line(int entityID, float x0, float y0, float x1, float y1) {
 		super(entityID, x0, y0);
+		this.setAngle(Util.getAngle(x0, y0, x1, y1));
+		float dx = x1 - x0;
+		float dy = y1 - y0;
+		this.length = (float)Math.sqrt(dx*dx + dy*dy);
 		endDirty = false;
 		this.end.set(x0, y0).sub(x1, y1);
 	}

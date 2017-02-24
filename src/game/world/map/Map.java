@@ -19,7 +19,10 @@ public class Map {
 	public static Map createTestMap() {
 //		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 //		return new MazeMap(maze, 1.5f);
-		return new TestMap();
+		
+//		return new TestMap();
+		
+		return new CollisionTestMap();
 	}
 	
 	/** The "walls" of the map that entities can collide with */

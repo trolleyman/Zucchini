@@ -26,7 +26,7 @@ public class PhysicsWorld {
 	
 	public PhysicsWorld(Map map) {
 		Vector4f aabb = map.getAABB();
-		tree = new QTLeaf(4, 0, aabb.x, aabb.y, aabb.z, aabb.w);
+		tree = new QTLeaf(2, 0, aabb.x, aabb.y, aabb.z, aabb.w);
 		
 		for (Wall wall : map.walls)
 			tree = tree.addShape(new Line(Entity.INVALID_ID, wall.p0, wall.p1));
