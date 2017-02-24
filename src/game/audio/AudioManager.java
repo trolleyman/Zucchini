@@ -26,7 +26,7 @@ public class AudioManager implements IAudioManager{
     private final Map<Integer,String> soundBufferMap;
     private final Map<String, List<SoundSource>> soundSourcesMap;
     private final Matrix4f cameraMatrix;
-    private final int numberOfSourcesPerFile = 15; //this is the amount of sources each wav file will have available for them
+    private final int numberOfSourcesPerFile = 10; //this is the amount of sources each wav file will have available for them
     private final float zPos =1.0f; //fixed z pos sice the game will be in 2D
     private static Vector2f listenerPos = new Vector2f(0, 0);
     
@@ -205,7 +205,7 @@ public class AudioManager implements IAudioManager{
 	public int playLoop(String name, float volume, Vector2f position) {
     	SoundSource source = findAvailableSoundSource(name);
     	if (source != null){
-        	System.out.println("Found and using (client) sourceID: " + source.getSourceId());
+        	//System.out.println("Found and using (client) sourceID: " + source.getSourceId());
 			source.setVolume(volume);
 			source.setLooping(true);
 			source.setPosition(position);
