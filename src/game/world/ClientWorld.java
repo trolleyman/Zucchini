@@ -194,13 +194,15 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Render map
 		this.map.render(r);
 		
-		// Draw stencil
-		r.enableStencilDraw(1);
-		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-
-		// Disable stencil draw
-		r.disableStencilDraw();
-		r.enableStencil(1);
+		if (!Util.isDebugRenderMode()) {
+			// Draw stencil
+			r.enableStencilDraw(1);
+			r.drawTriangleFan(losBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			
+			// Disable stencil draw
+			r.disableStencilDraw();
+			r.enableStencil(1);
+		}
 		
 		// Render entities
 		for (Entity e : this.bank.entities) {
