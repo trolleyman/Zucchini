@@ -38,8 +38,8 @@ public abstract class Bullet extends Projectile {
 		// Hit an entity, damage
 		System.out.println("Ow! Bullet hit entity id " + ei.id);
 		ua.bank.updateEntityCached(new HealthUpdate(ei.id, -damage));
-		ua.audio.play("bullet_impact_body.wav", 1.0f,new Vector2f(ei.x,ei.y));
-		ua.audio.play("grunt2.wav", 1.0f,new Vector2f(ei.x,ei.y));
+		ua.audio.play("bullet_impact_body.wav", 1.0f, new Vector2f(ei.x,ei.y));
+		ua.audio.play("grunt2.wav", 1.0f, new Vector2f(ei.x,ei.y));
 	}
 	
 	@Override

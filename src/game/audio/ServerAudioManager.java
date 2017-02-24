@@ -33,13 +33,13 @@ public class ServerAudioManager implements IAudioManager {
 	@Override
 	public int playLoop(String name, float volume, Vector2f position) {
 		int id = this.nextAudioID++;
-		events.add(new AudioPlayLoopEvent(name, id, volume,position));
+		events.add(new AudioPlayLoopEvent(name, id, volume, position));
 		return id;
 	}
 	
 	@Override
-	public void continueLoop(int id,Vector2f position){
-		events.add(new AudioContinueLoopEvent(id,position));		
+	public void continueLoop(int id, Vector2f position){
+		events.add(new AudioContinueLoopEvent(id, position));
 	}
 	
 	@Override
