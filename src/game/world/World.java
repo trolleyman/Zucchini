@@ -1,12 +1,6 @@
 package game.world;
 
-import java.util.ArrayList;
-
-import game.InputHandler;
 import game.Util;
-import game.ai.AI;
-import game.render.IRenderer;
-import game.world.entity.Entity;
 import game.world.map.Map;
 
 /**

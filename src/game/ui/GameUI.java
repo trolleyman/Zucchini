@@ -148,8 +148,8 @@ public class GameUI extends UI implements InputPipeMulti {
 		//stencil(r);
 		this.world.render(r);
 		createMiniMap(r);
-		//r.drawTexture(r.getImageBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
-	 //  r.drawTexture(r.getImageBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
+		//r.drawTexture(r.getTextureBank().getTexture("healthbar.png"), Align.BL, winWidth-barWidth, winHeight-barHeight, barWidth, barHeight);
+	 //  r.drawTexture(r.getTextureBank().getTexture("minimap.png"), Align.BL, 10, 10, mapSize, mapSize); //this will get changed with hiddenmap() later on
 
 		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
 	   //GL11.glScissor((int) (winWidth/2) - 200, (int) (winHeight/2) - 200, 400, 400);
@@ -181,7 +181,6 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public UI next() {
-		// TODO: Handle exiting
 		return nextUI;
 	}
 	

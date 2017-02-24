@@ -2,6 +2,7 @@ package game.net;
 
 import game.audio.event.AudioEvent;
 import game.world.entity.Entity;
+import game.world.update.EntityUpdate;
 
 /**
  * An IClientConnectionHandler that does not handle any events.
@@ -10,10 +11,15 @@ import game.world.entity.Entity;
  */
 public class DummyClientConnectionHandler implements IClientConnectionHandler {
 	@Override
-	public void updateEntity(Entity _e) {
+	public void addEntity(Entity e) {
 		System.err.println("Warning: Dummy client connection handler called.");
 	}
-
+	
+	@Override
+	public void updateEntity(EntityUpdate update) {
+		System.err.println("Warning: Dummy client connection handler called.");
+	}
+	
 	@Override
 	public void removeEntity(int _id) {
 		System.err.println("Warning: Dummy client connection handler called.");

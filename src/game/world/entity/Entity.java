@@ -17,10 +17,17 @@ import game.world.UpdateArgs;
 public abstract class Entity implements Cloneable {
 	/** The default maximum health of an entity */
 	public static final float DEFAULT_MAX_HEALTH = 0.1f;
-	/** Represents an ivalid entity ID */
+	/** Represents an invalid entity ID */
 	public static int INVALID_ID = -1;
 	/** Current id of the entity */
 	private int id = INVALID_ID;
+	
+	/**
+	 * The team that the Entity is on.
+	 * <p>
+	 * The passive team is Team.PASSIVE_TEAM, and the monster team is Team.MONSTER_TEAM
+	 */
+	private int team;
 	
 	/**
 	 * Position of the entity
@@ -45,6 +52,7 @@ public abstract class Entity implements Cloneable {
 	 */
 	public Entity(Entity e) {
 		this.id = e.id;
+		this.team = e.team;
 		this.position = new Vector2f(e.position);
 		this.angle = e.angle;
 		this.health = e.health;
@@ -54,7 +62,8 @@ public abstract class Entity implements Cloneable {
 	 * Constructs an entity at the position specified
 	 * @param _position The position
 	 */
-	public Entity(Vector2f _position) {
+	public Entity(int _team, Vector2f _position) {
+		this.team = _team;
 		this.position = _position;
 		
 		this.health = this.getMaxHealth();
@@ -65,6 +74,23 @@ public abstract class Entity implements Cloneable {
 	 * @param ua The arguments passed to each update function. See {@link game.world.UpdateArgs UpdateArgs}.
 	 */
 	public abstract void update(UpdateArgs ua);
+	
+	/**
+	 * Updates the entity. Only called on the client - use this for things that don't have a gameplay impact - simple
+	 * rendering changes. By default this function does nothing.
+	 * @param ua The UpdateArgs class
+	 */
+	public void clientUpdate(UpdateArgs ua) {}
+	
+	/**
+	 * Called when the Entity dies from low health. This allows entities to say their final farewells.
+	 * <p>
+	 * By default ths function does nothing.
+	 * @param ua The UpdateArgs class
+	 */
+	public void death(UpdateArgs ua) {
+		System.out.println("*URK*: Death of entity " + id + ". R.I.P.");
+	}
 	
 	/**
 	 * Renders the entity to the screen
@@ -96,6 +122,10 @@ public abstract class Entity implements Cloneable {
 		this.health += health;
 	}
 	
+	public float getHealth() {
+		return this.health;
+	}
+	
 	/**
 	 * Returns the maximum health of the entity
 	 */
@@ -114,6 +144,19 @@ public abstract class Entity implements Cloneable {
 	 */
 	public void setId(int _id) {
 		this.id = _id;
+	}
+	
+	/**
+	 * Sets the team of the Entity
+	 */
+	public void setTeam(int team) {
+		this.team = team;
+	}
+	/**
+	 * Gets the team of the Entity
+	 */
+	public int getTeam() {
+		return this.team;
 	}
 	
 	/**
