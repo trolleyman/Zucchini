@@ -68,7 +68,7 @@ public abstract class Bullet extends Entity {
 		} else if (closest == mi) {
 			// Hit map
 			System.out.println("*Plink*: Bullet hit the map");
-			ua.audio.play("bullet_impact_wall.wav", 1.0f);
+			ua.audio.play("bullet_impact_wall.wav", 1.0f,mi);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		} else if (closest == temp2) {
@@ -76,8 +76,8 @@ public abstract class Bullet extends Entity {
 			// Hit an entity, damage
 			System.out.println("Ow! Bullet hit entity id " + ei.id);
 			ua.bank.healEntityCached(ei.id, -damage);
-			ua.audio.play("bullet_impact_body.wav", 1.0f);
-			ua.audio.play("grunt2.wav", 1.0f);
+			ua.audio.play("bullet_impact_body.wav", 1.0f,mi);
+			ua.audio.play("grunt2.wav", 1.0f,mi);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		}

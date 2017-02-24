@@ -50,7 +50,7 @@ public class Player extends Entity {
 	
 	/** Entity ID of the weapon */
 	private int weaponID = Entity.INVALID_ID;
-	
+	private int counter =0;
 	private transient boolean beganFire = false;
 	
 	/**
@@ -95,7 +95,7 @@ public class Player extends Entity {
 	public void update(UpdateArgs ua) {
 		this.velocity.zero();
 		if (!soundSourceInit){
-			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f);
+			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
 			ua.audio.pauseLoop(this.walkingSoundID);
 			soundSourceInit = true;
 		}
@@ -113,25 +113,29 @@ public class Player extends Entity {
 			this.velocity.add(-1.0f,  0.0f);
 		}
 		
-		//Play walking sounds
-		//System.out.println(moveNorth + " " +moveSouth+ " " +moveEast+ " " +moveWest);
-		if(moveNorth || moveSouth || moveEast || moveWest ){
-			//System.out.println("Starting sound id: " + walkingSoundID);
-			ua.audio.continueLoop(this.walkingSoundID);
-		} else {
-			ua.audio.pauseLoop(this.walkingSoundID);
-			//System.out.println("Stopping sound id: " + walkingSoundID);
-		}
 		
-//		if (this.walkingSoundID==1){
+		//DEBUG
+//		if (this.walkingSoundID==0 && counter==300){
 //			System.out.println("Velocity: " + velocity);
 //			System.out.println("Position: " + position);
+//			counter=0;
+//		} else{
+//			counter++;
 //		}
+		
 		this.velocity.mul(SPEED).mul((float) ua.dt);
 		this.position.add(this.velocity);
 		ua.bank.updateEntityCached(this);
 		
-		
+		//Play walking sounds
+		//System.out.println(moveNorth + " " +moveSouth+ " " +moveEast+ " " +moveWest);
+		if(this.velocity.x != 0 ||  this.velocity.y != 0){
+			//System.out.println("Starting sound id: " + walkingSoundID);
+			ua.audio.continueLoop(this.walkingSoundID,this.position);
+		} else {
+			ua.audio.pauseLoop(this.walkingSoundID);
+			//System.out.println("Stopping sound id: " + walkingSoundID);
+		}
 
 		// Make sure weapon keeps up with the player
 		Entity eFinal = ua.bank.getEntity(weaponID);

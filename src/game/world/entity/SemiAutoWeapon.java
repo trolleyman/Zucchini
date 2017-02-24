@@ -22,6 +22,7 @@ public abstract class SemiAutoWeapon extends Weapon {
 	private float cooldown;
 	private int shots;
 	private float reloadingTime;
+	private Vector2f weaponPos;
 	
 	public SemiAutoWeapon(SemiAutoWeapon g) {
 		super(g);
@@ -49,7 +50,7 @@ public abstract class SemiAutoWeapon extends Weapon {
 	 */
 	public SemiAutoWeapon(Vector2f position, float _cooldown, int _shots, float _reloadingTime) {
 		super(position);
-		
+		this.position = position;
 		this.cooldown = _cooldown;
 		this.shots = _shots;
 		this.currentShots = this.shots;
@@ -60,7 +61,7 @@ public abstract class SemiAutoWeapon extends Weapon {
 	public void update(UpdateArgs ua) {
 		if (this.fire && this.currentCooldown <= 0.0f) {
 			// Fire!!!
-			ua.audio.play("handgunshot.wav", 1.0f);
+			ua.audio.play("handgunshot.wav", 1.0f, this.position);
 			System.out.println("BANG!");
 			// Add bullets to entity bank
 			for (Entity e : this.fire())
@@ -70,7 +71,7 @@ public abstract class SemiAutoWeapon extends Weapon {
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload
-				ua.audio.play("gun_reload[2sec].wav", 1.0f);
+				ua.audio.play("gun_reload[2sec].wav", 1.0f,this.position);
 				System.out.println("Reloading...");
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;

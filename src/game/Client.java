@@ -88,6 +88,7 @@ class Client implements Runnable, InputPipe {
 			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
 		}
 		ui = next;
+		
 	}
 	
 	private void render() {

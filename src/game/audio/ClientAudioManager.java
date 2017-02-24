@@ -28,16 +28,20 @@ public class ClientAudioManager {
 	public void processAudioEvent(AudioEvent ae) {
 		if (ae instanceof AudioPlayEvent) {
 			AudioPlayEvent e = (AudioPlayEvent) ae;
-			audio.play(e.name, e.volume);
+			audio.play(e.name, e.volume,e.position);
 		} else if (ae instanceof AudioPlayLoopEvent) {
 			AudioPlayLoopEvent e = (AudioPlayLoopEvent) ae;
-			int sourceID = audio.playLoop(e.name, e.volume);
-			//if for some reason, the sound source is already in the hash map, then do audio.playLoop again to get a new source
-			while (ids.containsValue(sourceID)){
-				sourceID = audio.playLoop(e.name, e.volume);
+			int sourceID = audio.playLoop(e.name, e.volume,e.position);
+			if (sourceID==-1){
+				System.err.println("Warning: no more sound sources for file: "+e.name+" available to loop! This will not be played. Stop some playing loops or assign more sources for this sound.");
+			}else{
+				//if for some reason, the sound source is already in the hash map, then do audio.playLoop again to get a new source
+				while (ids.containsValue(sourceID)){
+					sourceID = audio.playLoop(e.name, e.volume,e.position);
+				}
+				ids.put(e.id, sourceID);
+				lIds.add(sourceID);
 			}
-			ids.put(e.id, sourceID);
-			lIds.add(sourceID);
 		} else if (ae instanceof AudioStopEvent) {
 			AudioStopEvent e = (AudioStopEvent) ae;
 			if (!ids.containsKey(e.id)) {
@@ -56,7 +60,7 @@ public class ClientAudioManager {
 			//int sourceID = ids.get(e.id);
 			int sourceID = lIds.get(e.id);
 			//System.out.println("Continuing (client) sourceID: "+ sourceID);
-			audio.continueLoop(sourceID);
+			audio.continueLoop(sourceID,e.position);
 		} else if (ae instanceof AudioPauseLoopEvent){
 			AudioPauseLoopEvent e = (AudioPauseLoopEvent) ae;
 			if (!ids.containsKey(e.id)) {
