@@ -9,6 +9,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 public class QTLeaf extends QuadTree {
 	private ArrayList<Shape> shapes = new ArrayList<Shape>();
@@ -94,7 +95,7 @@ public class QTLeaf extends QuadTree {
 	}
 	
 	@Override
-	public Vector2f getClosestIntersection(Shape s, Vector2f dest) {
+	public Vector2f getClosestIntersection(Shape s, Vector2f dest, Predicate<Shape> pred) {
 		if (this.shapes.size() == 0)
 			return null;
 		
@@ -102,6 +103,9 @@ public class QTLeaf extends QuadTree {
 		Vector2f current = Util.pushTemporaryVector2f();
 		
 		for (Shape o : shapes) {
+			if (!pred.test(o))
+				continue;
+			
 			Vector2f res = s.queryCollision(o, current);
 			if (res != null) {
 				if (closest == null) {

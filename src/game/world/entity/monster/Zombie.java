@@ -46,7 +46,7 @@ public class Zombie extends AutonomousEntity {
 		// TODO: Not DRY enough - see Player#update(UpdateArgs)
 		// Get intersections
 		ArrayList<Collision> collisions = ua.physics.getCollisions(this.shape, null);
-		if (collisions.size() != 0) {
+		if (collisions != null) {
 			// Intersection - push out
 			Vector2f newPosition = new Vector2f();
 			for (Collision c : collisions) {

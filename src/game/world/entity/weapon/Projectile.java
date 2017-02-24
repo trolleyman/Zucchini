@@ -12,6 +12,9 @@ import game.world.physics.shape.Shape;
 import game.world.update.PositionUpdate;
 import org.joml.Vector2f;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 public abstract class Projectile extends Entity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
@@ -64,17 +67,28 @@ public abstract class Projectile extends Entity {
 		Vector2f newPos = new Vector2f(position).add(temp1);
 		ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPos));
 		
-		Collision c = ua.physics.getClosestCollision(new Line(this.getId(), prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y));
-		
-		if (c == null) {
+		ArrayList<Collision> cs = ua.physics.getCollisions(new Line(this.getId(), prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y), null);
+		if (cs == null) {
 			// Hit nothing
 		} else {
-			Entity e = ua.bank.getEntity(c.b.getEntityID());
-			if (e == null)
-				this.hitMap(ua, c.point);
-			else
-				this.hitEntity(ua, e, c.point);
-			ua.bank.removeEntityCached(this.getId());
+			Collision closest = null;
+			for (Collision c : cs) {
+				Entity e = ua.bank.getEntity(c.b.getEntityID());
+				if (e == null && c.b.getEntityID() != Entity.INVALID_ID)
+					continue;
+				if (e != null && e.getTeam() == sourceTeamID)
+					continue;
+				
+				closest = PhysicsUtil.getClosest(this.position, closest, c);
+			}
+			if (closest != null) {
+				Entity e = ua.bank.getEntity(closest.b.getEntityID());
+				if (e == null)
+					this.hitMap(ua, closest.point);
+				else
+					this.hitEntity(ua, e, closest.point);
+				ua.bank.removeEntityCached(this.getId());
+			}
 		}
 		
 		prevPosition.set(position);

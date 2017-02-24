@@ -5,6 +5,7 @@ import game.world.physics.shape.Shape;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public abstract class QuadTree {
 	
@@ -66,12 +67,13 @@ public abstract class QuadTree {
 	public abstract Collision getClosestCollision(Shape s);
 	
 	/**
-	 * Gets the closest intersection to the origin of the shape s
+	 * Gets the closest intersection to the origin of the shape s that matches a predicate pred.
 	 * @param s The shape
 	 * @param dest Where to store the intersection. Can be null.
+	 * @param pred The predicate that the other shapes have to satisfy.
 	 * @return null if there was no intersection, otherwise the intersection point.
 	 */
-	public abstract Vector2f getClosestIntersection(Shape s, Vector2f dest);
+	public abstract Vector2f getClosestIntersection(Shape s, Vector2f dest, Predicate<Shape> pred);
 	
 	@Override
 	public abstract QuadTree clone();

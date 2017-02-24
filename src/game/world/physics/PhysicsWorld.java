@@ -12,6 +12,8 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
+import java.util.Vector;
+import java.util.function.Predicate;
 
 public class PhysicsWorld {
 	private QuadTree tree;
@@ -65,7 +67,7 @@ public class PhysicsWorld {
 			float y = pos.y + max * (float)Math.cos(ang);
 			tempLine.setPosition(pos.x, pos.y);
 			tempLine.setEnd(x, y);
-			Vector2f intersection = this.getClosestIntersection(tempLine, temp);
+			Vector2f intersection = this.getClosestIntersection(tempLine, temp, (s) -> s.getEntityID() == Entity.INVALID_ID);
 			if (intersection == null) {
 				buf[2+i*2  ] = x;
 				buf[2+i*2+1] = y;
@@ -93,7 +95,11 @@ public class PhysicsWorld {
 	}
 	
 	public Vector2f getClosestIntersection(Shape s, Vector2f dest) {
-		return tree.getClosestIntersection(s, dest);
+		return getClosestIntersection(s, dest, (ls) -> true);
+	}
+	
+	public Vector2f getClosestIntersection(Shape s, Vector2f dest, Predicate<Shape> pred) {
+		return tree.getClosestIntersection(s, dest, pred);
 	}
 	
 	public void clean() {

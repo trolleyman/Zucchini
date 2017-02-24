@@ -138,7 +138,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	protected void updateStep(double dt) {
 		Player p = getPlayer();
-		if (p != null) this.cameraPos.lerp(p.position, (float)dt / 5.0f);
+		if (p != null) this.cameraPos.lerp(p.position, (float)dt);
 		else           System.err.println("Warning: Player does not exist");
 		
 		// Send server data
@@ -189,12 +189,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		this.map.render(r);
 		
 		// Draw stencil
-		r.enableStencilDraw(1);
+		/*r.enableStencilDraw(1);
 		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		
 		// Disable stencil draw
 		r.disableStencilDraw();
-		r.enableStencil(1);
+		r.enableStencil(1);*/
 		
 		// Render entities
 		for (Entity e : this.bank.entities) {

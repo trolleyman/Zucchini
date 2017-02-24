@@ -191,7 +191,8 @@ public class EntityBank {
 					entities.add(i, e);
 			}
 		}
-		physics.addShape(e.getShape());
+		if (e.getShape() != null)
+			physics.addShape(e.getShape());
 		return e.getId();
 	}
 	
@@ -232,7 +233,8 @@ public class EntityBank {
 		if (i < this.entities.size() && this.entities.get(i).getId() == id) {
 			// Remove entity
 			Entity e = this.entities.remove(i);
-			physics.removeShape(e.getShape());
+			if (e.getShape() != null)
+				physics.removeShape(e.getShape());
 		}
 	}
 	

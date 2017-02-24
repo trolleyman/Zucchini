@@ -8,6 +8,7 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public class QTNode extends QuadTree {
 	private QuadTree bl;
@@ -102,16 +103,16 @@ public class QTNode extends QuadTree {
 	}
 	
 	@Override
-	public Vector2f getClosestIntersection(Shape s, Vector2f dest) {
+	public Vector2f getClosestIntersection(Shape s, Vector2f dest, Predicate<Shape> pred) {
 		Vector2f blInt = Util.pushTemporaryVector2f();
 		Vector2f brInt = Util.pushTemporaryVector2f();
 		Vector2f tlInt = Util.pushTemporaryVector2f();
 		Vector2f trInt = Util.pushTemporaryVector2f();
 		
-		blInt = bl.getClosestIntersection(s, blInt);
-		brInt = br.getClosestIntersection(s, brInt);
-		tlInt = tl.getClosestIntersection(s, tlInt);
-		trInt = tr.getClosestIntersection(s, trInt);
+		blInt = bl.getClosestIntersection(s, blInt, pred);
+		brInt = br.getClosestIntersection(s, brInt, pred);
+		tlInt = tl.getClosestIntersection(s, tlInt, pred);
+		trInt = tr.getClosestIntersection(s, trInt, pred);
 		
 		// Find closest among the four quadrants
 		Vector2f ret;
