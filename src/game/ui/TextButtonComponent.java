@@ -22,7 +22,7 @@ public class TextButtonComponent extends UIComponent {
 	private Align a;
 	private float scale;
 	
-	private Vector4f colour = ColorUtil.BLUE;
+	private Vector4f colour = ColorUtil.BLACK;
 	
 	/** The current mouse x */
 	private float mx;
