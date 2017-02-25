@@ -1,5 +1,11 @@
 package game.world.map;
 
+import game.world.entity.weapon.MachineGun;
+import game.world.entity.Pickup;
+import game.world.entity.monster.Zombie;
+import game.world.entity.weapon.RocketLauncher;
+import org.joml.Vector2f;
+
 import java.util.ArrayList;
 
 /**
@@ -56,7 +62,7 @@ public class TestMap extends Map {
 	
 	/** Constructs the test map */
 	public TestMap() {
-		super(new ArrayList<>());
+		super(new ArrayList<>(), 5.0f);
 		walls.add(new Wall(CA, RA, CG, RA)); // -- Outside walls --
 		walls.add(new Wall(CG, RA, CG, RG));
 		walls.add(new Wall(CA, RA, CA, RG));
@@ -98,5 +104,12 @@ public class TestMap extends Map {
 			prevX = x;
 			prevY = y;
 		}
+		
+		initialEntities.add(new Pickup(new Vector2f(CT, RS), new MachineGun(new Vector2f(0.0f, 0.0f))));
+		initialEntities.add(new Pickup(new Vector2f(CP, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f))));
+		
+		initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
+		//initialEntities.add(new Zombie(new Vector2f(3.5f, 2.0f)));
+		//initialEntities.add(new Zombie(new Vector2f(3.25f, 2.45f)));
 	}
 }

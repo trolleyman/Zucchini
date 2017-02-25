@@ -1,16 +1,9 @@
 package game.net;
 
-import game.Util;
 import game.action.Action;
-import game.action.ActionType;
 import game.audio.event.AudioEvent;
-import game.ui.UI;
-import game.world.ClientWorld;
-import game.world.EntityBank;
-import game.world.ServerWorld;
-import game.world.World;
 import game.world.entity.Entity;
-import game.world.entity.Player;
+import game.world.update.EntityUpdate;
 
 /**
  * A dummy class to implement {@link IClientConnection} and {@link IServerConnection} so that we can
@@ -18,16 +11,16 @@ import game.world.entity.Player;
  * 
  * @author Callum
  */
-public class DummyConnection implements IServerConnection, IClientConnection {
+public class LinkConnection implements IServerConnection, IClientConnection {
 	private IServerConnectionHandler sch = new DummyServerConnectionHandler();
 	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
 	
 	private int playerID;
 	
 	/**
-	 * Constructs a new {@link DummyConnection}.
+	 * Constructs a new {@link LinkConnection}.
 	 */
-	public DummyConnection(int _playerID) {
+	public LinkConnection(int _playerID) {
 		this.playerID = _playerID;
 	}
 	
@@ -37,13 +30,24 @@ public class DummyConnection implements IServerConnection, IClientConnection {
 	}
 	
 	@Override
-	public void setHandler(IClientConnectionHandler _cch) {
-		this.cch = _cch;
+	public void requestFullUpdate() {
+		sch.handleFullUpdateRequest();
 	}
 	
 	@Override
-	public void sendUpdateEntity(Entity e) {
-		cch.updateEntity(e);
+	public void setHandler(IClientConnectionHandler _cch) {
+		this.cch = _cch;
+		this.requestFullUpdate();
+	}
+	
+	@Override
+	public void sendAddEntity(Entity e) {
+		cch.addEntity(e);
+	}
+	
+	@Override
+	public void sendUpdateEntity(EntityUpdate update) {
+		cch.updateEntity(update);
 	}
 	
 	@Override
@@ -59,6 +63,7 @@ public class DummyConnection implements IServerConnection, IClientConnection {
 	@Override
 	public void setHandler(IServerConnectionHandler _sch) {
 		this.sch = _sch;
+		this.requestFullUpdate();
 	}
 	
 	@Override

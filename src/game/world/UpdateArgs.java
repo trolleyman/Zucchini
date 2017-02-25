@@ -1,5 +1,6 @@
 package game.world;
 
+import game.audio.IAudioManager;
 import game.audio.ServerAudioManager;
 import game.world.map.Map;
 
@@ -10,9 +11,9 @@ public class UpdateArgs {
 	
 	public Map map;
 	
-	public ServerAudioManager audio;
+	public IAudioManager audio;
 	
-	public UpdateArgs(double _dt, EntityBank _bank, Map _map, ServerAudioManager _audio) {
+	public UpdateArgs(double _dt, EntityBank _bank, Map _map, IAudioManager _audio) {
 		this.dt = _dt;
 		this.bank = _bank;
 		this.map = _map;

@@ -161,7 +161,7 @@ public class GameUI extends UI implements InputPipeMulti {
 
    	
 	}
-
+	
 	public void createMiniMap(IRenderer r){ //ALSO ABSOLUTELY NOT WORKING
 		
 		//r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);	
@@ -185,7 +185,6 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public UI next() {
-		// TODO: Handle exiting
 		return nextUI;
 	}
 	

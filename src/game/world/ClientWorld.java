@@ -1,5 +1,6 @@
 package game.world;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.action.Action;
@@ -10,13 +11,15 @@ import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
 import game.net.*;
 import game.render.IRenderer;
-import game.world.entity.Entity;
-import game.world.entity.Handgun;
-import game.world.entity.Player;
+import game.world.entity.*;
+import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
+import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -29,7 +32,6 @@ import static org.lwjgl.glfw.GLFW.*;
 public class ClientWorld extends World implements InputHandler, IClientConnectionHandler {
 	/**
 	 * Creates a test single player world
-	 * @throws Exception
 	 */
 	public static ClientWorld createTestWorld(AudioManager audio) {
 		try {
@@ -38,15 +40,16 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			// Create entity bank and add entities
 			EntityBank serverBank = new EntityBank();
-			int weaponID = serverBank.updateEntity(new Handgun(new Vector2f(0.5f, 0.5f)));
-			int playerID = serverBank.updateEntity(new Player(new Vector2f(0.5f, 0.5f), weaponID));
-			serverBank.updateEntity(new Player(new Vector2f(-2.0f, -2.0f), Entity.INVALID_ID));
+			for (Entity e : map.getInitialEntities())
+				serverBank.addEntity(e);
+			Item weapon = new Handgun(new Vector2f(0.5f, 0.5f));
+			int playerID = serverBank.addEntity(new Player(serverBank.getNextFreeTeam(), new Vector2f(0.5f, 0.5f), weapon));
 			
 			// Create server world
-			ServerWorld serverWorld = new ServerWorld(map, serverBank, new ArrayList<>());
+			ServerWorld serverWorld = new ServerWorld(map, serverBank);
 			
 			// Create connection
-			DummyConnection connection = new DummyConnection(playerID);
+			LinkConnection connection = new LinkConnection(playerID);
 			ArrayList<IServerConnection> conns = new ArrayList<>();
 			conns.add(connection);
 			
@@ -100,15 +103,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private Action actionEast   = new Action(ActionType.END_MOVE_EAST );
 	private Action actionWest   = new Action(ActionType.END_MOVE_WEST );
 	private AimAction actionAim = new AimAction(0.0f);
-	private Action actionFire   = new Action(ActionType.END_FIRE);
+	private Action actionUse    = new Action(ActionType.END_USE);
 	
 	/** This is the line of sight buffer. This is meant to be null. */
-	private float[] losBuf = null;
+	private FloatBuffer losBuf = MemoryUtil.memAllocFloat(16);
 	
 	/** Audio Manager */
 	private AudioManager audio;
 	/** Client audio manager. It can handle AudioEvent's */
 	private ClientAudioManager clientAudio;
+	
+	/** Client UpdateArgs structure */
+	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null);
 	
 	/**
 	 * Constructs a client world
@@ -132,7 +138,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	protected void updateStep(double dt) {
 		Player p = getPlayer();
-		if (p != null) this.cameraPos.set(p.position);
+		if (p != null) {
+			this.cameraPos.set(p.position);
+			audio.updateListenerPosition(p.position);
+		}
 		else           System.err.println("Warning: Player does not exist");
 		
 		// Send server data
@@ -145,9 +154,17 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			connection.sendAction(actionEast);
 			connection.sendAction(actionWest);
 			connection.sendAction(actionAim);
-			connection.sendAction(actionFire);
+			connection.sendAction(actionUse);
 			
-			this.bank.processCache(new ArrayList<>());
+			this.bank.processCacheClient();
+			
+			clientUpdateArgs.dt = Util.DT_PER_SNAPSHOT_UPDATE;
+			clientUpdateArgs.bank = this.bank;
+			clientUpdateArgs.map = this.map;
+			clientUpdateArgs.audio = this.audio;
+			
+			for (Entity e : this.bank.entities)
+				e.clientUpdate(clientUpdateArgs);
 		}
 	}
 	
@@ -164,8 +181,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
 		// Render line of sight
-		losBuf = map.getLineOfSight(cameraPos, 1024, Player.LINE_OF_SIGHT_MAX, losBuf);
+		losBuf = map.getLineOfSight(cameraPos, Player.LINE_OF_SIGHT_MAX, losBuf);
 		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+		
+		if (Util.isDebugRenderMode()) {
+			float x = losBuf.limit() <= 1 ? 0.0f : losBuf.get(0);
+			float y = losBuf.limit() <= 1 ? 0.0f : losBuf.get(1);
+			for (int i = 2; i < losBuf.limit() - 3; i += 2) {
+				float nx = losBuf.get(i);
+				float ny = losBuf.get(i + 1);
+				r.drawLine(x, y, nx, ny, ColorUtil.PINK, 1.0f);
+			}
+		}
 		
 		// Render map
 		this.map.render(r);
@@ -173,7 +200,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Draw stencil
 		r.enableStencilDraw(1);
 		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-		
+
 		// Disable stencil draw
 		r.disableStencilDraw();
 		r.enableStencil(1);
@@ -214,6 +241,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); break;
 			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); break;
 			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); break;
+			case GLFW_KEY_E: connection.sendAction(new Action(ActionType.PICKUP)); break;
 			}
 		} else if (action == GLFW_RELEASE) { // End move
 			switch (key) {
@@ -237,16 +265,21 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Send input to server
 		if (button == GLFW_MOUSE_BUTTON_1)
 			if (action == GLFW_PRESS)
-				actionFire.setType(ActionType.BEGIN_FIRE);
+				actionUse.setType(ActionType.BEGIN_USE);
 			else if (action == GLFW_RELEASE)
-				actionFire.setType(ActionType.END_FIRE);
+				actionUse.setType(ActionType.END_USE);
 	}
 
 	@Override
-	public void updateEntity(Entity e) {
-		this.bank.updateEntityCached(e);
+	public void addEntity(Entity e) {
+		this.bank.addEntityCached(e);
 	}
-
+	
+	@Override
+	public void updateEntity(EntityUpdate update) {
+		this.bank.updateEntityCached(update);
+	}
+	
 	@Override
 	public void removeEntity(int id) {
 		this.bank.removeEntityCached(id);

@@ -1,43 +1,44 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
-import java.util.ArrayList;
-
+import game.world.UpdateArgs;
+import game.world.entity.Item;
 import org.joml.Vector2f;
 
-import game.audio.AudioManager;
-import game.world.EntityBank;
-import game.world.UpdateArgs;
-
-public abstract class SemiAutoWeapon extends Weapon {
-	private ArrayList<Entity> toFire = new ArrayList<>();
-	
+/**
+ * A weapon is something that the player can hold, and fire.
+ * 
+ * @author Callum
+ */
+public abstract class Weapon extends Item {
 	private float currentCooldown = 0.0f;
 	/** Current shots left in clip */
 	private int currentShots;
 	private boolean reloading = false;
 	
 	/** Has fireStart been called since the last update? */
-	private boolean fire = false;
+	private transient boolean fire = false;
+	
+	private boolean semiAuto;
 	
 	private float cooldown;
 	private int shots;
 	private float reloadingTime;
+	private Vector2f weaponPos;
 	
-	public SemiAutoWeapon(SemiAutoWeapon g) {
+	public Weapon(Weapon g) {
 		super(g);
-		
-		this.toFire = new ArrayList<>();
-		for (Entity e : g.toFire) {
-			this.toFire.add(e.clone());
-		}
 		
 		this.currentCooldown = g.currentCooldown;
 		this.currentShots = g.currentShots;
 		this.reloading = g.reloading;
 		
+		this.semiAuto = g.semiAuto;
+		
 		this.cooldown = g.cooldown;
 		this.shots = g.shots;
 		this.reloadingTime = g.reloadingTime;
+		
+		this.fire = g.fire;
 	}
 	
 	/**
@@ -47,37 +48,38 @@ public abstract class SemiAutoWeapon extends Weapon {
 	 * @param _shots The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 */
-	public SemiAutoWeapon(Vector2f position, float _cooldown, int _shots, float _reloadingTime) {
-		super(position);
+	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime) {
+		super(position);		
+		this.semiAuto = _semiAuto;
 		
 		this.cooldown = _cooldown;
 		this.shots = _shots;
 		this.currentShots = this.shots;
 		this.reloadingTime = _reloadingTime;
 	}
-
+	
 	@Override
 	public void update(UpdateArgs ua) {
 		if (this.fire && this.currentCooldown <= 0.0f) {
 			// Fire!!!
-			ua.audio.play("handgunshot.wav", 1.0f);
-			System.out.println("BANG!");
-			// Add bullets to entity bank
-			for (Entity e : this.fire())
-				ua.bank.updateEntityCached(e);
+			this.fire(ua);
 			
 			// Decrement shots left
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload
-				ua.audio.play("gun_reload[2sec].wav", 1.0f);
 				System.out.println("Reloading...");
+				this.reload(ua);
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
 				this.currentShots = this.shots;
+			} else {
+				this.currentCooldown = this.cooldown;
 			}
 		}
-		this.fire = false;
+		//System.out.println("cooldown: " + this.currentCooldown);
+		if (this.semiAuto)
+			this.fire = false;
 		
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
@@ -85,16 +87,21 @@ public abstract class SemiAutoWeapon extends Weapon {
 			this.reloading = false;
 		}
 	}
-
+	
 	@Override
-	public void fireBegin() {
+	public void beginUse() {
 		this.fire = true;
 	}
-
+	
 	@Override
-	public void fireEnd() {
-		
+	public void endUse() {
+		this.fire = false;
 	}
 	
-	protected abstract Entity[] fire();
+	protected abstract void fire(UpdateArgs ua);
+	
+	protected abstract void reload(UpdateArgs ua);
+	
+	@Override
+	public abstract Weapon clone();
 }

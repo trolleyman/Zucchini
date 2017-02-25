@@ -24,8 +24,8 @@ public class TextureBank {
 		System.out.println("Loading textures...");
 		textures = new HashMap<>();
 		
-		// Find all .png files in directory "img/"
-		String baseDir = Util.getBasePath();
+		// Find all .png files in directory "resources/img/"
+		String baseDir = Util.getResourcesDir();
 		Path imgsDirPath = Paths.get(baseDir, "img");
 		File imgsDir = imgsDirPath.toFile();
 		File[] imgFiles = imgsDir.listFiles((dir, name) -> {

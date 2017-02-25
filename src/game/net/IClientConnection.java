@@ -20,16 +20,21 @@ public interface IClientConnection {
 	 * Notifies the server that an action has been performed
 	 * @param a The action
 	 */
-	public void sendAction(Action a);
+	void sendAction(Action a);
+	
+	/**
+	 * Notifies the server to send a full update of the world on the next snapshot
+	 */
+	void requestFullUpdate();
 	
 	/**
 	 * Sets the current connection event handler
 	 * @param cch The client connection handler
 	 */
-	public void setHandler(IClientConnectionHandler cch);
+	void setHandler(IClientConnectionHandler cch);
 	
 	/**
 	 * Called when the connection to the server should be closed
 	 */
-	public void close();
+	void close();
 }

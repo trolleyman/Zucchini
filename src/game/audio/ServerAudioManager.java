@@ -2,6 +2,8 @@ package game.audio;
 
 import java.util.ArrayList;
 
+import org.joml.Vector2f;
+
 import game.audio.event.AudioContinueLoopEvent;
 import game.audio.event.AudioEvent;
 import game.audio.event.AudioPauseLoopEvent;
@@ -24,20 +26,20 @@ public class ServerAudioManager implements IAudioManager {
 	}
 	
 	@Override
-	public void play(String name, float volume) {
-		events.add(new AudioPlayEvent(name, volume));
+	public void play(String name, float volume, Vector2f position) {
+		events.add(new AudioPlayEvent(name, volume, position));
 	}
 	
 	@Override
-	public int playLoop(String name, float volume) {
+	public int playLoop(String name, float volume, Vector2f position) {
 		int id = this.nextAudioID++;
-		events.add(new AudioPlayLoopEvent(name, id, volume));
+		events.add(new AudioPlayLoopEvent(name, id, volume, position));
 		return id;
 	}
 	
 	@Override
-	public void continueLoop(int id){
-		events.add(new AudioContinueLoopEvent(id));		
+	public void continueLoop(int id, Vector2f position){
+		events.add(new AudioContinueLoopEvent(id, position));
 	}
 	
 	@Override
