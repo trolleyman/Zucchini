@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import game.action.Action;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
-import game.net.IServerConnection;
-import game.net.IServerConnectionHandler;
+import game.exception.ProtocolException;
+import game.net.server.IServerConnection;
+import game.net.server.IServerConnectionHandler;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -106,9 +107,18 @@ public class ServerWorld extends World implements Cloneable {
 		}
 		
 		// Send audio
-		for (AudioEvent ae : audio.clearCache())
-			for (IServerConnection conn : conns)
-				conn.sendAudioEvent(ae);
+		for (AudioEvent ae : audio.clearCache()) {
+			for (IServerConnection conn : conns) {
+				if (conn.isClosed())
+					continue;
+				try {
+					conn.sendAudioEvent(ae);
+				} catch (ProtocolException ex) {
+					ex.printStackTrace();
+					conn.close();
+				}
+			}
+		}
 		
 		// Send entity updates
 		this.bank.processCache(conns);
@@ -122,9 +132,18 @@ public class ServerWorld extends World implements Cloneable {
 		}
 		
 		// Send full updates to those who need it
-		for (IServerConnection conn : fullUpdateRequests)
-			for (Entity e : this.bank.entities)
-				conn.sendAddEntity(e);
+		for (Entity e : this.bank.entities) {
+			for (IServerConnection conn : fullUpdateRequests) {
+				if (conn.isClosed())
+					continue;
+				try {
+					conn.sendAddEntity(e);
+				} catch (ProtocolException ex) {
+					ex.printStackTrace();
+					conn.close();
+				}
+			}
+		}
 		fullUpdateRequests.clear();
 	}
 	

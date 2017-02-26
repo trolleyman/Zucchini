@@ -4,6 +4,7 @@ import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
@@ -43,14 +44,14 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	private TextButtonComponent lobby3;
 	private ArrayList<TextButtonComponent> lobbies = new ArrayList<>();
 	
-	public LobbyUI(AudioManager audio, TextureBank tb) {
-		super(audio);
+	public LobbyUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
+		super(conn, audio);
 		
 		f = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
 		this.tb = tb;
 		
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(audio, tb, ClientWorld.createTestWorld(audio)); },
+			() -> { this.nextUI = new GameUI(connection, audio, tb, ClientWorld.createTestWorld(audio)); },
 			Align.BL, 100, 100,
 			tb.getTexture("joinDefault.png"),
 			tb.getTexture("joinHover.png"),
@@ -58,7 +59,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		);
 		
 		backButton = new ButtonComponent(
-			() -> { this.nextUI = new StartUI(audio, tb); },
+			() -> { this.nextUI = new StartUI(connection, audio, tb); },
 			Align.BL, 100, 100,
 			tb.getTexture("backDefault.png"),
 			tb.getTexture("backHover.png"),
@@ -116,7 +117,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 		 	System.out.println("escape pressed");
-			this.nextUI = new StartUI(audio, tb);
+			this.nextUI = new StartUI(connection, audio, tb);
 		}
 	}
 	

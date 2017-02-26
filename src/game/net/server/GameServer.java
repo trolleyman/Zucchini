@@ -1,15 +1,15 @@
-package game.net;
+package game.net.server;
 
 import java.util.ArrayList;
 
 import game.Util;
 import game.world.ServerWorld;
 
-public class Server implements Runnable {
+public class GameServer implements Runnable {
 	private ServerWorld world;
 	private boolean running = false;
 	
-	public Server(ServerWorld _world, ArrayList<IServerConnection> conns) {
+	public GameServer(ServerWorld _world, ArrayList<IServerConnection> conns) {
 		this.world = _world;
 		for (IServerConnection conn : conns)
 			this.world.addConnection(conn);

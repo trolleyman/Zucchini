@@ -1,5 +1,9 @@
 package game;
 
+import game.exception.NameException;
+import game.exception.ProtocolException;
+import game.net.client.ClientConnection;
+import game.net.client.IClientConnection;
 import org.lwjgl.Version;
 
 import game.audio.AudioManager;
@@ -23,6 +27,8 @@ class Client implements Runnable, InputPipe {
 	
 	private AudioManager audio;
 	
+	private IClientConnection connection;
+	
 	/**
 	 * Previous time in nanoseconds of update.
 	 */
@@ -30,6 +36,15 @@ class Client implements Runnable, InputPipe {
 	
 	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
+		
+		// Initialize connection to server
+		try {
+			connection = new ClientConnection("Callum");
+		} catch (ProtocolException | NameException e) {
+			System.err.println("Error: Could not connect to server:");
+			e.printStackTrace();
+			return;
+		}
 		
 		// Initialize renderer
 		renderer = new Renderer(this, _fullscreen);
@@ -44,7 +59,7 @@ class Client implements Runnable, InputPipe {
 		}
 		
 		// Initialize UI
-		ui = new StartUI(audio, renderer.getTextureBank());
+		ui = new StartUI(connection, audio, renderer.getTextureBank());
 	}
 	
 	@Override

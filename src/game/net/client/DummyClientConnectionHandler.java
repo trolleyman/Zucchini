@@ -1,4 +1,4 @@
-package game.net;
+package game.net.client;
 
 import game.audio.event.AudioEvent;
 import game.world.entity.Entity;

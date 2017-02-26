@@ -9,7 +9,12 @@ import game.action.AimAction;
 import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
+import game.exception.ProtocolException;
 import game.net.*;
+import game.net.client.IClientConnection;
+import game.net.client.IClientConnectionHandler;
+import game.net.server.IServerConnection;
+import game.net.server.GameServer;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.entity.weapon.Handgun;
@@ -54,7 +59,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			conns.add(connection);
 			
 			// Create server
-			Server server = new Server(serverWorld, conns);
+			GameServer server = new GameServer(serverWorld, conns);
 			
 			// Create client
 			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);
@@ -149,12 +154,17 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		while (dtPool > Util.DT_PER_SNAPSHOT_UPDATE) {
 			dtPool -= Util.DT_PER_SNAPSHOT_UPDATE;
 			// Send input
-			connection.sendAction(actionNorth);
-			connection.sendAction(actionSouth);
-			connection.sendAction(actionEast);
-			connection.sendAction(actionWest);
-			connection.sendAction(actionAim);
-			connection.sendAction(actionUse);
+			try {
+				connection.sendAction(actionNorth);
+				connection.sendAction(actionSouth);
+				connection.sendAction(actionEast);
+				connection.sendAction(actionWest);
+				connection.sendAction(actionAim);
+				connection.sendAction(actionUse);
+			} catch (ProtocolException e) {
+				// Ignore for now
+				e.printStackTrace();
+			}
 			
 			this.bank.processCacheClient();
 			
@@ -241,7 +251,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); break;
 			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); break;
 			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); break;
-			case GLFW_KEY_E: connection.sendAction(new Action(ActionType.PICKUP)); break;
+			case GLFW_KEY_E:
+				try {
+					connection.sendAction(new Action(ActionType.PICKUP));
+				} catch (ProtocolException e) {
+					e.printStackTrace();
+				}
+				break;
 			}
 		} else if (action == GLFW_RELEASE) { // End move
 			switch (key) {

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
@@ -18,8 +19,8 @@ public class MiniMap extends UI implements InputPipeMulti{
 	private TextureBank bank;
 
 	
-	public MiniMap(AudioManager _audio, TextureBank _bank, ClientWorld _world) {
-		super(_audio);
+	public MiniMap(IClientConnection conn, AudioManager _audio, TextureBank _bank, ClientWorld _world) {
+		super(conn, _audio);
 		this.world = _world;
 		this.bank = _bank;
 
@@ -32,7 +33,7 @@ public class MiniMap extends UI implements InputPipeMulti{
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 			System.out.println("escape pressed");
-			this.nextUI = new GameUI(audio, bank, world);
+			this.nextUI = new GameUI(connection, audio, bank, world);
 		}
 	}
 

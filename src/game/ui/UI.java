@@ -5,6 +5,7 @@ package game.ui;
 
 import game.InputHandler;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.IRenderer;
 
 /**
@@ -13,9 +14,14 @@ import game.render.IRenderer;
  * @author jackm
  */
 public abstract class UI implements InputHandler {
+	/** This is the connection to the server */
+	protected IClientConnection connection;
+	
 	protected AudioManager audio;
 	
-	public UI(AudioManager _audio) {
+	public UI(IClientConnection _connection, AudioManager _audio) {
+		this.connection = _connection;
+		
 		this.audio = _audio;
 	}
 

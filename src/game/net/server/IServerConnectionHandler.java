@@ -1,4 +1,4 @@
-package game.net;
+package game.net.server;
 
 import game.action.Action;
 

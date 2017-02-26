@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import game.Util;
-import game.net.IServerConnection;
+import game.exception.ProtocolException;
+import game.net.server.IServerConnection;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
-import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
 public class EntityBank {
@@ -87,8 +87,16 @@ public class EntityBank {
 		// Process cached entity adds
 		for (Entity e : addEntities) {
 			this.addEntity(e);
-			for (IServerConnection conn : conns)
-				conn.sendAddEntity(e);
+			for (IServerConnection conn : conns) {
+				if (conn.isClosed())
+					continue;
+				try {
+					conn.sendAddEntity(e);
+				} catch (ProtocolException ex) {
+					ex.printStackTrace();
+					conn.close();
+				}
+			}
 		}
 		addEntities.clear();
 		
@@ -98,18 +106,42 @@ public class EntityBank {
 			if (e != null)
 				eu.updateEntity(e);
 			
-			for (IServerConnection conn : conns)
-				conn.sendUpdateEntity(eu);
+			for (IServerConnection conn : conns) {
+				if (conn.isClosed())
+					continue;
+				try {
+					conn.sendUpdateEntity(eu);
+				} catch (ProtocolException ex) {
+					ex.printStackTrace();
+					conn.close();
+				}
+			}
 		}
 		updateEntities.clear();
 		
 		// Remove cached entities
 		for (Integer id : removeEntities) {
 			this.removeEntity(id);
-			for (IServerConnection conn : conns)
-				conn.sendRemoveEntity(id);
+			for (IServerConnection conn : conns) {
+				if (conn.isClosed())
+					continue;
+				try {
+					conn.sendRemoveEntity(id);
+				} catch (ProtocolException ex) {
+					ex.printStackTrace();
+					conn.close();
+				}
+			}
 		}
 		removeEntities.clear();
+		
+		for (int i = 0; i < conns.size(); i++) {
+			IServerConnection conn = conns.get(i);
+			if (conn.isClosed()) {
+				conns.remove(i);
+				i--;
+			}
+		}
 	}
 
 	/**

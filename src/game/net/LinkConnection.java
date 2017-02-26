@@ -2,6 +2,12 @@ package game.net;
 
 import game.action.Action;
 import game.audio.event.AudioEvent;
+import game.net.client.DummyClientConnectionHandler;
+import game.net.client.IClientConnection;
+import game.net.client.IClientConnectionHandler;
+import game.net.server.DummyServerConnectionHandler;
+import game.net.server.IServerConnection;
+import game.net.server.IServerConnectionHandler;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
 
@@ -74,5 +80,10 @@ public class LinkConnection implements IServerConnection, IClientConnection {
 	@Override
 	public void close() {
 		// Nothing needs to be here
+	}
+	
+	@Override
+	public boolean isClosed() {
+		return false;
 	}
 }
