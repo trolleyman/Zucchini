@@ -62,8 +62,8 @@ public class Shader {
 	public Shader(String _shaderName) {
 		this.shaderName = _shaderName;
 		try {
-			// Get shader base, e.g. "./shader/simple"
-			String shaderBase = Util.getBasePath().toString() + "/shader/" + shaderName;
+			// Get shader base, e.g. "./resources/shader/simple"
+			String shaderBase = Util.getResourcesDir() + "/shader/" + shaderName;
 			
 			program = glCreateProgram();
 			vertShader = compileAndAttach(shaderBase, ShaderType.VERTEX, program);

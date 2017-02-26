@@ -17,6 +17,14 @@ public class Action {
 	}
 	
 	/**
+	 * Sets the current type of the action
+	 * @param _type The new type
+	 */
+	public void setType(ActionType _type) {
+		this.type = _type;
+	}
+	
+	/**
 	 * Returns the {@link game.action.ActionType ActionType} of this action.
 	 */
 	public ActionType getType() {
