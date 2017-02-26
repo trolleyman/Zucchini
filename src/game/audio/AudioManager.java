@@ -62,6 +62,11 @@ public class AudioManager implements IAudioManager{
 				}
 				source.setBuffer(soundBuffer.getBufferId());
 				soundSourcesList.add(source);
+				//special case: explosion sound, be more louder and able to hear this far away
+				if(filename.equals("explosion.wav")){
+					source.setRolloffFactor(1f);
+					source.setReferenceDistance(1f);
+				}
 			}
 			soundSourcesMap.put(soundBufferMap.get(soundBuffer.getBufferId()), soundSourcesList);
 			System.out.println("Loaded audio: " + listOfFiles[j].getName());
@@ -101,7 +106,7 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("bullet_impact_body.wav", 10);
 		fileSourceMap.put("bullet_impact_wall.wav", 30);
 		fileSourceMap.put("bullet_whiz1.wav", 0);
-		fileSourceMap.put("bullet_whizz_silent.wav", 0);
+		fileSourceMap.put("bullet_whizz_silent.wav", 30);
 		fileSourceMap.put("bullet_whizz2.wav", 30);
 		fileSourceMap.put("bullet_whizz3.wav", 0);
 		fileSourceMap.put("explosion.wav", 5);
