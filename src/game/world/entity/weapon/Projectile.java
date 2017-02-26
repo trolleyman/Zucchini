@@ -12,6 +12,10 @@ import org.joml.Vector2f;
 public abstract class Projectile extends Entity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
+	/** for sound */
+	private boolean soundSourceInit =false;
+	private int whizzSoundID;
+	
 	/** Identifies the source team of the bullet */
 	private int sourceTeamID;
 	
@@ -50,6 +54,7 @@ public abstract class Projectile extends Entity {
 		this.ttl -= ua.dt;
 		if (ttl <= 0.0f) {
 			ua.bank.removeEntityCached(this.getId());
+			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID);}
 		}
 		
 		// Calculate intersection
@@ -80,14 +85,24 @@ public abstract class Projectile extends Entity {
 			this.hitMap(ua, mi);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
+			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID);}
 		} else if (closest == temp2) {
 			// Hit entity
 			this.hitEntity(ua, ei);
 			// Remove projectile from the world
 			ua.bank.removeEntityCached(this.getId());
+			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID);}
 		}
 		
 		prevPosition.set(position);
+		
+		if (!soundSourceInit) {
+			this.whizzSoundID = ua.audio.playLoop("bullet_whizz2.wav", 0.1f,this.position);
+			ua.audio.pauseLoop(whizzSoundID);
+			soundSourceInit = true;
+		}
+		// Play sounds
+		ua.audio.continueLoop(this.whizzSoundID,this.position);
 		
 		Util.popTemporaryVector2f();
 		Util.popTemporaryVector2f();
