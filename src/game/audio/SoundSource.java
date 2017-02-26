@@ -23,10 +23,30 @@ public class SoundSource {
         if (relative) {
             alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
         }
-        alSourcef(sourceId, AL_MAX_DISTANCE, 1f);
+        //ROLLOFF FACTOR: how sound levels will fall off the further the source is, the higher the more drop off
+        alSourcef(sourceId, AL_ROLLOFF_FACTOR, 3f);
+        //REFERENCE_DISTANCE: the distance where sound has a gain of 1 (i.e no drop off)
+        alSourcef(sourceId, AL_REFERENCE_DISTANCE, 1.5f);
+
         
     }
 
+    /**
+     * Sets the rolloff factor for a source
+     * @param value
+     */
+    public void setRolloffFactor(float value){
+        alSourcef(sourceId, AL_ROLLOFF_FACTOR, value);
+    }
+    
+    /**
+     * Sets the reference distance for a source
+     * @param value
+     */
+    public void setReferenceDistance(float value){
+        alSourcef(sourceId, AL_REFERENCE_DISTANCE, value);
+    }
+    
     /**
      * Returns a source id
      * @return sourceID

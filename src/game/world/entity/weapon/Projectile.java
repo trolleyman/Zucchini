@@ -97,7 +97,7 @@ public abstract class Projectile extends Entity {
 		prevPosition.set(position);
 		
 		if (!soundSourceInit) {
-			this.whizzSoundID = ua.audio.playLoop("bullet_whizz2.wav", 0.1f,this.position);
+			this.whizzSoundID = ua.audio.playLoop("bullet_whizz_silent.wav", 0.1f,this.position);
 			ua.audio.pauseLoop(whizzSoundID);
 			soundSourceInit = true;
 		}
