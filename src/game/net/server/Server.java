@@ -1,5 +1,6 @@
 package game.net.server;
 
+import game.LobbyInfo;
 import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.net.TCPConnection;
@@ -12,16 +13,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Server implements Runnable {
 	private volatile boolean running;
 	
-	private Thread udpDiscoveryServer;
-	private Thread tcpServer;
+	private final Object lock = new Object();
+	/** Name -> Handler */
+	private final HashMap<String, ClientHandler> clients = new HashMap<>();
+	/** Lobby Name -> Lobby */
+	private final HashMap<String, Lobby> lobbies = new HashMap<>();
 	
-	
-	private final Object clientsLock = new Object();
-	private ArrayList<ClientInfo> clients = new ArrayList<>();
+	private final LinkedList<String> udpReceived = new LinkedList<>();
+	private final LinkedList<String> tcpReceived = new LinkedList<>();
 	
 	public Server() {
 		
@@ -31,10 +36,10 @@ public class Server implements Runnable {
 	public void run() {
 		running = true;
 		
-		udpDiscoveryServer = new Thread(this::runUdpDiscoveryServer, "UDP Discovery Server");
+		Thread udpDiscoveryServer = new Thread(this::runUdpDiscoveryServer, "UDP Discovery Server");
 		udpDiscoveryServer.start();
 		
-		tcpServer = new Thread(this::runTcpServer, "TCP Connection Server");
+		Thread tcpServer = new Thread(this::runTcpServer, "TCP Connection Server");
 		tcpServer.start();
 	}
 	
@@ -99,12 +104,12 @@ public class Server implements Runnable {
 				return;
 			}
 			
-			Thread t = new Thread(() -> acceptClient(sock), "TCP Handler: " + sock.getRemoteSocketAddress());
+			Thread t = new Thread(() -> acceptSocket(sock), "TCP Handler: " + sock.getRemoteSocketAddress());
 			t.start();
 		}
 	}
 	
-	private void acceptClient(Socket sock) {
+	private void acceptSocket(Socket sock) {
 		try {
 			outTCP("[Accept]: " + sock.getRemoteSocketAddress() + ": Accepting client...");
 			TCPConnection tcpConn = new TCPConnection(sock);
@@ -119,28 +124,17 @@ public class Server implements Runnable {
 			udpConn.connect(address);
 			
 			String error = null;
-			synchronized (clientsLock) {
-				for (ClientInfo ci : clients) {
-					if (ci.name.equals(name)) {
-						// Error
-						error = name + " is already connected.";
-						break;
-					}
-				}
-				
-				if (error == null) {
+			synchronized (lock) {
+				if (clients.containsKey(name)) {
+					error = name + " is already connected.";
+				} else {
 					// Send connection success back
 					tcpConn.sendConnectionResponseSuccess();
 					
 					// Then add client info, as if there is an exception when sending the response,
 					// this will not accept the client
 					ClientInfo ci = new ClientInfo(name, tcpConn, udpConn);
-					this.clients.add(ci);
-					System.out.println(
-							"[Net]: Client Connected: '" + name + "'"
-									+ " @ TCP: " + tcpConn.getSocket().getRemoteSocketAddress()
-									+ ", UDP: " + udpConn.getSocket().getRemoteSocketAddress()
-					);
+					this.onClientAccept(ci);
 				}
 			}
 			
@@ -153,6 +147,82 @@ public class Server implements Runnable {
 		} catch (ProtocolException e) {
 			outTCP("Exception while accepting client: " + e.toString());
 			e.printStackTrace();
+		}
+	}
+	
+	private void onClientAccept(ClientInfo info) {
+		synchronized (lock) {
+			ClientHandler ch = new ClientHandler(info);
+			ch.onError((e) -> onClientError(info.name, e));
+			ch.onClose(() -> onClientClose(info.name));
+			ch.onTcpMessage((msg) -> handleTcpMessage(info.name, msg));
+			ch.onUdpMessage((msg) -> handleUdpMessage(info.name, msg));
+			ch.start();
+			this.clients.put(info.name, ch);
+		}
+	}
+	
+	private void onClientError(String name, ProtocolException e) {
+		synchronized (lock) {
+			System.err.println("[Net]: " + name + " disconnected: " + e.toString());
+			e.printStackTrace();
+		}
+	}
+	
+	private void onClientClose(String name) {
+		synchronized (lock) {
+			if (clients.containsKey(name)) {
+				// Remove client from all lobbies
+				ClientInfo info = clients.get(name).getClientInfo();
+				if (lobbies.containsKey(info.lobby)) {
+					lobbies.get(info.lobby).removePlayer(name);
+				}
+				
+				// Remove client from main list
+				clients.remove(name);
+			}
+		}
+	}
+	
+	private void handleTcpMessage(String name, String msg) {
+		ClientHandler handler = clients.get(name);
+		ClientInfo info = handler.getClientInfo();
+		if (Protocol.isLobbiesRequest(msg)) {
+			ArrayList<LobbyInfo> lobbyInfos = new ArrayList<>();
+			synchronized (lock) {
+				for (Lobby lobby : lobbies.values()) {
+					lobbyInfos.add(new LobbyInfo(lobby));
+				}
+			}
+			try {
+				handler.sendStringTcp(Protocol.sendLobbiesReply(lobbyInfos));
+			} catch (ProtocolException e) {
+				// This is fine as the handler takes care of exceptions
+			}
+			return;
+		}
+		
+		Lobby lobby;
+		synchronized (lock) {
+			String lobbyName = info.lobby;
+			if (lobbyName == null)
+				lobby = null;
+			else
+				lobby = lobbies.get(lobbyName);
+		}
+		if (lobby == null) {
+			// Handle any other messages
+			// TODO: Net
+		} else {
+			// Handle lobby messages
+			// TODO: Net
+			lobby.handleTcpMessage(handler, msg);
+		}
+	}
+	
+	private void handleUdpMessage(String name, String msg) {
+		synchronized (lock) {
+			// TODO: Net
 		}
 	}
 }
