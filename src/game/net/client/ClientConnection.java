@@ -1,7 +1,10 @@
 package game.net.client;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
+import game.LobbyInfo;
 import game.action.Action;
 import game.audio.event.AudioEvent;
 import game.exception.NameException;
@@ -18,15 +21,16 @@ public class ClientConnection implements IClientConnection {
 	private UDPConnection udpConn;
 	private TCPConnection tcpConn;
 	
-	private InetAddress serverAddress;
-	private int serverUdpPort;
-	
 	private volatile boolean running = true;
 	private Thread udpHandler;
 	private Thread tcpHandler;
 	
 	private final Object cchLock = new Object();
 	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
+	
+	private final Object lobbiesLock = new Object();
+	private ArrayList<Consumer<ArrayList<LobbyInfo>>> lobbiesSuccessCallbacks;
+	private ArrayList<Consumer<String>> lobbiesErrorCallbacks;
 	
 	public ClientConnection(String _name) throws ProtocolException, NameException {
 		this.name = _name;
@@ -44,10 +48,10 @@ public class ClientConnection implements IClientConnection {
 	}
 	
 	private void outUDP(String msg) {
-		System.out.println("[net_udp] " + name + ":" + msg);
+		System.out.println("[Net UDP] " + name + ": " + msg);
 	}
 	private void outTCP(String msg) {
-		System.out.println("[net_tcp] " + name + ":" + msg);
+		System.out.println("[Net TCP] " + name + ": " + msg);
 	}
 	
 	private void runUdpHandler() {
@@ -90,6 +94,36 @@ public class ClientConnection implements IClientConnection {
 					synchronized (cchLock) {
 						cch.processAudioEvent(ae);
 					}
+				} else if (Protocol.isLobbiesReply(msg)) {
+					try {
+						ArrayList<LobbyInfo> lobbies = Protocol.parseLobbiesReply(msg);
+						synchronized (lobbiesLock) {
+							if (lobbiesSuccessCallbacks.size() == 0) {
+								System.err.println("Warning: LobbiesReply received, but no handlers assigned.");
+							}
+							
+							for (Consumer<ArrayList<LobbyInfo>> cb : lobbiesSuccessCallbacks) {
+								cb.accept(new ArrayList<>(lobbies));
+							}
+							
+							lobbiesSuccessCallbacks.clear();
+							lobbiesErrorCallbacks.clear();
+						}
+					} catch (ProtocolException e) {
+						// If there is an error parsing the reply, pass that onto the error callbacks.
+						synchronized (lobbiesLock) {
+							if (lobbiesErrorCallbacks.size() == 0) {
+								System.err.println("Warning: LobbiesReply errored, but no handlers assigned.");
+							}
+							
+							for (Consumer<String> cb : lobbiesErrorCallbacks) {
+								cb.accept(e.toString());
+							}
+							
+							lobbiesSuccessCallbacks.clear();
+							lobbiesErrorCallbacks.clear();
+						}
+					}
 				} else {
 					System.err.println("Warning: Unknown message received: " + msg);
 				}
@@ -115,6 +149,32 @@ public class ClientConnection implements IClientConnection {
 	public void setHandler(IClientConnectionHandler cch) {
 		synchronized (cchLock) {
 			this.cch = cch;
+		}
+	}
+	
+	@Override
+	public void getLobbies(Consumer<ArrayList<LobbyInfo>> successCallback, Consumer<String> errorCallback) {
+		synchronized (lobbiesLock) {
+			lobbiesSuccessCallbacks.add(successCallback);
+			lobbiesErrorCallbacks.add(errorCallback);
+			
+			// LobbiesRequest has already been sent, just return;
+			if (lobbiesSuccessCallbacks.size() > 1 && lobbiesErrorCallbacks.size() > 1) {
+				return;
+			}
+			
+			// Try to actually send LobbiesRequest
+			try {
+				tcpConn.sendString(Protocol.sendLobbiesRequest());
+			} catch (ProtocolException e) {
+				// Call error callbacks
+				for (Consumer<String> cb : lobbiesErrorCallbacks)
+					cb.accept(e.toString());
+				
+				// Clear callbacks
+				lobbiesSuccessCallbacks.clear();
+				lobbiesErrorCallbacks.clear();
+			}
 		}
 	}
 	

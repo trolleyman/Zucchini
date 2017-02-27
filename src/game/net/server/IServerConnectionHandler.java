@@ -1,16 +1,15 @@
 package game.net.server;
 
-import game.action.Action;
+import game.LobbyInfo;
 
+import java.util.ArrayList;
+
+/**
+ * The handler for the server connection
+ */
 public interface IServerConnectionHandler {
 	/**
-	 * Called when an action has been performed
-	 * @param a The action
+	 * Returns the list of current lobbies
 	 */
-	void handleAction(Action a);
-	
-	/**
-	 * Called when the client requests a full update on the next snapshot
-	 */
-	void handleFullUpdateRequest();
+	ArrayList<LobbyInfo> getLobbies();
 }

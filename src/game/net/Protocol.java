@@ -6,6 +6,7 @@ import game.action.Action;
 import game.action.ActionType;
 import game.action.AimAction;
 import game.audio.event.AudioEvent;
+import game.exception.InvalidMessageException;
 import game.exception.ProtocolException;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
@@ -16,24 +17,26 @@ public class Protocol {
 	private static Gson gson = new GsonBuilder().create();
 	private static JsonParser parser = new JsonParser();
 	
-	public static final String DISCOVERY_REQUEST = "DISCOVER_SERVER_C3_CLIENT";
-	public static final String DISCOVERY_RESPONSE = "DISCOVER_SERVER_C3_CLIENT_RESPONSE";
+	private static final String TCP_CONNECT_REQUEST = "[CONNECT]";
+	private static final String TCP_CONNECT_RESPONSE_ACC = "[CONNECT_ACC]";
+	private static final String TCP_CONNECT_RESPONSE_REJ = "[CONNECT_REJ]";
 	
-	public static final String TCP_CONNECT_REQUEST = "[CONNECT]";
-	public static final String TCP_CONNECT_RESPONSE_ACC = "[CONNECT_ACC]";
-	public static final String TCP_CONNECT_RESPONSE_REJ = "[CONNECT_REJ]";
-	
+	// TODO: Handle TXP_EXIT and UDP_EXIT
 	public static final String UDP_EXIT = "[EXIT]";
 	public static final String TCP_EXIT = "[EXIT]";
 	
 	public static final String TCP_PING = "[PING]";
 	public static final String TCP_PONG = "[PONG]";
-	public static final String TCP_MESSAGE = "[MES]"; // TODO
+	public static final String TCP_MESSAGE = "[MES]"; // TODO: Handle Message
 	
 	public static final String TCPSocketTag = "[TCP_SOCK]";
 	
-	public static final int UDP_PORT = 6612;
-	public static final int TCP_PORT = 6613;
+	public static final int UDP_DISCOVERY_PORT = 6611;
+	public static final int UDP_SERVER_PORT = 6612;
+	public static final int TCP_SERVER_PORT = 6613;
+	
+	private static final String TAG_DISCOVERY_REQUEST  = "[DISCOVERY_REQUEST]";
+	private static final String TAG_DISCOVERY_RESPONSE = "[DISCOVERY_RESPONSE]";
 	
 	private static final String TAG_ACTION          = "[ACT]";
 	private static final String TAG_ADD_ENTITY      = "[ADD_ENT]";
@@ -43,6 +46,70 @@ public class Protocol {
 	private static final String TAG_LOBBIES_REQUEST = "[LOBREQ]";
 	private static final String TAG_LOBBIES_REPLY   = "[LOBREP]";
 	private static final String TAG_FULL_UPDATE_REQUEST = "[FULL_UPDATE_REQ]";
+	
+	/**************** TCP Connection Request ****************/
+	public static String sendTcpConnectionRequest(String name, int port) {
+		return TCP_CONNECT_REQUEST + '[' + port + ']' + name;
+	}
+	
+	public static boolean isTcpConnectionRequest(String msg) {
+		return msg.startsWith(TCP_CONNECT_REQUEST);
+	}
+	
+	public static Tuple<String, Integer> parseTcpConnectionRequest(String msg) throws ProtocolException {
+		if (!isTcpConnectionRequest(msg))
+			 throw new InvalidMessageException(msg);
+		
+		msg = msg.substring(TCP_CONNECT_REQUEST.length());
+		if (!msg.startsWith("["))
+			throw new ProtocolException("Invalid format: " + msg);
+		
+		int i = msg.indexOf("]");
+		if (i == -1)
+			throw new ProtocolException("Invalid format: " + msg);
+		
+		String portString = msg.substring(1, i);
+		int port;
+		try {
+			port = Integer.parseInt(portString);
+		} catch (NumberFormatException e) {
+			throw new ProtocolException("Invalid format: " + msg, e);
+		}
+		
+		String name = msg.substring(i+1);
+		return new Tuple<>(name, port);
+	}
+	
+	/**************** TCP Connection Reponse ****************/
+	public static boolean isTcpConnectionResponse(String msg) {
+		return isTcpConnectionResponseAccept(msg)
+				|| isTcpConnectionResponseReject(msg);
+	}
+	
+	/**************** TCP Connection Reponse Success ****************/
+	public static String sendTcpConnectionResponseAccept() {
+		return TCP_CONNECT_RESPONSE_ACC;
+	}
+	
+	public static boolean isTcpConnectionResponseAccept(String msg) {
+		return msg.startsWith(TCP_CONNECT_RESPONSE_ACC);
+	}
+	
+	/**************** TCP Connection Reponse Reject ****************/
+	public static String sendTcpConnectionResponseReject(String reason) {
+		return TCP_CONNECT_RESPONSE_REJ + reason;
+	}
+	
+	public static boolean isTcpConnectionResponseReject(String msg) {
+		return msg.startsWith(TCP_CONNECT_RESPONSE_REJ);
+	}
+	
+	public static String parseTcpConnectionResponseReject(String msg) throws ProtocolException {
+		if (!msg.startsWith(TCP_CONNECT_RESPONSE_REJ))
+			throw new InvalidMessageException(msg);
+		
+		return msg.substring(TCP_CONNECT_RESPONSE_REJ.length());
+	}
 	
 	/**************** Action ****************/
 	public static String sendAction(Action a) {
@@ -56,7 +123,7 @@ public class Protocol {
 		return s.startsWith(TAG_ACTION);
 	}
 	
-	public static Action parseAction(String s) {
+	public static Action parseAction(String s) throws ProtocolException {
 		ActionType found = null;
 		ActionType[] types = ActionType.values();
 		for (ActionType type : types) {
@@ -67,15 +134,20 @@ public class Protocol {
 			}
 		}
 		if (found == null)
-			throw new RuntimeException("Invalid action: " + s);
+			throw new ProtocolException("Invalid action: " + s);
 		
 		if (found.equals(ActionType.AIM)) {
 			int i = s.indexOf(']');
 			if (i == -1)
-				throw new RuntimeException("Invalid action: " + s);
+				throw new ProtocolException("Invalid action: " + s);
 			i++;
 			String sangle = s.substring(i);
-			float angle = Float.parseFloat(sangle);
+			float angle;
+			try {
+				angle = Float.parseFloat(sangle);
+			} catch (NumberFormatException e) {
+				throw new ProtocolException("Invalid float: " + sangle, e);
+			}
 			return new AimAction(angle);
 		}
 		return new Action(found);
@@ -182,5 +254,23 @@ public class Protocol {
 	
 	public static boolean isFullUpdateRequest(String s) {
 		return s.startsWith(TAG_FULL_UPDATE_REQUEST);
+	}
+	
+	/**************** Discovery Request ****************/
+	public static String sendDiscoveryRequest() {
+		return TAG_DISCOVERY_REQUEST;
+	}
+	
+	public static boolean isDiscoveryRequest(String msg) {
+		return msg.startsWith(TAG_DISCOVERY_REQUEST);
+	}
+	
+	/**************** Discovery Reponse ****************/
+	public static String sendDiscoveryResponse() {
+		return TAG_DISCOVERY_RESPONSE;
+	}
+	
+	public static boolean isDiscoveryResponse(String msg) {
+		return msg.startsWith(TAG_DISCOVERY_RESPONSE);
 	}
 }

@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.CharsetDecoder;
@@ -30,11 +32,12 @@ public class TCPConnection {
 	public TCPConnection(Socket socket) throws ProtocolException {
 		try {
 			this.tcpSocket = socket;
-			socket.getInputStream();
-			socket.getOutputStream();
-			socket.setReuseAddress(true);
-			socket.setKeepAlive(true);
-			socket.setTcpNoDelay(true);
+			this.tcpSocket.setReuseAddress(true);
+			this.tcpSocket.setKeepAlive(true);
+			this.tcpSocket.setTcpNoDelay(true);
+			
+			this.tcpSocket.getInputStream();
+			this.tcpSocket.getOutputStream();
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -42,13 +45,13 @@ public class TCPConnection {
 	
 	public TCPConnection(InetAddress address, int port) throws ProtocolException {
 		try {
-			tcpSocket = new Socket(address, port);
-			tcpSocket.setReuseAddress(true);
-			tcpSocket.setKeepAlive(true);
-			tcpSocket.setTcpNoDelay(true);
+			this.tcpSocket = new Socket(address, port);
+			this.tcpSocket.setReuseAddress(true);
+			this.tcpSocket.setKeepAlive(true);
+			this.tcpSocket.setTcpNoDelay(true);
 			
-			tcpSocket.getInputStream();
-			tcpSocket.getOutputStream();
+			this.tcpSocket.getInputStream();
+			this.tcpSocket.getOutputStream();
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -119,27 +122,64 @@ public class TCPConnection {
 	}
 	
 	/**
-	 * Sends a connection request with the specified name
+	 * Sends a connection request. The name of the client is sent,
 	 * @param name The name
+	 * @param port The port
 	 */
-	public void sendConnectionRequest(String name) throws ProtocolException {
-		this.sendString(Protocol.TCP_CONNECT_REQUEST + name);
+	public void sendConnectionRequest(String name, int port) throws ProtocolException {
+		this.sendString(Protocol.sendTcpConnectionRequest(name, port));
 	}
 	
 	/**
-	 * Recieves a conenction response from the server.
+	 * Receives a connection request
+	 * @return The name of the client + the SocketAddress of the client
+	 */
+	public Tuple<String, SocketAddress> recvConnectionRequest() throws ProtocolException {
+		String msg = this.recvString();
+		if (!Protocol.isTcpConnectionRequest(msg))
+			throw new ProtocolException("Not TCP Connection Request: " + msg);
+		
+		Tuple<String, Integer> pair = Protocol.parseTcpConnectionRequest(msg);
+		String name = pair.getFirst();
+		int port = pair.getSecond();
+		return new Tuple<>(name, new InetSocketAddress(tcpSocket.getInetAddress(), port));
+	}
+	
+	/**
+	 * Send back a successful connection response
+	 */
+	public void sendConnectionResponseSuccess() throws ProtocolException {
+		this.sendString(Protocol.sendTcpConnectionResponseAccept());
+	}
+	
+	/**
+	 * Send back a connection rejection
+	 * @param reason The reason why the client was rejected
+	 */
+	public void sendConnectionResponseReject(String reason) throws ProtocolException {
+		this.sendString(Protocol.sendTcpConnectionResponseReject(reason));
+	}
+	
+	/**
+	 * Recieves a connection response from the server.
 	 * @throws NameException if another client is already connected to the server, or if the name given was invalid.
 	 */
 	public void recvConnectionResponse() throws NameException, ProtocolException {
 		String response = this.recvString();
-		if (response.startsWith(Protocol.TCP_CONNECT_RESPONSE_ACC)) {
-			// Accepted - everything is fine
-			return;
-		} else if (response.startsWith(Protocol.TCP_CONNECT_RESPONSE_REJ)) {
-			// Rejected - throw NameException
-			throw new NameException(response.substring(Protocol.TCP_CONNECT_RESPONSE_REJ.length()));
+		if (Protocol.isTcpConnectionResponse(response)) {
+			if (Protocol.isTcpConnectionResponseAccept(response)) {
+				// Accepted - everything is fine
+				return;
+			} else {
+				// Rejected - throw NameException
+				throw new NameException(Protocol.parseTcpConnectionResponseReject(response));
+			}
 		} else {
 			throw new InvalidMessageException(response);
 		}
+	}
+	
+	public boolean isClosed() {
+		return tcpSocket.isClosed();
 	}
 }

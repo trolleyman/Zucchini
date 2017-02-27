@@ -1,8 +1,12 @@
 package game.net.client;
 
+import game.LobbyInfo;
 import game.action.Action;
 import game.exception.ProtocolException;
 import game.net.server.IServerConnection;
+
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * This is the main interface used by the client to communicate with the server.
@@ -34,6 +38,13 @@ public interface IClientConnection {
 	 * @param cch The client connection handler
 	 */
 	void setHandler(IClientConnectionHandler cch);
+	
+	/**
+	 * Gets the list of lobbies from the server
+	 * @param successCallback Called if succesfully received the lobbies info
+	 * @param errorCallback Called if an error occurs
+	 */
+	void getLobbies(Consumer<ArrayList<LobbyInfo>> successCallback, Consumer<String> errorCallback);
 	
 	/**
 	 * Called when the connection to the server should be closed

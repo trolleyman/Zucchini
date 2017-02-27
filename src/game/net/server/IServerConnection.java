@@ -21,6 +21,12 @@ import game.world.update.EntityUpdate;
  */
 public interface IServerConnection {
 	/**
+	 * Sets the current connection event handler
+	 * @param sch The server connection handler
+	 */
+	void setHandler(IServerConnectionHandler sch);
+	
+	/**
 	 * Notifies the client when an entity has been added
 	 * @param e The entity
 	 */
@@ -45,10 +51,10 @@ public interface IServerConnection {
 	void sendAudioEvent(AudioEvent ae) throws ProtocolException;
 	
 	/**
-	 * Sets the current connection event handler
-	 * @param sch The server connection handler
+	 * Sets the current game server connection event handler
+	 * @param gsch The game server connection handler
 	 */
-	void setHandler(IServerConnectionHandler sch);
+	void setLobbyHandler(ILobbyServerConnectionHandler gsch);
 	
 	/**
 	 * Called when the connection to the client should be closed

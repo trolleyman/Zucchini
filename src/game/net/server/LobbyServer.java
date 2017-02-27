@@ -1,18 +1,19 @@
 package game.net.server;
 
-import java.util.ArrayList;
-
 import game.Util;
+import game.net.LinkConnection;
 import game.world.ServerWorld;
 
-public class GameServer implements Runnable {
+public class LobbyServer implements Runnable {
 	private ServerWorld world;
 	private boolean running = false;
 	
-	public GameServer(ServerWorld _world, ArrayList<IServerConnection> conns) {
+	public LobbyServer(ServerWorld _world) {
 		this.world = _world;
-		for (IServerConnection conn : conns)
-			this.world.addConnection(conn);
+	}
+	
+	public void addConnection(LinkConnection conn) {
+		this.world.addConnection(conn);
 	}
 	
 	@Override
@@ -34,5 +35,9 @@ public class GameServer implements Runnable {
 				System.err.println("Warning: Sleep Thread Interrupted: " + e.toString());
 			}
 		}
+	}
+	
+	public void close() {
+		this.running = false;
 	}
 }

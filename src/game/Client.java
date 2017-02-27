@@ -43,7 +43,7 @@ class Client implements Runnable, InputPipe {
 		} catch (ProtocolException | NameException e) {
 			System.err.println("Error: Could not connect to server:");
 			e.printStackTrace();
-			return;
+			System.exit(1); // Currently just exit if we can't connect to the server
 		}
 		
 		// Initialize renderer

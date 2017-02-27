@@ -14,7 +14,7 @@ import game.net.*;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.net.server.IServerConnection;
-import game.net.server.GameServer;
+import game.net.server.LobbyServer;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.entity.weapon.Handgun;
@@ -55,11 +55,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			// Create connection
 			LinkConnection connection = new LinkConnection(playerID);
-			ArrayList<IServerConnection> conns = new ArrayList<>();
-			conns.add(connection);
 			
 			// Create server
-			GameServer server = new GameServer(serverWorld, conns);
+			LobbyServer server = new LobbyServer(serverWorld);
+			server.addConnection(connection);
 			
 			// Create client
 			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);

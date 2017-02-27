@@ -20,15 +20,15 @@ public class ClientDiscovery {
 	}
 	
 	private void out(String msg) {
-		System.out.println("[net_discovery] " + name + ":" + msg);
+		System.out.println("[UDP Discovery] " + name + ": " + msg);
 	}
 	
 	public void tryDiscover() throws NameException, ProtocolException {
 		// Broadcast discovery packet
 		UDPConnection broadcastConn = new UDPConnection();
-		InetSocketAddress broadcastAddress = new InetSocketAddress("255.255.255.255", Protocol.UDP_PORT);
-		broadcastConn.sendString(Protocol.DISCOVERY_REQUEST + name, broadcastAddress);
-		out("Sent discovery packet");
+		InetSocketAddress broadcastAddress = new InetSocketAddress("255.255.255.255", Protocol.UDP_DISCOVERY_PORT);
+		broadcastConn.sendString(Protocol.sendDiscoveryRequest(), broadcastAddress);
+		out("Sent discovery packet to " + broadcastAddress + ", waiting for response...");
 		
 		// Wait for a response
 		while (true) {
@@ -43,15 +43,20 @@ public class ClientDiscovery {
 			String msg = broadcastConn.decode(recv);
 			out("Message: " + msg);
 			
-			if (!msg.startsWith(Protocol.DISCOVERY_RESPONSE)) {
+			if (!Protocol.isDiscoveryResponse(msg)) {
 				out("Invalid response.");
 			} else {
-				out("Server found! Creating TCP udpConn...");
+				out("Server found! Creating TCP connection...");
 				
-				tcpConn = new TCPConnection(serverAddress, Protocol.TCP_PORT);
+				tcpConn = new TCPConnection(serverAddress, Protocol.TCP_SERVER_PORT);
 				
-				// Now to actually connect - send request
-				tcpConn.sendConnectionRequest(name);
+				// Set UDP connection
+				udpConn = new UDPConnection();
+				udpConn.connect(new InetSocketAddress(serverAddress, Protocol.UDP_SERVER_PORT));
+				int localPort = udpConn.getSocket().getLocalPort();
+				
+				// Now to actually connect - send request with local port to connect to.
+				tcpConn.sendConnectionRequest(name, localPort);
 				
 				// Recieve response
 				try {
@@ -61,9 +66,8 @@ public class ClientDiscovery {
 					throw e;
 				}
 				
-				// Set UDP connection
-				udpConn = new UDPConnection();
-				udpConn.bind(new InetSocketAddress(serverAddress, Protocol.UDP_PORT));
+				// Name is valid
+				break;
 			}
 		}
 	}

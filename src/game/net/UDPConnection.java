@@ -21,31 +21,39 @@ public class UDPConnection {
 	
 	public UDPConnection() throws ProtocolException {
 		try {
-			this.udpSocket = new DatagramSocket();
-			this.udpSocket.setBroadcast(true);
+			udpSocket = new DatagramSocket(null);
+			setSocketVars();
+			udpSocket.bind(null); // Bind to ephemeral port
 		} catch (SocketException e) {
 			throw new ProtocolException(e);
 		}
 	}
 	
-	public UDPConnection(DatagramSocket socket) throws ProtocolException {
+	public UDPConnection(int port) throws ProtocolException {
 		try {
-			this.udpSocket = socket;
-			this.udpSocket.setBroadcast(true);
+			udpSocket = new DatagramSocket(null);
+			setSocketVars();
+			//udpSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), port));
+			udpSocket.bind(new InetSocketAddress(port));
 		} catch (SocketException e) {
 			throw new ProtocolException(e);
 		}
 	}
 	
-	public void bind(InetSocketAddress address) throws ProtocolException {
+	private void setSocketVars() throws SocketException {
+		udpSocket.setBroadcast(true);
+		udpSocket.setReuseAddress(true);
+	}
+	
+	public void connect(SocketAddress address) throws ProtocolException {
 		try {
-			this.udpSocket.bind(address);
+			this.udpSocket.connect(address);
 		} catch (SocketException e) {
 			throw new ProtocolException(e);
 		}
 	}
 	
-	public synchronized void sendString(String msg, InetSocketAddress address) throws ProtocolException {
+	public synchronized void sendString(String msg, SocketAddress address) throws ProtocolException {
 		try {
 			// Encode + send string
 			byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
@@ -113,5 +121,9 @@ public class UDPConnection {
 			// We don't care about this
 		}
 		udpSocket.close();
+	}
+	
+	public DatagramSocket getSocket() {
+		return udpSocket;
 	}
 }

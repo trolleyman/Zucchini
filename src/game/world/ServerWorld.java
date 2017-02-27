@@ -6,8 +6,8 @@ import game.action.Action;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
+import game.net.server.ILobbyServerConnectionHandler;
 import game.net.server.IServerConnection;
-import game.net.server.IServerConnectionHandler;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -62,7 +62,7 @@ public class ServerWorld extends World implements Cloneable {
 		}
 		this.conns.add(conn);
 		ServerWorld that = this;
-		conn.setHandler(new IServerConnectionHandler() {
+		conn.setLobbyHandler(new ILobbyServerConnectionHandler() {
 			@Override
 			public void handleAction(Action a) {
 				synchronized (that) {
