@@ -35,17 +35,21 @@ public class Protocol {
 	public static final int UDP_SERVER_PORT = 6612;
 	public static final int TCP_SERVER_PORT = 6613;
 	
-	private static final String TAG_DISCOVERY_REQUEST  = "[DISCOVERY_REQUEST]";
-	private static final String TAG_DISCOVERY_RESPONSE = "[DISCOVERY_RESPONSE]";
+	private static final String TAG_DISCOVERY_REQUEST  = "[DISCOVERY_REQ]";
+	private static final String TAG_DISCOVERY_RESPONSE = "[DISCOVERY_RES]";
 	
-	private static final String TAG_ACTION          = "[ACT]";
-	private static final String TAG_ADD_ENTITY      = "[ADD_ENT]";
-	private static final String TAG_UPDATE_ENTITY   = "[UPDATE_ENT]";
-	private static final String TAG_ENTITY_REMOVE   = "[REM_ENT]";
-	private static final String TAG_AUDIO_EVENT     = "[AUDIO]";
-	private static final String TAG_LOBBIES_REQUEST = "[LOBREQ]";
-	private static final String TAG_LOBBIES_REPLY   = "[LOBREP]";
+	private static final String TAG_ACTION              = "[ACT]";
+	private static final String TAG_ADD_ENTITY          = "[ADD_ENT]";
+	private static final String TAG_UPDATE_ENTITY       = "[UPDATE_ENT]";
+	private static final String TAG_ENTITY_REMOVE       = "[REM_ENT]";
+	private static final String TAG_AUDIO_EVENT         = "[AUDIO]";
+	private static final String TAG_LOBBIES_REQUEST     = "[LOBREQ]";
+	private static final String TAG_LOBBIES_RESPONSE    = "[LOBRES]";
 	private static final String TAG_FULL_UPDATE_REQUEST = "[FULL_UPDATE_REQ]";
+	private static final String TAG_LOBBY_JOIN_REQUEST  = "[LOBBY_JOIN_REQ]";
+	private static final String TAG_LOBBY_JOIN_ACCEPT   = "[LOBBY_JOIN_ACC]";
+	private static final String TAG_LOBBY_JOIN_REJECT   = "[LOBBY_JOIN_REJ]";
+	private static final String TAG_LOBBY_UPDATE        = "[LOBBY_UPDATE]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {
@@ -227,11 +231,11 @@ public class Protocol {
 	}
 	
 	public static boolean isLobbiesReply(String s) {
-		return s.startsWith(TAG_LOBBIES_REPLY);
+		return s.startsWith(TAG_LOBBIES_RESPONSE);
 	}
 	
 	public static ArrayList<LobbyInfo> parseLobbiesReply(String s) throws ProtocolException {
-		s = s.substring(TAG_LOBBIES_REPLY.length());
+		s = s.substring(TAG_LOBBIES_RESPONSE.length());
 		
 		try {
 			ArrayList<LobbyInfo> ret = new ArrayList<>();
@@ -272,5 +276,64 @@ public class Protocol {
 	
 	public static boolean isDiscoveryResponse(String msg) {
 		return msg.startsWith(TAG_DISCOVERY_RESPONSE);
+	}
+	
+	/**************** Lobby Join Request ****************/
+	public static String sendLobbyJoinRequest(String lobbyName) {
+		return TAG_LOBBY_JOIN_REQUEST + lobbyName;
+	}
+	
+	public static boolean isLobbyJoinRequest(String msg) {
+		return msg.startsWith(TAG_LOBBY_JOIN_REQUEST);
+	}
+	
+	public static String parseLobbyJoinRequest(String msg) throws ProtocolException {
+		if (msg.length() < TAG_LOBBY_JOIN_REQUEST.length())
+			throw new ProtocolException("Invalid lobby join request: Too short: " + msg);
+		
+		return msg.substring(TAG_LOBBY_JOIN_REQUEST.length());
+	}
+	
+	/**************** Lobby Join Accept ****************/
+	public static String sendLobbyJoinAccept() {
+		return TAG_LOBBY_JOIN_ACCEPT;
+	}
+	
+	public static boolean isLobbyJoinAccept(String msg) {
+		return msg.startsWith(TAG_LOBBY_JOIN_ACCEPT);
+	}
+	
+	/**************** Lobby Join Reject ****************/
+	public static String sendLobbyJoinReject(String reason) {
+		return TAG_LOBBY_JOIN_REJECT + reason;
+	}
+	
+	public static boolean isLobbyJoinReject(String msg) {
+		return msg.startsWith(TAG_LOBBY_JOIN_REJECT);
+	}
+	
+	public static String parseLobbyJoinReject(String msg) {
+		return msg.substring(TAG_LOBBY_JOIN_REJECT.length());
+	}
+	
+	/**************** Lobby Update ****************/
+	public static String sendLobbyUpdate(LobbyInfo info) {
+		return TAG_LOBBY_UPDATE + gson.toJson(info);
+	}
+	
+	public static boolean isLobbyUpdate(String msg) {
+		return msg.startsWith(TAG_LOBBY_UPDATE);
+	}
+	
+	public static LobbyInfo parseLobbyUpdate(String msg) throws ProtocolException {
+		if (msg.length() < TAG_LOBBY_UPDATE.length())
+			throw new ProtocolException("Invalid lobby update: Too short: " + msg);
+		
+		String nmsg = msg.substring(TAG_LOBBY_UPDATE.length());
+		try {
+			return gson.fromJson(nmsg, LobbyInfo.class);
+		} catch (JsonParseException | IllegalStateException e) {
+			throw new ProtocolException("Invalid lobby update: " + msg, e);
+		}
 	}
 }

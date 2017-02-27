@@ -43,6 +43,8 @@ public class Font {
 	IntBuffer descent = MemoryUtil.memAllocInt(1);
 	IntBuffer lineGap = MemoryUtil.memAllocInt(1);
 	
+	private final int pixelHeight = 64;
+	
 	public Font(String path) {
 		
 		fontInfo = STBTTFontinfo.malloc();
@@ -58,7 +60,7 @@ public class Font {
 			
 			stbtt_InitFont(fontInfo, ttf);
 			ByteBuffer bitmap = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H);
-			stbtt_BakeFontBitmap(ttf, 64, bitmap, BITMAP_W, BITMAP_H, 32, cdata);
+			stbtt_BakeFontBitmap(ttf, pixelHeight, bitmap, BITMAP_W, BITMAP_H, 32, cdata);
 			bitmap.rewind();
 			
 			ByteBuffer rgba = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H * 4);
@@ -89,17 +91,42 @@ public class Font {
 	}
 	
 	public float getWidth(String s, float scale) {
-		return 0.0f; // TODO
+		STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
+		
+		xBuf[0] = 0.0f;
+		
+		for (int i=0; i<s.length(); i++) {
+			int ascii = (int) s.charAt(i);
+			ascii = ascii - 32;
+			
+			float dx;
+			if (ascii < cdata.limit()){
+				float prevX = xBuf[0];
+				stbtt_GetBakedQuad(cdata, BITMAP_W, BITMAP_H, ascii, xBuf, yBuf, q, true);
+				dx = xBuf[0] - prevX;
+				xBuf[0] = prevX + dx * scale;
+			}
+		}
+		
+		q.free();
+		return xBuf[0];
 	}
 	
 	public float getHeight(float scale) {
-		return (ascent.get(0) - descent.get(0)) * scale;
+		return pixelHeight * scale;
+		//return (ascent.get(0) - descent.get(0)) * scale;
 	}
 	
 	private float[] xBuf = new float[1];
 	private float[] yBuf = new float[1];
 	
-	public void render(Renderer r, String s, float x, float y, float scale){
+	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale) {
+		if (!fromBaseline) {
+			// Position so that y is at the bottom, not baseline
+			float descentProportion = (float)-descent.get(0) / (float)(ascent.get(0) - descent.get(0));
+			y += descentProportion * pixelHeight * scale;
+		}
+		
 		STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
 		
 		xBuf[0] = x;

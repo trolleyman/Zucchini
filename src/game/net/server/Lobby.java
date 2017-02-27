@@ -18,8 +18,8 @@ public class Lobby {
 	
 	public String lobbyName;
 	public int maxPlayers;
-	private final Object playersLock = new Object();
-	private ArrayList<ClientHandler> players;
+	private final Object clientsLock = new Object();
+	private ArrayList<LobbyClient> clients;
 	
 	private Map map;
 	
@@ -30,19 +30,46 @@ public class Lobby {
 	public Lobby(String lobbyName, int maxPlayers, Map map) {
 		this.lobbyName = lobbyName;
 		this.maxPlayers = maxPlayers;
-		this.players = new ArrayList<>();
+		this.clients = new ArrayList<>();
 		
 		this.map = map;
 		
 		this.world = null;
+		
+		Thread t = new Thread(this::runLobbyHandler, "Lobby Handler: " + lobbyName);
 	}
 	
-	public void runWorld() {
+	private void runLobbyHandler() {
+		this.running = true;
+		
+		while (running) {
+			// Send lobby info to all players
+			LobbyInfo info = toLobbyInfo();
+			
+			synchronized (clientsLock) {
+				for (LobbyClient c : clients) {
+					try {
+						c.handler.sendStringTcp(Protocol.sendLobbyUpdate(info));
+					} catch (ProtocolException e) {
+						// This is ok, as the ClientHandler will take care if there is an exception
+					}
+				}
+			}
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// whatever
+			}
+		}
+	}
+	
+	private void runWorld() {
 		this.running = true;
 		
 		world = new ServerWorld(map, new EntityBank());
-		synchronized (playersLock) {
-			for (ClientHandler c : players)
+		synchronized (clientsLock) {
+			for (LobbyClient c : clients)
 				world.addClient(c);
 		}
 		
@@ -69,11 +96,27 @@ public class Lobby {
 	 * @return The team ID of the player.
 	 */
 	public int addPlayer(ClientHandler ch) {
-		synchronized (playersLock) {
+		synchronized (clientsLock) {
 			int team = nextTeamID++;
-			ch.getClientInfo().team = team;
-			this.players.add(ch);
+			LobbyClient c = new LobbyClient(ch, team);
+			this.clients.add(c);
 			return team;
+		}
+	}
+	
+	/**
+	 * Sets whether a player is ready or not
+	 * @param name The name of the player
+	 * @param ready If the player is ready
+	 */
+	public void setPlayerReady(String name, boolean ready) {
+		synchronized (clientsLock) {
+			for (LobbyClient c : clients) {
+				if (c.handler.getClientInfo().name.equals(name)) {
+					c.ready = ready;
+					break;
+				}
+			}
 		}
 	}
 	
@@ -82,19 +125,27 @@ public class Lobby {
 	 * @param name The name of the player
 	 */
 	public void removePlayer(String name) {
-		synchronized (playersLock) {
-			this.players.removeIf((ch) -> ch.getClientInfo().name.equals(name));
+		synchronized (clientsLock) {
+			this.clients.removeIf((lc) -> lc.handler.getClientInfo().name.equals(name));
+		}
+	}
+	
+	public boolean isFull() {
+		synchronized (clientsLock) {
+			return clients.size() == maxPlayers;
 		}
 	}
 	
 	public LobbyInfo toLobbyInfo() {
-		synchronized (playersLock) {
+		synchronized (clientsLock) {
 			// Get player infos
-			PlayerInfo[] infoPlayers = new PlayerInfo[players.size()];
-			for (int i = 0; i < players.size(); i++) {
-				String playerName = players.get(i).getClientInfo().name;
-				int team = players.get(i).getClientInfo().team;
-				infoPlayers[i] = new PlayerInfo(playerName, team);
+			PlayerInfo[] infoPlayers = new PlayerInfo[clients.size()];
+			for (int i = 0; i < clients.size(); i++) {
+				LobbyClient client = clients.get(i);
+				String playerName = client.handler.getClientInfo().name;
+				int team = client.team;
+				boolean ready = client.ready;
+				infoPlayers[i] = new PlayerInfo(playerName, team, ready);
 			}
 			
 			return new LobbyInfo(lobbyName, maxPlayers, infoPlayers);

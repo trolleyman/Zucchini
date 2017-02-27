@@ -2,15 +2,14 @@ package game.net.client;
 
 import game.LobbyInfo;
 import game.action.Action;
+import game.exception.LobbyJoinException;
 import game.exception.ProtocolException;
-import game.net.server.IServerConnection;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 /**
  * This is the main interface used by the client to communicate with the server.
- * It is mirrored on the server-side by {@link IServerConnection IServerConnection}.
  * <p>
  * This class assumes that the client is already connected to the server with an acceptable username.
  * <p>
@@ -32,6 +31,11 @@ public interface IClientConnection {
 	 * Notifies the server to send a full update of the world on the next snapshot
 	 */
 	void requestFullUpdate() throws ProtocolException;
+	
+	/**
+	 * Sends a request to join a lobby
+	 */
+	void sendLobbyJoinRequest(String lobbyName) throws ProtocolException;
 	
 	/**
 	 * Sets the current connection event handler

@@ -19,7 +19,6 @@ public class TextButtonComponent extends UIComponent {
 	private String s;
 	
 	private Font f;
-	private Align a;
 	private float scale;
 	
 	private Vector4f colour = ColorUtil.BLUE;
@@ -42,9 +41,8 @@ public class TextButtonComponent extends UIComponent {
 	/** Whether the mouse has been released since the last update */
 	private boolean released = false;
 	
-	public TextButtonComponent(Runnable _callback, Align _a, float _x, float _y, Font _f, String _s, float scale) {
+	public TextButtonComponent(Runnable _callback, float _x, float _y, Font _f, String _s, float scale) {
 		this.callback = _callback;
-		this.a = _a;
 		this.x = _x;
 		this.y = _y;
 		this.f = _f;
@@ -98,8 +96,8 @@ public class TextButtonComponent extends UIComponent {
 
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(a, x, y, BOX_W, BOX_H, colour);
-		r.drawText(f, s, Align.TL, x+10, y+14, scale);
+		r.drawBox(Align.BL, x, y, BOX_W, BOX_H, colour);
+		r.drawText(f, s, Align.BL, false, x, y, scale);
 	}
 	
 	public boolean getSelected() {

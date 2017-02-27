@@ -25,9 +25,6 @@ public class Server implements Runnable {
 	/** Lobby Name -> Lobby */
 	private final HashMap<String, Lobby> lobbies = new HashMap<>();
 	
-	private final LinkedList<String> udpReceived = new LinkedList<>();
-	private final LinkedList<String> tcpReceived = new LinkedList<>();
-	
 	public Server() {
 		
 	}
@@ -194,6 +191,11 @@ public class Server implements Runnable {
 		}
 	}
 	
+	private void joinLobby(ClientHandler handler, Lobby lobby) {
+		lobby.addPlayer(handler);
+		handler.getClientInfo().lobby = lobby.lobbyName;
+	}
+	
 	private void handleTcpMessage(String name, String msg) {
 		ClientHandler handler = clients.get(name);
 		ClientInfo info = handler.getClientInfo();
@@ -213,17 +215,44 @@ public class Server implements Runnable {
 		}
 		
 		// Get lobby
-		Lobby lobby = getLobby(info);
-		if (lobby == null) {
-			// Handle any other messages
-			System.err.println("[TCP]: Warning: Unknown message from " + name + ": " + msg);
-		} else {
-			// Handle lobby messages
-			try {
-				lobby.handleTcpMessage(handler, msg);
-			} catch (ProtocolException e) {
-				handler.error(e);
+		try {
+			Lobby currentLobby = getLobby(info);
+			if (currentLobby == null) {
+				// Handle any other messages
+				if (Protocol.isLobbyJoinRequest(msg)) {
+					// Handle lobby join request
+					Lobby lobby;
+					String errorReason = null;
+					synchronized (lock) {
+						lobby = lobbies.get(Protocol.parseLobbyJoinRequest(msg));
+						if (lobby != null) {
+							// If lobby is full, error
+							if (lobby.isFull()) {
+								errorReason = "Lobby is full";
+							} else {
+								// No error - join
+								joinLobby(handler, lobby);
+							}
+						} else {
+							errorReason = "Lobby does not exist.";
+						}
+					}
+					
+					// Send accept/reject to client
+					if (errorReason == null)
+						handler.sendStringTcp(Protocol.sendLobbyJoinAccept());
+					else
+						handler.sendStringTcp(Protocol.sendLobbyJoinReject(errorReason));
+					
+				} else {
+					System.err.println("[TCP]: Warning: Unknown message from " + name + ": " + msg);
+				}
+			} else {
+				// Handle lobby messages
+				currentLobby.handleTcpMessage(handler, msg);
 			}
+		} catch (ProtocolException e) {
+			handler.error(e);
 		}
 	}
 	

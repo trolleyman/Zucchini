@@ -24,6 +24,9 @@ public class TCPConnection {
 			.onMalformedInput(CodingErrorAction.REPORT)
 			.onUnmappableCharacter(CodingErrorAction.REPORT);
 	
+	private final Object sendLock = new Object();
+	private final Object recvLock = new Object();
+	
 	private final Socket tcpSocket;
 	private final byte[] tcpSendIntTemp = new byte[4];
 	private final byte[] tcpRecvIntTemp = new byte[4];
@@ -72,15 +75,17 @@ public class TCPConnection {
 	
 	public synchronized void sendString(String msg) throws ProtocolException {
 		try {
-			byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
-			int len = bytes.length;
-			ByteBuffer.wrap(tcpSendIntTemp).order(ByteOrder.BIG_ENDIAN).putInt(len);
-			
-			// Send
-			OutputStream out = tcpSocket.getOutputStream();
-			out.write(tcpSendIntTemp);
-			out.write(bytes);
-			out.flush();
+			synchronized (sendLock) {
+				byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
+				int len = bytes.length;
+				ByteBuffer.wrap(tcpSendIntTemp).order(ByteOrder.BIG_ENDIAN).putInt(len);
+				
+				// Send
+				OutputStream out = tcpSocket.getOutputStream();
+				out.write(tcpSendIntTemp);
+				out.write(bytes);
+				out.flush();
+			}
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -103,14 +108,17 @@ public class TCPConnection {
 		}
 	}
 	
-	public synchronized String recvString() throws ProtocolException {
+	public String recvString() throws ProtocolException {
 		try {
-			// First read the int
-			readExact(tcpSocket, tcpRecvIntTemp, 4);
-			int len = ByteBuffer.wrap(tcpRecvIntTemp).order(ByteOrder.BIG_ENDIAN).getInt();
-			
-			// Then read len amount of bytes from stream
-			readExact(tcpSocket, tcpRecvTemp, len);
+			int len;
+			synchronized (recvLock) {
+				// First read the int
+				readExact(tcpSocket, tcpRecvIntTemp, 4);
+				len = ByteBuffer.wrap(tcpRecvIntTemp).order(ByteOrder.BIG_ENDIAN).getInt();
+				
+				// Then read len amount of bytes from stream
+				readExact(tcpSocket, tcpRecvTemp, len);
+			}
 			
 			// Decode the string
 			ByteBuffer bytes = ByteBuffer.wrap(tcpRecvTemp);

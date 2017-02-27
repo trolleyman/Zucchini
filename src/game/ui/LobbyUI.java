@@ -47,11 +47,11 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	public LobbyUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
 		super(conn, audio);
 		
-		f = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
+		f = new Font(Util.getResourcesDir() + "/fonts/terminal2.ttf");
 		this.tb = tb;
 		
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(connection, audio, tb, ClientWorld.createTestWorld(audio)); },
+			() -> { this.nextUI = new LobbyWaitUI(connection, audio, tb, "TestLobby"); },
 			Align.BL, 100, 100,
 			tb.getTexture("joinDefault.png"),
 			tb.getTexture("joinHover.png"),
@@ -71,13 +71,13 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		);
 		
 		lobby0 = new TextButtonComponent(
-				() -> {lobbySelect(0);}, Align.BL, 300, 300, f, "Lobby1 - 0/16 Players", 1);
+				() -> {lobbySelect(0);}, 300, 300, f, "Lobby1 - 0/16 Players", 1);
 		lobby1 = new TextButtonComponent(
-				() -> {lobbySelect(1);}, Align.BL, 300, 300, f, "Lobby2 - 0/16 Players", 1);
+				() -> {lobbySelect(1);}, 300, 300, f, "Lobby2 - 0/16 Players", 1);
 		lobby2 = new TextButtonComponent(
-				() -> {lobbySelect(2);}, Align.BL, 300, 300, f, "Lobby3 - 0/16 Players", 1);
+				() -> {lobbySelect(2);}, 300, 300, f, "Lobby3 - 0/16 Players", 1);
 		lobby3 = new TextButtonComponent(
-				() -> {lobbySelect(3);}, Align.BL, 300, 300, f, "Lobby4 - 0/16 Players", 1);
+				() -> {lobbySelect(3);}, 300, 300, f, "Lobby4 - 0/16 Players", 1);
 		
 		this.inputHandlers.add(joinButton);
 		this.inputHandlers.add(backButton);

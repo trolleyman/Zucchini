@@ -1,12 +1,13 @@
 package game.net.client;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import game.LobbyInfo;
 import game.action.Action;
 import game.audio.event.AudioEvent;
+import game.exception.InvalidMessageException;
+import game.exception.LobbyJoinException;
 import game.exception.NameException;
 import game.exception.ProtocolException;
 import game.net.Protocol;
@@ -29,8 +30,8 @@ public class ClientConnection implements IClientConnection {
 	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
 	
 	private final Object lobbiesLock = new Object();
-	private ArrayList<Consumer<ArrayList<LobbyInfo>>> lobbiesSuccessCallbacks;
-	private ArrayList<Consumer<String>> lobbiesErrorCallbacks;
+	private ArrayList<Consumer<ArrayList<LobbyInfo>>> lobbiesSuccessCallbacks = new ArrayList<>();
+	private ArrayList<Consumer<String>> lobbiesErrorCallbacks = new ArrayList<>();
 	
 	public ClientConnection(String _name) throws ProtocolException, NameException {
 		this.name = _name;
@@ -124,6 +125,19 @@ public class ClientConnection implements IClientConnection {
 							lobbiesErrorCallbacks.clear();
 						}
 					}
+				} else if (Protocol.isLobbyJoinAccept(msg)) {
+					synchronized (cchLock) {
+						cch.handleLobbyJoinAccept();
+					}
+				} else if (Protocol.isLobbyJoinReject(msg)) {
+					synchronized (cchLock) {
+						cch.handleLobbyJoinReject(Protocol.parseLobbyJoinReject(msg));
+					}
+				} else if (Protocol.isLobbyUpdate(msg)) {
+					LobbyInfo info = Protocol.parseLobbyUpdate(msg);
+					synchronized (cchLock) {
+						cch.processLobbyUpdate(info);
+					}
 				} else {
 					System.err.println("Warning: Unknown message received: " + msg);
 				}
@@ -143,6 +157,11 @@ public class ClientConnection implements IClientConnection {
 	@Override
 	public void requestFullUpdate() throws ProtocolException {
 		tcpConn.sendString(Protocol.sendFullUpdateRequest());
+	}
+	
+	@Override
+	public void sendLobbyJoinRequest(String lobbyName) throws ProtocolException {
+		tcpConn.sendString(Protocol.sendLobbyJoinRequest(lobbyName));
 	}
 	
 	@Override

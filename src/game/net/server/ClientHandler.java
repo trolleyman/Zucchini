@@ -40,6 +40,7 @@ public class ClientHandler {
 			try {
 				// Wait for message
 				String msg = info.tcpConn.recvString();
+				System.out.println("[TCP]: RECV " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
 				
 				synchronized (this) {
 					this.tcpCallback.accept(msg);
@@ -56,6 +57,7 @@ public class ClientHandler {
 		
 		try {
 			info.tcpConn.sendString(msg);
+			System.out.println("[TCP]: SEND " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
 		} catch (ProtocolException e) {
 			this.error(e);
 			throw e;
@@ -67,6 +69,7 @@ public class ClientHandler {
 			try {
 				// Wait for message
 				String msg = info.udpConn.recvString();
+				System.out.println("[UDP]: RECV " + info.udpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
 				
 				synchronized (this) {
 					this.udpCallback.accept(msg);
@@ -83,6 +86,7 @@ public class ClientHandler {
 		
 		try {
 			info.udpConn.sendString(msg);
+			System.out.println("[UDP]: SEND " + info.udpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
 		} catch (ProtocolException e) {
 			this.error(e);
 			throw e;

@@ -1,5 +1,6 @@
 package game.net.client;
 
+import game.LobbyInfo;
 import game.audio.event.AudioEvent;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
@@ -27,6 +28,11 @@ public class DummyClientConnectionHandler implements IClientConnectionHandler {
 
 	@Override
 	public void processAudioEvent(AudioEvent _ae) {
+		System.err.println("Warning: Dummy client connection handler called.");
+	}
+	
+	@Override
+	public void processLobbyUpdate(LobbyInfo info) {
 		System.err.println("Warning: Dummy client connection handler called.");
 	}
 }

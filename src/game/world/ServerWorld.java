@@ -9,6 +9,7 @@ import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.net.server.ClientHandler;
 import game.net.server.ClientInfo;
+import game.net.server.LobbyClient;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -52,13 +53,12 @@ public class ServerWorld extends World implements Cloneable {
 	
 	/**
 	 * Adds the client specified to the world
-	 * @param ch The client
+	 * @param c The client
 	 */
-	public synchronized void addClient(ClientHandler ch) {
-		ClientInfo info = ch.getClientInfo();
-		Player player = new Player(info.team, map.getSpawnLocation(info.team), null);
+	public synchronized void addClient(LobbyClient c) {
+		Player player = new Player(c.team, map.getSpawnLocation(c.team), null);
 		this.bank.addEntity(player);
-		this.clients.add(new ServerWorldClient(ch, player.getId()));
+		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
 	}
 	
 	public synchronized void handleAction(String name, Action a) {
