@@ -23,8 +23,10 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
-	
+
+	/** The font used for lobby buttons */
 	private Font f;
+	private float lobby_spacing = 80;
 	
 	/** The start button */
 	private ButtonComponent joinButton;
@@ -36,17 +38,13 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	private UI nextUI = this;
 	private TextureBank tb;
 	
-	
-	private TextButtonComponent lobby0;
-	private TextButtonComponent lobby1;
-	private TextButtonComponent lobby2;
-	private TextButtonComponent lobby3;
+	/** Test buttons for the lobbies */
 	private ArrayList<TextButtonComponent> lobbies = new ArrayList<>();
 	
 	public LobbyUI(AudioManager audio, TextureBank tb) {
 		super(audio);
 		
-		f = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
+		f = new Font(Util.getBasePath() + "resources/fonts/emulogic.ttf");
 		this.tb = tb;
 		
 		joinButton = new ButtonComponent(
@@ -69,26 +67,16 @@ public class LobbyUI extends UI implements InputPipeMulti {
 			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
 		);
 		
-		lobby0 = new TextButtonComponent(
-				() -> {lobbySelect(0);}, Align.BL, 300, 300, f, "Lobby1 - 0/16 Players", 1);
-		lobby1 = new TextButtonComponent(
-				() -> {lobbySelect(1);}, Align.BL, 300, 300, f, "Lobby2 - 0/16 Players", 1);
-		lobby2 = new TextButtonComponent(
-				() -> {lobbySelect(2);}, Align.BL, 300, 300, f, "Lobby3 - 0/16 Players", 1);
-		lobby3 = new TextButtonComponent(
-				() -> {lobbySelect(3);}, Align.BL, 300, 300, f, "Lobby4 - 0/16 Players", 1);
-		
 		this.inputHandlers.add(joinButton);
 		this.inputHandlers.add(backButton);
-		this.inputHandlers.add(lobby0);
-		this.inputHandlers.add(lobby1);
-		this.inputHandlers.add(lobby2);
-		this.inputHandlers.add(lobby3);
-		
-		lobbies.add(lobby0);
-		lobbies.add(lobby1);
-		lobbies.add(lobby2);
-		lobbies.add(lobby3);
+
+		for (int i = 0; i < 4; i++) {
+			final int l = i;
+			TextButtonComponent lobby = new TextButtonComponent(
+					() -> {lobbySelect(l);}, Align.BL, 300, 300, f, "Lobby" + i +" - 0/16 Players", 0.5f);
+			lobbies.add(lobby);
+			this.inputHandlers.add(lobbies.get(i));
+		}
 	}
 
 	private void lobbySelect(int lobby) {
@@ -124,10 +112,9 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	public void update(double dt) {
 		joinButton.update(dt);
 		backButton.update(dt);
-		lobby0.update(dt);
-		lobby1.update(dt);
-		lobby2.update(dt);
-		lobby3.update(dt);
+		for (int i=0; i < lobbies.size(); i++) {
+			lobbies.get(i).update(dt);
+		}
 	}
 
 	@Override
@@ -136,25 +123,16 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		joinButton.setY((int) (windowH/2.0 - joinButton.getHeight()/2.0) + 140);
 		backButton.setX((int) (windowW/2.0 - backButton.getWidth()/2.0));
 		backButton.setY((int) (windowH/2.0 - backButton.getHeight()/2.0));
-		lobby0.setX((int) (windowW/2.0 - lobby0.getWidth()/2.0));
-		lobby0.setY((int) (windowH/2.0 - lobby0.getHeight()/2.0) - 140);
-		
-		lobby1.setX((int) (windowW/2.0 - lobby1.getWidth()/2.0));
-		lobby1.setY((int) (windowH/2.0 - lobby1.getHeight()/2.0) - 220);
-		
-		lobby2.setX((int) (windowW/2.0 - lobby2.getWidth()/2.0));
-		lobby2.setY((int) (windowH/2.0 - lobby2.getHeight()/2.0) - 300);
-		
-		lobby3.setX((int) (windowW/2.0 - lobby3.getWidth()/2.0));
-		lobby3.setY((int) (windowH/2.0 - lobby3.getHeight()/2.0) - 380);
-		
+
 		backgroundImage.render(r);
 		joinButton.render(r);
 		backButton.render(r);
-		lobby0.render(r);
-		lobby1.render(r);
-		lobby2.render(r);
-		lobby3.render(r);
+
+		for (int i=0; i < lobbies.size(); i++) {
+			lobbies.get(i).setX((int) (windowW/2.0 - lobbies.get(i).getWidth()/2.0));
+			lobbies.get(i).setY((int) (windowH/2.0 - lobbies.get(i).getHeight()/2.0) - 60 - (i+1)*lobby_spacing);
+			lobbies.get(i).render(r);
+		}
 	}
 
 	@Override

@@ -54,8 +54,8 @@ public class TextButtonComponent extends UIComponent {
 
 
 		border_width = 5;
-		BOX_W = 510;
-		BOX_H = 64*scale+10;
+		BOX_W = 580;
+		BOX_H = 64*scale*2;
 
 	}
 
@@ -103,7 +103,7 @@ public class TextButtonComponent extends UIComponent {
 	public void render(IRenderer r) {
 		r.drawBox(a, x, y, BOX_W, BOX_H, border_colour);
 		r.drawBox(a, x+border_width, y+border_width, BOX_W-2*border_width, BOX_H-2*border_width, box_colour);
-		r.drawText(f, s, Align.TL, x+15, y+19, scale);
+		r.drawText(f, s, Align.TL, x+15, y-2, scale);
 	}
 
 	public boolean getSelected() {
