@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 
 import game.Util;
 import game.exception.ProtocolException;
-import game.net.server.IServerConnection;
+import game.net.Protocol;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
@@ -83,18 +83,18 @@ public class EntityBank {
 	 * Process the cached records, and send them to conn.
 	 * @param conns The connections to the clients.
 	 */
-	protected synchronized void processCache(ArrayList<IServerConnection> conns) {
+	protected synchronized void processCache(ArrayList<ServerWorldClient> conns) {
 		// Process cached entity adds
 		for (Entity e : addEntities) {
 			this.addEntity(e);
-			for (IServerConnection conn : conns) {
-				if (conn.isClosed())
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
 					continue;
+				
 				try {
-					conn.sendAddEntity(e);
+					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
-					ex.printStackTrace();
-					conn.close();
+					// This is ok, as the ClientHandler will handle this
 				}
 			}
 		}
@@ -106,14 +106,14 @@ public class EntityBank {
 			if (e != null)
 				eu.updateEntity(e);
 			
-			for (IServerConnection conn : conns) {
-				if (conn.isClosed())
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
 					continue;
+				
 				try {
-					conn.sendUpdateEntity(eu);
+					swc.handler.sendStringTcp(Protocol.sendUpdateEntity(eu));
 				} catch (ProtocolException ex) {
-					ex.printStackTrace();
-					conn.close();
+					// This is ok, as the ClientHandler will handle this
 				}
 			}
 		}
@@ -122,28 +122,20 @@ public class EntityBank {
 		// Remove cached entities
 		for (Integer id : removeEntities) {
 			this.removeEntity(id);
-			for (IServerConnection conn : conns) {
-				if (conn.isClosed())
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
 					continue;
+				
 				try {
-					conn.sendRemoveEntity(id);
+					swc.handler.sendStringTcp(Protocol.sendRemoveEntity(id));
 				} catch (ProtocolException ex) {
-					ex.printStackTrace();
-					conn.close();
+					// This is ok, as the ClientHandler will handle this
 				}
 			}
 		}
 		removeEntities.clear();
-		
-		for (int i = 0; i < conns.size(); i++) {
-			IServerConnection conn = conns.get(i);
-			if (conn.isClosed()) {
-				conns.remove(i);
-				i--;
-			}
-		}
 	}
-
+	
 	/**
 	 * Returns the entity associated with the id entered
 	 * @param id The entity ID

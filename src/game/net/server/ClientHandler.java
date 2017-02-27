@@ -89,7 +89,7 @@ public class ClientHandler {
 		}
 	}
 	
-	private void error(ProtocolException e) {
+	public void error(ProtocolException e) {
 		synchronized (this) {
 			closed = true;
 			info.tcpConn.close();

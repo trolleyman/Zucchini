@@ -184,6 +184,16 @@ public class Server implements Runnable {
 		}
 	}
 	
+	private Lobby getLobby(ClientInfo info) {
+		synchronized (lock) {
+			String lobbyName = info.lobby;
+			if (lobbyName == null)
+				return null;
+			else
+				return lobbies.get(lobbyName);
+		}
+	}
+	
 	private void handleTcpMessage(String name, String msg) {
 		ClientHandler handler = clients.get(name);
 		ClientInfo info = handler.getClientInfo();
@@ -191,7 +201,7 @@ public class Server implements Runnable {
 			ArrayList<LobbyInfo> lobbyInfos = new ArrayList<>();
 			synchronized (lock) {
 				for (Lobby lobby : lobbies.values()) {
-					lobbyInfos.add(new LobbyInfo(lobby));
+					lobbyInfos.add(lobby.toLobbyInfo());
 				}
 			}
 			try {
@@ -202,27 +212,40 @@ public class Server implements Runnable {
 			return;
 		}
 		
-		Lobby lobby;
-		synchronized (lock) {
-			String lobbyName = info.lobby;
-			if (lobbyName == null)
-				lobby = null;
-			else
-				lobby = lobbies.get(lobbyName);
-		}
+		// Get lobby
+		Lobby lobby = getLobby(info);
 		if (lobby == null) {
 			// Handle any other messages
-			// TODO: Net
+			System.err.println("[TCP]: Warning: Unknown message from " + name + ": " + msg);
 		} else {
 			// Handle lobby messages
-			// TODO: Net
-			lobby.handleTcpMessage(handler, msg);
+			try {
+				lobby.handleTcpMessage(handler, msg);
+			} catch (ProtocolException e) {
+				handler.error(e);
+			}
 		}
 	}
 	
 	private void handleUdpMessage(String name, String msg) {
 		synchronized (lock) {
-			// TODO: Net
+			ClientHandler handler = clients.get(name);
+			ClientInfo info = handler.getClientInfo();
+			
+			// Get lobby
+			Lobby lobby = getLobby(info);
+			
+			if (lobby == null) {
+				// Handle messages for server
+				System.err.println("[UDP]: Warning: Unknown message from " + name + ": " + msg);
+			} else {
+				// Handle lobby messages
+				try {
+					lobby.handleUdpMessage(handler, msg);
+				} catch (ProtocolException e) {
+					handler.error(e);
+				}
+			}
 		}
 	}
 }

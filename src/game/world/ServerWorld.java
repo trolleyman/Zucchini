@@ -6,8 +6,9 @@ import game.action.Action;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
-import game.net.server.ILobbyServerConnectionHandler;
-import game.net.server.IServerConnection;
+import game.net.Protocol;
+import game.net.server.ClientHandler;
+import game.net.server.ClientInfo;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -24,9 +25,8 @@ public class ServerWorld extends World implements Cloneable {
 	/** Server Audio Manager */
 	private ServerAudioManager audio;
 	
-	/** The connections to the clients */
-	private ArrayList<IServerConnection> conns = new ArrayList<>();
-	private ArrayList<IServerConnection> fullUpdateRequests = new ArrayList<>();
+	/** The clients */
+	private ArrayList<ServerWorldClient> clients = new ArrayList<>();
 	
 	/**
 	 * Clones a ServerWorld
@@ -36,8 +36,7 @@ public class ServerWorld extends World implements Cloneable {
 		
 		this.audio = w.audio;
 		
-		this.conns = w.conns;
-		this.fullUpdateRequests = w.fullUpdateRequests;
+		this.clients = w.clients;
 	}
 	
 	/**
@@ -52,45 +51,64 @@ public class ServerWorld extends World implements Cloneable {
 	}
 	
 	/**
-	 * Adds a connection to the server
-	 * @param conn The connection
+	 * Adds the client specified to the world
+	 * @param ch The client
 	 */
-	public synchronized void addConnection(IServerConnection conn) {
-		if (this.conns.contains(conn)) {
-			System.err.println("Warning: Connection already added");
-			return;
+	public synchronized void addClient(ClientHandler ch) {
+		ClientInfo info = ch.getClientInfo();
+		Player player = new Player(info.team, map.getSpawnLocation(info.team), null);
+		this.bank.addEntity(player);
+		this.clients.add(new ServerWorldClient(ch, player.getId()));
+	}
+	
+	public synchronized void handleAction(String name, Action a) {
+		for (ServerWorldClient swc : clients) {
+			if (swc.handler.getClientInfo().name.equals(name)) {
+				Entity e = bank.getEntity(swc.playerId);
+				if (e != null && e instanceof Player) {
+					Player p = (Player) e;
+					p.handleAction(bank, a);
+					break;
+				}
+				System.err.println("Warning: Could not find player with ID " + swc.playerId);
+				break;
+			}
 		}
-		this.conns.add(conn);
-		ServerWorld that = this;
-		conn.setLobbyHandler(new ILobbyServerConnectionHandler() {
-			@Override
-			public void handleAction(Action a) {
-				synchronized (that) {
-					EntityBank bank = that.getEntityBank();
-					Entity e = bank.getEntity(conn.getPlayerID());
-					if (e != null && e instanceof Player)
-						((Player) e).handleAction(bank, a);
-				}
+	}
+	
+	/**
+	 * Handle a full update request for the specified client
+	 * @param name The name of the client
+	 */
+	public synchronized void handleFullUpdateRequest(String name) {
+		for (ServerWorldClient swc : clients) {
+			if (swc.handler.getClientInfo().name.equals(name)) {
+				swc.fullUpdate = true;
+				break;
 			}
+		}
+	}
+	
+	/**
+	 * Removes the client with the name specified
+	 * @param name The name
+	 */
+	public synchronized void removeClient(String name) {
+		for (int i = 0; i < clients.size(); i++) {
+			ServerWorldClient swc = clients.get(i);
 			
-			@Override
-			public void handleFullUpdateRequest() {
-				synchronized (that) {
-					if (!that.fullUpdateRequests.contains(conn))
-						that.fullUpdateRequests.add(conn);
-				}
+			if (swc.handler.getClientInfo().name.equals(name)) {
+				clients.remove(i);
+				bank.removeEntity(swc.playerId);
+				break;
 			}
-		});
-		
-		// Send a full update of the world
-		if (!this.fullUpdateRequests.contains(conn))
-			this.fullUpdateRequests.add(conn);
+		}
 	}
 	
 	public EntityBank getEntityBank() {
 		return this.bank;
 	}
-
+	
 	@Override
 	protected synchronized void updateStep(double dt) {
 		ua.dt = dt;
@@ -99,7 +117,7 @@ public class ServerWorld extends World implements Cloneable {
 		ua.audio = audio;
 		
 		// Ensure that no entity updates are left out
-		this.bank.processCache(conns);
+		this.bank.processCache(clients);
 		
 		// Update entities
 		for (Entity e : this.bank.entities) {
@@ -108,20 +126,20 @@ public class ServerWorld extends World implements Cloneable {
 		
 		// Send audio
 		for (AudioEvent ae : audio.clearCache()) {
-			for (IServerConnection conn : conns) {
-				if (conn.isClosed())
+			for (ServerWorldClient c : clients) {
+				if (c.handler.isClosed())
 					continue;
+				
 				try {
-					conn.sendAudioEvent(ae);
+					c.handler.getClientInfo().tcpConn.sendString(Protocol.sendAudioEvent(ae));
 				} catch (ProtocolException ex) {
-					ex.printStackTrace();
-					conn.close();
+					// This is ok as ClientHandler takes care of this
 				}
 			}
 		}
 		
 		// Send entity updates
-		this.bank.processCache(conns);
+		this.bank.processCache(clients);
 		
 		// *DING-DONG* *DING-DONG* bring out yer dead
 		for (Entity e : this.bank.entities) {
@@ -131,20 +149,20 @@ public class ServerWorld extends World implements Cloneable {
 			}
 		}
 		
-		// Send full updates to those who need it
-		for (Entity e : this.bank.entities) {
-			for (IServerConnection conn : fullUpdateRequests) {
-				if (conn.isClosed())
-					continue;
+		// Send full updates to the clients who need it
+		for (ServerWorldClient swc : clients) {
+			if (swc.handler.isClosed() || !swc.fullUpdate)
+				continue;
+			swc.fullUpdate = false;
+			
+			for (Entity e : this.bank.entities) {
 				try {
-					conn.sendAddEntity(e);
+					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
-					ex.printStackTrace();
-					conn.close();
+					// This is ok as ClientHandler takes care of this
 				}
 			}
 		}
-		fullUpdateRequests.clear();
 	}
 	
 	@Override

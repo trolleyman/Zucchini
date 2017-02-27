@@ -13,8 +13,6 @@ import game.exception.ProtocolException;
 import game.net.*;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
-import game.net.server.IServerConnection;
-import game.net.server.LobbyServer;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.entity.weapon.Handgun;
@@ -25,7 +23,6 @@ import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -35,48 +32,6 @@ import static org.lwjgl.glfw.GLFW.*;
  * @author Callum
  */
 public class ClientWorld extends World implements InputHandler, IClientConnectionHandler {
-	/**
-	 * Creates a test single player world
-	 */
-	public static ClientWorld createTestWorld(AudioManager audio) {
-		try {
-			// Create map
-			Map map = Map.createTestMap();
-			
-			// Create entity bank and add entities
-			EntityBank serverBank = new EntityBank();
-			for (Entity e : map.getInitialEntities())
-				serverBank.addEntity(e);
-			Item weapon = new Handgun(new Vector2f(0.5f, 0.5f));
-			int playerID = serverBank.addEntity(new Player(serverBank.getNextFreeTeam(), new Vector2f(0.5f, 0.5f), weapon));
-			
-			// Create server world
-			ServerWorld serverWorld = new ServerWorld(map, serverBank);
-			
-			// Create connection
-			LinkConnection connection = new LinkConnection(playerID);
-			
-			// Create server
-			LobbyServer server = new LobbyServer(serverWorld);
-			server.addConnection(connection);
-			
-			// Create client
-			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);
-			
-			// Start server thread
-			Thread t = new Thread(server);
-			t.setName("Server");
-			t.start();
-			
-			// Return client world
-			return clientWorld;
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-			return null;
-		}
-	}
-	
 	/** The ID of the player */
 	private int playerID;
 	/** The connection to the server */
