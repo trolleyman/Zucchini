@@ -148,6 +148,7 @@ public class Player extends MovableEntity {
 		this.heldItem.angle = this.angle;
 		this.heldItem.update(ua);
 		
+		
 		if (!soundSourceInit) {
 			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
 			ua.audio.pauseLoop(walkingSoundID);
