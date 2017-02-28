@@ -100,6 +100,7 @@ public class Font {
 		
 		xBuf[0] = 0.0f;
 		
+		int asciiPrev = -1;
 		for (int i=0; i<s.length(); i++) {
 			int ascii = (int) s.charAt(i);
 			ascii = ascii - 32;
@@ -108,9 +109,18 @@ public class Font {
 			if (ascii < cdata.limit()){
 				float prevX = xBuf[0];
 				stbtt_GetBakedQuad(cdata, BITMAP_W, BITMAP_H, ascii, xBuf, yBuf, q, true);
+				
+				if (asciiPrev != -1) {
+					// Advance kerning
+					int kerningAdvance = stbtt_GetCodepointKernAdvance(fontInfo, asciiPrev, ascii);
+					xBuf[0] += kerningAdvance;
+				}
+				
 				dx = xBuf[0] - prevX;
 				xBuf[0] = prevX + dx * scale;
 			}
+			
+			asciiPrev = ascii;
 		}
 		
 		q.free();
