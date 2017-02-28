@@ -14,8 +14,6 @@ import game.world.map.Map;
 import java.util.ArrayList;
 
 public class Lobby {
-	private int nextTeamID = Team.START_FREE_TEAM;
-	
 	public String lobbyName;
 	public int maxPlayers;
 	private final Object clientsLock = new Object();
@@ -37,6 +35,7 @@ public class Lobby {
 		this.world = null;
 		
 		Thread t = new Thread(this::runLobbyHandler, "Lobby Handler: " + lobbyName);
+		t.start();
 	}
 	
 	private void runLobbyHandler() {
@@ -97,7 +96,7 @@ public class Lobby {
 	 */
 	public int addPlayer(ClientHandler ch) {
 		synchronized (clientsLock) {
-			int team = nextTeamID++;
+			int team = Team.START_FREE_TEAM + clients.size();
 			LobbyClient c = new LobbyClient(ch, team);
 			this.clients.add(c);
 			return team;

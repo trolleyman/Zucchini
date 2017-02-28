@@ -95,9 +95,9 @@ public class ClientHandler {
 	
 	public void error(ProtocolException e) {
 		synchronized (this) {
-			closed = true;
-			info.tcpConn.close();
-			info.udpConn.close();
+			if (isClosed())
+				return;
+			System.err.println("[Net]: ERROR " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + e.toString());
 			this.errorCallback.accept(e);
 			this.close();
 		}
@@ -105,6 +105,9 @@ public class ClientHandler {
 	
 	private void close() {
 		synchronized (this) {
+			if (isClosed())
+				return;
+			System.out.println("[Net]: CLOSE " + info.tcpConn.getSocket().getRemoteSocketAddress());
 			closed = true;
 			info.tcpConn.close();
 			info.udpConn.close();

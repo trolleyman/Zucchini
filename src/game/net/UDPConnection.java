@@ -16,6 +16,9 @@ public class UDPConnection {
 		.onMalformedInput(CodingErrorAction.REPORT)
 		.onUnmappableCharacter(CodingErrorAction.REPORT);
 	
+	private final Object sendLock = new Object();
+	private final Object recvLock = new Object();
+	
 	private final DatagramSocket udpSocket;
 	private final byte[] udpRecvTemp = new byte[1400];
 	
@@ -53,23 +56,27 @@ public class UDPConnection {
 		}
 	}
 	
-	public synchronized void sendString(String msg, SocketAddress address) throws ProtocolException {
+	public void sendString(String msg, SocketAddress address) throws ProtocolException {
 		try {
 			// Encode + send string
 			byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
 			DatagramPacket packet = new DatagramPacket(bytes, bytes.length, address);
-			udpSocket.send(packet);
+			synchronized (sendLock) {
+				udpSocket.send(packet);
+			}
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
 	}
 	
-	public synchronized void sendString(String msg) throws ProtocolException {
+	public void sendString(String msg) throws ProtocolException {
 		try {
 			// Encode + send string
 			byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
 			DatagramPacket packet = new DatagramPacket(bytes, bytes.length, udpSocket.getInetAddress(), udpSocket.getPort());
-			udpSocket.send(packet);
+			synchronized (sendLock) {
+				udpSocket.send(packet);
+			}
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -79,7 +86,9 @@ public class UDPConnection {
 		try {
 			// Recv packet
 			DatagramPacket packet = new DatagramPacket(udpRecvTemp, udpRecvTemp.length);
-			udpSocket.receive(packet);
+			synchronized (recvLock) {
+				udpSocket.receive(packet);
+			}
 			
 			// Return packet with new buffer
 			int len = packet.getData().length;
@@ -94,17 +103,21 @@ public class UDPConnection {
 	
 	public String decode(DatagramPacket recv) throws ProtocolException {
 		try {
-			return decoder.decode(ByteBuffer.wrap(recv.getData())).toString();
+			synchronized (decoder) {
+				return decoder.decode(ByteBuffer.wrap(recv.getData())).toString();
+			}
 		} catch (CharacterCodingException e) {
 			throw new ProtocolException(e);
 		}
 	}
 	
-	public synchronized String recvString() throws ProtocolException {
+	public String recvString() throws ProtocolException {
 		try {
 			// Recv packet
 			DatagramPacket packet = new DatagramPacket(udpRecvTemp, udpRecvTemp.length);
-			udpSocket.receive(packet);
+			synchronized (recvLock) {
+				udpSocket.receive(packet);
+			}
 			
 			// Decode bytes
 			return this.decode(packet);
@@ -113,10 +126,9 @@ public class UDPConnection {
 		}
 	}
 	
-	public synchronized void close() {
+	public void close() {
 		try {
-			if (this.udpSocket.isBound())
-				this.sendString(Protocol.UDP_EXIT);
+			this.sendString(Protocol.UDP_EXIT);
 		} catch (ProtocolException e) {
 			// We don't care about this
 		}

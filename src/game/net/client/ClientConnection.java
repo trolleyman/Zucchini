@@ -1,5 +1,6 @@
 package game.net.client;
 
+import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -61,7 +62,7 @@ public class ClientConnection implements IClientConnection {
 				String msg = udpConn.recvString();
 				outUDP("Message received: " + msg);
 			} catch (ProtocolException e) {
-				outUDP("Exception encountered:");
+				System.err.println("[Net UDP] " + name + ": Exception encountered:");
 				e.printStackTrace();
 				this.close();
 			}
@@ -139,10 +140,10 @@ public class ClientConnection implements IClientConnection {
 						cch.processLobbyUpdate(info);
 					}
 				} else {
-					System.err.println("Warning: Unknown message received: " + msg);
+					System.err.println("Warning: Unknown message received from " + tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
 				}
 			} catch (ProtocolException e) {
-				outTCP("Exception encountered:");
+				System.err.println("[Net TCP] " + name + ": Exception encountered:");
 				e.printStackTrace();
 				this.close();
 			}

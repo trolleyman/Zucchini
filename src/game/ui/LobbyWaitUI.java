@@ -1,6 +1,7 @@
 package game.ui;
 
 import game.LobbyInfo;
+import game.PlayerInfo;
 import game.Util;
 import game.audio.AudioManager;
 import game.exception.GameException;
@@ -21,10 +22,15 @@ public class LobbyWaitUI extends UI {
 	/** The current info of the lobby */
 	private LobbyInfo lobbyInfo = null;
 	
-	private Font font = new Font(Util.getResourcesDir() + "/fonts/terminal2.ttf");
+	private LobbyInfo newLobbyInfo = null;
+	
+	private Font font = new Font(Util.getResourcesDir() + "/fonts/terminal2.ttf", 64);
 	
 	private double time = 0.0f;
+	
 	private Texture loadingTex;
+	private Texture readyTex;
+	private Texture unreadyTex;
 	
 	private UI nextUI;
 	
@@ -34,7 +40,7 @@ public class LobbyWaitUI extends UI {
 		connection.setHandler(new IClientConnectionHandler() {
 			@Override
 			public void processLobbyUpdate(LobbyInfo info) {
-				lobbyInfo = info;
+				newLobbyInfo = info;
 			}
 			
 			@Override
@@ -52,6 +58,8 @@ public class LobbyWaitUI extends UI {
 		this.nextUI = this;
 		
 		this.loadingTex = tb.getTexture("loading.png");
+		this.readyTex   = tb.getTexture("ready.png");
+		this.unreadyTex = tb.getTexture("unready.png");
 		
 		this.lobbyName = lobbyName;
 		
@@ -65,14 +73,33 @@ public class LobbyWaitUI extends UI {
 	@Override
 	public void update(double dt) {
 		this.time += dt;
+		lobbyInfo = newLobbyInfo;
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		if (accepted) {
+		if (accepted && lobbyInfo != null) {
 			// Draw lobby view ui screen
-			String s = "Connected to lobby " + lobbyName + ".";
-			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, 1.0f);
+			float padding = 30.0f;
+			r.drawText(font, lobbyName + "   Test 1 2 3    " + lobbyInfo.players.length + "/" + lobbyInfo.maxPlayers,
+					Align.TL, false, padding, r.getHeight() - padding, 1.0f);
+			
+			float y = r.getHeight() - padding - font.getHeight(1.0f) - 5.0f;
+			for (int i = 0; i < lobbyInfo.players.length; i++) {
+				PlayerInfo playerInfo = lobbyInfo.players[i];
+				
+				r.drawText(font, playerInfo.team + ":",
+						Align.TR, false, padding + 20.0f, y, 1.0f);
+				r.drawText(font, playerInfo.name,
+						Align.TL, false, padding + 20.0f, y, 1.0f);
+				if (playerInfo.ready)
+					r.drawTexture(readyTex, Align.TR, r.getWidth() - padding, y);
+				else
+					r.drawTexture(unreadyTex, Align.TR, r.getWidth() - padding, y);
+				
+				y -= font.getHeight(1.0f) + 5.0f;
+			}
+			
 		} else if (error != null) {
 			// Error has occured
 			String s = "Could not connect to lobby " + lobbyName + ": " + error;

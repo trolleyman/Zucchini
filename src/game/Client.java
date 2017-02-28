@@ -34,12 +34,12 @@ class Client implements Runnable, InputPipe {
 	 */
 	private long prevTime;
 	
-	public Client(boolean _fullscreen) {
+	public Client(boolean _fullscreen, String name) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
 		
 		// Initialize connection to server
 		try {
-			connection = new ClientConnection("Callum");
+			connection = new ClientConnection(name);
 		} catch (ProtocolException | NameException e) {
 			System.err.println("Error: Could not connect to server:");
 			e.printStackTrace();
@@ -110,7 +110,10 @@ class Client implements Runnable, InputPipe {
 	}
 	
 	public static void main(String[] args) {
-		new Client(false).run();
+		String name = "default";
+		if (args.length >= 1)
+			name = args[0];
+		new Client(false, name).run();
 		System.exit(0);
 	}
 }

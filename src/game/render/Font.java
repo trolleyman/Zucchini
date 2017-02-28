@@ -43,9 +43,14 @@ public class Font {
 	IntBuffer descent = MemoryUtil.memAllocInt(1);
 	IntBuffer lineGap = MemoryUtil.memAllocInt(1);
 	
-	private final int pixelHeight = 64;
+	private final int pixelHeight;
 	
 	public Font(String path) {
+		this(path, 64);
+	}
+	
+	public Font(String path, int _pixelHeight) {
+		this.pixelHeight = _pixelHeight;
 		
 		fontInfo = STBTTFontinfo.malloc();
 		cdata = STBTTBakedChar.malloc(96);
@@ -113,8 +118,9 @@ public class Font {
 	}
 	
 	public float getHeight(float scale) {
+//		return 0.0f;
 		return pixelHeight * scale;
-		//return (ascent.get(0) - descent.get(0)) * scale;
+//		return (ascent.get(0) - descent.get(0)) * scale;
 	}
 	
 	private float[] xBuf = new float[1];

@@ -22,8 +22,8 @@ public class Protocol {
 	private static final String TCP_CONNECT_RESPONSE_REJ = "[CONNECT_REJ]";
 	
 	// TODO: Handle TXP_EXIT and UDP_EXIT
-	public static final String UDP_EXIT = "[EXIT]";
-	public static final String TCP_EXIT = "[EXIT]";
+	public static final String UDP_EXIT = "[EXIT_UDP]";
+	public static final String TCP_EXIT = "[EXIT_TCP]";
 	
 	public static final String TCP_PING = "[PING]";
 	public static final String TCP_PONG = "[PONG]";

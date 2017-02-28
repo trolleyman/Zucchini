@@ -164,10 +164,7 @@ public class Server implements Runnable {
 	}
 	
 	private void onClientError(String name, ProtocolException e) {
-		synchronized (lock) {
-			System.err.println("[Net]: " + name + " disconnected: " + e.toString());
-			e.printStackTrace();
-		}
+		System.err.println("[Net]: " + name + " disconnected: " + e.toString());
 	}
 	
 	private void onClientClose(String name) {
@@ -203,6 +200,7 @@ public class Server implements Runnable {
 	
 	private void joinLobby(ClientHandler handler, Lobby lobby) {
 		synchronized (lock) {
+			outTCP(handler.getClientInfo().name + ": Joined lobby: " + lobby.lobbyName);
 			lobby.addPlayer(handler);
 			handler.getClientInfo().lobby = lobby.lobbyName;
 		}

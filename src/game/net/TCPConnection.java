@@ -20,9 +20,9 @@ import java.nio.charset.StandardCharsets;
 
 public class TCPConnection {
 	private final CharsetDecoder decoder = StandardCharsets.UTF_8
-			.newDecoder()
-			.onMalformedInput(CodingErrorAction.REPORT)
-			.onUnmappableCharacter(CodingErrorAction.REPORT);
+		.newDecoder()
+		.onMalformedInput(CodingErrorAction.REPORT)
+		.onUnmappableCharacter(CodingErrorAction.REPORT);
 	
 	private final Object sendLock = new Object();
 	private final Object recvLock = new Object();
@@ -64,16 +64,22 @@ public class TCPConnection {
 		return tcpSocket;
 	}
 	
-	public synchronized void close() {
+	public void close() {
 		try {
-			this.sendString(Protocol.TCP_EXIT);
-			tcpSocket.close();
-		} catch (IOException | ProtocolException e) {
+			if (!isClosed())
+				this.sendString(Protocol.TCP_EXIT);
+		} catch (ProtocolException e) {
 			// We don't care about this
+		} finally {
+			try {
+				tcpSocket.close();
+			} catch (IOException e1) {
+				// We don't care about this
+			}
 		}
 	}
 	
-	public synchronized void sendString(String msg) throws ProtocolException {
+	public void sendString(String msg) throws ProtocolException {
 		try {
 			synchronized (sendLock) {
 				byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
