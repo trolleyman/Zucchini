@@ -69,15 +69,18 @@ public class LobbyWaitUI extends UI {
 	
 	@Override
 	public void render(IRenderer r) {
-		if (lobbyInfo != null) {
+		if (accepted) {
 			// Draw lobby view ui screen
+			String s = "Connected to lobby " + lobbyName + ".";
+			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, 1.0f);
 		} else if (error != null) {
 			// Error has occured
-			r.drawText(font, "Could not connect to lobby " + lobbyName + ": " + error, Align.MM, true, r.getWidth()/2, r.getHeight()/2, 1.0f);
+			String s = "Could not connect to lobby " + lobbyName + ": " + error;
+			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, 1.0f);
 		} else {
-			// No error
-			float angle = (float)(time * 2.0 % (Math.PI * 2));
-			r.drawTexture(loadingTex, Align.MM, r.getWidth()/2, r.getHeight()/2, angle);
+			// Loading
+			float angle = (float)(time * 5.0 % (Math.PI * 2));
+			r.drawTexture(loadingTex, Align.MM, r.getWidth()/2.0f, r.getHeight()/2.0f, angle);
 		}
 	}
 	
