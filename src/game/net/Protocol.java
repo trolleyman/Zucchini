@@ -222,20 +222,20 @@ public class Protocol {
 		return s.equals(TAG_LOBBIES_REQUEST);
 	}
 	
-	/**************** Lobbies Reply ****************/
-	public static String sendLobbiesReply(ArrayList<LobbyInfo> lobbies) {
+	/**************** Lobbies Response ****************/
+	public static String sendLobbiesResponse(ArrayList<LobbyInfo> lobbies) {
 		JsonArray json = new JsonArray();
 		for (LobbyInfo lobby : lobbies)
-			json.add(gson.toJson(lobby));
+			json.add(gson.toJsonTree(lobby));
 		
 		return TAG_LOBBIES_RESPONSE + json.toString();
 	}
 	
-	public static boolean isLobbiesReply(String s) {
+	public static boolean isLobbiesResponse(String s) {
 		return s.startsWith(TAG_LOBBIES_RESPONSE);
 	}
 	
-	public static ArrayList<LobbyInfo> parseLobbiesReply(String s) throws ProtocolException {
+	public static ArrayList<LobbyInfo> parseLobbiesResponse(String s) throws ProtocolException {
 		s = s.substring(TAG_LOBBIES_RESPONSE.length());
 		
 		try {

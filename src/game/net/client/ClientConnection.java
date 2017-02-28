@@ -1,14 +1,11 @@
 package game.net.client;
 
-import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import game.LobbyInfo;
 import game.action.Action;
 import game.audio.event.AudioEvent;
-import game.exception.InvalidMessageException;
-import game.exception.LobbyJoinException;
 import game.exception.NameException;
 import game.exception.ProtocolException;
 import game.net.Protocol;
@@ -96,9 +93,9 @@ public class ClientConnection implements IClientConnection {
 					synchronized (cchLock) {
 						cch.processAudioEvent(ae);
 					}
-				} else if (Protocol.isLobbiesReply(msg)) {
+				} else if (Protocol.isLobbiesResponse(msg)) {
 					try {
-						ArrayList<LobbyInfo> lobbies = Protocol.parseLobbiesReply(msg);
+						ArrayList<LobbyInfo> lobbies = Protocol.parseLobbiesResponse(msg);
 						synchronized (lobbiesLock) {
 							if (lobbiesSuccessCallbacks.size() == 0) {
 								System.err.println("Warning: LobbiesReply received, but no handlers assigned.");

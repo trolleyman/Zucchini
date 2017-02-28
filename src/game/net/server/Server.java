@@ -6,7 +6,6 @@ import game.net.Protocol;
 import game.net.TCPConnection;
 import game.net.Tuple;
 import game.net.UDPConnection;
-import game.world.map.Map;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -15,7 +14,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 public class Server implements Runnable {
 	private volatile boolean running;
@@ -217,7 +215,7 @@ public class Server implements Runnable {
 				}
 			}
 			try {
-				handler.sendStringTcp(Protocol.sendLobbiesReply(lobbyInfos));
+				handler.sendStringTcp(Protocol.sendLobbiesResponse(lobbyInfos));
 			} catch (ProtocolException e) {
 				// This is fine as the handler takes care of exceptions
 			}
