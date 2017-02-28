@@ -50,6 +50,7 @@ public class Protocol {
 	private static final String TAG_LOBBY_JOIN_ACCEPT   = "[LOBBY_JOIN_ACC]";
 	private static final String TAG_LOBBY_JOIN_REJECT   = "[LOBBY_JOIN_REJ]";
 	private static final String TAG_LOBBY_UPDATE        = "[LOBBY_UPDATE]";
+	private static final String TAG_READY_TOGGLE        = "[READY_TOGGLE]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {
@@ -335,5 +336,14 @@ public class Protocol {
 		} catch (JsonParseException | IllegalStateException e) {
 			throw new ProtocolException("Invalid lobby update: " + msg, e);
 		}
+	}
+	
+	/**************** Ready Toggle ****************/
+	public static String sendReadyToggle() {
+		return TAG_READY_TOGGLE;
+	}
+	
+	public static boolean isReadyToggle(String msg) {
+		return msg.startsWith(TAG_READY_TOGGLE);
 	}
 }

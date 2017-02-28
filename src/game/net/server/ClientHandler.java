@@ -107,7 +107,7 @@ public class ClientHandler {
 		synchronized (this) {
 			if (isClosed())
 				return;
-			System.out.println("[Net]: CLOSE " + info.tcpConn.getSocket().getRemoteSocketAddress());
+			System.out.println("[Net]: CLOSE " + info.tcpConn.getSocket().getRemoteSocketAddress() + " + " + info.udpConn.getSocket().getRemoteSocketAddress());
 			closed = true;
 			info.tcpConn.close();
 			info.udpConn.close();

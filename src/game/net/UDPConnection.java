@@ -132,7 +132,6 @@ public class UDPConnection {
 		} catch (ProtocolException e) {
 			// We don't care about this
 		}
-		udpSocket.close();
 	}
 	
 	public DatagramSocket getSocket() {

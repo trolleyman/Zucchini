@@ -166,6 +166,11 @@ public class ClientConnection implements IClientConnection {
 	}
 	
 	@Override
+	public void sendToggleReady() throws ProtocolException {
+		tcpConn.sendString(Protocol.sendReadyToggle());
+	}
+	
+	@Override
 	public void setHandler(IClientConnectionHandler cch) {
 		synchronized (cchLock) {
 			this.cch = cch;

@@ -23,6 +23,7 @@ public class Lobby {
 	
 	private ServerWorld world;
 	
+	private Thread lobbyHandler;
 	private boolean running;
 	
 	public Lobby(String lobbyName, int maxPlayers, Map map) {
@@ -34,8 +35,8 @@ public class Lobby {
 		
 		this.world = null;
 		
-		Thread t = new Thread(this::runLobbyHandler, "Lobby Handler: " + lobbyName);
-		t.start();
+		lobbyHandler = new Thread(this::runLobbyHandler, "Lobby Handler: " + lobbyName);
+		lobbyHandler.start();
 	}
 	
 	private void runLobbyHandler() {
@@ -161,6 +162,16 @@ public class Lobby {
 			if (world != null) {
 				world.handleFullUpdateRequest(handler.getClientInfo().name);
 			}
+		} else if (Protocol.isReadyToggle(msg)) {
+			// Toggle ready status of handler
+			synchronized (clientsLock) {
+				for (LobbyClient c : clients) {
+					if (c.handler.getClientInfo().name.equals(handler.getClientInfo().name)) {
+						c.ready = !c.ready;
+					}
+				}
+			}
+			lobbyHandler.interrupt();
 		} else {
 			System.err.println("[TCP]: Warning: Unknown message from " + handler.getClientInfo().name + ": " + msg);
 		}

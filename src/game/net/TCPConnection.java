@@ -79,6 +79,10 @@ public class TCPConnection {
 		}
 	}
 	
+	public boolean isClosed() {
+		return tcpSocket.isClosed();
+	}
+	
 	public void sendString(String msg) throws ProtocolException {
 		try {
 			synchronized (sendLock) {
@@ -191,9 +195,5 @@ public class TCPConnection {
 		} else {
 			throw new InvalidMessageException(response);
 		}
-	}
-	
-	public boolean isClosed() {
-		return tcpSocket.isClosed();
 	}
 }

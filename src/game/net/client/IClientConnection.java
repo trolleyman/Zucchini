@@ -38,6 +38,11 @@ public interface IClientConnection {
 	void sendLobbyJoinRequest(String lobbyName) throws ProtocolException;
 	
 	/**
+	 * Sends a toggle request for the ready state of the client
+	 */
+	void sendToggleReady() throws ProtocolException;
+	
+	/**
 	 * Sets the current connection event handler
 	 * @param cch The client connection handler
 	 */
