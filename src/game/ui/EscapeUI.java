@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
@@ -35,8 +36,8 @@ public class EscapeUI extends UI implements InputPipeMulti{
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 
-	public EscapeUI(AudioManager audio, TextureBank _bank, ClientWorld _world) {
-		super(audio);
+	public EscapeUI(IClientConnection conn, AudioManager audio, TextureBank _bank, ClientWorld _world) {
+		super(conn, audio);
 		this.bank = _bank;
 		nextUI = this;
 		this.world = _world;
@@ -70,7 +71,7 @@ public class EscapeUI extends UI implements InputPipeMulti{
 		);
 		
 		quitBtn = new ButtonComponent(
-				() -> { this.nextUI = new StartUI(audio, bank); },
+				() -> { this.nextUI = new StartUI(connection, audio, bank); },
 				Align.BL, 0, 0,
 				bank.getTexture("quit.png"),
 				bank.getTexture("quit2.png"),
@@ -78,7 +79,7 @@ public class EscapeUI extends UI implements InputPipeMulti{
 		);
 		
 		continueBtn = new ButtonComponent(
-				() -> { this.nextUI = new GameUI(audio, bank, world); },
+				() -> { this.nextUI = new GameUI(connection, audio, bank, world); },
 				Align.BL, 0, 0,
 				bank.getTexture("continue.png"),
 				bank.getTexture("continue2.png"),

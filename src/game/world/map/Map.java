@@ -244,5 +244,10 @@ public class Map {
 	public ArrayList<Entity> getInitialEntities() {
 		return initialEntities;
 	}
+	
+	public Vector2f getSpawnLocation(int team) {
+		// TODO: Actually have different spawns for different teams
+		return new Vector2f(2.0f, 2.0f);
+	}
 }
 

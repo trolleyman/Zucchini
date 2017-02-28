@@ -2,6 +2,7 @@ package game.ui;
 
 import game.*;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
@@ -44,15 +45,16 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	private LobbyInfo lobby2 = new LobbyInfo("zucchini", 12, new PlayerInfo[0]);
 	private ArrayList<TextButtonComponent> lobby_buttons = new ArrayList<>();
 	
-	public LobbyUI(AudioManager audio, TextureBank tb) {
-		super(audio);
+	public LobbyUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
+		super(conn, audio);
 		
-		f = new Font(Util.getBasePath() + "resources/fonts/emulogic.ttf");
+
+		f = new Font(Util.getResourcesDir() + "/fonts/terminal2.ttf");
 		this.tb = tb;
 
 		// Create Join Button
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(audio, tb, ClientWorld.createTestWorld(audio)); },
+			() -> { this.nextUI = new LobbyWaitUI(connection, audio, tb, "TestLobby1"); },
 			Align.BL, 100, 100,
 			tb.getTexture("joinDefault.png"),
 			tb.getTexture("joinHover.png"),
@@ -61,7 +63,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 
 		// Create Back Button
 		backButton = new ButtonComponent(
-			() -> { this.nextUI = new StartUI(audio, tb); },
+			() -> { this.nextUI = new StartUI(connection, audio, tb); },
 			Align.BL, 100, 100,
 			tb.getTexture("backDefault.png"),
 			tb.getTexture("backHover.png"),
@@ -123,7 +125,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		// Allows escape to be pressed to return to previous menu
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 		 	System.out.println("escape pressed");
-			this.nextUI = new StartUI(audio, tb);
+			this.nextUI = new StartUI(connection, audio, tb);
 		}
 	}
 	

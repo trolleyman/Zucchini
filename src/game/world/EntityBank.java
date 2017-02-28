@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import game.Util;
-import game.net.IServerConnection;
+import game.exception.ProtocolException;
+import game.net.Protocol;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
-import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
 public class EntityBank {
@@ -83,12 +83,20 @@ public class EntityBank {
 	 * Process the cached records, and send them to conn.
 	 * @param conns The connections to the clients.
 	 */
-	protected synchronized void processCache(ArrayList<IServerConnection> conns) {
+	protected synchronized void processCache(ArrayList<ServerWorldClient> conns) {
 		// Process cached entity adds
 		for (Entity e : addEntities) {
 			this.addEntity(e);
-			for (IServerConnection conn : conns)
-				conn.sendAddEntity(e);
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
+					continue;
+				
+				try {
+					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
+				} catch (ProtocolException ex) {
+					// This is ok, as the ClientHandler will handle this
+				}
+			}
 		}
 		addEntities.clear();
 		
@@ -98,20 +106,36 @@ public class EntityBank {
 			if (e != null)
 				eu.updateEntity(e);
 			
-			for (IServerConnection conn : conns)
-				conn.sendUpdateEntity(eu);
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
+					continue;
+				
+				try {
+					swc.handler.sendStringTcp(Protocol.sendUpdateEntity(eu));
+				} catch (ProtocolException ex) {
+					// This is ok, as the ClientHandler will handle this
+				}
+			}
 		}
 		updateEntities.clear();
 		
 		// Remove cached entities
 		for (Integer id : removeEntities) {
 			this.removeEntity(id);
-			for (IServerConnection conn : conns)
-				conn.sendRemoveEntity(id);
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
+					continue;
+				
+				try {
+					swc.handler.sendStringTcp(Protocol.sendRemoveEntity(id));
+				} catch (ProtocolException ex) {
+					// This is ok, as the ClientHandler will handle this
+				}
+			}
 		}
 		removeEntities.clear();
 	}
-
+	
 	/**
 	 * Returns the entity associated with the id entered
 	 * @param id The entity ID

@@ -6,6 +6,7 @@ import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
@@ -38,14 +39,14 @@ public class StartUI extends UI implements InputPipeMulti {
 	 * Constructs a new StartUI
 	 * @param tb TextureBank used to get textures for components
 	 */
-	public StartUI(AudioManager audio, TextureBank tb) {
-		super(audio);
+	public StartUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
+		super(conn, audio);
 		
 		font = new Font(Util.getBasePath() + "resources/fonts/emulogic.ttf");
 
 		// Create Start Button
 		startButton = new ButtonComponent(
-			() -> { this.nextUI = new LobbyUI(audio, tb); },
+			() -> { this.nextUI = new LobbyUI(connection, audio, tb); },
 			Align.BL, 100, 100,
 			tb.getTexture("startDefault.png"),
 			tb.getTexture("startHover.png"),
