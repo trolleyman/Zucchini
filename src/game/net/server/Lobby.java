@@ -171,6 +171,7 @@ public class Lobby {
 					}
 				}
 			}
+			// Interrupt handler so that it sends a new update to clients
 			lobbyHandler.interrupt();
 		} else {
 			System.err.println("[TCP]: Warning: Unknown message from " + handler.getClientInfo().name + ": " + msg);
