@@ -1,6 +1,8 @@
 package game.ui;
 
 import game.ColorUtil;
+import game.LobbyInfo;
+import game.PlayerInfo;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
@@ -12,14 +14,6 @@ public class TextButtonComponent extends UIComponent {
 
 	/** The function that is called when the button is clicked */
 	private Runnable callback;
-
-	private boolean selected = false;
-
-	private String s;
-
-	private Font f;
-	private Align a;
-	private float scale;
 
 	private Vector4f box_colour = ColorUtil.BLACK;
     private Vector4f border_colour = ColorUtil.WHITE;
@@ -34,27 +28,41 @@ public class TextButtonComponent extends UIComponent {
 	/** The current button y */
 	private float y;
 
+	//** The dimensions of the box */
 	private float BOX_W;
 	private float BOX_H;
 	private float border_width;
+	//* The alignment of the box/button */
+	private Align a;
+
+	//* The font used for the text of the button */
+	private Font f;
+	//* The scale of the text */
+	private float scale;
+
+	/** The info of the lobby */
+	private LobbyInfo lobbyInfo;
+
+	/** the status of the button - Selected or not */
+	private boolean selected = false;
 
 	/** Whether the mouse has been pressed down */
 	private boolean pressed = false;
 	/** Whether the mouse has been released since the last update */
 	private boolean released = false;
 
-	public TextButtonComponent(Runnable _callback, Align _a, float _x, float _y, Font _f, String _s, float scale) {
+	public TextButtonComponent(Runnable _callback, Align _a, float _x, float _y, Font _f, float scale, LobbyInfo lobbyInfo) {
 		this.callback = _callback;
 		this.a = _a;
 		this.x = _x;
 		this.y = _y;
 		this.f = _f;
-		this.s = _s;
 		this.scale = scale;
+		this.lobbyInfo = lobbyInfo;
 
 
 		border_width = 5;
-		BOX_W = 580;
+		BOX_W = 800;
 		BOX_H = 64*scale*2;
 
 	}
@@ -90,6 +98,7 @@ public class TextButtonComponent extends UIComponent {
 				this.callback.run();
 		}
 
+		// Set the colour of the border of the box based on select or hover
 		if (selected) {
             border_colour = ColorUtil.WHITE;
 		} else if (isMouseOnButton()) {
@@ -101,25 +110,31 @@ public class TextButtonComponent extends UIComponent {
 
 	@Override
 	public void render(IRenderer r) {
+		// Draw the outer box (also acts as the border)
 		r.drawBox(a, x, y, BOX_W, BOX_H, border_colour);
+		// Draw the inner box
 		r.drawBox(a, x+border_width, y+border_width, BOX_W-2*border_width, BOX_H-2*border_width, box_colour);
-		r.drawText(f, s, Align.TL, x+15, y-2, scale);
+		// Draw the name of the lobby
+		r.drawText(f, lobbyInfo.getLobbyName(), Align.TL, x+15, y-2, scale);
+		// Draw the current and max number of players
+		// TODO: display correct number of players in the lobby
+		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players", Align.TL, x+460, y-2, scale);
 	}
 
+	/**
+	 * Returns whether the button is selected or not
+	 * @return boolean Is the button currently selected?
+	 */
 	public boolean getSelected() {
 		return selected;
 	}
 
+	/**
+	 * Sets the button to be selected or not selected
+	 * @param b true/false based on whether you want the button to be selected or not
+	 */
 	public void setSelected(boolean b) {
 		selected = b;
-	}
-
-	public String getString() {
-		return s;
-	}
-
-	public void setString(String s) {
-		this.s = s;
 	}
 
 	/**

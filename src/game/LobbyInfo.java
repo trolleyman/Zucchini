@@ -10,4 +10,28 @@ public class LobbyInfo {
 		this.maxPlayers = _maxPlayers;
 		this.players = _players;
 	}
+
+	/**
+	 * Gets the name of the lobby
+	 * @return The name of th lobby
+	 */
+	public String getLobbyName() {
+		return lobbyName;
+	}
+
+	/**
+	 * Gets the max number of players for the lobby
+	 * @return The max number of players
+	 */
+	public int getMaxPlayers() {
+		return maxPlayers;
+	}
+
+	/**
+	 * Gets the info of the players in the lobby
+	 * @return The player info
+	 */
+	public PlayerInfo[] getPlayerInfo() {
+		return players;
+	}
 }

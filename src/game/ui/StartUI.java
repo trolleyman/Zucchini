@@ -13,7 +13,6 @@ import game.render.TextureBank;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
- * 
  * @author Jack
  */
 public class StartUI extends UI implements InputPipeMulti {
@@ -21,7 +20,6 @@ public class StartUI extends UI implements InputPipeMulti {
 	private int windowW;
 	/** The current window height */
 	private int windowH;
-	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
@@ -43,16 +41,18 @@ public class StartUI extends UI implements InputPipeMulti {
 	public StartUI(AudioManager audio, TextureBank tb) {
 		super(audio);
 		
-		font = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
-		
+		font = new Font(Util.getBasePath() + "resources/fonts/emulogic.ttf");
+
+		// Create Start Button
 		startButton = new ButtonComponent(
 			() -> { this.nextUI = new LobbyUI(audio, tb); },
 			Align.BL, 100, 100,
-			tb.getTexture("buttonDefault.png"),
-			tb.getTexture("buttonHover.png"),
-			tb.getTexture("buttonPressed.png")
+			tb.getTexture("startDefault.png"),
+			tb.getTexture("startHover.png"),
+			tb.getTexture("startPressed.png")
 		);
-		
+
+		// Create Exit Button
 		exitButton = new ButtonComponent(
 			() -> { this.nextUI = null; },
 			Align.BL, 100, 100,
@@ -60,11 +60,13 @@ public class StartUI extends UI implements InputPipeMulti {
 			tb.getTexture("exitButtonHover.png"),
 			tb.getTexture("exitButtonPressed.png")
 		);
-		
+
+		// Create Background Image
 		backgroundImage = new ImageComponent(
 			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
 		);
 
+		// Add buttons to input handlers
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(exitButton);
 	}
@@ -89,11 +91,16 @@ public class StartUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void render(IRenderer r) {
+		// Render the background image
 		backgroundImage.render(r);
+
+		// Set the location of the start and exit buttons
 		startButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
+
+		// Render the start and exit buttons
 		startButton.render(r);
 		exitButton.render(r);
 	}
