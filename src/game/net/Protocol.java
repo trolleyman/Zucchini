@@ -228,7 +228,7 @@ public class Protocol {
 		for (LobbyInfo lobby : lobbies)
 			json.add(gson.toJson(lobby));
 		
-		return TAG_LOBBIES_REQUEST + json.toString();
+		return TAG_LOBBIES_RESPONSE + json.toString();
 	}
 	
 	public static boolean isLobbiesReply(String s) {

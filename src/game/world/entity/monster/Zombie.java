@@ -15,6 +15,9 @@ import org.joml.Vector2f;
 public class Zombie extends AutonomousEntity {
 	private static final float MAX_SPEED = 1.0f;
 	private static final float RADIUS = 0.15f;
+	private boolean soundSourceInit = false;
+	private int zombieSoundID;
+	private int walkingSoundID;
 	
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED);
@@ -53,6 +56,19 @@ public class Zombie extends AutonomousEntity {
 			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
 			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
 		}
+		
+		if (!soundSourceInit) {
+			this.zombieSoundID = ua.audio.playLoop("zombie1.wav", 0.6f,this.position);
+			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.1f,this.position);
+			ua.audio.pauseLoop(zombieSoundID);
+			ua.audio.pauseLoop(walkingSoundID);
+			soundSourceInit = true;
+		}
+		
+		// Play zombie sounds
+		ua.audio.continueLoop(this.zombieSoundID,this.position);
+		ua.audio.continueLoop(this.walkingSoundID,this.position);
+
 		Util.popTemporaryVector2f();
 	}
 	

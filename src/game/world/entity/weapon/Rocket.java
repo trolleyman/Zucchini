@@ -17,6 +17,7 @@ public class Rocket extends Projectile {
 	
 	public Rocket(Vector2f position, int sourceTeamID, float angle) {
 		super(position, sourceTeamID, angle, SPEED, 12.0);
+		
 	}
 	
 	public Rocket(Rocket r) {

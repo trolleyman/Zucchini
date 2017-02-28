@@ -26,7 +26,7 @@ public class RocketLauncher extends Weapon {
 	@Override
 	protected void fire(UpdateArgs ua) {
 		System.out.println("Whoosh! Rocket fired!");
-		ua.audio.play("rocket-launcher.wav", 1.0f, this.position);
+		ua.audio.play("rocket-launcher.wav", 0.5f, this.position);
 		ua.bank.addEntityCached(new Rocket(position, this.ownerTeam, this.angle));
 	}
 	
