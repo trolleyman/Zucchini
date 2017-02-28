@@ -30,7 +30,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	private LobbyInfo newLobbyInfo = null;
 	
-	private Font font = new Font(Util.getResourcesDir() + "/fonts/terminal2.ttf", 64);
+	private Font font = new Font(Util.getResourcesDir() + "/fonts/emulogic.ttf", 64);
 	
 	private double time = 0.0f;
 	
@@ -88,7 +88,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		Texture pressedTex = tb.getTexture("toggleReadyPressed.png");
 		
 		this.toggleReadyButton = new ButtonComponent(
-				this::toggleReady, Align.BM, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
+				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
 		
 		this.inputHandlers.add(this.toggleReadyButton);
 		
@@ -146,7 +146,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				y -= font.getHeight(1.0f) + 5.0f;
 			}
 			
-			toggleReadyButton.setX(r.getWidth()/2);
+			toggleReadyButton.setX(r.getWidth()/2 - toggleReadyButton.getWidth()/2);
 			toggleReadyButton.setY(PADDING);
 			toggleReadyButton.render(r);
 			

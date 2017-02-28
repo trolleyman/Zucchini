@@ -74,27 +74,15 @@ public class LobbyUI extends UI implements InputPipeMulti {
 			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
 		);
 
-		// Add buttons to input handlers
-
-
-		// Add test lobbies
-		// lobbies.add(lobby0);
-		// lobbies.add(lobby1);
-		// lobbies.add(lobby2);
-
 		connection.getLobbies((lobs) -> {
 			refresh(lobs);
 		}, (err) -> {
 
 		});
-
-		// Add the buttons for the test lobbies
-
 	}
 
 	/**
 	 * Is called when any of the lobbies are selected
-	 * TODO: Add joining the selected lobby when JOIN BUTTON is pressed
 	 * @param lobby
 	 */
 	private void lobbySelect(int lobby) {
@@ -157,7 +145,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	public void render(IRenderer r) {
 		//Set locations of the primary menu buttons
 		joinButton.setX((int) (windowW/2.0 - joinButton.getWidth()/2.0));
-		joinButton.setY((int) (windowH/2.0 - joinButton.getHeight()/2.0) + 140);
+		joinButton.setY((int) (windowH/2.0 - joinButton.getHeight()/2.0) + 150);
 		backButton.setX((int) (windowW/2.0 - backButton.getWidth()/2.0));
 		backButton.setY((int) (windowH/2.0 - backButton.getHeight()/2.0));
 

@@ -26,6 +26,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	
 	/** The start button */
 	private ButtonComponent startButton;
+	/** The help button */
+	private ButtonComponent helpButton;
 	/** The exit button */
 	private ButtonComponent exitButton;
 	/** The next UI to return */
@@ -53,6 +55,15 @@ public class StartUI extends UI implements InputPipeMulti {
 			tb.getTexture("startPressed.png")
 		);
 
+		// Create Help Button
+		helpButton = new ButtonComponent(
+				() -> { /* TODO: go to HelpUI */ },
+				Align.BL, 100, 100,
+				tb.getTexture("helpDefault.png"),
+				tb.getTexture("helpHover.png"),
+				tb.getTexture("helpPressed.png")
+		);
+
 		// Create Exit Button
 		exitButton = new ButtonComponent(
 			() -> { this.nextUI = null; },
@@ -69,6 +80,7 @@ public class StartUI extends UI implements InputPipeMulti {
 
 		// Add buttons to input handlers
 		this.inputHandlers.add(startButton);
+		this.inputHandlers.add(helpButton);
 		this.inputHandlers.add(exitButton);
 	}
 	
@@ -87,6 +99,7 @@ public class StartUI extends UI implements InputPipeMulti {
 	@Override
 	public void update(double dt) {
 		startButton.update(dt);
+		helpButton.update(dt);
 		exitButton.update(dt);
 	}
 	
@@ -95,14 +108,17 @@ public class StartUI extends UI implements InputPipeMulti {
 		// Render the background image
 		backgroundImage.render(r);
 
-		// Set the location of the start and exit buttons
+		// Set the location of the buttons
 		startButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
+		helpButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
+		helpButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0 - 150));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
 
-		// Render the start and exit buttons
+		// Render the buttons
 		startButton.render(r);
+		helpButton.render(r);
 		exitButton.render(r);
 	}
 	
