@@ -30,7 +30,7 @@ public class TCPConnection {
 	private final Socket tcpSocket;
 	private final byte[] tcpSendIntTemp = new byte[4];
 	private final byte[] tcpRecvIntTemp = new byte[4];
-	private final byte[] tcpRecvTemp = new byte[1400];
+	private final byte[] tcpRecvTemp = new byte[32000];
 	
 	public TCPConnection(Socket socket) throws ProtocolException {
 		try {
@@ -105,6 +105,9 @@ public class TCPConnection {
 	 * Read exactly the amount specified into the buffer specified
 	 */
 	private static void readExact(Socket socket, byte[] buf, int length) throws IOException {
+		if (length > buf.length)
+			throw new IndexOutOfBoundsException("Temp TCP buffer too small. Need " + length + ", have " + buf.length);
+		
 		InputStream in = socket.getInputStream();
 		int totRead = 0;
 		while (totRead < length) {

@@ -111,7 +111,12 @@ public class EntityBank {
 					continue;
 				
 				try {
-					swc.handler.sendStringTcp(Protocol.sendUpdateEntity(eu));
+					String euStr = Protocol.sendUpdateEntity(eu);
+					if (eu.isTcp())
+						swc.handler.sendStringTcp(euStr);
+					else
+						swc.handler.sendStringUdp(euStr);
+					
 				} catch (ProtocolException ex) {
 					// This is ok, as the ClientHandler will handle this
 				}

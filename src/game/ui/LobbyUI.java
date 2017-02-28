@@ -40,9 +40,8 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	
 	/** Test lobbies for button generation */
 	private ArrayList<LobbyInfo> lobbies = new ArrayList<>();
-	// private LobbyInfo lobby0 = new LobbyInfo("lobby1", 16, new PlayerInfo[0]);
-	// private LobbyInfo lobby1 = new LobbyInfo("fish", 16, new PlayerInfo[0]);
-	// private LobbyInfo lobby2 = new LobbyInfo("zucchini", 12, new PlayerInfo[0]);
+	private LobbyInfo currentLobby = null;
+	
 	private ArrayList<TextButtonComponent> lobby_buttons = new ArrayList<>();
 	
 	public LobbyUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
@@ -54,7 +53,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 
 		// Create Join Button
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new LobbyWaitUI(connection, audio, tb, "TestLobby1"); },
+			() -> { if (currentLobby != null) this.nextUI = new LobbyWaitUI(connection, audio, tb, currentLobby.getLobbyName());},
 			Align.BL, 100, 100,
 			tb.getTexture("joinDefault.png"),
 			tb.getTexture("joinHover.png"),
@@ -103,6 +102,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 			lobby_buttons.get(i).setSelected(false);
 		}
 		lobby_buttons.get(lobby).setSelected(true);
+		currentLobby = lobbies.get(lobby);
 	}
 
 	private void refresh(ArrayList<LobbyInfo> lobs) {

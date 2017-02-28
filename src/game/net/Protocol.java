@@ -8,7 +8,9 @@ import game.action.AimAction;
 import game.audio.event.AudioEvent;
 import game.exception.InvalidMessageException;
 import game.exception.ProtocolException;
+import game.world.ClientWorld;
 import game.world.entity.Entity;
+import game.world.map.Map;
 import game.world.update.EntityUpdate;
 
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ public class Protocol {
 	private static final String TAG_LOBBY_JOIN_REJECT   = "[LOBBY_JOIN_REJ]";
 	private static final String TAG_LOBBY_UPDATE        = "[LOBBY_UPDATE]";
 	private static final String TAG_READY_TOGGLE        = "[READY_TOGGLE]";
+	private static final String TAG_WORLD_START         = "[WORLD_START]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {
@@ -128,7 +131,8 @@ public class Protocol {
 		return s.startsWith(TAG_ACTION);
 	}
 	
-	public static Action parseAction(String s) throws ProtocolException {
+	public static Action parseAction(String msg) throws ProtocolException {
+		String s = msg.substring(TAG_ACTION.length());
 		ActionType found = null;
 		ActionType[] types = ActionType.values();
 		for (ActionType type : types) {
@@ -145,8 +149,7 @@ public class Protocol {
 			int i = s.indexOf(']');
 			if (i == -1)
 				throw new ProtocolException("Invalid action: " + s);
-			i++;
-			String sangle = s.substring(i);
+			String sangle = s.substring(i + 2);
 			float angle;
 			try {
 				angle = Float.parseFloat(sangle);
@@ -345,5 +348,36 @@ public class Protocol {
 	
 	public static boolean isReadyToggle(String msg) {
 		return msg.startsWith(TAG_READY_TOGGLE);
+	}
+	
+	/**************** World Start Packet ****************/
+	public static String sendWorldStart(WorldStart start) {
+		return TAG_WORLD_START + '[' + start.playerId + ']' + gson.toJson(start.map);
+	}
+	
+	public static boolean isWorldStart(String msg) {
+		return msg.startsWith(TAG_WORLD_START);
+	}
+	
+	public static WorldStart parseWorldStart(String msg) throws ProtocolException {
+		String s = msg.substring(TAG_WORLD_START.length());
+		if (!s.startsWith("["))
+			throw new ProtocolException("Invalid world start message: " + msg);
+		
+		int i = s.indexOf("]");
+		if (i == -1)
+			throw new ProtocolException("Invalid world start message: " + msg);
+		
+		String sPlayerId = s.substring(1, i);
+		int playerId;
+		try {
+			playerId = Integer.parseInt(sPlayerId);
+		} catch (NumberFormatException e) {
+			throw new ProtocolException("Invalid world start message: " + msg, e);
+		}
+		
+		String sMap = s.substring(i+1);
+		Map map = gson.fromJson(sMap, Map.class);
+		return new WorldStart(map, playerId);
 	}
 }

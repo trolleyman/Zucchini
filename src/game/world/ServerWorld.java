@@ -7,12 +7,15 @@ import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
 import game.net.Protocol;
+import game.net.WorldStart;
 import game.net.server.ClientHandler;
 import game.net.server.ClientInfo;
 import game.net.server.LobbyClient;
 import game.world.entity.Entity;
 import game.world.entity.Player;
+import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
+import org.joml.Vector2f;
 
 /**
  * The world located on the server
@@ -56,9 +59,14 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param c The client
 	 */
 	public synchronized void addClient(LobbyClient c) {
-		Player player = new Player(c.team, map.getSpawnLocation(c.team), null);
+		Player player = new Player(c.team, map.getSpawnLocation(c.team), new Handgun(new Vector2f()));
 		this.bank.addEntity(player);
 		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
+		try {
+			c.handler.sendStringTcp(Protocol.sendWorldStart(new WorldStart(map, player.getId())));
+		} catch (ProtocolException e) {
+			// This is ok as the handler will take care of it
+		}
 	}
 	
 	public synchronized void handleAction(String name, Action a) {

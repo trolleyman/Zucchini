@@ -104,7 +104,9 @@ public class UDPConnection {
 	public String decode(DatagramPacket recv) throws ProtocolException {
 		try {
 			synchronized (decoder) {
-				return decoder.decode(ByteBuffer.wrap(recv.getData())).toString();
+				ByteBuffer buf = ByteBuffer.wrap(recv.getData());
+				buf.limit(recv.getLength());
+				return decoder.decode(buf).toString();
 			}
 		} catch (CharacterCodingException e) {
 			throw new ProtocolException(e);

@@ -5,9 +5,12 @@ import game.audio.AudioManager;
 import game.exception.GameException;
 import game.exception.LobbyJoinException;
 import game.exception.ProtocolException;
+import game.net.WorldStart;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
+import game.world.ClientWorld;
+import game.world.EntityBank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,13 +57,21 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			
 			@Override
 			public void handleLobbyJoinAccept() {
+				System.out.println("[Lobby]: Accepted client");
 				accepted = true;
 			}
 			
 			@Override
 			public void handleLobbyJoinReject(String reason) {
+				System.out.println("[Lobby]: Rejected client: " + reason);
 				accepted = false;
 				error = reason;
+			}
+			
+			@Override
+			public void handleWorldStart(WorldStart start) {
+				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, connection);
+				nextUI = new GameUI(connection, audio, tb, world);
 			}
 		});
 		

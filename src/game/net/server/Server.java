@@ -6,6 +6,7 @@ import game.net.Protocol;
 import game.net.TCPConnection;
 import game.net.Tuple;
 import game.net.UDPConnection;
+import game.world.map.Map;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -38,8 +39,8 @@ public class Server implements Runnable {
 		Thread tcpServer = new Thread(this::runTcpServer, "TCP Connection Server");
 		tcpServer.start();
 		
-		createLobby("TestLobby1", 4);
-		createLobby("TestLobby2", 2);
+		createLobby("TestLobby", 2, 4);
+		createLobby("SmallTestLobby", 1, 2);
 	}
 	
 	private void outUDP(String msg) {
@@ -190,9 +191,9 @@ public class Server implements Runnable {
 		}
 	}
 	
-	private void createLobby(String lobbyName, int maxPlayers) {
+	private void createLobby(String lobbyName, int minPlayers, int maxPlayers) {
 		synchronized (lock) {
-			lobbies.put(lobbyName, new Lobby(lobbyName, 4, null));
+			lobbies.put(lobbyName, new Lobby(lobbyName, minPlayers, maxPlayers, Map.createTestMap()));
 		}
 	}
 	

@@ -20,7 +20,7 @@ public abstract class Projectile extends Entity {
 	private int sourceTeamID;
 	
 	/** The current velocity of the projectile */
-	protected transient Vector2f velocity;
+	protected Vector2f velocity;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
