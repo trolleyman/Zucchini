@@ -40,16 +40,16 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	
 	/** Test lobbies for button generation */
 	private ArrayList<LobbyInfo> lobbies = new ArrayList<>();
-	private LobbyInfo lobby0 = new LobbyInfo("lobby1", 16, new PlayerInfo[0]);
-	private LobbyInfo lobby1 = new LobbyInfo("fish", 16, new PlayerInfo[0]);
-	private LobbyInfo lobby2 = new LobbyInfo("zucchini", 12, new PlayerInfo[0]);
+	// private LobbyInfo lobby0 = new LobbyInfo("lobby1", 16, new PlayerInfo[0]);
+	// private LobbyInfo lobby1 = new LobbyInfo("fish", 16, new PlayerInfo[0]);
+	// private LobbyInfo lobby2 = new LobbyInfo("zucchini", 12, new PlayerInfo[0]);
 	private ArrayList<TextButtonComponent> lobby_buttons = new ArrayList<>();
 	
 	public LobbyUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
 		super(conn, audio);
 		
 
-		f = new Font(Util.getResourcesDir() + "/fonts/terminal2.ttf");
+		f = new Font(Util.getResourcesDir() + "/fonts/emulogic.ttf");
 		this.tb = tb;
 
 		// Create Join Button
@@ -76,22 +76,21 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		);
 
 		// Add buttons to input handlers
-		this.inputHandlers.add(joinButton);
-		this.inputHandlers.add(backButton);
+
 
 		// Add test lobbies
-		lobbies.add(lobby0);
-		lobbies.add(lobby1);
-		lobbies.add(lobby2);
+		// lobbies.add(lobby0);
+		// lobbies.add(lobby1);
+		// lobbies.add(lobby2);
+
+		connection.getLobbies((lobs) -> {
+			refresh(lobs);
+		}, (err) -> {
+
+		});
 
 		// Add the buttons for the test lobbies
-		for (int i = 0; i < lobbies.size(); i++) {
-			final int l = i;
-			TextButtonComponent lobbyButton = new TextButtonComponent(
-					() -> {lobbySelect(l);}, Align.BL, 300, 300, f, 0.5f, lobbies.get(i));
-			lobby_buttons.add(lobbyButton);
-			this.inputHandlers.add(lobby_buttons.get(i));
-		}
+
 	}
 
 	/**
@@ -104,6 +103,21 @@ public class LobbyUI extends UI implements InputPipeMulti {
 			lobby_buttons.get(i).setSelected(false);
 		}
 		lobby_buttons.get(lobby).setSelected(true);
+	}
+
+	private void refresh(ArrayList<LobbyInfo> lobs) {
+		lobbies = lobs;
+		lobby_buttons.clear();
+		this.inputHandlers.clear();
+		for (int i = 0; i < lobbies.size(); i++) {
+			final int l = i;
+			TextButtonComponent lobbyButton = new TextButtonComponent(
+					() -> {lobbySelect(l);}, Align.BL, 300, 300, f, 0.5f, lobbies.get(i));
+			lobby_buttons.add(lobbyButton);
+			this.inputHandlers.add(lobby_buttons.get(i));
+		}
+		this.inputHandlers.add(joinButton);
+		this.inputHandlers.add(backButton);
 	}
 
 	@Override

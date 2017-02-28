@@ -54,6 +54,7 @@ public class TextButtonComponent extends UIComponent {
 	public TextButtonComponent(Runnable _callback, Align _a, float _x, float _y, Font _f, float scale, LobbyInfo lobbyInfo) {
 
 		this.callback = _callback;
+		this.a = _a;
 		this.x = _x;
 		this.y = _y;
 		this.f = _f;
@@ -115,10 +116,10 @@ public class TextButtonComponent extends UIComponent {
 		// Draw the inner box
 		r.drawBox(a, x+border_width, y+border_width, BOX_W-2*border_width, BOX_H-2*border_width, box_colour);
 		// Draw the name of the lobby
-		r.drawText(f, lobbyInfo.getLobbyName(), Align.TL, false, x+15, y-2, scale);
+		r.drawText(f, lobbyInfo.getLobbyName(), a, false, x+15, y-2, scale);
 		// Draw the current and max number of players
 		// TODO: display correct number of players in the lobby
-		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players", Align.TL, false, x+460, y-2, scale);
+		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players", a, false, x+460, y-2, scale);
 	}
 
 	/**
