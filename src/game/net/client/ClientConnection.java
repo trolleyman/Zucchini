@@ -168,6 +168,11 @@ public class ClientConnection implements IClientConnection {
 	}
 	
 	@Override
+	public String getName() {
+		return name;
+	}
+	
+	@Override
 	public void setHandler(IClientConnectionHandler cch) {
 		synchronized (cchLock) {
 			this.cch = cch;

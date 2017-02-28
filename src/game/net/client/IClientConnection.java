@@ -49,6 +49,11 @@ public interface IClientConnection {
 	void setHandler(IClientConnectionHandler cch);
 	
 	/**
+	 * Gets the name of the current user
+	 */
+	String getName();
+	
+	/**
 	 * Gets the list of lobbies from the server
 	 * @param successCallback Called if succesfully received the lobbies info
 	 * @param errorCallback Called if an error occurs
