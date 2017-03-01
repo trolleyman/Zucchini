@@ -136,7 +136,8 @@ public class Lobby {
 			try {
 				Thread.sleep(5);
 			} catch (InterruptedException e) {
-				System.err.println("Warning: Sleep Thread Interrupted: " + e.toString());
+				// This is fine
+				//System.err.println("Warning: Sleep Thread Interrupted: " + e.toString());
 			}
 		}
 	}

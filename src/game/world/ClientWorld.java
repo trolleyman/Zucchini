@@ -154,7 +154,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			clientUpdateArgs.map = this.map;
 			clientUpdateArgs.audio = this.audio;
 			
-			for (Entity e : this.bank.entities)
+			for (Entity e : this.bank.entities.values())
 				e.clientUpdate(clientUpdateArgs);
 		}
 	}
@@ -197,7 +197,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.enableStencil(1);
 		
 		// Render entities
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			e.render(r);
 		}
 		
@@ -312,7 +312,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		this.map.render(r);
 		
 		// Render entities
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			e.render(r);
 		}
 		

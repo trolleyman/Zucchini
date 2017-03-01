@@ -132,7 +132,7 @@ public class ServerWorld extends World implements Cloneable {
 		this.bank.processCache(clients);
 		
 		// Update entities
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			e.update(ua);
 		}
 		
@@ -154,7 +154,7 @@ public class ServerWorld extends World implements Cloneable {
 		this.bank.processCache(clients);
 		
 		// *DING-DONG* *DING-DONG* bring out yer dead
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			if (e.getHealth() <= 0.0f) {
 				e.death(ua);
 				this.bank.removeEntityCached(e.getId());
@@ -167,7 +167,7 @@ public class ServerWorld extends World implements Cloneable {
 				continue;
 			swc.fullUpdate = false;
 			
-			for (Entity e : this.bank.entities) {
+			for (Entity e : this.bank.entities.values()) {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
@@ -176,9 +176,6 @@ public class ServerWorld extends World implements Cloneable {
 				}
 			}
 		}
-		
-		// Check sanity
-		bank.sanityCheck();
 	}
 	
 	@Override
