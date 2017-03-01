@@ -134,10 +134,11 @@ public class Player extends MovableEntity {
 		}
 		Util.popTemporaryVector2f();
 		
-		this.heldItem.position.set(this.position);
-		this.heldItem.angle = this.angle;
-		this.heldItem.update(ua);
-		
+		if (this.heldItem != null) {
+			this.heldItem.position.set(this.position);
+			this.heldItem.angle = this.angle;
+			this.heldItem.update(ua);
+		}
 		
 		if (!soundSourceInit) {
 			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
@@ -182,9 +183,11 @@ public class Player extends MovableEntity {
 		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 		
-		this.heldItem.position.set(this.position);
-		this.heldItem.angle = this.angle;
-		this.heldItem.render(r);
+		if (this.heldItem != null) {
+			this.heldItem.position.set(this.position);
+			this.heldItem.angle = this.angle;
+			this.heldItem.render(r);
+		}
 	}
 	
 	/**
