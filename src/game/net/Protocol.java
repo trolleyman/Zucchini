@@ -16,9 +16,6 @@ import game.world.update.EntityUpdate;
 import java.util.ArrayList;
 
 public class Protocol {
-	private static Gson gson = new GsonBuilder().create();
-	private static JsonParser parser = new JsonParser();
-	
 	private static final String TCP_CONNECT_REQUEST = "[CONNECT]";
 	private static final String TCP_CONNECT_RESPONSE_ACC = "[CONNECT_ACC]";
 	private static final String TCP_CONNECT_RESPONSE_REJ = "[CONNECT_REJ]";
@@ -47,14 +44,14 @@ public class Protocol {
 	private static final String TAG_AUDIO_EVENT         = "[AUDIO]";
 	private static final String TAG_LOBBIES_REQUEST     = "[LOBREQ]";
 	private static final String TAG_LOBBIES_RESPONSE    = "[LOBRES]";
-	private static final String TAG_FULL_UPDATE_REQUEST = "[FULL_UPDATE_REQU]";
+	private static final String TAG_FULL_UPDATE_REQUEST = "[FULL_UPDATE_REQ]";
 	private static final String TAG_LOBBY_JOIN_REQUEST  = "[LOBBY_JOIN_REQ]";
 	private static final String TAG_LOBBY_JOIN_ACCEPT   = "[LOBBY_JOIN_ACC]";
 	private static final String TAG_LOBBY_JOIN_REJECT   = "[LOBBY_JOIN_REJ]";
 	private static final String TAG_LOBBY_UPDATE        = "[LOBBY_UPDATE]";
 	private static final String TAG_READY_TOGGLE        = "[READY_TOGGLE]";
 	private static final String TAG_WORLD_START         = "[WORLD_START]";
-	private static final String TAG_LOBBY_LEAVE_REQUEST = "[LOBBY_LEAVE_REQU]";
+	private static final String TAG_LOBBY_LEAVE_REQUEST = "[LOBBY_LEAVE_REQ]";
 	private static final String TAG_LOBBY_LEAVE_NOTIFY  = "[LOBBY_LEAVE_NOTIFY]";
 	
 	/**************** TCP Connection Request ****************/
@@ -165,7 +162,7 @@ public class Protocol {
 	
 	/**************** Add Entity ****************/
 	public static String sendAddEntity(Entity e) {
-		return TAG_ADD_ENTITY + ObjectCodec.genToString(e);
+		return TAG_ADD_ENTITY + ObjectCodec.entityToString(e);
 	}
 	
 	public static boolean isAddEntity(String s) {
@@ -174,12 +171,12 @@ public class Protocol {
 	
 	public static Entity parseAddEntity(String s) throws ProtocolException {
 		String es = s.substring(TAG_ADD_ENTITY.length());
-		return ObjectCodec.genFromString(es);
+		return ObjectCodec.entityFromString(es);
 	}
 	
 	/**************** Update Entity ****************/
 	public static String sendUpdateEntity(EntityUpdate eu) {
-		return TAG_UPDATE_ENTITY + ObjectCodec.genToString(eu);
+		return TAG_UPDATE_ENTITY + ObjectCodec.entityUpdateToString(eu);
 	}
 	
 	public static boolean isUpdateEntity(String s) {
@@ -188,7 +185,7 @@ public class Protocol {
 	
 	public static EntityUpdate parseUpdateEntity(String s) throws ProtocolException {
 		String es = s.substring(TAG_UPDATE_ENTITY.length());
-		return ObjectCodec.genFromString(es);
+		return ObjectCodec.entityUpdateFromString(es);
 	}
 	
 	/**************** Remove Entity ****************/
@@ -206,7 +203,7 @@ public class Protocol {
 	
 	/**************** Audio Event ****************/
 	public static String sendAudioEvent(AudioEvent e) {
-		return TAG_AUDIO_EVENT + ObjectCodec.genToString(e);
+		return TAG_AUDIO_EVENT + ObjectCodec.audioEventToString(e);
 	}
 	
 	public static boolean isAudioEvent(String s) {
@@ -215,7 +212,7 @@ public class Protocol {
 	
 	public static AudioEvent parseAudioEvent(String s) throws ProtocolException {
 		s = s.substring(TAG_AUDIO_EVENT.length());
-		return ObjectCodec.genFromString(s);
+		return ObjectCodec.audioEventFromString(s);
 	}
 	
 	/**************** Lobbies Request ****************/
@@ -231,7 +228,7 @@ public class Protocol {
 	public static String sendLobbiesResponse(ArrayList<LobbyInfo> lobbies) {
 		JsonArray json = new JsonArray();
 		for (LobbyInfo lobby : lobbies)
-			json.add(gson.toJsonTree(lobby));
+			json.add(ObjectCodec.getGson().toJsonTree(lobby));
 		
 		return TAG_LOBBIES_RESPONSE + json.toString();
 	}
@@ -245,10 +242,10 @@ public class Protocol {
 		
 		try {
 			ArrayList<LobbyInfo> ret = new ArrayList<>();
-			JsonArray array = parser.parse(s).getAsJsonArray();
+			JsonArray array = ObjectCodec.getParser().parse(s).getAsJsonArray();
 			for (int i = 0; i < array.size(); i++) {
 				JsonElement e = array.get(i);
-				LobbyInfo info = gson.fromJson(e, LobbyInfo.class);
+				LobbyInfo info = ObjectCodec.getGson().fromJson(e, LobbyInfo.class);
 				ret.add(info);
 			}
 			return ret;
@@ -324,7 +321,7 @@ public class Protocol {
 	
 	/**************** Lobby Update ****************/
 	public static String sendLobbyUpdate(LobbyInfo info) {
-		return TAG_LOBBY_UPDATE + gson.toJson(info);
+		return TAG_LOBBY_UPDATE + ObjectCodec.getGson().toJson(info);
 	}
 	
 	public static boolean isLobbyUpdate(String msg) {
@@ -337,7 +334,7 @@ public class Protocol {
 		
 		String nmsg = msg.substring(TAG_LOBBY_UPDATE.length());
 		try {
-			return gson.fromJson(nmsg, LobbyInfo.class);
+			return ObjectCodec.getGson().fromJson(nmsg, LobbyInfo.class);
 		} catch (JsonParseException | IllegalStateException e) {
 			throw new ProtocolException("Invalid lobby update: " + msg, e);
 		}
@@ -354,7 +351,7 @@ public class Protocol {
 	
 	/**************** World Start Packet ****************/
 	public static String sendWorldStart(WorldStart start) {
-		return TAG_WORLD_START + '[' + start.playerId + ']' + gson.toJson(start.map);
+		return TAG_WORLD_START + '[' + start.playerId + ']' + ObjectCodec.getGson().toJson(start.map);
 	}
 	
 	public static boolean isWorldStart(String msg) {
@@ -379,7 +376,7 @@ public class Protocol {
 		}
 		
 		String sMap = s.substring(i+1);
-		Map map = gson.fromJson(sMap, Map.class);
+		Map map = ObjectCodec.getGson().fromJson(sMap, Map.class);
 		return new WorldStart(map, playerId);
 	}
 	

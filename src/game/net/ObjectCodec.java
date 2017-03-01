@@ -3,21 +3,30 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
 import game.world.Team;
 import game.world.entity.Entity;
 import game.world.entity.Item;
 import game.world.entity.weapon.HandgunBullet;
+import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class ObjectCodec {
-	private static Gson gson = new GsonBuilder()
+	private static final ThreadLocal<Gson> GSON = ThreadLocal.withInitial(() ->
+		new GsonBuilder()
 			.registerTypeAdapter(Item.class, new AbstractClassAdapter<Item>(Item.class).nullSafe())
-			//.registerTypeAdapter(Entity.class, new AbstractClassAdapter<Entity>(Entity.class).nullSafe())
-			.create();
+			.registerTypeAdapter(Entity.class, new AbstractClassAdapter<Entity>(Entity.class).nullSafe())
+			.registerTypeAdapter(EntityUpdate.class, new AbstractClassAdapter<EntityUpdate>(EntityUpdate.class).nullSafe())
+			.registerTypeAdapter(AudioEvent.class, new AbstractClassAdapter<Entity>(AudioEvent.class).nullSafe())
+			.create()
+	);
+	
+	private static final ThreadLocal<JsonParser> PARSER = ThreadLocal.withInitial(JsonParser::new);
 	
 	private static class AbstractClassAdapter<T> extends TypeAdapter<T> {
 		private Class clazz;
@@ -47,7 +56,7 @@ public class ObjectCodec {
 				throw new JsonParseException("No 'data' field.");
 			
 			@SuppressWarnings("unchecked")
-			T ret = (T) gson.getAdapter(c).read(jsonReader);
+			T ret = (T) GSON.get().getAdapter(c).read(jsonReader);
 			jsonReader.endObject();
 			return ret;
 		}
@@ -61,66 +70,63 @@ public class ObjectCodec {
 			jsonWriter.name("type");
 			jsonWriter.value(typeName);
 			jsonWriter.name("data");
-			TypeAdapter subAdapter = gson.getAdapter(t.getClass());
+			TypeAdapter subAdapter = GSON.get().getAdapter(t.getClass());
 			subAdapter.write(jsonWriter, t);
 			jsonWriter.endObject();
 		}
 	}
 	
-	public synchronized static <T> String toJson(T t) {
-		return gson.toJson(t);
+	/**
+	 * Gets the thread-local Gson instance
+	 */
+	public static Gson getGson() {
+		return GSON.get();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public synchronized static <T> T fromJson(String s) {
-		return (T) gson.fromJson(s, s.getClass());
+	/**
+	 * Gets the thread-local JsonParser instance
+	 */
+	public static JsonParser getParser() {
+		return PARSER.get();
 	}
 	
-	public synchronized static <T> T genFromString(String s) throws ProtocolException {
+	private static <T> String genToSting(T t, Class<T> clazz) {
+		return GSON.get().toJson(t, clazz);
+	}
+	private static <T> T genFromString(String s, Class<T> clazz) throws ProtocolException {
 		try {
-			JsonElement o = new JsonParser().parse(s);
-			Type type = typeForName(get(o, "type"));
-			JsonElement data = get(o, "data");
-			return gson.fromJson(data, type);
-		} catch (IllegalStateException | ClassCastException | JsonParseException e) {
-			throw new ProtocolException("Invalid JSON: " + s, e);
+			return GSON.get().fromJson(s, clazz);
+		} catch (JsonSyntaxException e) {
+			throw new ProtocolException(e);
 		}
 	}
 	
-	public synchronized static <T> String genToString(T t) {
-		String name = t.getClass().getName();
-		JsonObject o = new JsonObject();
-		o.addProperty("type", name);
-		o.add("data", gson.toJsonTree(t));
-		return o.toString();
+	public static String entityToString(Entity e) {
+		return genToSting(e, Entity.class);
+	}
+	public static Entity entityFromString(String s) throws ProtocolException {
+		return genFromString(s, Entity.class);
 	}
 	
-	private static Type typeForName(final JsonElement typeElem) {
-		try {
-			return Class.forName(typeElem.getAsString());
-		} catch (ClassNotFoundException e) {
-			throw new JsonParseException("Type not found", e);
-		}
+	public static String entityUpdateToString(EntityUpdate e) {
+		return genToSting(e, EntityUpdate.class);
+	}
+	public static EntityUpdate entityUpdateFromString(String s) throws ProtocolException {
+		return genFromString(s, EntityUpdate.class);
 	}
 	
-	private static JsonElement get(final JsonElement e, String name) {
-		if (!e.isJsonObject()) {
-			throw new JsonParseException("Could not find '" + name + "' in JSON Object");
-		} else {
-			JsonObject o = e.getAsJsonObject();
-			JsonElement member = o.get(name);
-			if (member == null) {
-				throw new JsonParseException("Could not find '" + name + "' in JSON Object");
-			}
-			return member;
-		}
+	public static String audioEventToString(AudioEvent e) {
+		return genToSting(e, AudioEvent.class);
+	}
+	public static AudioEvent audioEventFromString(String s) throws ProtocolException {
+		return genFromString(s, AudioEvent.class);
 	}
 	
 	public static void main(String[] args) throws ProtocolException {
 		HandgunBullet b = new HandgunBullet(new Vector2f(2.0f, 3.0f), Team.START_FREE_TEAM, 1.0f);
-		String s = ObjectCodec.genToString(b);
+		String s = GSON.get().toJson(b, Entity.class);
 		System.out.println("JSON: " + s);
-		Entity e = ObjectCodec.genFromString(s);
+		Entity e = GSON.get().fromJson(s, Entity.class);
 		boolean val = e instanceof HandgunBullet;
 		System.out.println("e instanceof HangunBullet == " + val);
 		assert(val);
