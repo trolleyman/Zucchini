@@ -98,5 +98,18 @@ public class TestMap extends Map {
 			prevX = x;
 			prevY = y;
 		}
+<<<<<<< Updated upstream
+=======
+		
+		initialEntities.add(new Pickup(new Vector2f(CT, RS), new MachineGun(new Vector2f(0.0f, 0.0f))));
+		initialEntities.add(new Pickup(new Vector2f(CP, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f))));
+	
+		for (float x = 1; x < 3; x += 0.5 ){
+			for (float y = 1; y < 3; y += 0.5 ){
+				initialEntities.add(new Zombie(new Vector2f(x, y)));
+			}
+		}
+		
+>>>>>>> Stashed changes
 	}
 }

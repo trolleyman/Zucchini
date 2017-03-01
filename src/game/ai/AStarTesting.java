@@ -10,6 +10,7 @@ public class AStarTesting {
 
 	public static void main(String[] args) {
 		
+<<<<<<< Updated upstream
 		
 		ArrayList<Wall> walls = new TestMap().walls;
 		walls = improvePrecision(5, walls);
@@ -30,6 +31,18 @@ public class AStarTesting {
 		
 		for (int y = map[0].length -1 ; y > -1 ; y --){
 			for (int x = 0; x < map.length ; x ++){
+=======
+		PathFindingMap map = new PathFindingMap(new TestMap(), 10);
+		
+		ArrayList<Node> node = new ArrayList<Node>();
+		node = new AStar(new Node(5,5), new Node((int)map.width - 5,(int)map.height -5),map.grid).findRoute();
+		
+		System.out.println(node);
+		
+			
+		for (int y = map.grid[0].length -1 ; y > -1 ; y --){
+			for (int x = 0; x < map.grid.length ; x ++){
+>>>>>>> Stashed changes
 				
 				
 				if (!node.isEmpty() && node.contains(new Node(x,y))){

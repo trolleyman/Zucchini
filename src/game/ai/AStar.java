@@ -72,6 +72,8 @@ public class AStar {
 			for (int y = 0; y < height; y++) {
 				if (walkable[x][y]){
 					closeSet.add(new Node(x,y));
+
+				
 				}
 		
 			}
@@ -110,13 +112,18 @@ public class AStar {
 					if (x < width && x >= 0 && y >= 0 && y < height) {
 							
 					
+					
 						
 						Node neighbour = new Node(x, y);
-					
+						
+						
 						if (closeSet.contains(neighbour)) {
 							// go to next loop
 							continue;
+							
 						}
+
+					
 			
 						int tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + 1;
 						if (!openSet.contains(neighbour)) {

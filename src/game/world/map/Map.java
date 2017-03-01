@@ -28,6 +28,20 @@ public class Map {
 	 */
 	protected Map(ArrayList<Wall> _walls) {
 		this.walls = _walls;
+<<<<<<< Updated upstream
+=======
+		this.initialEntities = _initialEntities;
+		this.pathFindingScale = _pathFindingScale;
+	}
+	
+	/**
+	 * Gets the cached current pathfinding map
+	 */
+	public PathFindingMap getPathFindingMap() {
+		if (pathFindingMap == null)
+			this.pathFindingMap = new PathFindingMap(this, 15);
+		return pathFindingMap;
+>>>>>>> Stashed changes
 	}
 	
 	/**
