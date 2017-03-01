@@ -71,7 +71,32 @@ public class EntityBank {
 	public EntityBank() {
 		this(new ArrayList<>());
 	}
-
+	
+	/**
+	 * Checks the structure of the EntitiyBank. If it is not valid, throws a RuntimeException.
+	 * (This is fatal and indicates a bug in the code somewhere)
+	 * @throws RuntimeException when the EntityBank is invalid.
+	 */
+	public synchronized void sanityCheck() throws RuntimeException {
+		// Check that list of entities is sorted & that no entity has Entity.INVALID_ID
+		int prevId = -1;
+		int i = 0;
+		for (Entity e : entities) {
+			int id = e.getId();
+			if (id == Entity.INVALID_ID)
+				throw new RuntimeException("EntityBank is invalid: entitiy at index " + i
+						+ " has invalid id: " + entities);
+			else if (id <= prevId)
+				throw new RuntimeException("EntityBank is invalid: entitiy at index " + i
+						+ "'s id (" + id + ") <= the previous id (" + prevId + "): " + entities);
+			else if (id >= nextEntityId)
+				throw new RuntimeException("EntityBank is invalid: entitiy at index " + i
+						+ "'s id (" + id + ") >= nextEntityId (" + nextEntityId + "): " + entities);
+			prevId = id;
+			i++;
+		}
+	}
+	
 	/**
 	 * Process the cached records.
 	 */
@@ -195,7 +220,7 @@ public class EntityBank {
 			// Insert entity at the end of the array
 			int id = this.nextEntityId++;
 			e.setId(id);
-			this.entities.add(e);
+			this.addEntity(e);
 		} else {
 			// Insert entity somewhere in the array
 			int i = getEntityInsertIndex(e.getId());
@@ -205,10 +230,7 @@ public class EntityBank {
 				entities.set(i, e);
 			} else {
 				// Insert the entity into the array
-				if (i == entities.size() - 1)
-					entities.add(i + 1, e);
-				else
-					entities.add(i, e);
+				entities.add(i, e);
 			}
 		}
 		return e.getId();
@@ -263,6 +285,11 @@ public class EntityBank {
 	 * @return The index to insert the entity into
 	 */
 	private int getEntityInsertIndex(int id) {
+		if (this.entities.size() == 0)
+			return 0;
+		else if (id > this.entities.get(this.entities.size() - 1).getId())
+			return this.entities.size();
+		
 		int min = 0;
 		int max = this.entities.size() - 1;
 		

@@ -259,6 +259,10 @@ public class AudioManager implements IAudioManager{
     @Override
     public void continueLoop(int sourceID, Vector2f position){
     	SoundSource source = getSoundSource(sourceID);
+	    if (source == null) {
+		    System.err.println("Warning: invalid sourceID in continueLoop: " + sourceID);
+		    return;
+	    }
     	source.setPosition(position);
     	if (!source.isPlaying()){
     		source.play();
@@ -288,6 +292,10 @@ public class AudioManager implements IAudioManager{
 	public void stopLoop(int sourceID) {
     	System.out.println("getting sourceID: " +sourceID);
     	SoundSource source = getSoundSource(sourceID);
+	    if (source == null) {
+		    System.err.println("Warning: invalid sourceID in stopLoop: " + sourceID);
+		    return;
+	    }
     	System.out.println("source: "+source);
     	System.out.println("Stopping sourceID: " +source.getSourceId());
     	source.stop();

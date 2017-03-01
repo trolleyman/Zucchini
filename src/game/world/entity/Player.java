@@ -12,6 +12,7 @@ import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.update.AngleUpdate;
 import game.world.update.PositionUpdate;
+import game.world.update.SetHeldItem;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -86,16 +87,8 @@ public class Player extends MovableEntity {
 		return 10.0f;
 	}
 	
-	public void pickupItem(EntityBank bank, Item item) {
-		this.dropHeldItem(bank, this.position);
+	public void setHeldItem(Item item) {
 		this.heldItem = item;
-		this.heldItem.setOwnerTeam(this.getTeam());
-	}
-	
-	public void dropHeldItem(EntityBank bank, Vector2f position) {
-		if (this.heldItem != null)
-			bank.addEntityCached(new Pickup(new Vector2f(position), this.heldItem));
-		this.heldItem = null;
 	}
 	
 	@Override
@@ -216,13 +209,15 @@ public class Player extends MovableEntity {
 		case BEGIN_USE: {
 			if (!this.beganUse) {
 				this.beganUse = true;
-				this.heldItem.beginUse();
+				if (this.heldItem != null)
+					this.heldItem.beginUse();
 			}
 		}
 		break;
 		case END_USE: {
 			this.beganUse = false;
-			this.heldItem.endUse();
+			if (this.heldItem != null)
+				this.heldItem.endUse();
 		}
 		break;
 		case PICKUP: {
@@ -242,6 +237,20 @@ public class Player extends MovableEntity {
 			break;
 		}
 		}
+	}
+	
+	private void pickupItem(EntityBank bank, Item item) {
+		this.dropHeldItem(bank, this.position);
+		item.setOwnerTeam(this.getTeam());
+		bank.updateEntityCached(new SetHeldItem(this.getId(), item));
+		this.heldItem = item;
+	}
+	
+	private void dropHeldItem(EntityBank bank, Vector2f position) {
+		if (this.heldItem != null)
+			bank.addEntityCached(new Pickup(new Vector2f(position), this.heldItem));
+		bank.updateEntityCached(new SetHeldItem(this.getId(), null));
+		this.heldItem = null;
 	}
 	
 	@Override

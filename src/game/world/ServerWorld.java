@@ -52,6 +52,10 @@ public class ServerWorld extends World implements Cloneable {
 		super(map, bank);
 		
 		this.audio = new ServerAudioManager();
+		
+		for (Entity e : map.getInitialEntities()) {
+			this.bank.addEntityCached(e);
+		}
 	}
 	
 	/**
@@ -172,6 +176,9 @@ public class ServerWorld extends World implements Cloneable {
 				}
 			}
 		}
+		
+		// Check sanity
+		bank.sanityCheck();
 	}
 	
 	@Override
