@@ -31,8 +31,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	private LobbyInfo newLobbyInfo = null;
 	
-	private boolean sendLobbyLeave = false;
-	
 	private double time = 0.0f;
 	
 	private Texture loadingTex;
@@ -74,7 +72,11 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			public void handleKey(int key, int scancode, int action, int mods) {
 				if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_Q) {
 					// Send lobby leave request - this will be button later
-					sendLobbyLeave = true;
+					try {
+						connection.sendLobbyLeaveRequest();
+					} catch (ProtocolException e) {
+						connection.close();
+					}
 				}
 			}
 		});
@@ -142,14 +144,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		this.time += dt;
 		lobbyInfo = newLobbyInfo;
 		this.toggleReadyButton.update(dt);
-		
-		if (this.sendLobbyLeave) {
-			try {
-				connection.sendLobbyLeaveRequest();
-			} catch (ProtocolException e) {
-				connection.close();
-			}
-		}
 	}
 	
 	@Override
