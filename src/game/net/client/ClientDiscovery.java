@@ -1,12 +1,15 @@
 package game.net.client;
 
 import java.net.*;
+import java.util.Enumeration;
+import java.util.List;
 
 import game.exception.NameException;
 import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.net.TCPConnection;
 import game.net.UDPConnection;
+import sun.nio.ch.Net;
 
 public class ClientDiscovery {
 	
@@ -23,12 +26,34 @@ public class ClientDiscovery {
 		System.out.println("[UDP Discovery] " + name + ": " + msg);
 	}
 	
-	public void tryDiscover() throws NameException, ProtocolException {
+	private void broadcastDiscoveryPacket(UDPConnection broadcastConn) throws ProtocolException {
 		// Broadcast discovery packet
-		UDPConnection broadcastConn = new UDPConnection();
 		InetSocketAddress broadcastAddress = new InetSocketAddress("255.255.255.255", Protocol.UDP_DISCOVERY_PORT);
 		broadcastConn.sendString(Protocol.sendDiscoveryRequest(), broadcastAddress);
-		out("Sent discovery packet to " + broadcastAddress + ", waiting for response...");
+		out("Sent discovery packet to " + broadcastAddress + "...");
+		
+		try {
+			Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+			while (en.hasMoreElements()) {
+				NetworkInterface ni = en.nextElement();
+				List<InterfaceAddress> ints = ni.getInterfaceAddresses();
+				for (InterfaceAddress addr : ints) {
+					InetAddress inetAddr = addr.getBroadcast();
+					if (inetAddr == null)
+						continue;
+					broadcastAddress = new InetSocketAddress(inetAddr, Protocol.UDP_DISCOVERY_PORT);
+					broadcastConn.sendString(Protocol.sendDiscoveryRequest(), broadcastAddress);
+					out("Sent discovery packet to " + broadcastAddress + "...");
+				}
+			}
+		} catch (SocketException e) {
+			throw new ProtocolException("Could not open NetworkInterface", e);
+		}
+	}
+	
+	public void tryDiscover() throws NameException, ProtocolException {
+		UDPConnection broadcastConn = new UDPConnection();
+		broadcastDiscoveryPacket(broadcastConn);
 		
 		// Wait for a response
 		while (true) {
@@ -37,7 +62,7 @@ public class ClientDiscovery {
 			
 			// We have a response
 			InetAddress serverAddress = recv.getAddress();
-			out("Recv broadcast response from " + serverAddress.getHostAddress());
+			out("Recv broadcast response from " + recv.getSocketAddress());
 			
 			// Decode packet
 			String msg = broadcastConn.decode(recv);
