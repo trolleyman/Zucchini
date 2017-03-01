@@ -2,10 +2,7 @@ package game.net.server;
 
 import game.LobbyInfo;
 import game.exception.ProtocolException;
-import game.net.Protocol;
-import game.net.TCPConnection;
-import game.net.Tuple;
-import game.net.UDPConnection;
+import game.net.*;
 import game.world.map.Map;
 
 import java.io.IOException;
@@ -25,6 +22,9 @@ public class Server implements Runnable {
 	/** Lobby Name -> Lobby */
 	private final HashMap<String, Lobby> lobbies = new HashMap<>();
 	
+	/** Global UDPSource */
+	private UDPSource udpSource;
+	
 	public Server() {
 		
 	}
@@ -38,6 +38,14 @@ public class Server implements Runnable {
 		
 		Thread tcpServer = new Thread(this::runTcpServer, "TCP Connection Server");
 		tcpServer.start();
+		
+		try {
+			udpSource = new UDPSource(new UDPConnection(Protocol.UDP_SERVER_PORT));
+		} catch (ProtocolException e) {
+			System.err.println("Error while opening UDP socket: " + e);
+			e.printStackTrace();
+			return;
+		}
 		
 		createLobby("TestLobby", 2, 4);
 		createLobby("SmallTestLobby", 1, 2);
@@ -120,8 +128,7 @@ public class Server implements Runnable {
 			
 			outTCP("[Accept]: " + sock.getRemoteSocketAddress() + ": name='" + name + "', UDP address='" + address + "'");
 			
-			UDPConnection udpConn = new UDPConnection(Protocol.UDP_SERVER_PORT);
-			udpConn.connect(address);
+			UDPRelay udpRelay = new UDPRelay(udpSource, address);
 			
 			String error = null;
 			synchronized (lock) {
@@ -133,7 +140,7 @@ public class Server implements Runnable {
 					
 					// Then add client info, as if there is an exception when sending the response,
 					// this will not accept the client
-					ClientInfo ci = new ClientInfo(name, tcpConn, udpConn);
+					ClientInfo ci = new ClientInfo(name, tcpConn, udpRelay);
 					this.onClientAccept(ci);
 				}
 			}
@@ -164,6 +171,7 @@ public class Server implements Runnable {
 	
 	private void onClientError(String name, ProtocolException e) {
 		System.err.println("[Net]: " + name + " disconnected: " + e.toString());
+		//e.printStackTrace();
 	}
 	
 	private void onClientClose(String name) {

@@ -31,7 +31,7 @@ public class ClientHandler {
 		tcpHandler.start();
 		
 		Thread udpHandler = new Thread(this::runUdpHandler, "UDP ClientHandler: "
-				+ info.udpConn.getSocket().getRemoteSocketAddress());
+				+ info.udpConn.getSocketAddress());
 		udpHandler.start();
 	}
 	
@@ -107,7 +107,7 @@ public class ClientHandler {
 		synchronized (this) {
 			if (isClosed())
 				return;
-			System.out.println("[Net]: CLOSE " + info.tcpConn.getSocket().getRemoteSocketAddress() + " + " + info.udpConn.getSocket().getRemoteSocketAddress());
+			System.out.println("[Net]: CLOSE " + info.tcpConn.getSocket().getRemoteSocketAddress() + " + " + info.udpConn.getSocketAddress());
 			closed = true;
 			info.tcpConn.close();
 			info.udpConn.close();

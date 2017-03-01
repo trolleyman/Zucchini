@@ -48,6 +48,23 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	public LobbyWaitUI(IClientConnection connection, AudioManager audio, TextureBank tb, String lobbyName) {
 		super(connection, audio);
 		
+		this.nextUI = this;
+		
+		this.loadingTex = tb.getTexture("loading.png");
+		this.readyTex   = tb.getTexture("ready.png");
+		this.unreadyTex = tb.getTexture("unready.png");
+		
+		this.lobbyName = lobbyName;
+		
+		Texture defaultTex = tb.getTexture("toggleReadyDefault.png");
+		Texture hoverTex = tb.getTexture("toggleReadyHover.png");
+		Texture pressedTex = tb.getTexture("toggleReadyPressed.png");
+		
+		this.toggleReadyButton = new ButtonComponent(
+				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
+		
+		this.inputHandlers.add(this.toggleReadyButton);
+		
 		connection.setHandler(new IClientConnectionHandler() {
 			@Override
 			public void processLobbyUpdate(LobbyInfo info) {
@@ -74,23 +91,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				nextUI = new GameUI(connection, audio, tb, world);
 			}
 		});
-		
-		this.nextUI = this;
-		
-		this.loadingTex = tb.getTexture("loading.png");
-		this.readyTex   = tb.getTexture("ready.png");
-		this.unreadyTex = tb.getTexture("unready.png");
-		
-		this.lobbyName = lobbyName;
-		
-		Texture defaultTex = tb.getTexture("toggleReadyDefault.png");
-		Texture hoverTex = tb.getTexture("toggleReadyHover.png");
-		Texture pressedTex = tb.getTexture("toggleReadyPressed.png");
-		
-		this.toggleReadyButton = new ButtonComponent(
-				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
-		
-		this.inputHandlers.add(this.toggleReadyButton);
 		
 		try {
 			connection.sendLobbyJoinRequest(this.lobbyName);

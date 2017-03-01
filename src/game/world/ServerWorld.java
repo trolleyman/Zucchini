@@ -168,6 +168,7 @@ public class ServerWorld extends World implements Cloneable {
 					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
 					// This is ok as ClientHandler takes care of this
+					break;
 				}
 			}
 		}

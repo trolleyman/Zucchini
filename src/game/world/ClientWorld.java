@@ -64,7 +64,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
-	/** This is the line of sight buffer. This is meant to be null. */
+	/** This is the line of sight buffer. */
 	private FloatBuffer losBuf = MemoryUtil.memAllocFloat(16);
 	
 	/** Audio Manager */
