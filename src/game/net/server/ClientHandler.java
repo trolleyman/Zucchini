@@ -17,7 +17,7 @@ public class ClientHandler {
 	
 	private volatile boolean closed = false;
 	
-	private boolean isDebugPrint = false;
+	private boolean isDebugPrint = true;
 	
 	public ClientHandler(ClientInfo info) {
 		this.info = info;

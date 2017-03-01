@@ -32,6 +32,8 @@ import static org.lwjgl.glfw.GLFW.*;
  * @author Callum
  */
 public class ClientWorld extends World implements InputHandler, IClientConnectionHandler {
+	private static final int NUM_REPEATS = 3;
+	
 	/** The ID of the player */
 	private int playerID;
 	/** The connection to the server */
@@ -56,6 +58,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	/** dt pool */
 	private double dtPool;
+	
+	private int dirtyActionNorth = NUM_REPEATS;
+	private int dirtyActionSouth = NUM_REPEATS;
+	private int dirtyActionEast  = NUM_REPEATS;
+	private int dirtyActionWest  = NUM_REPEATS;
+	private int dirtyActionAim   = NUM_REPEATS;
+	private int dirtyActionUse   = NUM_REPEATS;
 	
 	private Action actionNorth  = new Action(ActionType.END_MOVE_NORTH);
 	private Action actionSouth  = new Action(ActionType.END_MOVE_SOUTH);
@@ -109,12 +118,30 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			dtPool -= Util.DT_PER_SNAPSHOT_UPDATE;
 			// Send input
 			try {
-				connection.sendAction(actionNorth);
-				connection.sendAction(actionSouth);
-				connection.sendAction(actionEast);
-				connection.sendAction(actionWest);
-				connection.sendAction(actionAim);
-				connection.sendAction(actionUse);
+				if (dirtyActionNorth > 0) {
+					connection.sendAction(actionNorth);
+					dirtyActionNorth--;
+				}
+				if (dirtyActionSouth > 0) {
+					connection.sendAction(actionSouth);
+					dirtyActionSouth--;
+				}
+				if (dirtyActionEast > 0) {
+					connection.sendAction(actionEast);
+					dirtyActionEast--;
+				}
+				if (dirtyActionWest > 0) {
+					connection.sendAction(actionWest);
+					dirtyActionWest--;
+				}
+				if (dirtyActionAim > 0) {
+					connection.sendAction(actionAim);
+					dirtyActionAim--;
+				}
+				if (dirtyActionUse > 0) {
+					connection.sendAction(actionUse);
+					dirtyActionUse--;
+				}
 			} catch (ProtocolException e) {
 				// Ignore for now
 				e.printStackTrace();
@@ -201,10 +228,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Send input to server
 		if (action == GLFW_PRESS) { // Begin move
 			switch (key) {
-			case GLFW_KEY_W: actionNorth.setType(ActionType.BEGIN_MOVE_NORTH); break;
-			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); break;
-			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); break;
-			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); break;
+			case GLFW_KEY_W: actionNorth.setType(ActionType.BEGIN_MOVE_NORTH); dirtyActionNorth = NUM_REPEATS; break;
+			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); dirtyActionSouth = NUM_REPEATS; break;
+			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); dirtyActionEast  = NUM_REPEATS; break;
+			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); dirtyActionWest  = NUM_REPEATS; break;
 			case GLFW_KEY_E:
 				try {
 					connection.sendAction(new Action(ActionType.PICKUP));
@@ -215,10 +242,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 		} else if (action == GLFW_RELEASE) { // End move
 			switch (key) {
-			case GLFW_KEY_W: actionNorth.setType(ActionType.END_MOVE_NORTH); break;
-			case GLFW_KEY_S: actionSouth.setType(ActionType.END_MOVE_SOUTH); break;
-			case GLFW_KEY_D: actionEast .setType(ActionType.END_MOVE_EAST ); break;
-			case GLFW_KEY_A: actionWest .setType(ActionType.END_MOVE_WEST ); break;
+			case GLFW_KEY_W: actionNorth.setType(ActionType.END_MOVE_NORTH); dirtyActionNorth = NUM_REPEATS; break;
+			case GLFW_KEY_S: actionSouth.setType(ActionType.END_MOVE_SOUTH); dirtyActionSouth = NUM_REPEATS; break;
+			case GLFW_KEY_D: actionEast .setType(ActionType.END_MOVE_EAST ); dirtyActionEast  = NUM_REPEATS; break;
+			case GLFW_KEY_A: actionWest .setType(ActionType.END_MOVE_WEST ); dirtyActionWest  = NUM_REPEATS; break;
 			}
 		}
 	}
@@ -228,16 +255,21 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Send input to server
 		float angle = (float) Util.getAngle(windowW/2, windowH/2, xpos, ypos);
 		actionAim.setAngle(angle);
+		dirtyActionAim = NUM_REPEATS;
 	}
 	
 	@Override
 	public void handleMouseButton(int button, int action, int mods) {
 		// Send input to server
-		if (button == GLFW_MOUSE_BUTTON_1)
-			if (action == GLFW_PRESS)
+		if (button == GLFW_MOUSE_BUTTON_1) {
+			if (action == GLFW_PRESS) {
 				actionUse.setType(ActionType.BEGIN_USE);
-			else if (action == GLFW_RELEASE)
+				dirtyActionUse = NUM_REPEATS;
+			} else if (action == GLFW_RELEASE) {
 				actionUse.setType(ActionType.END_USE);
+				dirtyActionUse = NUM_REPEATS;
+			}
+		}
 	}
 
 	@Override
