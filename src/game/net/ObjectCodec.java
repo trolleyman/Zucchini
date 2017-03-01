@@ -3,6 +3,7 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import game.LobbyInfo;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
 import game.world.Team;

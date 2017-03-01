@@ -1,11 +1,18 @@
 package game;
 
+import com.google.gson.annotations.SerializedName;
+
 public class LobbyInfo {
+	@SerializedName("name")
 	public String lobbyName;
+	@SerializedName("min")
 	public int minPlayers;
+	@SerializedName("max")
 	public int maxPlayers;
 	/** The current countdown time. This is <0 if there is no countdown happening */
+	@SerializedName("cdn")
 	public final double countdownTime;
+	@SerializedName("ps")
 	public PlayerInfo[] players;
 	
 	public LobbyInfo(String _lobbyName, int _minPlayers, int _maxPlayers, double _countdownTime, PlayerInfo[] _players) {
