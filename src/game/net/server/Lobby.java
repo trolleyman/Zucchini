@@ -251,4 +251,21 @@ public class Lobby {
 			System.err.println("[UDP]: Warning: Unknown message from " + handler.getClientInfo().name + ": " + msg);
 		}
 	}
+	
+	/**
+	 * Returns the number of players currently in the lobby
+	 */
+	public int size() {
+		synchronized (clientsLock) {
+			return clients.size();
+		}
+	}
+	
+	/**
+	 * Destroys the lobby
+	 */
+	public void destroy() {
+		running = false;
+		lobbyHandler.interrupt();
+	}
 }

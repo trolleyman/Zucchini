@@ -210,6 +210,15 @@ public class Server implements Runnable {
 	private void createLobby(String lobbyName, int minPlayers, int maxPlayers) {
 		synchronized (lock) {
 			lobbies.put(lobbyName, new Lobby(lobbyName, minPlayers, maxPlayers, Map.createTestMap()));
+			System.out.println("[Net]: Lobby " + lobbyName + " created. (min=" + minPlayers + ", max=" + maxPlayers + ")");
+		}
+	}
+	
+	private void destroyLobby(Lobby lobby) {
+		synchronized (lock) {
+			lobbies.remove(lobby.lobbyName);
+			lobby.destroy();
+			System.out.println("[Net]: Lobby " + lobby.lobbyName + " destroyed.");
 		}
 	}
 	
@@ -224,6 +233,8 @@ public class Server implements Runnable {
 		synchronized (lock) {
 			lobby.removePlayer(handler.getClientInfo().name);
 			handler.getClientInfo().lobby = null;
+			if (lobby.size() == 0)
+				destroyLobby(lobby);
 		}
 	}
 	
