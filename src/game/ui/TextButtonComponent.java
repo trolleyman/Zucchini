@@ -116,10 +116,9 @@ public class TextButtonComponent extends UIComponent {
 		// Draw the inner box
 		r.drawBox(a, x+border_width, y+border_width, BOX_W-2*border_width, BOX_H-2*border_width, box_colour);
 		// Draw the name of the lobby
-		r.drawText(f, lobbyInfo.getLobbyName(), a, false, x+15, y-2, scale);
+		r.drawText(f, lobbyInfo.getLobbyName(), a, false, x+15, y-6, scale);
 		// Draw the current and max number of players
-		// TODO: display correct number of players in the lobby
-		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players", a, false, x+460, y-2, scale);
+		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players", a, false, x+460, y-6, scale);
 	}
 
 	/**

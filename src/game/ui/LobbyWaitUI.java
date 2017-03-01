@@ -38,6 +38,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private UI nextUI;
 	
 	private ButtonComponent toggleReadyButton;
+	private ButtonComponent leaveButton;
 	
 	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
@@ -78,8 +79,17 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		
 		this.toggleReadyButton = new ButtonComponent(
 				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
+
+		leaveButton = new ButtonComponent(
+				() -> { /* this.nextUI = new LobbyUI(connection, audio, tb); TODO: Implement leaving */ },
+				Align.BL, 100, 100,
+				tb.getTexture("leaveDefault.png"),
+				tb.getTexture("leaveHover.png"),
+				tb.getTexture("leavePressed.png")
+		);
 		
 		this.inputHandlers.add(this.toggleReadyButton);
+		this.inputHandlers.add(this.leaveButton);
 		
 		try {
 			connection.sendLobbyJoinRequest(this.lobbyName);
@@ -110,6 +120,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		this.time += dt;
 		lobbyInfo = newLobbyInfo;
 		this.toggleReadyButton.update(dt);
+		this.leaveButton.update(dt);
 	}
 	
 	@Override
@@ -124,9 +135,9 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				PlayerInfo playerInfo = lobbyInfo.players[i];
 				
 				r.drawText(font, playerInfo.team + ":",
-						Align.TR, false, PADDING + 30.0f, y, 1.0f);
+						Align.TR, false, PADDING + 100.0f, y, 1.0f);
 				r.drawText(font, playerInfo.name,
-						Align.TL, false, PADDING + 30.0f, y, 1.0f);
+						Align.TL, false, PADDING + 100.0f, y, 1.0f);
 				if (playerInfo.ready)
 					r.drawTexture(readyTex, Align.TR, r.getWidth() - PADDING, y);
 				else
@@ -136,8 +147,11 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			}
 			
 			toggleReadyButton.setX(r.getWidth()/2 - toggleReadyButton.getWidth()/2);
-			toggleReadyButton.setY(PADDING);
+			toggleReadyButton.setY(PADDING + 150);
 			toggleReadyButton.render(r);
+			leaveButton.setX(r.getWidth()/2 - leaveButton.getWidth()/2);
+			leaveButton.setY(PADDING);
+			leaveButton.render(r);
 			
 		} else if (error != null) {
 			// Error has occured
