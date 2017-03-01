@@ -47,13 +47,15 @@ public class Protocol {
 	private static final String TAG_AUDIO_EVENT         = "[AUDIO]";
 	private static final String TAG_LOBBIES_REQUEST     = "[LOBREQ]";
 	private static final String TAG_LOBBIES_RESPONSE    = "[LOBRES]";
-	private static final String TAG_FULL_UPDATE_REQUEST = "[FULL_UPDATE_REQ]";
+	private static final String TAG_FULL_UPDATE_REQUEST = "[FULL_UPDATE_REQU]";
 	private static final String TAG_LOBBY_JOIN_REQUEST  = "[LOBBY_JOIN_REQ]";
 	private static final String TAG_LOBBY_JOIN_ACCEPT   = "[LOBBY_JOIN_ACC]";
 	private static final String TAG_LOBBY_JOIN_REJECT   = "[LOBBY_JOIN_REJ]";
 	private static final String TAG_LOBBY_UPDATE        = "[LOBBY_UPDATE]";
 	private static final String TAG_READY_TOGGLE        = "[READY_TOGGLE]";
 	private static final String TAG_WORLD_START         = "[WORLD_START]";
+	private static final String TAG_LOBBY_LEAVE_REQUEST = "[LOBBY_LEAVE_REQU]";
+	private static final String TAG_LOBBY_LEAVE_NOTIFY  = "[LOBBY_LEAVE_NOTIFY]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {
@@ -379,5 +381,23 @@ public class Protocol {
 		String sMap = s.substring(i+1);
 		Map map = gson.fromJson(sMap, Map.class);
 		return new WorldStart(map, playerId);
+	}
+	
+	/**************** Lobby Leave Request ****************/
+	public static String sendLobbyLeaveRequest() {
+		return TAG_LOBBY_LEAVE_REQUEST;
+	}
+	
+	public static boolean isLobbyLeaveRequest(String msg) {
+		return msg.startsWith(TAG_LOBBY_LEAVE_REQUEST);
+	}
+	
+	/**************** Lobby Leave Notify ****************/
+	public static String sendLobbyLeaveNotify() {
+		return TAG_LOBBY_LEAVE_NOTIFY;
+	}
+	
+	public static boolean isLobbyLeaveNotify(String msg) {
+		return msg.startsWith(TAG_LOBBY_LEAVE_NOTIFY);
 	}
 }

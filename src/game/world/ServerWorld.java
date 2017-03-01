@@ -107,7 +107,7 @@ public class ServerWorld extends World implements Cloneable {
 			
 			if (swc.handler.getClientInfo().name.equals(name)) {
 				clients.remove(i);
-				bank.removeEntity(swc.playerId);
+				bank.removeEntityCached(swc.playerId);
 				break;
 			}
 		}

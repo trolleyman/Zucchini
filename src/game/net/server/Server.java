@@ -6,10 +6,7 @@ import game.net.*;
 import game.world.map.Map;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketAddress;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -122,9 +119,9 @@ public class Server implements Runnable {
 			outTCP("[Accept]: " + sock.getRemoteSocketAddress() + ": Accepting client...");
 			TCPConnection tcpConn = new TCPConnection(sock);
 			
-			Tuple<String, SocketAddress> pair = tcpConn.recvConnectionRequest();
+			Tuple<String, InetSocketAddress> pair = tcpConn.recvConnectionRequest();
 			String name = pair.getFirst();
-			SocketAddress address = pair.getSecond();
+			InetSocketAddress address = pair.getSecond();
 			
 			outTCP("[Accept]: " + sock.getRemoteSocketAddress() + ": name='" + name + "', UDP address='" + address + "'");
 			
@@ -166,36 +163,47 @@ public class Server implements Runnable {
 			ch.onUdpMessage((msg) -> handleUdpMessage(info.name, msg));
 			ch.start();
 			this.clients.put(info.name, ch);
+			
+			// Output debug infos
+			InetAddress addr = info.udpConn.getSocketAddress().getAddress();
+			int udpPort = info.udpConn.getSocketAddress().getPort();
+			int tcpPort = info.tcpConn.getSocket().getPort();
+			System.out.println("[Net]: " + info.name + " connected. "
+					+ "(TCP: " + addr + ":" + tcpPort + " & UDP: " + addr + ":" + udpPort + ")");
 		}
 	}
 	
 	private void onClientError(String name, ProtocolException e) {
-		System.err.println("[Net]: " + name + " disconnected: " + e.toString());
+		System.err.println("[Net]: " + name + " disconnected: " + e.getMessage());
 		//e.printStackTrace();
 	}
 	
 	private void onClientClose(String name) {
 		synchronized (lock) {
-			if (clients.containsKey(name)) {
+			ClientHandler ch = clients.get(name);
+			if (ch != null) {
 				// Remove client from all lobbies
-				ClientInfo info = clients.get(name).getClientInfo();
-				if (lobbies.containsKey(info.lobby)) {
-					lobbies.get(info.lobby).removePlayer(name);
-				}
+				Lobby lobby = getLobby(ch);
+				if (lobby != null)
+				leaveLobby(ch, lobby);
 				
 				// Remove client from main list
 				clients.remove(name);
+				
+				System.out.println("[Net]: " + name + " disconnected.");
 			}
+		}
+	}
+	
+	private Lobby getLobby(ClientHandler ch) {
+		synchronized (lock) {
+			return getLobby(ch.getClientInfo());
 		}
 	}
 	
 	private Lobby getLobby(ClientInfo info) {
 		synchronized (lock) {
-			String lobbyName = info.lobby;
-			if (lobbyName == null)
-				return null;
-			else
-				return lobbies.get(lobbyName);
+			return lobbies.get(info.lobby);
 		}
 	}
 	
@@ -207,9 +215,15 @@ public class Server implements Runnable {
 	
 	private void joinLobby(ClientHandler handler, Lobby lobby) {
 		synchronized (lock) {
-			outTCP(handler.getClientInfo().name + ": Joined lobby: " + lobby.lobbyName);
 			lobby.addPlayer(handler);
 			handler.getClientInfo().lobby = lobby.lobbyName;
+		}
+	}
+	
+	private void leaveLobby(ClientHandler handler, Lobby lobby) {
+		synchronized (lock) {
+			lobby.removePlayer(handler.getClientInfo().name);
+			handler.getClientInfo().lobby = null;
 		}
 	}
 	
@@ -266,7 +280,13 @@ public class Server implements Runnable {
 				}
 			} else {
 				// Handle lobby messages
-				currentLobby.handleTcpMessage(handler, msg);
+				if (Protocol.isLobbyLeaveRequest(msg)) {
+					// Leave lobby & notify client
+					leaveLobby(handler, currentLobby);
+					handler.sendStringTcp(Protocol.sendLobbyLeaveNotify());
+				} else {
+					currentLobby.handleTcpMessage(handler, msg);
+				}
 			}
 		} catch (ProtocolException e) {
 			handler.error(e);

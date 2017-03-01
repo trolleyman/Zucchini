@@ -67,4 +67,11 @@ public interface IClientConnectionHandler {
 	default void handleWorldStart(WorldStart start) {
 		System.err.println("Warning: CCH Unhandled Event: handleWorldStart");
 	}
+	
+	/**
+	 * Called when the server tells the user that they have left the current lobby
+	 */
+	default void handleLobbyLeaveNotify() {
+		System.err.println("Warning: CCH Unhandled Event: handleLobbyLeaveNotify");
+	}
 }

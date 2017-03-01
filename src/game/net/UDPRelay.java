@@ -3,6 +3,8 @@ package game.net;
 import game.exception.ProtocolException;
 
 import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Deque;
 import java.util.HashMap;
@@ -12,13 +14,13 @@ public class UDPRelay {
 	private final Object recvLock = new Object();
 	
 	private UDPSource source;
-	private SocketAddress address;
+	private InetSocketAddress address;
 	
 	private ProtocolException error;
 	
 	private LinkedList<String> messages = new LinkedList<>();
 	
-	public UDPRelay(UDPSource _source, SocketAddress _address) {
+	public UDPRelay(UDPSource _source, InetSocketAddress _address) {
 		this.source = _source;
 		this.address = _address;
 		
@@ -69,7 +71,7 @@ public class UDPRelay {
 		source.sendString(msg, address);
 	}
 	
-	public SocketAddress getSocketAddress() {
+	public InetSocketAddress getSocketAddress() {
 		return address;
 	}
 }

@@ -36,12 +36,12 @@ public class Font {
 	private STBTTBakedChar.Buffer cdata;
 	private Texture text;
 	
-	int BITMAP_W = 512;
-	int BITMAP_H = 512;
+	private int BITMAP_W = 512;
+	private int BITMAP_H = 512;
 	
-	IntBuffer ascent = MemoryUtil.memAllocInt(1);
-	IntBuffer descent = MemoryUtil.memAllocInt(1);
-	IntBuffer lineGap = MemoryUtil.memAllocInt(1);
+	private int[] ascent = new int[1];
+	private int[] descent = new int[1];
+	private int[] lineGap = new int[1];
 	
 	private final int pixelHeight;
 	
@@ -76,7 +76,6 @@ public class Font {
 				rgba.put((byte) -1);
 				rgba.put(bitmap.get());
 			}
-			
 			rgba.rewind();
 			
 			text = new Texture(rgba, BITMAP_W, BITMAP_H, GL_RGBA);
@@ -139,7 +138,7 @@ public class Font {
 	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale) {
 		if (!fromBaseline) {
 			// Position so that y is at the bottom, not baseline
-			float descentProportion = (float)-descent.get(0) / (float)(ascent.get(0) - descent.get(0));
+			float descentProportion = (float)-descent[0] / (float)(ascent[0] - descent[0]);
 			y += descentProportion * pixelHeight * scale;
 		}
 		

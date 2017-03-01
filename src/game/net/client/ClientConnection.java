@@ -143,6 +143,10 @@ public class ClientConnection implements IClientConnection {
 					synchronized (cchLock) {
 						cch.handleWorldStart(start);
 					}
+				} else if (Protocol.isLobbyLeaveNotify(msg)) {
+					synchronized (cchLock) {
+						cch.handleLobbyLeaveNotify();
+					}
 				} else {
 					System.err.println("[TCP]: " + name + ": Warning: Unknown message received: " + msg);
 				}
@@ -172,6 +176,11 @@ public class ClientConnection implements IClientConnection {
 	@Override
 	public void sendToggleReady() throws ProtocolException {
 		tcpConn.sendString(Protocol.sendReadyToggle());
+	}
+	
+	@Override
+	public void sendLobbyLeaveRequest() throws ProtocolException {
+		tcpConn.sendString(Protocol.sendLobbyLeaveRequest());
 	}
 	
 	@Override

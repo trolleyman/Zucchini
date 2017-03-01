@@ -88,7 +88,7 @@ public class TCPConnection {
 			synchronized (sendLock) {
 				byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
 				int len = bytes.length;
-				ByteBuffer.wrap(tcpSendIntTemp).order(ByteOrder.BIG_ENDIAN).putInt(len);
+				ByteBuffer.wrap(tcpSendIntTemp).order(ByteOrder.BIG_ENDIAN).putInt(len).rewind();
 				
 				// Send
 				OutputStream out = tcpSocket.getOutputStream();
@@ -155,7 +155,7 @@ public class TCPConnection {
 	 * Receives a connection request
 	 * @return The name of the client + the SocketAddress of the client
 	 */
-	public Tuple<String, SocketAddress> recvConnectionRequest() throws ProtocolException {
+	public Tuple<String, InetSocketAddress> recvConnectionRequest() throws ProtocolException {
 		String msg = this.recvString();
 		if (!Protocol.isTcpConnectionRequest(msg))
 			throw new ProtocolException("Not TCP Connection Request: " + msg);

@@ -272,6 +272,10 @@ public class AudioManager implements IAudioManager{
     @Override
     public void pauseLoop(int sourceID){
     	SoundSource source = getSoundSource(sourceID);
+    	if (source == null) {
+    		System.err.println("Warning: invalid sourceID in pauseLoop: " + sourceID);
+    		return;
+	    }
     	if (source.isPlaying()){
     		source.pause();
     	}

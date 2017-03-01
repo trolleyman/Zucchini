@@ -148,6 +148,7 @@ public class Lobby {
 	 */
 	public int addPlayer(ClientHandler ch) {
 		synchronized (clientsLock) {
+			System.out.println("[Net]: " + ch.getClientInfo().name + " joined " + lobbyName + ".");
 			int team = Team.START_FREE_TEAM + clients.size();
 			LobbyClient c = new LobbyClient(ch, team);
 			this.clients.add(c);
@@ -177,7 +178,19 @@ public class Lobby {
 	 */
 	public void removePlayer(String name) {
 		synchronized (clientsLock) {
-			this.clients.removeIf((lc) -> lc.handler.getClientInfo().name.equals(name));
+			for (int i = 0; i < clients.size(); i++) {
+				LobbyClient c = clients.get(i);
+				if (c.handler.getClientInfo().name.equals(name)) {
+					// Remove from world
+					if (this.world != null)
+						this.world.removeClient(name);
+					
+					// Remove from list
+					clients.remove(i);
+					System.out.println("[Net]: " + name + " left " + lobbyName + ".");
+					break;
+				}
+			}
 		}
 	}
 	
