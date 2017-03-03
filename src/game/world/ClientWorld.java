@@ -107,7 +107,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	protected void updateStep(double dt) {
 		Player p = getPlayer();
 		if (p != null) {
-			this.cameraPos.set(p.position);
+			this.cameraPos.lerp(p.position, (float)dt * 20.0f);
 			audio.updateListenerPosition(p.position);
 		}
 		else           System.err.println("Warning: Player does not exist");
