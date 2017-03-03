@@ -23,6 +23,7 @@ public abstract class Weapon extends Item {
 	private float cooldown;
 	private int shots;
 	private float reloadingTime;
+	private Vector2f weaponPos;
 	
 	public Weapon(Weapon g) {
 		super(g);
@@ -48,8 +49,7 @@ public abstract class Weapon extends Item {
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 */
 	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime) {
-		super(position);
-		
+		super(position);		
 		this.semiAuto = _semiAuto;
 		
 		this.cooldown = _cooldown;

@@ -10,6 +10,6 @@ public class TraceLog
 		// TODO: uncomment this
 		// Logger.getLogger(o.getClass().getName()).log(Level.INFO, s);
 		// TODO: comment this
-		System.out.println(s);
+		// System.out.println(s);
 	}
 }

@@ -18,7 +18,7 @@ public class Handgun extends Weapon {
 
 	@Override
 	protected void fire(UpdateArgs ua) {
-		ua.audio.play("handgunshot.wav", 0.9f);
+		ua.audio.play("handgunshot.wav", 0.5f,this.position);
 		System.out.println("BANG!");
 		// Add bullets to entity bank
 		ua.bank.addEntityCached(new HandgunBullet(new Vector2f(position), this.ownerTeam, angle));
@@ -26,7 +26,7 @@ public class Handgun extends Weapon {
 	
 	@Override
 	protected void reload(UpdateArgs ua) {
-		ua.audio.play("gun_reload[2sec].wav", 1.0f);
+		ua.audio.play("gun_reload[2sec].wav", 1.0f,this.position);
 	}
 	
 	@Override

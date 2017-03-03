@@ -595,12 +595,12 @@ public class Renderer implements IRenderer {
 		glStencilFunc(GL_ALWAYS, 0, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	}
-
+	
 	@Override
-	public void drawText(Font f, String s, Align a, float x, float y, float scale) {
-		//matModelView.pushMatrix();
-		//align(a, -f.getWidth(s, scale), -f.getHeight(scale));
-		f.render(this, s, x, y, scale);
-		//matModelView.popMatrix();
+	public void drawText(Font f, String s, Align a, boolean fromBaseline, float x, float y, float scale) {
+		matModelView.pushMatrix();
+		align(a, -f.getWidth(s, scale), -f.getHeight(scale));
+		f.render(this, s, fromBaseline, x, y, scale);
+		matModelView.popMatrix();
 	}
 }

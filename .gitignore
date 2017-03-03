@@ -17,4 +17,7 @@ hs_err_pid*
 # IDEA IntelliJ
 /.idea/
 *.iml
+/out/
 
+# Build items
+c3.jar

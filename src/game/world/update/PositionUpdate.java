@@ -7,7 +7,7 @@ public class PositionUpdate extends EntityUpdate {
 	private Vector2f position;
 	
 	public PositionUpdate(int id, Vector2f _position) {
-		super(id);
+		super(id, false);
 		this.position = _position;
 	}
 	

@@ -1,30 +1,41 @@
 package game.audio;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.openal.AL10;
+
 import static org.lwjgl.openal.AL10.*;
 
 
 public class SoundListener {
+	public static final float zPos = 0.0f;
+	public Vector2f playerPos;
+	
 	public SoundListener() {
-        this(new Vector3f(0, 0, 0));
-        
+        this(new Vector2f(0, 0));
+        this.playerPos = new Vector2f(0, 0);
     }
 
 	/**
 	 * Represents a listener, or a player in other words
 	 * @param position, the postion of a player
 	 */
-    public SoundListener(Vector3f position) {
-        alListener3f(AL_POSITION, position.x, position.y, position.z);
+    public SoundListener(Vector2f position) {
+        alListener3f(AL_POSITION, position.x, position.y, zPos);
         alListener3f(AL_VELOCITY, 0, 0, 0);
-
+        this.playerPos = position;
     }
-
+    
     public void setSpeed(Vector3f speed) {
         alListener3f(AL_VELOCITY, speed.x, speed.y, speed.z);
     }
 
-    public void setPosition(Vector3f position) {
-        alListener3f(AL_POSITION, position.x, position.y, position.z);
+    public void setPosition(Vector2f position) {
+        alListener3f(AL_POSITION, position.x, position.y, zPos  );
+        this.playerPos = position;
+    }
+    
+    public Vector2f getPos(){
+    	return this.playerPos;
     }
     /*
      * OpenAL will not update their position for you. 

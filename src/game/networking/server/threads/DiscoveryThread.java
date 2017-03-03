@@ -9,25 +9,24 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import game.networking.server.ServerTest;
-import game.networking.util.Connection;
+import game.networking.util.ConnectionDetails;
 import game.networking.util.Protocol;
-import game.networking.util.ServerMainable;
 import game.networking.util.TraceLog;
+import game.networking.util.UtilityCode;
+import game.networking.util.interfaces.IServerMainable;
 
 public class DiscoveryThread implements Runnable
 {
-	// TODO: this needs to be an actual run state
 	private boolean run = true;
 
 	private int socketInt;
-	private Map<String, Connection> clients;
+	private Map<String, ConnectionDetails> clients;
 	private List<String> acceptedClients;
-	private ServerMainable server;
+	private IServerMainable server;
 
-	public DiscoveryThread(int _socketInt, Map<String, Connection> _clients, ServerTest _server, List<String> _acceptedClients)
+	public DiscoveryThread(Map<String, ConnectionDetails> _clients, IServerMainable _server, List<String> _acceptedClients)
 	{
-		socketInt = _socketInt;
+		socketInt = UtilityCode.getNextAvailabePort();
 		clients = _clients;
 		server = _server;
 		acceptedClients = _acceptedClients;
@@ -38,81 +37,92 @@ public class DiscoveryThread implements Runnable
 	{
 		String name = "";
 		DatagramSocket socket;
-		try
+		if (socketInt != -1)
 		{
-			// Keep a socket open to listen to all the UDP trafic that is
-			// destined for this port
-			socket = new DatagramSocket(socketInt, InetAddress.getByName("0.0.0.0"));
-			socket.setBroadcast(true);
-
-			while (run)
+			try
 			{
-				TraceLog.consoleLog(getClass().getName() + ">>>Ready to receive broadcast packets!");
+				// Keep a socket open to listen to all the UDP trafic that is
+				// destined for this port
+				socket = new DatagramSocket(socketInt, InetAddress.getByName("0.0.0.0"));
+				socket.setBroadcast(true);
 
-				// Receive a packet
-				byte[] recvBuf = new byte[15000];
-				DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
-				socket.receive(packet);
-
-				// Packet received
-				TraceLog.consoleLog(getClass().getName() + ">>>Discovery packet received from: " + packet.getAddress().getHostAddress());
-				TraceLog.consoleLog(getClass().getName() + ">>>Packet received; data: " + new String(packet.getData()));
-
-				// See if the packet holds the right command (message)
-				String message = new String(packet.getData()).trim();
-				if (message.contains(Protocol.CtoS_Discovery))
+				while (run)
 				{
-					name = message.substring(Protocol.CtoS_Discovery.length());
-					message = Protocol.CtoS_Discovery;
-				}
-				if (message.equals(Protocol.CtoS_Discovery))
-				{
+					TraceLog.consoleLog(getClass().getName() + ">>>Ready to receive broadcast packets!");
 
-					// see if we already have a client that has registered with
-					// that name;
-					// System.out.println(clients.containsKey(name) + " - " +
-					// name);
+					// Receive a packet
+					byte[] recvBuf = new byte[15000];
+					DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
+					socket.receive(packet);
 
-					if (acceptedClients.contains(name))
+					// Packet received
+					TraceLog.consoleLog(getClass().getName() + ">>>Discovery packet received from: " + packet.getAddress().getHostAddress());
+					TraceLog.consoleLog(getClass().getName() + ">>>Packet received; data: " + new String(packet.getData()));
+
+					// See if the packet holds the right command (message)
+
+					String message = new String(packet.getData()).trim();
+
+					if (message.startsWith(Protocol.CtoS_Discovery))
 					{
-						// reject if we have another client with the same name
-
-						sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
-
-					} else
+						name = message.substring(Protocol.CtoS_Discovery.length());
+						message = Protocol.CtoS_Discovery;
+					}
+					if (message.equals(Protocol.CtoS_Discovery))
 					{
-						// accept and add client to table if he has a unique
-						// name
-						if (!clients.containsKey(name))
+
+						// see if we already have a client that has registered
+						// with
+						// that name;
+						synchronized (this)
 						{
-							// send wait request to client
 
-							sendData(socket, (Protocol.StoC_DiscoveryWait + name), packet.getAddress(), packet.getPort());
-
-							// thread safe way of putting stuff into the map
-							synchronized (this)
+							if (acceptedClients.contains(name))
 							{
-								Connection connection = new Connection(packet.getAddress(), packet.getPort());
-								clients.put(name, connection);
-								server.acceptClientConnection(name);
+								// reject if we have another client with the
+								// same name
+
+								sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
+
+							} else
+							{
+								// accept and add client to table if he has a
+								// unique name
+								if (!clients.containsKey(name))
+								{
+									// send wait request to client
+
+									sendData(socket, (Protocol.StoC_DiscoveryWait + name), packet.getAddress(), packet.getPort());
+
+									// thread safe way of putting stuff into the
+									// map
+									synchronized (this)
+									{
+										ConnectionDetails connection = new ConnectionDetails(packet.getAddress(), packet.getPort());
+										clients.put(name, connection);
+										server.acceptClientConnection(name);
+
+									}
+								} else if (!processingClient(name, packet))
+								{
+									// if the client is already online deny
+									// access
+									sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
+									System.err.println(name + "is processing");
+
+								}
 
 							}
-						} else if (!processingClient(name, packet))
-						{
-							// if the client is already online deny access
-							sendData(socket, (Protocol.StoC_DiscoveryReject + name), packet.getAddress(), packet.getPort());
-
 						}
-
 					}
-
 				}
+				socket.close();
+			} catch (IOException ex)
+			{
+				Logger.getLogger(DiscoveryThread.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			socket.close();
-		} catch (IOException ex)
-		{
-			Logger.getLogger(DiscoveryThread.class.getName()).log(Level.SEVERE, null, ex);
 		}
+
 	}
 
 	private void sendData(DatagramSocket socket, String data, InetAddress address, int port) throws IOException
@@ -126,7 +136,7 @@ public class DiscoveryThread implements Runnable
 
 	private boolean processingClient(String name, DatagramPacket packet)
 	{
-		Connection con = clients.get(name);
+		ConnectionDetails con = clients.get(name);
 		if (con.address.equals(packet.getAddress()) && (con.port == packet.getPort()))
 			return true;
 		else

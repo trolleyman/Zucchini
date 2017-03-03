@@ -9,7 +9,10 @@ import game.action.AimAction;
 import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
+import game.exception.ProtocolException;
 import game.net.*;
+import game.net.client.IClientConnection;
+import game.net.client.IClientConnectionHandler;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.entity.weapon.Handgun;
@@ -20,7 +23,6 @@ import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -30,48 +32,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * @author Callum
  */
 public class ClientWorld extends World implements InputHandler, IClientConnectionHandler {
-	/**
-	 * Creates a test single player world
-	 */
-	public static ClientWorld createTestWorld(AudioManager audio) {
-		try {
-			// Create map
-			Map map = Map.createTestMap();
-			
-			// Create entity bank and add entities
-			EntityBank serverBank = new EntityBank();
-			for (Entity e : map.getInitialEntities())
-				serverBank.addEntity(e);
-			Item weapon = new Handgun(new Vector2f(0.5f, 0.5f));
-			int playerID = serverBank.addEntity(new Player(serverBank.getNextFreeTeam(), new Vector2f(0.5f, 0.5f), weapon));
-			
-			// Create server world
-			ServerWorld serverWorld = new ServerWorld(map, serverBank);
-			
-			// Create connection
-			LinkConnection connection = new LinkConnection(playerID);
-			ArrayList<IServerConnection> conns = new ArrayList<>();
-			conns.add(connection);
-			
-			// Create server
-			Server server = new Server(serverWorld, conns);
-			
-			// Create client
-			ClientWorld clientWorld = new ClientWorld(map, new EntityBank(), playerID, audio, connection);
-			
-			// Start server thread
-			Thread t = new Thread(server);
-			t.setName("Server");
-			t.start();
-			
-			// Return client world
-			return clientWorld;
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-			return null;
-		}
-	}
+	private static final int NUM_REPEATS = 3;
 	
 	/** The ID of the player */
 	private int playerID;
@@ -98,6 +59,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	/** dt pool */
 	private double dtPool;
 	
+	private int dirtyActionNorth = NUM_REPEATS;
+	private int dirtyActionSouth = NUM_REPEATS;
+	private int dirtyActionEast  = NUM_REPEATS;
+	private int dirtyActionWest  = NUM_REPEATS;
+	private int dirtyActionAim   = NUM_REPEATS;
+	private int dirtyActionUse   = NUM_REPEATS;
+	
 	private Action actionNorth  = new Action(ActionType.END_MOVE_NORTH);
 	private Action actionSouth  = new Action(ActionType.END_MOVE_SOUTH);
 	private Action actionEast   = new Action(ActionType.END_MOVE_EAST );
@@ -105,7 +73,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
-	/** This is the line of sight buffer. This is meant to be null. */
+	/** This is the line of sight buffer. */
 	private FloatBuffer losBuf = MemoryUtil.memAllocFloat(16);
 	
 	/** Audio Manager */
@@ -138,7 +106,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	protected void updateStep(double dt) {
 		Player p = getPlayer();
-		if (p != null) this.cameraPos.set(p.position);
+		if (p != null) {
+			this.cameraPos.set(p.position);
+			audio.updateListenerPosition(p.position);
+		}
 		else           System.err.println("Warning: Player does not exist");
 		
 		// Send server data
@@ -146,12 +117,35 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		while (dtPool > Util.DT_PER_SNAPSHOT_UPDATE) {
 			dtPool -= Util.DT_PER_SNAPSHOT_UPDATE;
 			// Send input
-			connection.sendAction(actionNorth);
-			connection.sendAction(actionSouth);
-			connection.sendAction(actionEast);
-			connection.sendAction(actionWest);
-			connection.sendAction(actionAim);
-			connection.sendAction(actionUse);
+			try {
+				if (dirtyActionNorth > 0) {
+					connection.sendAction(actionNorth);
+					dirtyActionNorth--;
+				}
+				if (dirtyActionSouth > 0) {
+					connection.sendAction(actionSouth);
+					dirtyActionSouth--;
+				}
+				if (dirtyActionEast > 0) {
+					connection.sendAction(actionEast);
+					dirtyActionEast--;
+				}
+				if (dirtyActionWest > 0) {
+					connection.sendAction(actionWest);
+					dirtyActionWest--;
+				}
+				if (dirtyActionAim > 0) {
+					connection.sendAction(actionAim);
+					dirtyActionAim--;
+				}
+				if (dirtyActionUse > 0) {
+					connection.sendAction(actionUse);
+					dirtyActionUse--;
+				}
+			} catch (ProtocolException e) {
+				// Ignore for now
+				e.printStackTrace();
+			}
 			
 			this.bank.processCacheClient();
 			
@@ -160,7 +154,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			clientUpdateArgs.map = this.map;
 			clientUpdateArgs.audio = this.audio;
 			
-			for (Entity e : this.bank.entities)
+			for (Entity e : this.bank.entities.values())
 				e.clientUpdate(clientUpdateArgs);
 		}
 	}
@@ -205,7 +199,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 		
 		// Render entities
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			e.render(r);
 		}
 		
@@ -236,18 +230,24 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Send input to server
 		if (action == GLFW_PRESS) { // Begin move
 			switch (key) {
-			case GLFW_KEY_W: actionNorth.setType(ActionType.BEGIN_MOVE_NORTH); break;
-			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); break;
-			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); break;
-			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); break;
-			case GLFW_KEY_E: connection.sendAction(new Action(ActionType.PICKUP)); break;
+			case GLFW_KEY_W: actionNorth.setType(ActionType.BEGIN_MOVE_NORTH); dirtyActionNorth = NUM_REPEATS; break;
+			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); dirtyActionSouth = NUM_REPEATS; break;
+			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); dirtyActionEast  = NUM_REPEATS; break;
+			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); dirtyActionWest  = NUM_REPEATS; break;
+			case GLFW_KEY_E:
+				try {
+					connection.sendAction(new Action(ActionType.PICKUP));
+				} catch (ProtocolException e) {
+					e.printStackTrace();
+				}
+				break;
 			}
 		} else if (action == GLFW_RELEASE) { // End move
 			switch (key) {
-			case GLFW_KEY_W: actionNorth.setType(ActionType.END_MOVE_NORTH); break;
-			case GLFW_KEY_S: actionSouth.setType(ActionType.END_MOVE_SOUTH); break;
-			case GLFW_KEY_D: actionEast .setType(ActionType.END_MOVE_EAST ); break;
-			case GLFW_KEY_A: actionWest .setType(ActionType.END_MOVE_WEST ); break;
+			case GLFW_KEY_W: actionNorth.setType(ActionType.END_MOVE_NORTH); dirtyActionNorth = NUM_REPEATS; break;
+			case GLFW_KEY_S: actionSouth.setType(ActionType.END_MOVE_SOUTH); dirtyActionSouth = NUM_REPEATS; break;
+			case GLFW_KEY_D: actionEast .setType(ActionType.END_MOVE_EAST ); dirtyActionEast  = NUM_REPEATS; break;
+			case GLFW_KEY_A: actionWest .setType(ActionType.END_MOVE_WEST ); dirtyActionWest  = NUM_REPEATS; break;
 			}
 		}
 	}
@@ -257,16 +257,21 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Send input to server
 		float angle = (float) Util.getAngle(windowW/2, windowH/2, xpos, ypos);
 		actionAim.setAngle(angle);
+		dirtyActionAim = NUM_REPEATS;
 	}
 	
 	@Override
 	public void handleMouseButton(int button, int action, int mods) {
 		// Send input to server
-		if (button == GLFW_MOUSE_BUTTON_1)
-			if (action == GLFW_PRESS)
+		if (button == GLFW_MOUSE_BUTTON_1) {
+			if (action == GLFW_PRESS) {
 				actionUse.setType(ActionType.BEGIN_USE);
-			else if (action == GLFW_RELEASE)
+				dirtyActionUse = NUM_REPEATS;
+			} else if (action == GLFW_RELEASE) {
 				actionUse.setType(ActionType.END_USE);
+				dirtyActionUse = NUM_REPEATS;
+			}
+		}
 	}
 
 	@Override
@@ -309,7 +314,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		this.map.render(r);
 		
 		// Render entities
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			e.render(r);
 		}
 		

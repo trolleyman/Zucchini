@@ -6,7 +6,7 @@ public class HealthUpdate extends EntityUpdate {
 	private float health;
 	
 	public HealthUpdate(int id, float _health) {
-		super(id);
+		super(id, true);
 		this.health = _health;
 	}
 	

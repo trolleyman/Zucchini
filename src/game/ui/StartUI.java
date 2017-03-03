@@ -6,14 +6,11 @@ import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
 import game.audio.AudioManager;
-import game.render.Align;
-import game.render.Font;
-import game.render.IRenderer;
-import game.render.TextureBank;
+import game.net.client.IClientConnection;
+import game.render.*;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
- * 
  * @author Jack
  */
 public class StartUI extends UI implements InputPipeMulti {
@@ -21,51 +18,69 @@ public class StartUI extends UI implements InputPipeMulti {
 	private int windowW;
 	/** The current window height */
 	private int windowH;
-	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
 	/** The start button */
 	private ButtonComponent startButton;
+	/** The help button */
+	private ButtonComponent helpButton;
 	/** The exit button */
 	private ButtonComponent exitButton;
 	/** The next UI to return */
 	private UI nextUI = this;
 	
-
-	private Font font;
 	private ImageComponent backgroundImage;
+	
+	public StartUI(UI ui) {
+		super(ui);
+		setup();
+	}
 	
 	/**
 	 * Constructs a new StartUI
-	 * @param tb TextureBank used to get textures for components
 	 */
-	public StartUI(AudioManager audio, TextureBank tb) {
-		super(audio);
-		
-		font = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
-		
+	public StartUI(IClientConnection _conn, AudioManager _audio, TextureBank _tb, FontBank _fb) {
+		super(_conn, _audio, _tb, _fb);
+		setup();
+	}
+	
+	private void setup() {
+		// Create Start Button
 		startButton = new ButtonComponent(
-			() -> { this.nextUI = new LobbyUI(audio, tb); },
-			Align.BL, 100, 100,
-			tb.getTexture("buttonDefault.png"),
-			tb.getTexture("buttonHover.png"),
-			tb.getTexture("buttonPressed.png")
+				() -> this.nextUI = new LobbyUI(this),
+				Align.BL, 100, 100,
+				textureBank.getTexture("startDefault.png"),
+				textureBank.getTexture("startHover.png"),
+				textureBank.getTexture("startPressed.png")
 		);
 		
+		// Create Help Button
+		helpButton = new ButtonComponent(
+				() -> { /* TODO: go to HelpUI */ },
+				Align.BL, 100, 100,
+				textureBank.getTexture("helpDefault.png"),
+				textureBank.getTexture("helpHover.png"),
+				textureBank.getTexture("helpPressed.png")
+		);
+		
+		// Create Exit Button
 		exitButton = new ButtonComponent(
-			() -> { this.nextUI = null; },
-			Align.BL, 100, 100,
-			tb.getTexture("exitButtonDefault.png"),
-			tb.getTexture("exitButtonHover.png"),
-			tb.getTexture("exitButtonPressed.png")
+				() -> { this.nextUI = null; },
+				Align.BL, 100, 100,
+				textureBank.getTexture("exitButtonDefault.png"),
+				textureBank.getTexture("exitButtonHover.png"),
+				textureBank.getTexture("exitButtonPressed.png")
 		);
 		
+		// Create Background Image
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
+				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
-
+		
+		// Add buttons to input handlers
 		this.inputHandlers.add(startButton);
+		this.inputHandlers.add(helpButton);
 		this.inputHandlers.add(exitButton);
 	}
 	
@@ -84,17 +99,26 @@ public class StartUI extends UI implements InputPipeMulti {
 	@Override
 	public void update(double dt) {
 		startButton.update(dt);
+		helpButton.update(dt);
 		exitButton.update(dt);
 	}
 	
 	@Override
 	public void render(IRenderer r) {
+		// Render the background image
 		backgroundImage.render(r);
+
+		// Set the location of the buttons
 		startButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
 		startButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0));
+		helpButton.setX((int) (windowW/2.0 - startButton.getWidth()/2.0));
+		helpButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0 - 150));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
+
+		// Render the buttons
 		startButton.render(r);
+		helpButton.render(r);
 		exitButton.render(r);
 	}
 	

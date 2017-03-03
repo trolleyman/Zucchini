@@ -8,7 +8,7 @@ public class VelocityUpdate extends EntityUpdate {
 	private Vector2f velocity;
 	
 	public VelocityUpdate(int id, Vector2f _velocity) {
-		super(id);
+		super(id, false);
 		
 		this.velocity = _velocity;
 	}
