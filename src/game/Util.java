@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import game.render.Align;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -227,5 +228,106 @@ public class Util {
 	
 	public static boolean isDebugRenderMode() {
 		return false;
+	}
+	
+	/**
+	 * Transforms x so that it is relative to the bottom-left of the object, rather than the alignment
+	 */
+	public static float alignToWorldX(Align a, float x, float w) {
+		switch (a) {
+			case BL:case ML:case TL: return x;
+			case BM:case MM:case TM: return x + w/2.0f;
+			case BR:case MR:case TR: return x + w;
+		}
+		return x;
+	}
+	
+	/**
+	 * Transforms y so that it is relative to the bottom-left of the object, rather than the alignment
+	 */
+	public static float alignToWorldY(Align a, float y, float h) {
+		switch (a) {
+			case BL:case BM:case BR: return y;
+			case ML:case MM:case MR: return y + h/2.0f;
+			case TL:case TM:case TR: return y + h;
+		}
+		return y;
+	}
+	
+	/**
+	 * Returns true if the point x,y is in the rectangle specified by the Align a, and rx, ry, rw, and rh
+	 */
+	public static boolean isPointInRect(float x, float y, Align a, float rx, float ry, float rw, float rh) {
+		rx = alignToWorldX(a, rx, rw);
+		ry = alignToWorldX(a, ry, rh);
+		
+		return x >= rx && x < rx + rw
+		    && y >= ry && y < ry + rh;
+	}
+	
+	/**
+	 * This is the minimum length of a lobby name
+	 */
+	public static final int MIN_LOBBY_NAME_LENGTH = 3;
+	/**
+	 * This is the maximum length of a lobby name
+	 */
+	public static final int MAX_LOBBY_NAME_LENGTH = 32;
+	
+	/**
+	 * Returns true if the character entered is valid for a lobby name
+	 */
+	public static boolean isValidLobbyNameChar(char c) {
+		return !Character.isISOControl(c);
+	}
+	
+	/**
+	 * Returns true if the lobby name entered is valid
+	 */
+	public static boolean isValidLobbyName(String s) {
+		if (s == null)
+			return false;
+		if (s.length() < MIN_LOBBY_NAME_LENGTH || s.length() > MAX_LOBBY_NAME_LENGTH)
+			return false;
+		
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (!isValidLobbyNameChar(c))
+				return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * This is the minimum length of a name
+	 */
+	public static final int MIN_NAME_LENGTH = 3;
+	/**
+	 * This is the maximum length of a name
+	 */
+	public static final int MAX_NAME_LENGTH = 16;
+	
+	/**
+	 * Returns true if the character entered is valid for a name
+	 */
+	public static boolean isValidNameChar(char c) {
+		return Character.isLetterOrDigit(c);
+	}
+	
+	/**
+	 * Returns true if the name entered is valid
+	 */
+	public static boolean isValidName(String s) {
+		if (s == null)
+			return false;
+		if (s.length() < MIN_NAME_LENGTH || s.length() > MAX_NAME_LENGTH)
+			return false;
+		
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (!isValidNameChar(c))
+				return false;
+		}
+		return true;
 	}
 }

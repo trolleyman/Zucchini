@@ -1,4 +1,4 @@
-package game.ui;
+package game.ui.component;
 
 import game.render.Align;
 import game.render.IRenderer;

@@ -102,6 +102,38 @@ public class UDPConnection {
 		}
 	}
 	
+	/**
+	 * Receives from the socket, with a timeout.
+	 * @param timeout The timeout, in milliseconds.
+	 * @return null if the timeout was triggered, the packet otherwise
+	 * @throws ProtocolException If there was an exception with the receive operation
+	 */
+	public DatagramPacket recv(int timeout) throws ProtocolException {
+		try {
+			// Recv packet
+			// This lock needs to be this length because of temporary buffers
+			synchronized (recvLock) {
+				udpSocket.setSoTimeout(timeout);
+				DatagramPacket packet = new DatagramPacket(udpRecvTemp, udpRecvTemp.length);
+				try {
+					udpSocket.receive(packet);
+				} catch (SocketTimeoutException e) {
+					return null;
+				}
+				udpSocket.setSoTimeout(0);
+				
+				// Return packet with new buffer
+				int len = packet.getLength();
+				byte[] newBytes = new byte[len];
+				System.arraycopy(packet.getData(), 0, newBytes, 0, len);
+				packet.setData(newBytes);
+				return packet;
+			}
+		} catch (IOException e) {
+			throw new ProtocolException(e);
+		}
+	}
+	
 	public String decode(DatagramPacket recv) throws ProtocolException {
 		try {
 			synchronized (decoder) {

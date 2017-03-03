@@ -3,11 +3,9 @@ package game.ui;
 import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
-import game.audio.AudioManager;
-import game.net.client.IClientConnection;
 import game.render.Align;
 import game.render.IRenderer;
-import game.render.TextureBank;
+import game.ui.component.ButtonComponent;
 import game.world.ClientWorld;
 
 /**
@@ -103,7 +101,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		this.winWidth = w;
 		this.winHeight = h;
 		InputPipeMulti.super.handleResize(w, h);
-		int btnSize = audioBtn.getHeight();
+		float btnSize = audioBtn.getHeight();
 		System.out.println(btnSize);
 	}
 

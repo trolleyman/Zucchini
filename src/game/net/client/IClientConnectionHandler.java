@@ -61,6 +61,20 @@ public interface IClientConnectionHandler {
 	}
 	
 	/**
+	 * Called when the lobby join request has been rejected
+	 */
+	default void handleLobbyCreateAccept() {
+		System.err.println("Warning: CCH Unhandled Event: handleLobbyCreateAccept");
+	}
+	
+	/**
+	 * Called when the lobby join request has been rejected
+	 */
+	default void handleLobbyCreateReject(String reason) {
+		System.err.println("Warning: CCH Unhandled Event: handleLobbyCreateReject");
+	}
+	
+	/**
 	 * Called when the world start message is received, initializing a world session.
 	 * @param start The starting state of the world.
 	 */

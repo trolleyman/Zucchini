@@ -1,14 +1,11 @@
 package game.ui;
 
 import game.*;
-import game.audio.AudioManager;
-import game.exception.GameException;
-import game.exception.LobbyJoinException;
 import game.exception.ProtocolException;
 import game.net.WorldStart;
-import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
+import game.ui.component.ButtonComponent;
 import game.world.ClientWorld;
 import game.world.EntityBank;
 import org.lwjgl.glfw.GLFW;
