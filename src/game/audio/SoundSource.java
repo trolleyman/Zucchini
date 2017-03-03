@@ -109,7 +109,7 @@ public class SoundSource {
      * @param position
      */
     public void setPosition(Vector2f position) {
-        alSource3f(sourceId, AL_POSITION, position.x, position.y, zPos);
+        alSource3f(sourceId, AL_POSITION, position.x, position.y , zPos);
     }
 
     /**

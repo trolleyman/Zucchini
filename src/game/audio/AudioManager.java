@@ -74,6 +74,7 @@ public class AudioManager implements IAudioManager{
 		}
 		//play bgm
 		SoundSource bgm = new SoundSource(true,true);
+		bgm.setVolume(1.0f);
 		SoundBuffer buffer = new SoundBuffer(Util.getResourcesDir() + "/audio_assets/[bgm]Desolation.wav");
 		bgm.setBuffer(buffer.getBufferId());
 		bgm.play();
