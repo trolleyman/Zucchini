@@ -53,12 +53,18 @@ public class ClientDiscovery {
 	
 	public void tryDiscover() throws NameException, ProtocolException {
 		UDPConnection broadcastConn = new UDPConnection();
-		broadcastDiscoveryPacket(broadcastConn);
 		
 		// Wait for a response
 		while (true) {
+			broadcastDiscoveryPacket(broadcastConn);
+			
 			// Recieve packet on port
-			DatagramPacket recv = broadcastConn.recv();
+			DatagramPacket recv = broadcastConn.recv(3000);
+			
+			if (recv == null) {
+				out("Recv timed out. Trying again...");
+				continue;
+			}
 			
 			// We have a response
 			InetAddress serverAddress = recv.getAddress();

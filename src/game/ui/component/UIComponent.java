@@ -1,4 +1,4 @@
-package game.ui;
+package game.ui.component;
 
 import game.InputHandler;
 import game.render.IRenderer;

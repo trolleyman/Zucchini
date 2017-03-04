@@ -48,6 +48,11 @@ public interface IClientConnection {
 	void sendLobbyLeaveRequest() throws ProtocolException;
 	
 	/**
+	 * Sends a lobby create request
+	 */
+	void sendLobbyCreateRequest(LobbyInfo lobby) throws ProtocolException;
+	
+	/**
 	 * Sets the current connection event handler
 	 * @param cch The client connection handler
 	 */

@@ -24,7 +24,9 @@ import java.util.Optional;
  * @author Callum
  */
 public class Player extends MovableEntity {
-	/** The size of the player's line of sight */
+	/** The min distance a player can see */
+	public static final float LINE_OF_SIGHT_MIN = 1.0f;
+	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
@@ -90,10 +92,16 @@ public class Player extends MovableEntity {
 		this.heldItem = item;
 	}
 	
+	public Item getHeldItem() {
+		return heldItem;
+	}
+	
 	@Override
 	public void update(UpdateArgs ua) {
-		if (this.heldItem != null)
+		if (this.heldItem != null) {
+			this.heldItem.setOwner(this.getId());
 			this.heldItem.setOwnerTeam(this.getTeam());
+		}
 		
 		{
 			Vector2f temp = Util.pushTemporaryVector2f();
@@ -165,6 +173,9 @@ public class Player extends MovableEntity {
 		
 		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
+		
+		if (this.heldItem != null)
+			this.heldItem.clientUpdate(ua);
 	}
 	
 	@Override
@@ -231,6 +242,7 @@ public class Player extends MovableEntity {
 				Pickup p = (Pickup) oe.get();
 				Item item = p.getItem();
 				item.setOwnerTeam(this.getTeam());
+				item.setOwner(this.getId());
 				bank.removeEntityCached(p.getId());
 				this.dropHeldItem(bank, p.position);
 				this.pickupItem(bank, item);
@@ -242,6 +254,7 @@ public class Player extends MovableEntity {
 	
 	private void pickupItem(EntityBank bank, Item item) {
 		this.dropHeldItem(bank, this.position);
+		item.setOwner(this.getId());
 		item.setOwnerTeam(this.getTeam());
 		bank.updateEntityCached(new SetHeldItem(this.getId(), item));
 		this.heldItem = item;

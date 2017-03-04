@@ -1,7 +1,9 @@
 package game.world.entity.weapon;
 
+import game.ColorUtil;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -35,6 +37,15 @@ public class RocketLauncher extends Weapon {
 		System.out.println("Reloading rocket launcher...");
 		int audioID = ua.audio.play("rocket_reload.wav", 1.0f, this.position);
 		ua.audio.updateSourcePos(audioID, this.position); //TODO: DOESNT work since this is only called once
+	}
+	
+	@Override
+	protected float renderBullet(IRenderer r, float x, float y, float p) {
+		r.drawBox(Align.BR, x, y, 25.0f, 120.0f * p, ColorUtil.WHITE);
+		
+		x -= 25.0f;
+		x -= 10.0f;
+		return x;
 	}
 	
 	@Override

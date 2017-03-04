@@ -1,16 +1,15 @@
 package game.ui;
 
 import game.*;
-import game.audio.AudioManager;
-import game.net.client.IClientConnection;
 import game.render.Align;
-import game.render.Font;
 import game.render.IRenderer;
-import game.render.TextureBank;
-import game.world.ClientWorld;
+import game.ui.component.ButtonComponent;
+import game.ui.component.ImageComponent;
+import game.ui.component.TextButtonComponent;
 
 import java.util.ArrayList;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_C;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
@@ -47,7 +46,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		joinButton = new ButtonComponent(
 			() -> {
 				if (currentLobby != null)
-					this.nextUI = new LobbyWaitUI(this, currentLobby.getLobbyName());
+					this.nextUI = new LobbyWaitUI(this, currentLobby.getLobbyName(), true);
 			},
 			Align.BL, 100, 100,
 			textureBank.getTexture("joinDefault.png"),
@@ -63,17 +62,13 @@ public class LobbyUI extends UI implements InputPipeMulti {
 			textureBank.getTexture("backHover.png"),
 			textureBank.getTexture("backPressed.png")
 		);
-
+		
 		// Create Background Image
 		backgroundImage = new ImageComponent(
 			Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
 
-		connection.getLobbies((lobs) -> {
-			refresh(lobs);
-		}, (err) -> {
-
-		});
+		connection.getLobbies(this::refresh, (err) -> System.err.println("Error retreiving lobbies: " + err));
 	}
 
 	/**
@@ -89,23 +84,29 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	}
 
 	private void refresh(ArrayList<LobbyInfo> lobs) {
-		lobbies = lobs;
-		lobby_buttons.clear();
-		this.inputHandlers.clear();
-		for (int i = 0; i < lobbies.size(); i++) {
-			final int l = i;
-			TextButtonComponent lobbyButton = new TextButtonComponent(
-					() -> {lobbySelect(l);}, Align.BL, 300, 300, fontBank.getFont("emulogic.ttf"), 0.5f, lobbies.get(i));
-			lobby_buttons.add(lobbyButton);
-			this.inputHandlers.add(lobby_buttons.get(i));
+		synchronized (this) {
+			lobbies = lobs;
+			lobby_buttons.clear();
+			this.inputHandlers.clear();
+			for (int i = 0; i < lobbies.size(); i++) {
+				final int l = i;
+				TextButtonComponent lobbyButton = new TextButtonComponent(
+						() -> {
+							lobbySelect(l);
+						}, Align.BL, 300, 300, fontBank.getFont("emulogic.ttf"), 0.5f, lobbies.get(i));
+				lobby_buttons.add(lobbyButton);
+				this.inputHandlers.add(lobby_buttons.get(i));
+			}
+			this.inputHandlers.add(joinButton);
+			this.inputHandlers.add(backButton);
 		}
-		this.inputHandlers.add(joinButton);
-		this.inputHandlers.add(backButton);
 	}
 
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
-		return this.inputHandlers;
+		synchronized (this) {
+			return new ArrayList<>(this.inputHandlers);
+		}
 	}
 	
 	@Override
@@ -120,9 +121,14 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		// Allows escape to be pressed to return to previous menu
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
-		 	System.out.println("escape pressed");
-			this.nextUI = new StartUI(this);
+		if (action == GLFW_PRESS) {
+			if (key == GLFW_KEY_ESCAPE) {
+				System.out.println("escape pressed");
+				this.nextUI = new StartUI(this);
+			} else if (key == GLFW_KEY_C) {
+				System.out.println("c pressed");
+				this.nextUI = new LobbyCreateUI(this);
+			}
 		}
 	}
 	

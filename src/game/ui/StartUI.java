@@ -4,10 +4,11 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
-import game.Util;
 import game.audio.AudioManager;
 import game.net.client.IClientConnection;
 import game.render.*;
+import game.ui.component.ButtonComponent;
+import game.ui.component.ImageComponent;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program

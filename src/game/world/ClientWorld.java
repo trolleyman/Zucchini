@@ -10,12 +10,11 @@ import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
-import game.net.*;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
+import game.render.Align;
 import game.render.IRenderer;
 import game.world.entity.*;
-import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
 import game.world.update.EntityUpdate;
 import org.joml.Vector2f;
@@ -73,8 +72,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
-	/** This is the line of sight buffer. */
-	private FloatBuffer losBuf = MemoryUtil.memAllocFloat(16);
+	/** This is the min line of sight buffer. */
+	private FloatBuffer losMinBuf = MemoryUtil.memAllocFloat(32);
+	/** This is the max line of sight buffer. */
+	private FloatBuffer losMaxBuf = MemoryUtil.memAllocFloat(32);
 	
 	/** Audio Manager */
 	private AudioManager audio;
@@ -159,6 +160,39 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 	}
 	
+	private void drawDebugLines(IRenderer r, FloatBuffer buf) {
+		float x = buf.limit() <= 1 ? 0.0f : buf.get(0);
+		float y = buf.limit() <= 1 ? 0.0f : buf.get(1);
+		for (int i = 2; i < buf.limit() - 3; i += 2) {
+			float nx = buf.get(i);
+			float ny = buf.get(i + 1);
+			r.drawLine(x, y, nx, ny, ColorUtil.PINK, 1.0f);
+		}
+	}
+	
+	/**
+	 * Renders the minimap at x,y on the screen with width w and height h.
+	 * @param r The renderer
+	 */
+	public void renderMiniMap(IRenderer r, float x, float y, float w, float h, float zoom) {
+		r.enableStencilDraw(2);
+		r.drawBox(Align.BL, x, y, w, h, ColorUtil.WHITE);
+		r.disableStencilDraw();
+		r.enableStencil(2);
+		
+		r.getModelViewMatrix()
+				.pushMatrix()
+				.translate(x, y, 0.0f)
+				.translate(w/2, h/2, 0.0f)
+				.scale(zoom)
+				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+		
+		map.render(r);
+		
+		r.getModelViewMatrix().popMatrix();
+		r.disableStencil();
+	}
+	
 	/**
 	 * Renders the world
 	 * @param r The renderer
@@ -171,30 +205,36 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			.scale(cameraZoom)
 			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
-		// Render line of sight
-		losBuf = map.getLineOfSight(cameraPos, Player.LINE_OF_SIGHT_MAX, losBuf);
-		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+		// Get player
+		Player p = getPlayer();
+		
+		if (p != null) {
+			// Render line of sight
+			Vector2f pos = p.position;
+			losMinBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MIN, losMinBuf);
+			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+			losMaxBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, (float)Math.toRadians(70.0), losMaxBuf);
+			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+		}
 		
 		if (Util.isDebugRenderMode()) {
-			float x = losBuf.limit() <= 1 ? 0.0f : losBuf.get(0);
-			float y = losBuf.limit() <= 1 ? 0.0f : losBuf.get(1);
-			for (int i = 2; i < losBuf.limit() - 3; i += 2) {
-				float nx = losBuf.get(i);
-				float ny = losBuf.get(i + 1);
-				r.drawLine(x, y, nx, ny, ColorUtil.PINK, 1.0f);
-			}
+			//drawDebugLines(r, losMinBuf);
+			drawDebugLines(r, losMaxBuf);
 		}
 		
 		// Render map
 		this.map.render(r);
 		
-		// Draw stencil
-		r.enableStencilDraw(1);
-		r.drawTriangleFan(losBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-
-		// Disable stencil draw
-		r.disableStencilDraw();
-		r.enableStencil(1);
+		if (p != null && !Util.isDebugRenderMode()) {
+			// Draw stencil
+			r.enableStencilDraw(1);
+			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+			
+			// Disable stencil draw
+			r.disableStencilDraw();
+			r.enableStencil(1);
+		}
 		
 		// Render entities
 		for (Entity e : this.bank.entities.values()) {

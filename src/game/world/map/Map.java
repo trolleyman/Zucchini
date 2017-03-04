@@ -178,6 +178,77 @@ public class Map {
 		return buf;
 	}
 	
+	private boolean inFov(float angle, float aimAngle, float fov) {
+		float diff = Math.abs(angle - aimAngle);
+		if (diff > Math.PI)
+			diff = (float)(2*Math.PI) - diff;
+		return diff < fov;
+	}
+	
+	/**
+	 * Gets the line of sight data for the position given.
+	 * @param pos The position of the camera in the world
+	 * @param max The maximum length of the line of sight
+	 * @param aimAngle The current angle of the player
+	 * @param fov The field of view of the player
+	 * @param buf Where to store the buffer. This <b>**MUST**</b> be allocated using MemoryUtils.memAllocFloat()
+	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
+	 */
+	public FloatBuffer getLineOfSight(Vector2f pos, float max, float aimAngle, float fov, FloatBuffer buf) {
+		// Calculate points
+		ArrayList<Vector3f> points = new ArrayList<>();
+		
+		// First the walls, making sure to void the points that are outside the fov.
+		for (Wall w : walls) {
+			float angle;
+			angle = Util.getAngle(pos.x, pos.y, w.p0.x, w.p0.y);
+			if (inFov(angle, aimAngle, fov)) {
+				Vector3f t1 = Util.pushTemporaryVector3f();
+				Vector3f t2 = Util.pushTemporaryVector3f();
+				projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, t1);
+				projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, t2);
+			}
+			
+			angle = Util.getAngle(pos.x, pos.y, w.p1.x, w.p1.y);
+			if (inFov(angle, aimAngle, fov)) {
+				Vector3f t1 = Util.pushTemporaryVector3f();
+				Vector3f t2 = Util.pushTemporaryVector3f();
+				projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, t1);
+				projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, t2);
+			}
+		}
+		
+		// And also project lines on the edge of the fov.
+		float langle = Util.normalizeAngle(aimAngle - fov);
+		float rangle = Util.normalizeAngle(aimAngle + fov);
+		Vector3f ltemp = Util.pushTemporaryVector3f();
+		Vector3f rtemp = Util.pushTemporaryVector3f();
+		projectLine(points, pos, max, langle, ltemp);
+		projectLine(points, pos, max, rangle, rtemp);
+		
+		// Sort points in order of angle, lowest first
+		points.sort((l, r) -> -Float.compare(l.z, r.z));
+		
+		// Put into buffer
+		buf.clear();
+		buf = putFloat(buf, pos.x);
+		buf = putFloat(buf, pos.y);
+		
+		float firstX = points.size() == 0 ? pos.x : points.get(0).x;
+		float firstY = points.size() == 0 ? pos.y : points.get(0).y;
+		for (Vector3f p : points) {
+			buf = putFloat(buf, p.x);
+			buf = putFloat(buf, p.y);
+			Util.popTemporaryVector3f();
+		}
+		
+		buf = putFloat(buf, firstX);
+		buf = putFloat(buf, firstY);
+		
+		buf.flip();
+		return buf;
+	}
+	
 	/**
 	 * Gets the line of sight data for the position given.
 	 * @param pos The position of the camera in the world

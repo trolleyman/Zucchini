@@ -1,7 +1,10 @@
 package game.world.entity.weapon;
 
+import game.Util;
+import game.render.IRenderer;
 import game.world.UpdateArgs;
 import game.world.entity.Item;
+import game.world.update.SetHeldItem;
 import org.joml.Vector2f;
 
 /**
@@ -23,7 +26,6 @@ public abstract class Weapon extends Item {
 	private float cooldown;
 	private int shots;
 	private float reloadingTime;
-	private Vector2f weaponPos;
 	
 	public Weapon(Weapon g) {
 		super(g);
@@ -59,8 +61,18 @@ public abstract class Weapon extends Item {
 	}
 	
 	@Override
+	public void clientUpdate(UpdateArgs ua) {
+		super.clientUpdate(ua);
+		this.currentCooldown -= ua.dt;
+		if (this.currentCooldown < 0.0f)
+			this.currentCooldown = 0.0f;
+	}
+	
+	@Override
 	public void update(UpdateArgs ua) {
+		boolean updated = false;
 		if (this.fire && this.currentCooldown <= 0.0f) {
+			updated = true;
 			// Fire!!!
 			this.fire(ua);
 			
@@ -85,8 +97,42 @@ public abstract class Weapon extends Item {
 		if (this.currentCooldown <= 0.0f && this.reloading) {
 			System.out.println("Reloaded.");
 			this.reloading = false;
+			updated = true;
+		}
+		
+		if (updated)
+			ua.bank.updateEntityCached(new SetHeldItem(this.ownerId, this.clone()));
+	}
+	
+	@Override
+	public void renderUI(IRenderer r) {
+		float x = r.getWidth() - Util.HUD_PADDING;
+		float y = Util.HUD_PADDING;
+		float p;
+		if (!this.reloading)
+			p = this.shots;
+		else
+			p = (1 - (this.currentCooldown / this.reloadingTime)) * this.shots;
+		
+		for (int i = 0; i < currentShots; i++) {
+			if (this.reloading) {
+				if (i + 1 < p)
+					x = renderBullet(r, x, y, 1.0f);
+				else if (i < p)
+					x = renderBullet(r, x, y, Math.min(1.0f, p - i));
+				else
+					break;
+			} else {
+				x = renderBullet(r, x, y, 1.0f);
+			}
 		}
 	}
+	
+	/**
+	 * Renders a bullet for the UI, and returns the next x position to go to.
+	 * @param p The proportion of the bullet to render. [0,1]
+	 */
+	protected abstract float renderBullet(IRenderer r, float x, float y, float p);
 	
 	@Override
 	public void beginUse() {

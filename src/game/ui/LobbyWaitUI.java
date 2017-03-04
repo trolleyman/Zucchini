@@ -1,31 +1,31 @@
 package game.ui;
 
 import game.*;
-import game.audio.AudioManager;
-import game.exception.GameException;
-import game.exception.LobbyJoinException;
 import game.exception.ProtocolException;
 import game.net.WorldStart;
-import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
+import game.ui.component.ButtonComponent;
 import game.world.ClientWorld;
 import game.world.EntityBank;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 
 public class LobbyWaitUI extends UI implements InputPipeMulti {
-	private static final float PADDING = 30.0f;
+	private static final float PADDING = 50.0f;
+	private static final float INTERNAL_PADDING = 30.0f;
 	
 	private final String lobbyName;
 	
 	/** If this is not null, an error has occured */
 	private String error = null;
 	/** If the client has been accepted to the lobby */
-	private boolean accepted = false;
+	private boolean accepted;
+	
+	/** Lobby Info Lock */
+	private final Object lobbyInfoLock = new Object();
 	/** The current info of the lobby */
 	private LobbyInfo lobbyInfo = null;
 	
@@ -42,22 +42,25 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private Font font;
 	
 	private ButtonComponent toggleReadyButton;
+	private ButtonComponent leaveButton;
 	
 	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
-	public LobbyWaitUI(UI _ui, String lobbyName) {
+	public LobbyWaitUI(UI _ui, String _lobbyName, boolean sendJoinRequest) {
 		super(_ui);
 		
+		this.lobbyName = _lobbyName;
 		this.nextUI = this;
+		
+		// Accepted is true when we don't send a join request
+		this.accepted = !sendJoinRequest;
 		
 		font = fontBank.getFont("emulogic.ttf");
 		
 		this.loadingTex = textureBank.getTexture("loading.png");
 		this.readyTex   = textureBank.getTexture("ready.png");
 		this.unreadyTex = textureBank.getTexture("unready.png");
-		
-		this.lobbyName = lobbyName;
 		
 		Texture defaultTex = textureBank.getTexture("toggleReadyDefault.png");
 		Texture hoverTex = textureBank.getTexture("toggleReadyHover.png");
@@ -66,7 +69,21 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		this.toggleReadyButton = new ButtonComponent(
 				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
 		
+		this.leaveButton = new ButtonComponent(
+				() -> { try {
+					connection.sendLobbyLeaveRequest();
+				} catch (ProtocolException e) {
+					connection.close();
+				} },
+				Align.BR, 100, 100,
+				textureBank.getTexture("leaveDefault.png"),
+				textureBank.getTexture("leaveHover.png"),
+				textureBank.getTexture("leavePressed.png")
+		);
+		
 		this.inputHandlers.add(this.toggleReadyButton);
+		this.inputHandlers.add(this.leaveButton);
+
 		this.inputHandlers.add(new InputHandler() {
 			@Override
 			public void handleKey(int key, int scancode, int action, int mods) {
@@ -86,7 +103,9 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			@Override
 			public void processLobbyUpdate(LobbyInfo info) {
 				Arrays.sort(info.players, Comparator.comparingInt((i) -> i.team));
-				newLobbyInfo = info;
+				synchronized (lobbyInfoLock) {
+					newLobbyInfo = info;
+				}
 			}
 			
 			@Override
@@ -115,10 +134,12 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			}
 		});
 		
-		try {
-			connection.sendLobbyJoinRequest(this.lobbyName);
-		} catch (ProtocolException e) {
-			this.error = e.toString();
+		if (sendJoinRequest) {
+			try {
+				connection.sendLobbyJoinRequest(this.lobbyName);
+			} catch (ProtocolException e) {
+				this.error = e.toString();
+			}
 		}
 	}
 	
@@ -139,39 +160,126 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		}
 	}
 	
+	private boolean passed(double thresh, double old, double nw) {
+		return old > thresh && nw < thresh;
+	}
+	
+	private boolean p5 = false;
+	private boolean p4 = false;
+	private boolean p3 = false;
+	private boolean p2 = false;
+	private boolean p1 = false;
+	
 	@Override
 	public void update(double dt) {
 		this.time += dt;
-		lobbyInfo = newLobbyInfo;
+		synchronized (lobbyInfoLock) {
+			if (newLobbyInfo != null) {
+				// Replace lobbyInfo with the new lobbyInfo
+				lobbyInfo = newLobbyInfo;
+				newLobbyInfo = null;
+			} else {
+				// Decrement current lobbyInfo countdown time
+				if (lobbyInfo != null && lobbyInfo.countdownTime != -1) {
+					lobbyInfo.countdownTime -= dt;
+					if (lobbyInfo.countdownTime < 0.0)
+						lobbyInfo.countdownTime = 0.0;
+				}
+			}
+			
+			if (lobbyInfo != null) {
+				if (lobbyInfo.countdownTime == -1) {
+					p5 = false;
+					p4 = false;
+					p3 = false;
+					p2 = false;
+					p1 = false;
+				} else {
+					// TODO: Audio for each second
+					if (!p5 && lobbyInfo.countdownTime <= 5.0) {
+						System.out.println("Lobby: Game starts in 5...");
+						p5 = true;
+					}
+					if (!p4 && lobbyInfo.countdownTime <= 4.0) {
+						System.out.println("Lobby: Game starts in 4...");
+						p4 = true;
+					}
+					if (!p3 && lobbyInfo.countdownTime <= 3.0) {
+						System.out.println("Lobby: Game starts in 3...");
+						p3 = true;
+					}
+					if (!p2 && lobbyInfo.countdownTime <= 2.0) {
+						System.out.println("Lobby: Game starts in 2...");
+						p2 = true;
+					}
+					if (!p1 && lobbyInfo.countdownTime <= 1.0) {
+						System.out.println("Lobby: Game starts in 1...");
+						p1 = true;
+					}
+				}
+			}
+		}
 		this.toggleReadyButton.update(dt);
+		this.leaveButton.update(dt);
 	}
 	
 	@Override
 	public void render(IRenderer r) {
 		if (accepted && lobbyInfo != null) {
 			// Draw lobby view ui screen
-			r.drawText(font, lobbyName + "      " + lobbyInfo.players.length + "/" + lobbyInfo.maxPlayers,
+			r.drawText(font, lobbyName,
 					Align.TL, false, PADDING, r.getHeight() - PADDING, 1.0f);
 			
-			float y = r.getHeight() - PADDING - font.getHeight(1.0f) - 5.0f;
+			r.drawText(font, lobbyInfo.players.length + "/" + lobbyInfo.maxPlayers,
+					Align.TR, false, r.getWidth() - PADDING, r.getHeight() - PADDING, 1.0f);
+			
+			// Draw countdown time
+			if (lobbyInfo != null && lobbyInfo.countdownTime != -1) {
+				Vector4f col;
+				if (lobbyInfo.countdownTime < 1.0f)
+					col = ColorUtil.GREEN;
+				else if (lobbyInfo.countdownTime < 3.0f)
+					col = ColorUtil.GREEN;
+				else
+					col = ColorUtil.GREEN;
+				
+				String s = String.format("%.3f", lobbyInfo.countdownTime);
+				r.drawText(font, s, Align.BL, false,
+						r.getWidth()/2 - font.getWidth("9.999", 1.0f)/2,
+						PADDING/2 + toggleReadyButton.getY() + toggleReadyButton.getHeight(), 1.0f, col);
+			}
+			
+			// Draw players
+			float x1 = PADDING + font.getWidth("_:", 1.0f);
+			float x2 = x1 + INTERNAL_PADDING;
+			float y1 = r.getHeight() - PADDING - font.getHeight(1.0f) - INTERNAL_PADDING;
+			
 			for (int i = 0; i < lobbyInfo.players.length; i++) {
 				PlayerInfo playerInfo = lobbyInfo.players[i];
 				
-				r.drawText(font, playerInfo.team + ":",
-						Align.TR, false, PADDING + 30.0f, y, 1.0f);
-				r.drawText(font, playerInfo.name,
-						Align.TL, false, PADDING + 30.0f, y, 1.0f);
-				if (playerInfo.ready)
-					r.drawTexture(readyTex, Align.TR, r.getWidth() - PADDING, y);
-				else
-					r.drawTexture(unreadyTex, Align.TR, r.getWidth() - PADDING, y);
+				Texture tex;
+				if (playerInfo.ready) tex = readyTex;
+				else tex = unreadyTex;
 				
-				y -= font.getHeight(1.0f) + 5.0f;
+				float y2 = y1 - font.getHeight(1.0f) / 2.0f;
+				
+				r.drawText(font, playerInfo.team + ":",
+						Align.TR, false, x1, y1, 1.0f);
+				r.drawText(font, playerInfo.name,
+						Align.TL, false, x2, y1, 1.0f);
+				
+				r.drawTexture(tex, Align.MR, r.getWidth() - PADDING, y2);
+				
+				y1 -= font.getHeight(1.0f);
+				y1 -= INTERNAL_PADDING;
 			}
 			
-			toggleReadyButton.setX(r.getWidth()/2 - toggleReadyButton.getWidth()/2);
+			toggleReadyButton.setX(r.getWidth()/2 + PADDING/2);
 			toggleReadyButton.setY(PADDING);
 			toggleReadyButton.render(r);
+			leaveButton.setX(r.getWidth()/2 - PADDING/2);
+			leaveButton.setY(PADDING);
+			leaveButton.render(r);
 			
 		} else if (error != null) {
 			// Error has occured
