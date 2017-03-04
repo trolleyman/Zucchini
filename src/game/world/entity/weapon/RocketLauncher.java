@@ -33,7 +33,8 @@ public class RocketLauncher extends Weapon {
 	@Override
 	protected void reload(UpdateArgs ua) {
 		System.out.println("Reloading rocket launcher...");
-		ua.audio.play("rocket_reload.wav", 1.0f, this.position);
+		int audioID = ua.audio.play("rocket_reload.wav", 1.0f, this.position);
+		ua.audio.updateSourcePos(audioID, this.position); //TODO: DOESNT work since this is only called once
 	}
 	
 	@Override

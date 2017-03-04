@@ -48,8 +48,7 @@ public class Player extends MovableEntity {
 	private Item heldItem;
 	
 	/** Has the player been assigned a footstep sound source? */
-	private boolean soundSourceInit = false;
-	private int walkingSoundID;//sound source id associated with player movement
+	private int walkingSoundID=-1;//sound source id associated with player movement
 	
 	private transient boolean beganUse = false;
 	
@@ -140,23 +139,21 @@ public class Player extends MovableEntity {
 			this.heldItem.update(ua);
 		}
 		
-		if (!soundSourceInit) {
-			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
-			System.out.println("found player footstep sound "+walkingSoundID+" for player "+this.getId());
-			ua.audio.pauseLoop(walkingSoundID);
-			soundSourceInit = true;
-		}
-		
 		// Play walking sounds
 		if (moveNorth || moveSouth || moveEast || moveWest) {
 			//System.out.println("Starting sound id: " + walkingSoundID);
-			ua.audio.continueLoop(this.walkingSoundID,this.position);
+			if (walkingSoundID == -1){
+				this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.6f,this.position);
+			}else{
+				ua.audio.continueLoop(this.walkingSoundID,this.position);
+			}
 		} else {
 			//System.out.println("Stopping sound id: " + walkingSoundID);
-			ua.audio.pauseLoop(this.walkingSoundID);
+			if(walkingSoundID != -1){
+				ua.audio.pauseLoop(this.walkingSoundID);
+				walkingSoundID=-1;
+			}
 		} 
-		
-		
 	}
 	
 	@Override

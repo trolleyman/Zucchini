@@ -10,6 +10,7 @@ public class SoundSource {
 	private final float zPos = 1.0f; //fixed z pos since our game will be 2D
     private final int sourceId;
     private float volume;
+    private boolean inUse = false;
 
     /**
      * The object that represents an entity that creates some form of sound
@@ -46,6 +47,22 @@ public class SoundSource {
      */
     public void setReferenceDistance(float value){
         alSourcef(sourceId, AL_REFERENCE_DISTANCE, value);
+    }
+    
+    /**
+     * returns if this source is in use
+     * @return
+     */
+    public boolean inUse(){
+    	return this.inUse;
+    }
+    
+    /**
+     * sets if this source is in use
+     * @param bool
+     */
+    public void setInUse(boolean bool){
+    	this.inUse = bool;
     }
     
     /**
