@@ -66,6 +66,14 @@ public abstract class AbstractButtonComponent extends UIComponent {
 		this.y = _y;
 	}
 	
+	public float getX() {
+		return x;
+	}
+	
+	public float getY() {
+		return y;
+	}
+	
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
 		this.mx = (float) xpos;

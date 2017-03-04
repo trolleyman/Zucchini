@@ -236,8 +236,8 @@ public class Util {
 	public static float alignToWorldX(Align a, float x, float w) {
 		switch (a) {
 			case BL:case ML:case TL: return x;
-			case BM:case MM:case TM: return x + w/2.0f;
-			case BR:case MR:case TR: return x + w;
+			case BM:case MM:case TM: return x - w/2.0f;
+			case BR:case MR:case TR: return x - w;
 		}
 		return x;
 	}
@@ -248,8 +248,8 @@ public class Util {
 	public static float alignToWorldY(Align a, float y, float h) {
 		switch (a) {
 			case BL:case BM:case BR: return y;
-			case ML:case MM:case MR: return y + h/2.0f;
-			case TL:case TM:case TR: return y + h;
+			case ML:case MM:case MR: return y - h/2.0f;
+			case TL:case TM:case TR: return y - h;
 		}
 		return y;
 	}
@@ -259,7 +259,7 @@ public class Util {
 	 */
 	public static boolean isPointInRect(float x, float y, Align a, float rx, float ry, float rw, float rh) {
 		rx = alignToWorldX(a, rx, rw);
-		ry = alignToWorldX(a, ry, rh);
+		ry = alignToWorldY(a, ry, rh);
 		
 		return x >= rx && x < rx + rw
 		    && y >= ry && y < ry + rh;
