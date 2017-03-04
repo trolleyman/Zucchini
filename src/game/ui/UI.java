@@ -6,7 +6,9 @@ package game.ui;
 import game.InputHandler;
 import game.audio.AudioManager;
 import game.net.client.IClientConnection;
+import game.render.FontBank;
 import game.render.IRenderer;
+import game.render.TextureBank;
 
 /**
  * The UI is the root class of all UIs
@@ -16,13 +18,22 @@ import game.render.IRenderer;
 public abstract class UI implements InputHandler {
 	/** This is the connection to the server */
 	protected IClientConnection connection;
-	
 	protected AudioManager audio;
+	protected TextureBank textureBank;
+	protected FontBank fontBank;
 	
-	public UI(IClientConnection _connection, AudioManager _audio) {
+	public UI(UI ui) {
+		this.connection = ui.connection;
+		this.audio = ui.audio;
+		this.textureBank = ui.textureBank;
+		this.fontBank = ui.fontBank;
+	}
+	
+	public UI(IClientConnection _connection, AudioManager _audio, TextureBank _textureBank, FontBank _fontBank) {
 		this.connection = _connection;
-		
 		this.audio = _audio;
+		this.textureBank = _textureBank;
+		this.fontBank = _fontBank;
 	}
 
 	/**

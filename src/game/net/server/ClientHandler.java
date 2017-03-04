@@ -17,6 +17,8 @@ public class ClientHandler {
 	
 	private volatile boolean closed = false;
 	
+	private boolean isDebugPrint = false;
+	
 	public ClientHandler(ClientInfo info) {
 		this.info = info;
 	}
@@ -31,7 +33,7 @@ public class ClientHandler {
 		tcpHandler.start();
 		
 		Thread udpHandler = new Thread(this::runUdpHandler, "UDP ClientHandler: "
-				+ info.udpConn.getSocket().getRemoteSocketAddress());
+				+ info.udpConn.getSocketAddress());
 		udpHandler.start();
 	}
 	
@@ -40,7 +42,8 @@ public class ClientHandler {
 			try {
 				// Wait for message
 				String msg = info.tcpConn.recvString();
-				System.out.println("[TCP]: RECV " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
+				if (isDebugPrint)
+					System.out.println("[TCP]: RECV " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
 				
 				synchronized (this) {
 					this.tcpCallback.accept(msg);
@@ -57,7 +60,8 @@ public class ClientHandler {
 		
 		try {
 			info.tcpConn.sendString(msg);
-			System.out.println("[TCP]: SEND " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
+			if (isDebugPrint)
+				System.out.println("[TCP]: SEND " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
 		} catch (ProtocolException e) {
 			this.error(e);
 			throw e;
@@ -69,7 +73,8 @@ public class ClientHandler {
 			try {
 				// Wait for message
 				String msg = info.udpConn.recvString();
-				System.out.println("[UDP]: RECV " + info.udpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
+				if (isDebugPrint)
+					System.out.println("[UDP]: RECV " + info.udpConn.getSocketAddress() + ": " + msg);
 				
 				synchronized (this) {
 					this.udpCallback.accept(msg);
@@ -86,7 +91,8 @@ public class ClientHandler {
 		
 		try {
 			info.udpConn.sendString(msg);
-			System.out.println("[UDP]: SEND " + info.udpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
+			if (isDebugPrint)
+				System.out.println("[UDP]: SEND " + info.udpConn.getSocketAddress() + ": " + msg);
 		} catch (ProtocolException e) {
 			this.error(e);
 			throw e;
@@ -97,7 +103,8 @@ public class ClientHandler {
 		synchronized (this) {
 			if (isClosed())
 				return;
-			System.err.println("[Net]: ERROR " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + e.toString());
+			if (isDebugPrint)
+				System.err.println("[Net]: ERROR " + info.tcpConn.getSocket().getRemoteSocketAddress() + ": " + e.toString());
 			this.errorCallback.accept(e);
 			this.close();
 		}
@@ -107,7 +114,8 @@ public class ClientHandler {
 		synchronized (this) {
 			if (isClosed())
 				return;
-			System.out.println("[Net]: CLOSE " + info.tcpConn.getSocket().getRemoteSocketAddress() + " + " + info.udpConn.getSocket().getRemoteSocketAddress());
+			if (isDebugPrint)
+				System.out.println("[Net]: CLOSE " + info.tcpConn.getSocket().getRemoteSocketAddress() + " + " + info.udpConn.getSocketAddress());
 			closed = true;
 			info.tcpConn.close();
 			info.udpConn.close();

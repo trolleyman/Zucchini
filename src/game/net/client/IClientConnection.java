@@ -43,6 +43,11 @@ public interface IClientConnection {
 	void sendToggleReady() throws ProtocolException;
 	
 	/**
+	 * Sends a lobby leave request
+	 */
+	void sendLobbyLeaveRequest() throws ProtocolException;
+	
+	/**
 	 * Sets the current connection event handler
 	 * @param cch The client connection handler
 	 */

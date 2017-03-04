@@ -11,6 +11,7 @@ import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.net.TCPConnection;
 import game.net.UDPConnection;
+import game.net.WorldStart;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
 
@@ -25,7 +26,7 @@ public class ClientConnection implements IClientConnection {
 	private Thread tcpHandler;
 	
 	private final Object cchLock = new Object();
-	private IClientConnectionHandler cch = new DummyClientConnectionHandler();
+	private IClientConnectionHandler cch = new IClientConnectionHandler() {};
 	
 	private final Object lobbiesLock = new Object();
 	private ArrayList<Consumer<ArrayList<LobbyInfo>>> lobbiesSuccessCallbacks = new ArrayList<>();
@@ -46,20 +47,21 @@ public class ClientConnection implements IClientConnection {
 		tcpHandler.start();
 	}
 	
-	private void outUDP(String msg) {
-		System.out.println("[Net UDP] " + name + ": " + msg);
-	}
-	private void outTCP(String msg) {
-		System.out.println("[Net TCP] " + name + ": " + msg);
-	}
-	
 	private void runUdpHandler() {
 		while (running) {
 			try {
 				String msg = udpConn.recvString();
-				outUDP("Message received: " + msg);
+				
+				if (Protocol.isUpdateEntity(msg)) {
+					EntityUpdate eu = Protocol.parseUpdateEntity(msg);
+					synchronized (cchLock) {
+						cch.updateEntity(eu);
+					}
+				} else {
+					System.err.println("[UDP]: " + name + " Warning: Unknown message received: " + msg);
+				}
 			} catch (ProtocolException e) {
-				System.err.println("[Net UDP] " + name + ": Exception encountered:");
+				System.err.println("[UDP]: " + name + ": Exception encountered:");
 				e.printStackTrace();
 				this.close();
 			}
@@ -136,11 +138,20 @@ public class ClientConnection implements IClientConnection {
 					synchronized (cchLock) {
 						cch.processLobbyUpdate(info);
 					}
+				} else if (Protocol.isWorldStart(msg)) {
+					WorldStart start = Protocol.parseWorldStart(msg);
+					synchronized (cchLock) {
+						cch.handleWorldStart(start);
+					}
+				} else if (Protocol.isLobbyLeaveNotify(msg)) {
+					synchronized (cchLock) {
+						cch.handleLobbyLeaveNotify();
+					}
 				} else {
-					System.err.println("Warning: Unknown message received from " + tcpConn.getSocket().getRemoteSocketAddress() + ": " + msg);
+					System.err.println("[TCP]: " + name + ": Warning: Unknown message received: " + msg);
 				}
 			} catch (ProtocolException e) {
-				System.err.println("[Net TCP] " + name + ": Exception encountered:");
+				System.err.println("[TCP]: " + name + ": Exception encountered:");
 				e.printStackTrace();
 				this.close();
 			}
@@ -149,7 +160,7 @@ public class ClientConnection implements IClientConnection {
 	
 	@Override
 	public void sendAction(Action a) throws ProtocolException {
-		tcpConn.sendString(Protocol.sendAction(a));
+		udpConn.sendString(Protocol.sendAction(a));
 	}
 	
 	@Override
@@ -165,6 +176,11 @@ public class ClientConnection implements IClientConnection {
 	@Override
 	public void sendToggleReady() throws ProtocolException {
 		tcpConn.sendString(Protocol.sendReadyToggle());
+	}
+	
+	@Override
+	public void sendLobbyLeaveRequest() throws ProtocolException {
+		tcpConn.sendString(Protocol.sendLobbyLeaveRequest());
 	}
 	
 	@Override

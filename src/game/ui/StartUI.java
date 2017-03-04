@@ -7,10 +7,7 @@ import game.InputPipeMulti;
 import game.Util;
 import game.audio.AudioManager;
 import game.net.client.IClientConnection;
-import game.render.Align;
-import game.render.Font;
-import game.render.IRenderer;
-import game.render.TextureBank;
+import game.render.*;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
@@ -33,51 +30,54 @@ public class StartUI extends UI implements InputPipeMulti {
 	/** The next UI to return */
 	private UI nextUI = this;
 	
-
-	private Font font;
 	private ImageComponent backgroundImage;
+	
+	public StartUI(UI ui) {
+		super(ui);
+		setup();
+	}
 	
 	/**
 	 * Constructs a new StartUI
-	 * @param tb TextureBank used to get textures for components
 	 */
-	public StartUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
-		super(conn, audio);
-		
-		font = new Font(Util.getBasePath() + "resources/fonts/emulogic.ttf");
-
+	public StartUI(IClientConnection _conn, AudioManager _audio, TextureBank _tb, FontBank _fb) {
+		super(_conn, _audio, _tb, _fb);
+		setup();
+	}
+	
+	private void setup() {
 		// Create Start Button
 		startButton = new ButtonComponent(
-			() -> { this.nextUI = new LobbyUI(connection, audio, tb); },
-			Align.BL, 100, 100,
-			tb.getTexture("startDefault.png"),
-			tb.getTexture("startHover.png"),
-			tb.getTexture("startPressed.png")
+				() -> this.nextUI = new LobbyUI(this),
+				Align.BL, 100, 100,
+				textureBank.getTexture("startDefault.png"),
+				textureBank.getTexture("startHover.png"),
+				textureBank.getTexture("startPressed.png")
 		);
-
+		
 		// Create Help Button
 		helpButton = new ButtonComponent(
 				() -> { /* TODO: go to HelpUI */ },
 				Align.BL, 100, 100,
-				tb.getTexture("helpDefault.png"),
-				tb.getTexture("helpHover.png"),
-				tb.getTexture("helpPressed.png")
+				textureBank.getTexture("helpDefault.png"),
+				textureBank.getTexture("helpHover.png"),
+				textureBank.getTexture("helpPressed.png")
 		);
-
+		
 		// Create Exit Button
 		exitButton = new ButtonComponent(
-			() -> { this.nextUI = null; },
-			Align.BL, 100, 100,
-			tb.getTexture("exitButtonDefault.png"),
-			tb.getTexture("exitButtonHover.png"),
-			tb.getTexture("exitButtonPressed.png")
+				() -> { this.nextUI = null; },
+				Align.BL, 100, 100,
+				textureBank.getTexture("exitButtonDefault.png"),
+				textureBank.getTexture("exitButtonHover.png"),
+				textureBank.getTexture("exitButtonPressed.png")
 		);
-
+		
 		// Create Background Image
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
+				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
-
+		
 		// Add buttons to input handlers
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(helpButton);

@@ -82,20 +82,21 @@ public class UDPConnection {
 		}
 	}
 	
-	public synchronized DatagramPacket recv() throws ProtocolException {
+	public DatagramPacket recv() throws ProtocolException {
 		try {
 			// Recv packet
-			DatagramPacket packet = new DatagramPacket(udpRecvTemp, udpRecvTemp.length);
+			// This lock needs to be this length because of temporary buffers
 			synchronized (recvLock) {
+				DatagramPacket packet = new DatagramPacket(udpRecvTemp, udpRecvTemp.length);
 				udpSocket.receive(packet);
+				
+				// Return packet with new buffer
+				int len = packet.getLength();
+				byte[] newBytes = new byte[len];
+				System.arraycopy(packet.getData(), 0, newBytes, 0, len);
+				packet.setData(newBytes);
+				return packet;
 			}
-			
-			// Return packet with new buffer
-			int len = packet.getData().length;
-			byte[] newBytes = new byte[len];
-			System.arraycopy(packet.getData(), 0, newBytes, 0, len);
-			packet.setData(newBytes);
-			return packet;
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -104,7 +105,9 @@ public class UDPConnection {
 	public String decode(DatagramPacket recv) throws ProtocolException {
 		try {
 			synchronized (decoder) {
-				return decoder.decode(ByteBuffer.wrap(recv.getData())).toString();
+				ByteBuffer buf = ByteBuffer.wrap(recv.getData());
+				buf.limit(recv.getLength());
+				return decoder.decode(buf).toString();
 			}
 		} catch (CharacterCodingException e) {
 			throw new ProtocolException(e);
@@ -114,13 +117,14 @@ public class UDPConnection {
 	public String recvString() throws ProtocolException {
 		try {
 			// Recv packet
-			DatagramPacket packet = new DatagramPacket(udpRecvTemp, udpRecvTemp.length);
+			// This lock needs to be this length because of temporary buffers
 			synchronized (recvLock) {
+				DatagramPacket packet = new DatagramPacket(udpRecvTemp, udpRecvTemp.length);
 				udpSocket.receive(packet);
+				
+				// Decode bytes
+				return this.decode(packet);
 			}
-			
-			// Decode bytes
-			return this.decode(packet);
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -132,6 +136,7 @@ public class UDPConnection {
 		} catch (ProtocolException e) {
 			// We don't care about this
 		}
+		udpSocket.close();
 	}
 	
 	public DatagramSocket getSocket() {

@@ -5,9 +5,13 @@ import game.audio.AudioManager;
 import game.exception.GameException;
 import game.exception.LobbyJoinException;
 import game.exception.ProtocolException;
+import game.net.WorldStart;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
+import game.world.ClientWorld;
+import game.world.EntityBank;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +31,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	private LobbyInfo newLobbyInfo = null;
 	
-	private Font font = new Font(Util.getResourcesDir() + "/fonts/emulogic.ttf", 64);
-	
 	private double time = 0.0f;
 	
 	private Texture loadingTex;
@@ -37,15 +39,65 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	private UI nextUI;
 	
+	private Font font;
+	
 	private ButtonComponent toggleReadyButton;
 	private ButtonComponent leaveButton;
 	
 	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
-	public LobbyWaitUI(IClientConnection connection, AudioManager audio, TextureBank tb, String lobbyName) {
-		super(connection, audio);
+	public LobbyWaitUI(UI _ui, String lobbyName) {
+		super(_ui);
 		
+		this.nextUI = this;
+		
+		font = fontBank.getFont("emulogic.ttf");
+		
+		this.loadingTex = textureBank.getTexture("loading.png");
+		this.readyTex   = textureBank.getTexture("ready.png");
+		this.unreadyTex = textureBank.getTexture("unready.png");
+		
+		this.lobbyName = lobbyName;
+		
+		Texture defaultTex = textureBank.getTexture("toggleReadyDefault.png");
+		Texture hoverTex = textureBank.getTexture("toggleReadyHover.png");
+		Texture pressedTex = textureBank.getTexture("toggleReadyPressed.png");
+		
+		this.toggleReadyButton = new ButtonComponent(
+				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
+
+
+		leaveButton = new ButtonComponent(
+				() -> { try {
+					connection.sendLobbyLeaveRequest();
+				} catch (ProtocolException e) {
+					connection.close();
+				} },
+				Align.BL, 100, 100,
+				_ui.textureBank.getTexture("leaveDefault.png"),
+				_ui.textureBank.getTexture("leaveHover.png"),
+				_ui.textureBank.getTexture("leavePressed.png")
+		);
+		
+		this.inputHandlers.add(this.toggleReadyButton);
+		this.inputHandlers.add(this.leaveButton);
+
+		this.inputHandlers.add(new InputHandler() {
+			@Override
+			public void handleKey(int key, int scancode, int action, int mods) {
+				if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_Q) {
+					// Send lobby leave request - this will be button later
+					try {
+						connection.sendLobbyLeaveRequest();
+					} catch (ProtocolException e) {
+						connection.close();
+					}
+				}
+			}
+		});
+		
+		LobbyWaitUI that = this;
 		connection.setHandler(new IClientConnectionHandler() {
 			@Override
 			public void processLobbyUpdate(LobbyInfo info) {
@@ -55,42 +107,31 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			
 			@Override
 			public void handleLobbyJoinAccept() {
+				System.out.println("[Lobby]: Accepted client");
 				accepted = true;
 			}
 			
 			@Override
 			public void handleLobbyJoinReject(String reason) {
+				System.out.println("[Lobby]: Rejected client: " + reason);
 				accepted = false;
 				error = reason;
 			}
+			
+			@Override
+			public void handleWorldStart(WorldStart start) {
+				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, connection);
+				nextUI = new GameUI(that, world);
+			}
+			
+			@Override
+			public void handleLobbyLeaveNotify() {
+				// Leave the current lobby - go back to the lobby list screen
+				nextUI = new LobbyUI(that);
+			}
 		});
-		
-		this.nextUI = this;
-		
-		this.loadingTex = tb.getTexture("loading.png");
-		this.readyTex   = tb.getTexture("ready.png");
-		this.unreadyTex = tb.getTexture("unready.png");
-		
-		this.lobbyName = lobbyName;
-		
-		Texture defaultTex = tb.getTexture("toggleReadyDefault.png");
-		Texture hoverTex = tb.getTexture("toggleReadyHover.png");
-		Texture pressedTex = tb.getTexture("toggleReadyPressed.png");
-		
-		this.toggleReadyButton = new ButtonComponent(
-				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
 
-		leaveButton = new ButtonComponent(
-				() -> { /* this.nextUI = new LobbyUI(connection, audio, tb); TODO: Implement leaving */ },
-				Align.BL, 100, 100,
-				tb.getTexture("leaveDefault.png"),
-				tb.getTexture("leaveHover.png"),
-				tb.getTexture("leavePressed.png")
-		);
-		
-		this.inputHandlers.add(this.toggleReadyButton);
-		this.inputHandlers.add(this.leaveButton);
-		
+
 		try {
 			connection.sendLobbyJoinRequest(this.lobbyName);
 		} catch (ProtocolException e) {

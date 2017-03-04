@@ -2,6 +2,7 @@ package game.net.server;
 
 import game.net.TCPConnection;
 import game.net.UDPConnection;
+import game.net.UDPRelay;
 import game.world.Team;
 import game.world.entity.Entity;
 
@@ -11,9 +12,9 @@ public class ClientInfo {
 	public String lobby;
 	
 	public TCPConnection tcpConn;
-	public UDPConnection udpConn;
+	public UDPRelay udpConn;
 	
-	public ClientInfo(String name, TCPConnection tcpConn, UDPConnection udpConn) {
+	public ClientInfo(String name, TCPConnection tcpConn, UDPRelay udpConn) {
 		this.name = name;
 		this.lobby = null;
 		

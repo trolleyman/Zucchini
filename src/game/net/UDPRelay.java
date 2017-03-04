@@ -3,75 +3,75 @@ package game.net;
 import game.exception.ProtocolException;
 
 import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 public class UDPRelay {
-	private UDPConnection conn;
-	
-	private HashMap<SocketAddress, LinkedList<String>> messages;
-	
 	private final Object recvLock = new Object();
 	
-	private ProtocolException error = null;
+	private UDPSource source;
+	private InetSocketAddress address;
 	
-	public UDPRelay(UDPConnection conn) {
-		this.conn = conn;
+	private ProtocolException error;
+	
+	private LinkedList<String> messages = new LinkedList<>();
+	
+	public UDPRelay(UDPSource _source, InetSocketAddress _address) {
+		this.source = _source;
+		this.address = _address;
 		
-		Thread t = new Thread(this::runHandler, "UDPRelay Handler");
-		t.start();
+		source.setListener(address, this::onMessage, this::onError);
 	}
 	
-	private void runHandler() {
-		while (true) {
-			try {
-				// Receive packet
-				DatagramPacket packet = conn.recv();
-				String msg = conn.decode(packet);
-				SocketAddress from = packet.getSocketAddress();
-				
-				// Add to queue
-				synchronized (recvLock) {
-					messages.computeIfAbsent(from, k -> new LinkedList<>());
-					
-					messages.get(from).push(msg);
-					
-					// Notify receivers
-					recvLock.notifyAll();
-				}
-			} catch (ProtocolException e) {
-				error = e;
-				return;
-			}
+	private void onMessage(String msg) {
+		synchronized (recvLock) {
+			this.messages.push(msg);
+			recvLock.notifyAll();
 		}
 	}
 	
-	public void sendString(String msg, SocketAddress address) throws ProtocolException {
-		if (error != null)
-			throw error;
-		conn.sendString(msg, address);
+	private void onError(ProtocolException error) {
+		synchronized (recvLock) {
+			this.error = error;
+			recvLock.notifyAll();
+			source.unsetListener(address);
+		}
 	}
 	
-	public String recvFrom(SocketAddress from) throws ProtocolException {
+	public void close() {
+		synchronized (recvLock) {
+			this.onError(new ProtocolException("UDP Socket Closed"));
+		}
+	}
+	
+	public String recvString() throws ProtocolException {
 		while (true) {
-			if (error != null)
-				throw error;
-			
 			synchronized (recvLock) {
-				messages.computeIfAbsent(from, k -> new LinkedList<>());
-				
-				LinkedList<String> ll = messages.get(from);
-				if (!ll.isEmpty()) {
-					return ll.pollLast();
+				if (error != null) {
+					// Error
+					throw new ProtocolException(error);
+				} else if (messages.size() > 0) {
+					return messages.pollLast();
 				}
 				
 				try {
 					recvLock.wait();
 				} catch (InterruptedException e) {
-					// Ignore
+					// This is fine
 				}
 			}
 		}
+	}
+	
+	public void sendString(String msg) throws ProtocolException {
+		source.sendString(msg, address);
+	}
+	
+	public InetSocketAddress getSocketAddress() {
+		return address;
 	}
 }

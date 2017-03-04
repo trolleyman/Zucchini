@@ -97,7 +97,8 @@ public class ButtonComponent extends UIComponent {
 			this.pressed = false;
 			this.released = false;
 			if (isMouseOnButton())
-				this.callback.run();
+				if (callback != null)
+					callback.run();
 		}
 		
 		if (!isMouseOnButton()) {

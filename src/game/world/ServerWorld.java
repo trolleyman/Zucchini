@@ -7,12 +7,15 @@ import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
 import game.net.Protocol;
+import game.net.WorldStart;
 import game.net.server.ClientHandler;
 import game.net.server.ClientInfo;
 import game.net.server.LobbyClient;
 import game.world.entity.Entity;
 import game.world.entity.Player;
+import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
+import org.joml.Vector2f;
 
 /**
  * The world located on the server
@@ -49,6 +52,10 @@ public class ServerWorld extends World implements Cloneable {
 		super(map, bank);
 		
 		this.audio = new ServerAudioManager();
+		
+		for (Entity e : map.getInitialEntities()) {
+			this.bank.addEntityCached(e);
+		}
 	}
 	
 	/**
@@ -56,9 +63,14 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param c The client
 	 */
 	public synchronized void addClient(LobbyClient c) {
-		Player player = new Player(c.team, map.getSpawnLocation(c.team), null);
+		Player player = new Player(c.team, map.getSpawnLocation(c.team), new Handgun(new Vector2f()));
 		this.bank.addEntity(player);
 		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
+		try {
+			c.handler.sendStringTcp(Protocol.sendWorldStart(new WorldStart(map, player.getId())));
+		} catch (ProtocolException e) {
+			// This is ok as the handler will take care of it
+		}
 	}
 	
 	public synchronized void handleAction(String name, Action a) {
@@ -99,7 +111,7 @@ public class ServerWorld extends World implements Cloneable {
 			
 			if (swc.handler.getClientInfo().name.equals(name)) {
 				clients.remove(i);
-				bank.removeEntity(swc.playerId);
+				bank.removeEntityCached(swc.playerId);
 				break;
 			}
 		}
@@ -120,7 +132,7 @@ public class ServerWorld extends World implements Cloneable {
 		this.bank.processCache(clients);
 		
 		// Update entities
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			e.update(ua);
 		}
 		
@@ -142,7 +154,7 @@ public class ServerWorld extends World implements Cloneable {
 		this.bank.processCache(clients);
 		
 		// *DING-DONG* *DING-DONG* bring out yer dead
-		for (Entity e : this.bank.entities) {
+		for (Entity e : this.bank.entities.values()) {
 			if (e.getHealth() <= 0.0f) {
 				e.death(ua);
 				this.bank.removeEntityCached(e.getId());
@@ -155,11 +167,12 @@ public class ServerWorld extends World implements Cloneable {
 				continue;
 			swc.fullUpdate = false;
 			
-			for (Entity e : this.bank.entities) {
+			for (Entity e : this.bank.entities.values()) {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
 					// This is ok as ClientHandler takes care of this
+					break;
 				}
 			}
 		}

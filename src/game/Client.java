@@ -4,6 +4,7 @@ import game.exception.NameException;
 import game.exception.ProtocolException;
 import game.net.client.ClientConnection;
 import game.net.client.IClientConnection;
+import game.render.FontBank;
 import org.lwjgl.Version;
 
 import game.audio.AudioManager;
@@ -58,8 +59,11 @@ class Client implements Runnable, InputPipe {
 			return;
 		}
 		
+		// Intiialize FontBank
+		FontBank fontBank = new FontBank();
+		
 		// Initialize UI
-		ui = new StartUI(connection, audio, renderer.getTextureBank());
+		ui = new StartUI(connection, audio, renderer.getTextureBank(), fontBank);
 	}
 	
 	@Override

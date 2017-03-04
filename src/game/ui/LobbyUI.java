@@ -22,9 +22,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
-
-	/** The font used for lobby buttons */
-	private Font f;
+	
 	private float lobby_spacing = 80;
 	
 	/** The start button */
@@ -35,42 +33,40 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
-	/** The texture bank that stores the images */
-	private TextureBank tb;
 	
 	/** Test lobbies for button generation */
 	private ArrayList<LobbyInfo> lobbies = new ArrayList<>();
-	private LobbyInfo currentLobby = new LobbyInfo("", 0, new PlayerInfo[0]);
+	private LobbyInfo currentLobby = null;
+	
 	private ArrayList<TextButtonComponent> lobby_buttons = new ArrayList<>();
 	
-	public LobbyUI(IClientConnection conn, AudioManager audio, TextureBank tb) {
-		super(conn, audio);
+	public LobbyUI(UI _ui) {
+		super(_ui);
 		
-
-		f = new Font(Util.getResourcesDir() + "/fonts/emulogic.ttf");
-		this.tb = tb;
-
 		// Create Join Button
 		joinButton = new ButtonComponent(
-			() -> { if (!currentLobby.getLobbyName().equals("")) this.nextUI = new LobbyWaitUI(connection, audio, tb, currentLobby.getLobbyName());},
+			() -> {
+				if (currentLobby != null)
+					this.nextUI = new LobbyWaitUI(this, currentLobby.getLobbyName());
+			},
 			Align.BL, 100, 100,
-			tb.getTexture("joinDefault.png"),
-			tb.getTexture("joinHover.png"),
-			tb.getTexture("joinPressed.png")
+			textureBank.getTexture("joinDefault.png"),
+			textureBank.getTexture("joinHover.png"),
+			textureBank.getTexture("joinPressed.png")
 		);
 
 		// Create Back Button
 		backButton = new ButtonComponent(
-			() -> { this.nextUI = new StartUI(connection, audio, tb); },
+			() -> this.nextUI = new StartUI(this),
 			Align.BL, 100, 100,
-			tb.getTexture("backDefault.png"),
-			tb.getTexture("backHover.png"),
-			tb.getTexture("backPressed.png")
+			textureBank.getTexture("backDefault.png"),
+			textureBank.getTexture("backHover.png"),
+			textureBank.getTexture("backPressed.png")
 		);
 
 		// Create Background Image
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
+			Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
 
 		connection.getLobbies((lobs) -> {
@@ -99,7 +95,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		for (int i = 0; i < lobbies.size(); i++) {
 			final int l = i;
 			TextButtonComponent lobbyButton = new TextButtonComponent(
-					() -> {lobbySelect(l);}, Align.BL, 300, 300, f, 0.5f, lobbies.get(i));
+					() -> {lobbySelect(l);}, Align.BL, 300, 300, fontBank.getFont("emulogic.ttf"), 0.5f, lobbies.get(i));
 			lobby_buttons.add(lobbyButton);
 			this.inputHandlers.add(lobby_buttons.get(i));
 		}
@@ -126,7 +122,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		// Allows escape to be pressed to return to previous menu
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 		 	System.out.println("escape pressed");
-			this.nextUI = new StartUI(connection, audio, tb);
+			this.nextUI = new StartUI(this);
 		}
 	}
 	
