@@ -60,6 +60,7 @@ public class Zombie extends AutonomousEntity {
 		if (!soundSourceInit) {
 			this.zombieSoundID = ua.audio.playLoop("zombie1.wav", 0.6f,this.position);
 			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.1f,this.position);
+			System.out.println("found zombie footstep sound "+walkingSoundID+" for zombie "+this.getId());
 			ua.audio.pauseLoop(zombieSoundID);
 			ua.audio.pauseLoop(walkingSoundID);
 			soundSourceInit = true;

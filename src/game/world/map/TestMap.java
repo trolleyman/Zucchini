@@ -109,7 +109,7 @@ public class TestMap extends Map {
 		initialEntities.add(new Pickup(new Vector2f(CP, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f))));
 		
 		initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
-		//initialEntities.add(new Zombie(new Vector2f(3.5f, 2.0f)));
-		//initialEntities.add(new Zombie(new Vector2f(3.25f, 2.45f)));
+		initialEntities.add(new Zombie(new Vector2f(3.5f, 2.0f)));
+		initialEntities.add(new Zombie(new Vector2f(3.25f, 2.45f)));
 	}
 }

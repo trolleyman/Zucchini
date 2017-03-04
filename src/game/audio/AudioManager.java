@@ -249,9 +249,10 @@ public class AudioManager implements IAudioManager{
     public void continueLoop(int sourceID, Vector2f position){
     	SoundSource source = getSoundSource(sourceID);
     	source.setPosition(position);
-    	if (!source.isPlaying()){
-    		source.play();
-    	}
+//    	if (!source.isPlaying()){
+//    		source.play();
+//    	}
+    	source.setVolume(1f);
     }
     
     /**
@@ -261,9 +262,15 @@ public class AudioManager implements IAudioManager{
     @Override
     public void pauseLoop(int sourceID){
     	SoundSource source = getSoundSource(sourceID);
-    	if (source.isPlaying()){
-    		source.pause();
-    	}
+
+    	if (source == null) {
+    		System.err.println("Warning: invalid sourceID in pauseLoop: " + sourceID);
+    		return;
+	    }
+//    	if (source.isPlaying()){
+//    		source.pause();
+//    	}
+    	source.setVolume(0f);
     }
     
     /**
@@ -277,13 +284,13 @@ public class AudioManager implements IAudioManager{
     	System.out.println("Stopping sourceID: " +source.getSourceId());
     	source.stop();
 	}
-	
+    
     /**
      * Given a sound source ID, this will return the sound source object returns null if it isnt found
      * @param sourceID
      * @return SoundSource
      */
-    private SoundSource getSoundSource(int sourceID){
+    public SoundSource getSoundSource(int sourceID){
     	for (List<SoundSource> list : this.soundSourcesMap.values()){
     		for(SoundSource source : list){
     			if (source.getSourceId()==sourceID){
@@ -312,8 +319,70 @@ public class AudioManager implements IAudioManager{
         int idb = 0;
         int idw = 0;
         int idw2 = 0;
+        
+		int idw3 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw3: "+idw3);
+		soundMgr.pauseLoop(idw3);
+		int idw4 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw4: "+idw4);
+		soundMgr.pauseLoop(idw4);
+		int idw5 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw5: "+idw5);
+		soundMgr.pauseLoop(idw5);
+		int idw6 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw6: "+idw6);
+		soundMgr.pauseLoop(idw6);
+		int idw7 = soundMgr.playLoop("footsteps_running.wav",0f,listenerPos);
+		System.out.println("idw7: "+idw7);
+		soundMgr.pauseLoop(idw7);
+		
         while (c != 'q'){
         	c = (char) System.in.read();
+        	if (c=='1'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw3).isPlaying());
+        		if(!(soundMgr.getSoundSource(idw3).getVolume()==0f)){
+        			soundMgr.pauseLoop(idw3);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw3, listenerPos);
+        		}
+        	}
+        	if (c=='2'){
+        		System.out.println("is idw4 playing?: "+ soundMgr.getSoundSource(idw4).isPlaying());
+        		if(!(soundMgr.getSoundSource(idw4).getVolume()==0f)){
+        			soundMgr.pauseLoop(idw4);
+        			System.out.println("should pause idw4");
+        		}else{
+        			soundMgr.continueLoop(idw4, listenerPos);
+        		}
+        	}
+        	if (c=='3'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw5).isPlaying());
+        		if(!(soundMgr.getSoundSource(idw5).getVolume()==0f)){
+        			soundMgr.pauseLoop(idw5);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw5, listenerPos);
+        		}
+        	}
+        	if (c=='4'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw6).isPlaying());
+        		if(!(soundMgr.getSoundSource(idw6).getVolume()==0f)){
+        			soundMgr.pauseLoop(idw6);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw6, listenerPos);
+        		}
+        	}
+        	if (c=='5'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw7).isPlaying());
+        		if(!(soundMgr.getSoundSource(idw7).getVolume()==0f)){
+        			soundMgr.pauseLoop(idw7);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw7, listenerPos);
+        		}
+        	}
         	if (c=='b'){
         		idb = soundMgr.playLoop("[bgm]Desolation.wav",0.8f,listenerPos);
         	}

@@ -151,6 +151,7 @@ public class Player extends MovableEntity {
 		
 		if (!soundSourceInit) {
 			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
+			System.out.println("found player footstep sound "+walkingSoundID+" for player "+this.getId());
 			ua.audio.pauseLoop(walkingSoundID);
 			soundSourceInit = true;
 		}

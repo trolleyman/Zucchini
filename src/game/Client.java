@@ -95,7 +95,10 @@ class Client implements Runnable, InputPipe {
 	}
 	
 	public static void main(String[] args) {
-		new Client(false).run();
+		String name = "default1";
+		if (args.length >= 1)
+			name = args[0];
+		new Client(false, name).run();
 		System.exit(0);
 	}
 }
