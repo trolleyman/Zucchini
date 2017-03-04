@@ -215,7 +215,7 @@ public class Util {
 		} else if (y < 0.0f) {
 			angle = Math.PI + angle;
 		}
-		return angle;
+		return normalizeAngle(angle);
 	}
 	
 	public static float getDirX(float angle) {
@@ -224,6 +224,22 @@ public class Util {
 	
 	public static float getDirY(float angle) {
 		return (float)Math.cos(angle);
+	}
+	
+	public static float normalizeAngle(float angle) {
+		angle %= Math.PI * 2;
+		if (angle < 0.0f) {
+			angle += Math.PI * 2;
+		}
+		return angle;
+	}
+	
+	public static double normalizeAngle(double angle) {
+		angle %= Math.PI * 2;
+		if (angle < 0.0f) {
+			angle += Math.PI * 2;
+		}
+		return angle;
 	}
 	
 	public static boolean isDebugRenderMode() {

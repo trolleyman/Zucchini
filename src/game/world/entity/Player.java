@@ -24,7 +24,9 @@ import java.util.Optional;
  * @author Callum
  */
 public class Player extends MovableEntity {
-	/** The size of the player's line of sight */
+	/** The min distance a player can see */
+	public static final float LINE_OF_SIGHT_MIN = 1.0f;
+	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
