@@ -185,15 +185,16 @@ public class TextEntryComponent extends AbstractButtonComponent {
 		float mx = getMouseX();
 		float my = getMouseY();
 		
-		float dx = mx - x;
-		float dy = my - y;
+		float tpad = INNER_PADDING+BORDER_WIDTH;
+		float dx = mx - x - tpad;
+		float dy = my - y - tpad;
 		
-		if (dx < BORDER_WIDTH || dx > w-BORDER_WIDTH || dy < BORDER_WIDTH || dy > h-BORDER_WIDTH) {
+		if (dx < 0 || dx > w-tpad || dy < 0 || dy > h-tpad) {
 			// Not clicked
 			return;
 		}
 		
-		FontAdvancer fa = f.getAdvancer(x, y, scale);
+		FontAdvancer fa = f.getAdvancer(0.0f, 0.0f, scale);
 		
 		float xPrev = 0.0f;
 		String s = this.getString();
@@ -204,10 +205,20 @@ public class TextEntryComponent extends AbstractButtonComponent {
 			if (q == null)
 				continue;
 			
-			// TODO: Move cursor
+			float nx = fa.getX();
+			float mid = (nx + xPrev) / 2.0f;
+			if (dx < mid) {
+				cursorPos = i;
+				modified();
+				break;
+			}
+			if (dx < nx) {
+				cursorPos = i + 1;
+				modified();
+				break;
+			}
 			
 			xPrev = fa.getX();
-			
 			i += Character.charCount(c);
 		}
 		
