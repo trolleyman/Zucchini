@@ -1,6 +1,7 @@
 package game.net.server;
 
 import game.LobbyInfo;
+import game.Util;
 import game.exception.ProtocolException;
 import game.net.*;
 import game.world.map.Map;
@@ -254,6 +255,37 @@ public class Server implements Runnable {
 				// This is fine as the handler takes care of exceptions
 			}
 			return;
+		} else if (Protocol.isLobbyCreateRequest(msg)) {
+			LobbyInfo newLobby = null;
+			try {
+				newLobby = Protocol.parseLobbyCreateRequest(msg);
+				synchronized (lock) {
+					String response;
+					if (!Util.isValidLobbyName(newLobby.lobbyName)) {
+						// Reject
+						response = Protocol.sendLobbyCreateReject("Invalid lobby name.");
+					} else if (lobbies.containsKey(newLobby.lobbyName)) {
+						// Reject
+						response = Protocol.sendLobbyCreateReject("Lobby already exists.");
+					} else {
+						// Create lobby
+						response = Protocol.sendLobbyCreateAccept();
+						createLobby(newLobby.lobbyName, newLobby.minPlayers, newLobby.maxPlayers);
+						
+						// Leave current lobby
+						Lobby currentLobby = getLobby(handler);
+						if (currentLobby != null)
+							leaveLobby(handler, currentLobby);
+						
+						// Join newly created lobby
+						joinLobby(handler, lobbies.get(newLobby.lobbyName));
+					}
+					handler.sendStringTcp(response);
+				}
+				return;
+			} catch (ProtocolException e) {
+				handler.error(e);
+			}
 		}
 		
 		// Get lobby

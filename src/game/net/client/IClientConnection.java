@@ -50,7 +50,7 @@ public interface IClientConnection {
 	/**
 	 * Sends a lobby create request
 	 */
-	void sendLobbyCreateRequest(String lobbyName) throws ProtocolException;
+	void sendLobbyCreateRequest(LobbyInfo lobby) throws ProtocolException;
 	
 	/**
 	 * Sets the current connection event handler

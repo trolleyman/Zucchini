@@ -50,7 +50,7 @@ public class TextButtonComponent extends AbstractButtonComponent {
 	
 	@Override
 	protected void onDefault() {
-		border_colour = ColorUtil.WHITE;
+		border_colour = ColorUtil.DARK_GREY;
 	}
 	
 	@Override
@@ -60,18 +60,23 @@ public class TextButtonComponent extends AbstractButtonComponent {
 	
 	@Override
 	protected void onPressed() {
-		border_colour = ColorUtil.DARK_GREY;
+		border_colour = ColorUtil.WHITE;
 	}
 	
 	@Override
 	protected void onClicked() {
+		this.setSelected(true);
 		this.callback.run();
 	}
 
 	@Override
 	public void render(IRenderer r) {
+		Vector4f bcol = border_colour;
+		if (selected) {
+			bcol = ColorUtil.WHITE;
+		}
 		// Draw the outer box (also acts as the border)
-		r.drawBox(a, x, y, BOX_W, BOX_H, border_colour);
+		r.drawBox(a, x, y, BOX_W, BOX_H, bcol);
 		// Draw the inner box
 		r.drawBox(a, x+ BORDER_WIDTH, y+ BORDER_WIDTH, BOX_W-2* BORDER_WIDTH, BOX_H-2* BORDER_WIDTH, box_colour);
 		// Draw the name of the lobby

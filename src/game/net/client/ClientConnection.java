@@ -147,6 +147,15 @@ public class ClientConnection implements IClientConnection {
 					synchronized (cchLock) {
 						cch.handleLobbyLeaveNotify();
 					}
+				} else if (Protocol.isLobbyCreateAccept(msg)) {
+					synchronized (cchLock) {
+						cch.handleLobbyCreateAccept();
+					}
+				} else if (Protocol.isLobbyCreateReject(msg)) {
+					String reason = Protocol.parseLobbyCreateReject(msg);
+					synchronized (cchLock) {
+						cch.handleLobbyCreateReject(reason);
+					}
 				} else {
 					System.err.println("[TCP]: " + name + ": Warning: Unknown message received: " + msg);
 				}
@@ -181,6 +190,11 @@ public class ClientConnection implements IClientConnection {
 	@Override
 	public void sendLobbyLeaveRequest() throws ProtocolException {
 		tcpConn.sendString(Protocol.sendLobbyLeaveRequest());
+	}
+	
+	@Override
+	public void sendLobbyCreateRequest(LobbyInfo lobby) throws ProtocolException {
+		tcpConn.sendString(Protocol.sendLobbyCreateRequest(lobby));
 	}
 	
 	@Override

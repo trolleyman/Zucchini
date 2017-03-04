@@ -46,7 +46,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 		joinButton = new ButtonComponent(
 			() -> {
 				if (currentLobby != null)
-					this.nextUI = new LobbyWaitUI(this, currentLobby.getLobbyName());
+					this.nextUI = new LobbyWaitUI(this, currentLobby.getLobbyName(), true);
 			},
 			Align.BL, 100, 100,
 			textureBank.getTexture("joinDefault.png"),

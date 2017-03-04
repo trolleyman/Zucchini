@@ -22,7 +22,10 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	/** If this is not null, an error has occured */
 	private String error = null;
 	/** If the client has been accepted to the lobby */
-	private boolean accepted = false;
+	private boolean accepted;
+	
+	/** Lobby Info Lock */
+	private final Object lobbyInfoLock = new Object();
 	/** The current info of the lobby */
 	private LobbyInfo lobbyInfo = null;
 	
@@ -43,18 +46,20 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
-	public LobbyWaitUI(UI _ui, String lobbyName) {
+	public LobbyWaitUI(UI _ui, String _lobbyName, boolean sendJoinRequest) {
 		super(_ui);
 		
+		this.lobbyName = _lobbyName;
 		this.nextUI = this;
+		
+		// Accepted is true when we don't send a join request
+		this.accepted = !sendJoinRequest;
 		
 		font = fontBank.getFont("emulogic.ttf");
 		
 		this.loadingTex = textureBank.getTexture("loading.png");
 		this.readyTex   = textureBank.getTexture("ready.png");
 		this.unreadyTex = textureBank.getTexture("unready.png");
-		
-		this.lobbyName = lobbyName;
 		
 		Texture defaultTex = textureBank.getTexture("toggleReadyDefault.png");
 		Texture hoverTex = textureBank.getTexture("toggleReadyHover.png");
@@ -83,7 +88,9 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			@Override
 			public void processLobbyUpdate(LobbyInfo info) {
 				Arrays.sort(info.players, Comparator.comparingInt((i) -> i.team));
-				newLobbyInfo = info;
+				synchronized (lobbyInfoLock) {
+					newLobbyInfo = info;
+				}
 			}
 			
 			@Override
@@ -112,10 +119,12 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			}
 		});
 		
-		try {
-			connection.sendLobbyJoinRequest(this.lobbyName);
-		} catch (ProtocolException e) {
-			this.error = e.toString();
+		if (sendJoinRequest) {
+			try {
+				connection.sendLobbyJoinRequest(this.lobbyName);
+			} catch (ProtocolException e) {
+				this.error = e.toString();
+			}
 		}
 	}
 	
@@ -136,10 +145,52 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		}
 	}
 	
+	private boolean passed(double thresh, double old, double nw) {
+		return old > thresh && nw < thresh;
+	}
+	
+	private boolean p5 = false;
+	private boolean p4 = false;
+	private boolean p3 = false;
+	private boolean p2 = false;
+	private boolean p1 = false;
+	
 	@Override
 	public void update(double dt) {
 		this.time += dt;
-		lobbyInfo = newLobbyInfo;
+		synchronized (lobbyInfoLock) {
+			if (newLobbyInfo != null) {
+				if (newLobbyInfo.countdownTime == -1) {
+					p5 = false;
+					p4 = false;
+					p3 = false;
+					p2 = false;
+					p1 = false;
+				} else {
+					if (!p5 && newLobbyInfo.countdownTime <= 5.0) {
+						System.out.println("Lobby: Game starts in 5...");
+						p5 = true;
+					}
+					if (!p4 && newLobbyInfo.countdownTime <= 4.0) {
+						System.out.println("Lobby: Game starts in 4...");
+						p4 = true;
+					}
+					if (!p3 && newLobbyInfo.countdownTime <= 3.0) {
+						System.out.println("Lobby: Game starts in 3...");
+						p3 = true;
+					}
+					if (!p2 && newLobbyInfo.countdownTime <= 2.0) {
+						System.out.println("Lobby: Game starts in 2...");
+						p2 = true;
+					}
+					if (!p1 && newLobbyInfo.countdownTime <= 1.0) {
+						System.out.println("Lobby: Game starts in 1...");
+						p1 = true;
+					}
+				}
+			}
+			lobbyInfo = newLobbyInfo;
+		}
 		this.toggleReadyButton.update(dt);
 	}
 	

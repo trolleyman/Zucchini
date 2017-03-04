@@ -278,7 +278,8 @@ public class Util {
 	 * Returns true if the character entered is valid for a lobby name
 	 */
 	public static boolean isValidLobbyNameChar(char c) {
-		return !Character.isISOControl(c);
+		return Character.isAlphabetic(c) || Character.isDigit(c)
+				|| (c >= ' ' && c <= '~');
 	}
 	
 	/**

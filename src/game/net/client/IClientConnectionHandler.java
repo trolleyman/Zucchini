@@ -61,7 +61,7 @@ public interface IClientConnectionHandler {
 	}
 	
 	/**
-	 * Called when the lobby join request has been rejected
+	 * Called when the lobby join request has been accepted
 	 */
 	default void handleLobbyCreateAccept() {
 		System.err.println("Warning: CCH Unhandled Event: handleLobbyCreateAccept");
