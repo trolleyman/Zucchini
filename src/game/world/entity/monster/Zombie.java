@@ -10,6 +10,9 @@ import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
 import game.world.map.PathFindingMap;
 import game.world.update.PositionUpdate;
+
+import java.util.Random;
+
 import org.joml.Vector2f;
 
 public class Zombie extends AutonomousEntity {
@@ -58,17 +61,18 @@ public class Zombie extends AutonomousEntity {
 		}
 		
 		if (!soundSourceInit) {
-			this.zombieSoundID = ua.audio.play("zombie1.wav", 0.6f,this.position);
-			this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.1f,this.position);
-			System.out.println("found zombie footstep sound "+walkingSoundID+" for zombie "+this.getId());
+			Random rng = new Random();
+			this.zombieSoundID = ua.audio.play("zombie"+(rng.nextInt(3)+1)+".wav", 1f,this.position);
+			//this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.1f,this.position);
+			//System.out.println("found zombie footstep sound "+walkingSoundID+" for zombie "+this.getId());
 			ua.audio.pauseLoop(zombieSoundID);
-			ua.audio.pauseLoop(walkingSoundID);
+			//ua.audio.pauseLoop(walkingSoundID);
 			soundSourceInit = true;
 		}
 		
 		// Play zombie sounds
 		ua.audio.continueLoop(this.zombieSoundID,this.position);
-		ua.audio.continueLoop(this.walkingSoundID,this.position);
+		//ua.audio.continueLoop(this.walkingSoundID,this.position);
 
 		Util.popTemporaryVector2f();
 	}

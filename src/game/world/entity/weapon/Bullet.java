@@ -6,9 +6,13 @@ import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.UpdateArgs;
 import game.world.update.HealthUpdate;
+
+import java.util.Random;
+
 import org.joml.Vector2f;
 
 public abstract class Bullet extends Projectile {
+	
 	/** Damage of the bullet */
 	private transient float damage;
 	
@@ -39,7 +43,8 @@ public abstract class Bullet extends Projectile {
 		System.out.println("Ow! Bullet hit entity id " + ei.id);
 		ua.bank.updateEntityCached(new HealthUpdate(ei.id, -damage));
 		ua.audio.play("bullet_impact_body.wav", 1.0f, new Vector2f(ei.x,ei.y));
-		ua.audio.play("grunt2.wav", 0.4f, new Vector2f(ei.x,ei.y));
+		Random rng = new Random();
+		ua.audio.play("grunt"+(rng.nextInt(4)+1)+".wav", 0.8f, new Vector2f(ei.x,ei.y));
 	}
 	
 	@Override

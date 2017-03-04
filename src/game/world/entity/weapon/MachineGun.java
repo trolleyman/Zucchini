@@ -26,7 +26,7 @@ public class MachineGun extends Weapon {
 	
 	@Override
 	protected void reload(UpdateArgs ua) {
-		ua.audio.play("gun_reload[2sec].wav", 1.0f,this.position);
+
 	}
 	
 	@Override

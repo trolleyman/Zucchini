@@ -113,18 +113,18 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("explosion.wav", 5);
 		fileSourceMap.put("footsteps_running.wav", 50);
 		fileSourceMap.put("footsteps_walking.wav", 0);
-		fileSourceMap.put("grunt1.wav", 0);
+		fileSourceMap.put("grunt1.wav", 5);
 		fileSourceMap.put("grunt2.wav", 5);
+		fileSourceMap.put("grunt3.wav", 5);
+		fileSourceMap.put("grunt4.wav", 5);
 		fileSourceMap.put("gun_reload[2sec].wav", 5);
 		fileSourceMap.put("handgunshot.wav", 50);
 		fileSourceMap.put("punch.wav", 5);
-		fileSourceMap.put("rocket_reload.wav", 5);
+		fileSourceMap.put("rocket_reload[5sec].wav", 5);
 		fileSourceMap.put("rocket-launcher.wav", 5);
 		fileSourceMap.put("zombie1.wav", 5);
 		fileSourceMap.put("zombie2.wav", 5);
 		fileSourceMap.put("zombie3.wav", 5);
-		fileSourceMap.put("zombie4.wav", 5);
-		fileSourceMap.put("zombie5.wav", 5);
     }
     
 //    public void addSoundSources(String name, List<SoundSource> soundSources) {
