@@ -1,5 +1,6 @@
 package game.world.entity.weapon;
 
+import game.Util;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 import game.world.entity.Item;
@@ -12,8 +13,6 @@ import org.joml.Vector2f;
  * @author Callum
  */
 public abstract class Weapon extends Item {
-	private float UI_PADDING = 50.0f;
-	
 	private float currentCooldown = 0.0f;
 	/** Current shots left in clip */
 	private int currentShots;
@@ -107,8 +106,8 @@ public abstract class Weapon extends Item {
 	
 	@Override
 	public void renderUI(IRenderer r) {
-		float x = r.getWidth() - UI_PADDING;
-		float y = UI_PADDING;
+		float x = r.getWidth() - Util.HUD_PADDING;
+		float y = Util.HUD_PADDING;
 		float p;
 		if (!this.reloading)
 			p = this.shots;

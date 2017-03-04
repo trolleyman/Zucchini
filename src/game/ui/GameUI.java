@@ -3,12 +3,14 @@ package game.ui;
 import game.ColorUtil;
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.ClientWorld;
 import game.world.entity.Item;
 import game.world.entity.Player;
 import game.world.entity.weapon.Weapon;
+import game.world.map.Map;
 
 import java.util.ArrayList;
 
@@ -81,7 +83,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.world.render(r);
 		
 		// Draw mini-map
-		r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);
+		this.world.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
 		
 		// Draw current ammo
 		Player p = this.world.getPlayer();

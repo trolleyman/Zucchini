@@ -12,6 +12,7 @@ import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
+import game.render.Align;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.map.Map;
@@ -167,6 +168,29 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			float ny = buf.get(i + 1);
 			r.drawLine(x, y, nx, ny, ColorUtil.PINK, 1.0f);
 		}
+	}
+	
+	/**
+	 * Renders the minimap at x,y on the screen with width w and height h.
+	 * @param r The renderer
+	 */
+	public void renderMiniMap(IRenderer r, float x, float y, float w, float h, float zoom) {
+		r.enableStencilDraw(2);
+		r.drawBox(Align.BL, x, y, w, h, ColorUtil.WHITE);
+		r.disableStencilDraw();
+		r.enableStencil(2);
+		
+		r.getModelViewMatrix()
+				.pushMatrix()
+				.translate(x, y, 0.0f)
+				.translate(w/2, h/2, 0.0f)
+				.scale(zoom)
+				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+		
+		map.render(r);
+		
+		r.getModelViewMatrix().popMatrix();
+		r.disableStencil();
 	}
 	
 	/**

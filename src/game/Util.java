@@ -350,4 +350,6 @@ public class Util {
 	
 	public static final int DEFAULT_MIN_PLAYERS = 1;
 	public static final int DEFAULT_MAX_PLAYERS = 4;
+	
+	public static float HUD_PADDING = 50.0f;
 }
