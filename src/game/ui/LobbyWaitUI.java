@@ -10,7 +10,6 @@ import game.world.ClientWorld;
 import game.world.EntityBank;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
-import org.omg.CORBA.INTERNAL;
 
 import java.util.*;
 
@@ -43,6 +42,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private Font font;
 	
 	private ButtonComponent toggleReadyButton;
+	private ButtonComponent leaveButton;
 	
 	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
@@ -69,7 +69,21 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		this.toggleReadyButton = new ButtonComponent(
 				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
 		
+		this.leaveButton = new ButtonComponent(
+				() -> { try {
+					connection.sendLobbyLeaveRequest();
+				} catch (ProtocolException e) {
+					connection.close();
+				} },
+				Align.BR, 100, 100,
+				textureBank.getTexture("leaveDefault.png"),
+				textureBank.getTexture("leaveHover.png"),
+				textureBank.getTexture("leavePressed.png")
+		);
+		
 		this.inputHandlers.add(this.toggleReadyButton);
+		this.inputHandlers.add(this.leaveButton);
+
 		this.inputHandlers.add(new InputHandler() {
 			@Override
 			public void handleKey(int key, int scancode, int action, int mods) {
@@ -206,6 +220,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			}
 		}
 		this.toggleReadyButton.update(dt);
+		this.leaveButton.update(dt);
 	}
 	
 	@Override
@@ -230,8 +245,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				
 				String s = String.format("%.3f", lobbyInfo.countdownTime);
 				r.drawText(font, s, Align.BL, false,
-						r.getWidth() - PADDING - font.getWidth("9.999", 1.0f),
-						PADDING, 1.0f, col);
+						r.getWidth()/2 - font.getWidth("9.999", 1.0f)/2,
+						PADDING/2 + toggleReadyButton.getY() + toggleReadyButton.getHeight(), 1.0f, col);
 			}
 			
 			// Draw players
@@ -259,9 +274,12 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				y1 -= INTERNAL_PADDING;
 			}
 			
-			toggleReadyButton.setX(r.getWidth()/2 - toggleReadyButton.getWidth()/2);
+			toggleReadyButton.setX(r.getWidth()/2 + PADDING/2);
 			toggleReadyButton.setY(PADDING);
 			toggleReadyButton.render(r);
+			leaveButton.setX(r.getWidth()/2 - PADDING/2);
+			leaveButton.setY(PADDING);
+			leaveButton.render(r);
 			
 		} else if (error != null) {
 			// Error has occured
