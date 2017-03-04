@@ -3,11 +3,13 @@ package game.world.map;
 import game.ColorUtil;
 import game.Util;
 import game.exception.ProtocolException;
+import game.render.Align;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
 import game.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
@@ -19,6 +21,9 @@ import java.util.ArrayList;
  * @author Callum
  */
 public class Map {
+	/** Holds the extents of the map. [x, y, w, h] format */
+	private Vector4f rect;
+	
 	public static Map createTestMap() {
 //		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 //		return new MazeMap(maze, 1.5f);
@@ -303,6 +308,25 @@ public class Map {
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
+		// Render background
+		this.renderBackground(r);
+		
+		// Render foreground
+		this.renderForeground(r);
+	}
+	
+	/**
+	 * Renders the background of the map (i.e. the floor)
+	 */
+	public void renderBackground(IRenderer r) {
+		Vector4f rect = getRect();
+		r.drawBox(Align.BL, rect.x, rect.y, rect.z, rect.w, ColorUtil.BLACK);
+	}
+	
+	/**
+	 * Renders the foreground (i.e. the walls)
+	 */
+	public void renderForeground(IRenderer r) {
 		for (Wall wall : walls) {
 			float x0 = wall.p0.x;
 			float y0 = wall.p0.y;
@@ -311,6 +335,41 @@ public class Map {
 			
 			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
 		}
+	}
+	
+	/**
+	 * Gets the extents of the map. This returns a rectangle in the format [x,y,w,h]
+	 */
+	public Vector4f getRect() {
+		if (rect != null)
+			return rect;
+		else
+			rect = new Vector4f();
+		
+		Vector2f min = Util.pushTemporaryVector2f();
+		Vector2f max = Util.pushTemporaryVector2f();
+		
+		for (Wall w : walls) {
+			// Min x
+			min.x = Math.min(min.x, w.p0.x);
+			min.x = Math.min(min.x, w.p1.x);
+			// Min y
+			min.y = Math.min(min.y, w.p0.y);
+			min.y = Math.min(min.y, w.p0.y);
+			// Max x
+			max.x = Math.max(max.x, w.p0.x);
+			max.x = Math.max(max.x, w.p1.x);
+			// Max y
+			max.y = Math.max(max.y, w.p0.y);
+			max.y = Math.max(max.y, w.p0.y);
+		}
+		
+		rect.set(min.x, min.y, max.x - min.x, max.y - min.y);
+		
+		Util.popTemporaryVector2f();
+		Util.popTemporaryVector2f();
+		
+		return rect;
 	}
 	
 	public ArrayList<Entity> getInitialEntities() {

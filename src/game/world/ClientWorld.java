@@ -175,8 +175,14 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void renderMiniMap(IRenderer r, float x, float y, float w, float h, float zoom) {
-		r.enableStencilDraw(2);
+		// Draw border
+		float mmBorder = 10.0f;
 		r.drawBox(Align.BL, x, y, w, h, ColorUtil.WHITE);
+		r.drawBox(Align.BL, x+mmBorder, y+mmBorder, w-mmBorder*2, h-mmBorder*2, ColorUtil.BLACK);
+		
+		// Draw minimap
+		r.enableStencilDraw(2);
+		r.drawBox(Align.BL, x+mmBorder, y+mmBorder, w-mmBorder*2, h-mmBorder*2, ColorUtil.WHITE);
 		r.disableStencilDraw();
 		r.enableStencil(2);
 		
@@ -208,6 +214,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Get player
 		Player p = getPlayer();
 		
+		// Render map background
+		this.map.renderBackground(r);
+		
 		if (p != null) {
 			// Render line of sight
 			Vector2f pos = p.position;
@@ -222,8 +231,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			drawDebugLines(r, losMaxBuf);
 		}
 		
-		// Render map
-		this.map.render(r);
+		// Render map foreground
+		this.map.renderForeground(r);
 		
 		if (p != null && !Util.isDebugRenderMode()) {
 			// Draw stencil
