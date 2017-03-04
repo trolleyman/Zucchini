@@ -36,11 +36,10 @@ public class Handgun extends Weapon {
 	}
 	
 	@Override
-	protected float renderBullet(IRenderer r, float x, float y) {
-		Texture t = r.getTextureBank().getTexture("handgunBullet.png");
-		r.drawTexture(t, Align.BR, x, y);
+	protected float renderBullet(IRenderer r, float x, float y, float p) {
+		r.drawBox(Align.BR, x, y, 20.0f, 40.0f * p, ColorUtil.WHITE);
 		
-		x -= t.getWidth();
+		x -= 20.0f;
 		x -= 10.0f;
 		return x;
 	}

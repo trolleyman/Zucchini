@@ -1,5 +1,6 @@
 package game.world.entity.weapon;
 
+import game.ColorUtil;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
@@ -38,12 +39,11 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	@Override
-	protected float renderBullet(IRenderer r, float x, float y) {
-		Texture t = r.getTextureBank().getTexture("rocketBullet.png");
-		r.drawTexture(t, Align.BR, x, y);
+	protected float renderBullet(IRenderer r, float x, float y, float p) {
+		r.drawBox(Align.BR, x, y, 25.0f, 120.0f * p, ColorUtil.WHITE);
 		
-		x -= t.getWidth();
-		x -= 30.0f;
+		x -= 25.0f;
+		x -= 10.0f;
 		return x;
 	}
 	

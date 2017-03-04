@@ -175,6 +175,9 @@ public class Player extends MovableEntity {
 		
 		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
+		
+		if (this.heldItem != null)
+			this.heldItem.clientUpdate(ua);
 	}
 	
 	@Override

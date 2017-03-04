@@ -35,12 +35,11 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
-	protected float renderBullet(IRenderer r, float x, float y) {
-		Texture t = r.getTextureBank().getTexture("machineGunBullet.png");
-		r.drawTexture(t, Align.BR, x, y);
+	protected float renderBullet(IRenderer r, float x, float y, float p) {
+		r.drawBox(Align.BR, x, y, 15.0f, 80.0f * p, ColorUtil.WHITE);
 		
-		x -= t.getWidth();
-		x -= 5.0f;
+		x -= 15.0f;
+		x -= 10.0f;
 		return x;
 	}
 	
