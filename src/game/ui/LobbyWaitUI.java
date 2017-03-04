@@ -164,7 +164,16 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				// Replace lobbyInfo with the new lobbyInfo
 				lobbyInfo = newLobbyInfo;
 				newLobbyInfo = null;
-				
+			} else {
+				// Decrement current lobbyInfo countdown time
+				if (lobbyInfo != null && lobbyInfo.countdownTime != -1) {
+					lobbyInfo.countdownTime -= dt;
+					if (lobbyInfo.countdownTime < 0.0)
+						lobbyInfo.countdownTime = 0.0;
+				}
+			}
+			
+			if (lobbyInfo != null) {
 				if (lobbyInfo.countdownTime == -1) {
 					p5 = false;
 					p4 = false;
@@ -172,6 +181,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 					p2 = false;
 					p1 = false;
 				} else {
+					// TODO: Audio for each second
 					if (!p5 && lobbyInfo.countdownTime <= 5.0) {
 						System.out.println("Lobby: Game starts in 5...");
 						p5 = true;
@@ -192,13 +202,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 						System.out.println("Lobby: Game starts in 1...");
 						p1 = true;
 					}
-				}
-			} else {
-				// Decrement current lobbyInfo countdown time
-				if (lobbyInfo != null && lobbyInfo.countdownTime != -1) {
-					lobbyInfo.countdownTime -= dt;
-					if (lobbyInfo.countdownTime < 0.0)
-						lobbyInfo.countdownTime = 0.0;
 				}
 			}
 		}
