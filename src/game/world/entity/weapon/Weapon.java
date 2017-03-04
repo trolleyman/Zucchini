@@ -1,7 +1,9 @@
 package game.world.entity.weapon;
 
+import game.render.IRenderer;
 import game.world.UpdateArgs;
 import game.world.entity.Item;
+import game.world.update.SetHeldItem;
 import org.joml.Vector2f;
 
 /**
@@ -10,6 +12,8 @@ import org.joml.Vector2f;
  * @author Callum
  */
 public abstract class Weapon extends Item {
+	private float UI_PADDING = 50.0f;
+	
 	private float currentCooldown = 0.0f;
 	/** Current shots left in clip */
 	private int currentShots;
@@ -23,7 +27,6 @@ public abstract class Weapon extends Item {
 	private float cooldown;
 	private int shots;
 	private float reloadingTime;
-	private Vector2f weaponPos;
 	
 	public Weapon(Weapon g) {
 		super(g);
@@ -60,7 +63,9 @@ public abstract class Weapon extends Item {
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		boolean updated = false;
 		if (this.fire && this.currentCooldown <= 0.0f) {
+			updated = true;
 			// Fire!!!
 			this.fire(ua);
 			
@@ -85,8 +90,28 @@ public abstract class Weapon extends Item {
 		if (this.currentCooldown <= 0.0f && this.reloading) {
 			System.out.println("Reloaded.");
 			this.reloading = false;
+			updated = true;
+		}
+		
+		if (updated)
+			ua.bank.updateEntityCached(new SetHeldItem(this.ownerId, this.clone()));
+	}
+	
+	@Override
+	public void renderUI(IRenderer r) {
+		float x = r.getWidth() - UI_PADDING;
+		float y = UI_PADDING;
+		if (!this.reloading) {
+			for (int i = 0; i < currentShots; i++) {
+				x = renderBullet(r, x, y);
+			}
 		}
 	}
+	
+	/**
+	 * Renders a bullet for the UI, and returns the next x position to go to
+	 */
+	protected abstract float renderBullet(IRenderer r, float x, float y);
 	
 	@Override
 	public void beginUse() {

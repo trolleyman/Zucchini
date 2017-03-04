@@ -2,6 +2,7 @@ package game.world.entity.weapon;
 
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -34,6 +35,16 @@ public class RocketLauncher extends Weapon {
 	protected void reload(UpdateArgs ua) {
 		System.out.println("Reloading rocket launcher...");
 		ua.audio.play("rocket_reload.wav", 1.0f, this.position);
+	}
+	
+	@Override
+	protected float renderBullet(IRenderer r, float x, float y) {
+		Texture t = r.getTextureBank().getTexture("rocketBullet.png");
+		r.drawTexture(t, Align.BR, x, y);
+		
+		x -= t.getWidth();
+		x -= 30.0f;
+		return x;
 	}
 	
 	@Override

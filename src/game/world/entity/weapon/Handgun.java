@@ -1,5 +1,6 @@
 package game.world.entity.weapon;
 
+import game.render.Texture;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
@@ -33,7 +34,17 @@ public class Handgun extends Weapon {
 	public void render(IRenderer r) {
 		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.PINK, this.angle);
 	}
-
+	
+	@Override
+	protected float renderBullet(IRenderer r, float x, float y) {
+		Texture t = r.getTextureBank().getTexture("handgunBullet.png");
+		r.drawTexture(t, Align.BR, x, y);
+		
+		x -= t.getWidth();
+		x -= 10.0f;
+		return x;
+	}
+	
 	@Override
 	public Handgun clone() {
 		return new Handgun(this);

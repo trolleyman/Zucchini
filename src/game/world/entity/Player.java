@@ -93,10 +93,16 @@ public class Player extends MovableEntity {
 		this.heldItem = item;
 	}
 	
+	public Item getHeldItem() {
+		return heldItem;
+	}
+	
 	@Override
 	public void update(UpdateArgs ua) {
-		if (this.heldItem != null)
+		if (this.heldItem != null) {
+			this.heldItem.setOwner(this.getId());
 			this.heldItem.setOwnerTeam(this.getTeam());
+		}
 		
 		{
 			Vector2f temp = Util.pushTemporaryVector2f();
@@ -235,6 +241,7 @@ public class Player extends MovableEntity {
 				Pickup p = (Pickup) oe.get();
 				Item item = p.getItem();
 				item.setOwnerTeam(this.getTeam());
+				item.setOwner(this.getId());
 				bank.removeEntityCached(p.getId());
 				this.dropHeldItem(bank, p.position);
 				this.pickupItem(bank, item);
@@ -246,6 +253,7 @@ public class Player extends MovableEntity {
 	
 	private void pickupItem(EntityBank bank, Item item) {
 		this.dropHeldItem(bank, this.position);
+		item.setOwner(this.getId());
 		item.setOwnerTeam(this.getTeam());
 		bank.updateEntityCached(new SetHeldItem(this.getId(), item));
 		this.heldItem = item;

@@ -3,6 +3,7 @@ package game.world.entity.weapon;
 import game.ColorUtil;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
@@ -31,6 +32,16 @@ public class MachineGun extends Weapon {
 	@Override
 	public void render(IRenderer r) {
 		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN, this.angle);
+	}
+	
+	@Override
+	protected float renderBullet(IRenderer r, float x, float y) {
+		Texture t = r.getTextureBank().getTexture("machineGunBullet.png");
+		r.drawTexture(t, Align.BR, x, y);
+		
+		x -= t.getWidth();
+		x -= 5.0f;
+		return x;
 	}
 	
 	@Override
