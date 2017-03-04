@@ -191,7 +191,7 @@ public class Map {
 	 * @param max The maximum length of the line of sight
 	 * @param aimAngle The current angle of the player
 	 * @param fov The field of view of the player
-	 * @param buf Where to store the buffer. This **MUST** be allocated using MemoryUtils.memAllocFloat()
+	 * @param buf Where to store the buffer. This <b>**MUST**</b> be allocated using MemoryUtils.memAllocFloat()
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
 	 */
 	public FloatBuffer getLineOfSight(Vector2f pos, float max, float aimAngle, float fov, FloatBuffer buf) {
