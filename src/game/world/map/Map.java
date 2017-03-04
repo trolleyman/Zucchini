@@ -2,6 +2,7 @@ package game.world.map;
 
 import game.ColorUtil;
 import game.Util;
+import game.exception.ProtocolException;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
 import game.world.entity.Entity;
@@ -32,11 +33,11 @@ public class Map {
 	/** The "walls" of the map that entities can collide with */
 	public ArrayList<Wall> walls;
 	/** The intiial starting entities in the map */
-	protected ArrayList<Entity> initialEntities;
+	protected transient ArrayList<Entity> initialEntities;
 	/** What scale the pathfinding algorithm should use */
 	private float pathFindingScale;
 	/** The cached pathfinding map */
-	private PathFindingMap pathFindingMap = null;
+	private transient PathFindingMap pathFindingMap = null;
 	
 	/**
 	 * Construct a map with the specified walls
@@ -243,6 +244,11 @@ public class Map {
 	
 	public ArrayList<Entity> getInitialEntities() {
 		return initialEntities;
+	}
+	
+	public Vector2f getSpawnLocation(int team) {
+		// TODO: Actually have different spawns for different teams
+		return new Vector2f(2.0f, 2.0f);
 	}
 }
 

@@ -13,14 +13,14 @@ public abstract class Projectile extends Entity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
 	/** for sound */
-	private boolean soundSourceInit =false;
-	private int whizzSoundID;
+	private transient boolean soundSourceInit = false;
+	private transient int whizzSoundID;
 	
 	/** Identifies the source team of the bullet */
-	private int sourceTeamID;
+	private transient int sourceTeamID;
 	
 	/** The current velocity of the projectile */
-	protected transient Vector2f velocity;
+	protected Vector2f velocity;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;

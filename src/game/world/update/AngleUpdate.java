@@ -6,7 +6,7 @@ public class AngleUpdate extends EntityUpdate {
 	private float angle;
 	
 	public AngleUpdate(int id, float _angle) {
-		super(id);
+		super(id, false);
 		
 		this.angle = _angle;
 	}

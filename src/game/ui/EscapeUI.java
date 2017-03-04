@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
@@ -15,9 +16,7 @@ import game.world.ClientWorld;
  *
  */
 
-public class EscapeUI extends UI implements InputPipeMulti{
-	
-	private TextureBank bank;
+public class EscapeUI extends UI implements InputPipeMulti {
 	
 	private ButtonComponent fileBtn;
 	private ButtonComponent helpBtn;
@@ -34,10 +33,9 @@ public class EscapeUI extends UI implements InputPipeMulti{
 	private float winHeight;
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
-
-	public EscapeUI(AudioManager audio, TextureBank _bank, ClientWorld _world) {
-		super(audio);
-		this.bank = _bank;
+	
+	public EscapeUI(UI _ui, ClientWorld _world) {
+		super(_ui);
 		nextUI = this;
 		this.world = _world;
 
@@ -50,39 +48,39 @@ public class EscapeUI extends UI implements InputPipeMulti{
 	public void start(){
 		fileBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("file.png"),
-				bank.getTexture("file2.png"),
-				bank.getTexture("file2.png")
+				textureBank.getTexture("file.png"),
+				textureBank.getTexture("file2.png"),
+				textureBank.getTexture("file2.png")
 		);
 		
 		helpBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("help.png"),
-				bank.getTexture("help2.png"),
-				bank.getTexture("help2.png")
+				textureBank.getTexture("help.png"),
+				textureBank.getTexture("help2.png"),
+				textureBank.getTexture("help2.png")
 		);
 		
 		audioBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("audio.png"),
-				bank.getTexture("audio2.png"),
-				bank.getTexture("audio2.png")
+				textureBank.getTexture("audio.png"),
+				textureBank.getTexture("audio2.png"),
+				textureBank.getTexture("audio2.png")
 		);
 		
 		quitBtn = new ButtonComponent(
-				() -> { this.nextUI = new StartUI(audio, bank); },
+				() -> this.nextUI = new StartUI(this),
 				Align.BL, 0, 0,
-				bank.getTexture("quit.png"),
-				bank.getTexture("quit2.png"),
-				bank.getTexture("quit2.png")
+				textureBank.getTexture("quit.png"),
+				textureBank.getTexture("quit2.png"),
+				textureBank.getTexture("quit2.png")
 		);
 		
 		continueBtn = new ButtonComponent(
-				() -> { this.nextUI = new GameUI(audio, bank, world); },
+				() -> this.nextUI = new GameUI(this, world),
 				Align.BL, 0, 0,
-				bank.getTexture("continue.png"),
-				bank.getTexture("continue2.png"),
-				bank.getTexture("continue2.png")
+				textureBank.getTexture("continue.png"),
+				textureBank.getTexture("continue2.png"),
+				textureBank.getTexture("continue2.png")
 		);
 		
 		this.inputHandlers.add(fileBtn);

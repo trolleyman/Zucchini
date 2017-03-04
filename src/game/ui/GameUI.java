@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
+import game.net.client.IClientConnection;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.TextureBank;
@@ -31,16 +32,14 @@ public class GameUI extends UI implements InputPipeMulti {
 	private float mapSize;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
    private UI nextUI;
-   private TextureBank bank;
    
 	/**
 	 * Constructs a new GameUI
 	 * @param _world The world
 	 */
-	public GameUI(AudioManager audio, TextureBank _bank, ClientWorld _world) {
-		super(audio);
+	public GameUI(UI _ui, ClientWorld _world) {
+		super(_ui);
 		this.world = _world;
-		this.bank = _bank;
 		this.inputHandlers.add(world);
 		
 		nextUI = this;
@@ -59,10 +58,10 @@ public class GameUI extends UI implements InputPipeMulti {
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 		 	System.out.println("escape pressed");
-			this.nextUI = new EscapeUI(audio, bank, world);//change null to renderer?
+			this.nextUI = new EscapeUI(this, world);//change null to renderer?
 		} else if (key == GLFW_KEY_UP && action == GLFW_PRESS){
 			System.out.println("M pressed");
-			this.nextUI = new MiniMap(audio, bank, world);
+			this.nextUI = new MiniMap(this, world);
 		}
 	}
  

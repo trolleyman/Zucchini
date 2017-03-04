@@ -1,14 +1,17 @@
 package game.world;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import game.Util;
-import game.net.IServerConnection;
+import game.exception.ProtocolException;
+import game.net.Protocol;
 import game.world.entity.Entity;
 import game.world.update.EntityUpdate;
-import game.world.update.HealthUpdate;
 import org.joml.Vector2f;
 
 public class EntityBank {
@@ -24,7 +27,7 @@ public class EntityBank {
 	 * <b>NB:</b> This list is sorted ascending by entity ID.
 	 *            Use {@link #addEntity(Entity)}/{@link #addEntityCached(Entity)} to add entities to this safely
 	 */
-	protected ArrayList<Entity> entities;
+	protected HashMap<Integer, Entity> entities;
 	
 	/** The cache of entities to add */
 	private ArrayList<Entity> addEntities = new ArrayList<>();
@@ -36,7 +39,7 @@ public class EntityBank {
 	private ArrayList<Integer> removeEntities = new ArrayList<>();
 	
 	public EntityBank(ArrayList<Entity> _entities) {
-		this.entities = new ArrayList<>();
+		this.entities = new LinkedHashMap<>();
 		for (Entity e : _entities) {
 			// Do this to ensure that the entity IDs are set correctly
 			addEntity(e);
@@ -49,8 +52,8 @@ public class EntityBank {
 	 */
 	public EntityBank(EntityBank bank) {
 		// Clone entities
-		this.entities = new ArrayList<>();
-		for (Entity e : bank.entities) {
+		this.entities = new HashMap<>();
+		for (Entity e : bank.entities.values()) {
 			this.addEntity(e.clone());
 		}
 		// Clone caches
@@ -71,7 +74,7 @@ public class EntityBank {
 	public EntityBank() {
 		this(new ArrayList<>());
 	}
-
+	
 	/**
 	 * Process the cached records.
 	 */
@@ -83,12 +86,20 @@ public class EntityBank {
 	 * Process the cached records, and send them to conn.
 	 * @param conns The connections to the clients.
 	 */
-	protected synchronized void processCache(ArrayList<IServerConnection> conns) {
+	protected synchronized void processCache(ArrayList<ServerWorldClient> conns) {
 		// Process cached entity adds
 		for (Entity e : addEntities) {
 			this.addEntity(e);
-			for (IServerConnection conn : conns)
-				conn.sendAddEntity(e);
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
+					continue;
+				
+				try {
+					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
+				} catch (ProtocolException ex) {
+					// This is ok, as the ClientHandler will handle this
+				}
+			}
 		}
 		addEntities.clear();
 		
@@ -98,20 +109,41 @@ public class EntityBank {
 			if (e != null)
 				eu.updateEntity(e);
 			
-			for (IServerConnection conn : conns)
-				conn.sendUpdateEntity(eu);
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
+					continue;
+				
+				try {
+					String euStr = Protocol.sendUpdateEntity(eu);
+					if (eu.isTcp())
+						swc.handler.sendStringTcp(euStr);
+					else
+						swc.handler.sendStringUdp(euStr);
+					
+				} catch (ProtocolException ex) {
+					// This is ok, as the ClientHandler will handle this
+				}
+			}
 		}
 		updateEntities.clear();
 		
 		// Remove cached entities
 		for (Integer id : removeEntities) {
 			this.removeEntity(id);
-			for (IServerConnection conn : conns)
-				conn.sendRemoveEntity(id);
+			for (ServerWorldClient swc : conns) {
+				if (swc.handler.isClosed())
+					continue;
+				
+				try {
+					swc.handler.sendStringTcp(Protocol.sendRemoveEntity(id));
+				} catch (ProtocolException ex) {
+					// This is ok, as the ClientHandler will handle this
+				}
+			}
 		}
 		removeEntities.clear();
 	}
-
+	
 	/**
 	 * Returns the entity associated with the id entered
 	 * @param id The entity ID
@@ -121,14 +153,7 @@ public class EntityBank {
 		if (id == Entity.INVALID_ID)
 			return null;
 		
-		int i = getEntityInsertIndex(id);
-		if (i >= entities.size())
-			return null;
-		Entity e = entities.get(i);
-		if (e.getId() == id) {
-			return e;
-		}
-		return null;
+		return entities.get(id);
 	}
 	
 	/**
@@ -163,24 +188,13 @@ public class EntityBank {
 	 */
 	protected synchronized int addEntity(Entity e) {
 		if (e.getId() == Entity.INVALID_ID) {
-			// Insert entity at the end of the array
+			// Generate new id
 			int id = this.nextEntityId++;
 			e.setId(id);
-			this.entities.add(e);
+			this.addEntity(e);
 		} else {
-			// Insert entity somewhere in the array
-			int i = getEntityInsertIndex(e.getId());
-			
-			if (i < entities.size() && entities.get(i).getId() == e.getId()) {
-				// Replace the entity with the new one
-				entities.set(i, e);
-			} else {
-				// Insert the entity into the array
-				if (i == entities.size() - 1)
-					entities.add(i + 1, e);
-				else
-					entities.add(i, e);
-			}
+			// Insert entity
+			entities.put(e.getId(), e);
 		}
 		return e.getId();
 	}
@@ -217,39 +231,7 @@ public class EntityBank {
 	 * @param id The entity id
 	 */
 	protected synchronized void removeEntity(int id) {
-		int i = getEntityInsertIndex(id);
-		
-		if (i < this.entities.size() && this.entities.get(i).getId() == id) {
-			// Remove entity
-			this.entities.remove(i);
-		}
-	}
-	
-	/**
-	 * Finds where to insert an entity with the specified id into the list
-	 * <p>
-	 * If the id exists, returns that index
-	 * 
-	 * @param id The entity id
-	 * @return The index to insert the entity into
-	 */
-	private int getEntityInsertIndex(int id) {
-		int min = 0;
-		int max = this.entities.size() - 1;
-		
-		while (min < max) {
-			int mid = (min + max) / 2;
-			
-			Entity e = this.entities.get(mid);
-			int eid = e.getId();
-			if (id == eid)
-				return mid;
-			else if (id < eid)
-				max = mid - 1;
-			else
-				min = mid + 1;
-		}
-		return min;
+		entities.remove(id);
 	}
 	
 	/**
@@ -264,7 +246,7 @@ public class EntityBank {
 	public EntityIntersection getIntersection(float x0, float y0, float x1, float y1, Predicate<Entity> pred) {
 		int id = Entity.INVALID_ID;
 		Vector2f ret = null;
-		for (Entity e : entities) {
+		for (Entity e : entities.values()) {
 			if (!pred.test(e))
 				continue;
 			
@@ -295,14 +277,12 @@ public class EntityBank {
 	 * @return null if an entity could not be found
 	 */
 	public synchronized Entity getClosestHostileEntity(float x, float y, int team) {
-		Optional<Entity> oe = entities.stream()
+		Optional<Entity> oe = entities.values().stream()
 				.filter((e) -> Team.isHostileTeam(team, e.getTeam()))
 				.min((l, r) -> Float.compare(l.position.distanceSquared(x, y),
 						r.position.distanceSquared(x, y)));
 		
-		if (oe.isPresent())
-			return oe.get();
-		return null;
+		return oe.orElse(null);
 	}
 	
 	/**
@@ -317,7 +297,7 @@ public class EntityBank {
 		Vector2f temp = Util.pushTemporaryVector2f();
 		temp.set(x, y);
 		ArrayList<Entity> l = new ArrayList<>();
-		for (Entity e : this.entities) {
+		for (Entity e : this.entities.values()) {
 			float d2 = temp.distanceSquared(e.position);
 			if (d2 <= r2)
 				l.add(e);

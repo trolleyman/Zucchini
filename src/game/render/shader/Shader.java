@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import game.ShaderException;
+import game.exception.ShaderCompilationException;
 import game.Util;
 
 /**
@@ -88,10 +88,10 @@ public class Shader {
 	 * @param type The type of the shader. See {@link ShaderType}.
 	 * @param program The OpenGL id of the program
 	 * @return The OpenGL id of the shader compiled
-	 * @throws ShaderException if the shader could not be compiled
+	 * @throws ShaderCompilationException if the shader could not be compiled
 	 * @throws IOException if the shader could not be loaded
 	 */
-	private int compileAndAttach(String shaderBase, ShaderType type, int program) throws ShaderException, IOException {
+	private int compileAndAttach(String shaderBase, ShaderType type, int program) throws ShaderCompilationException, IOException {
 		String vertSource = new String(Files.readAllBytes(Paths.get(shaderBase + type.getExtension())));
 		
 		int shader = glCreateShader(type.glType());
@@ -101,7 +101,7 @@ public class Shader {
 		glCompileShader(shader);
 		if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
 			// Error
-			throw new ShaderException(type, glGetShaderInfoLog(shader));
+			throw new ShaderCompilationException(type, glGetShaderInfoLog(shader));
 		}
 		
 		glAttachShader(program, shader);
