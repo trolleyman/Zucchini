@@ -11,7 +11,7 @@ public class LobbyInfo {
 	public int maxPlayers;
 	/** The current countdown time. This is <0 if there is no countdown happening */
 	@SerializedName("cdn")
-	public final double countdownTime;
+	public double countdownTime;
 	@SerializedName("ps")
 	public PlayerInfo[] players;
 	

@@ -5,6 +5,7 @@ import static org.lwjgl.stb.STBTruetype.*;
 
 import java.nio.ByteBuffer;
 
+import org.joml.Vector4f;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.stb.STBTTFontinfo;
@@ -127,7 +128,7 @@ public class Font {
 		return new FontAdvancer(scale, this::isCharCached, this::getCharIndex, cdata, x, y, BITMAP_W, BITMAP_H);
 	}
 	
-	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale) {
+	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale, Vector4f color) {
 		if (!fromBaseline) {
 			// Position so that y is at the bottom, not baseline
 			float descentProportion = (float)-descent[0] / (float)(ascent[0] - descent[0]);
@@ -145,7 +146,7 @@ public class Font {
 			
 			float w = (q.x1() - q.x0())*scale;
 			float h = (q.y1() - q.y0())*scale;
-			r.drawTextureUV(text, Align.TL, q.x0(), y - q.y0(), w, h, q.s0(), q.t0(), q.s1(), q.t1());
+			r.drawTextureUV(text, Align.TL, q.x0(), y - q.y0(), w, h, 0.0f, q.s0(), q.t0(), q.s1(), q.t1(), color);
 			
 			i += Character.charCount(c);
 		}

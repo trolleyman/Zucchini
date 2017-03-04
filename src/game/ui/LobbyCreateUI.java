@@ -84,7 +84,7 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 			return;
 		}
 		try {
-			connection.sendLobbyCreateRequest(new LobbyInfo(s, 2, 4, 0.0, new PlayerInfo[0]));
+			connection.sendLobbyCreateRequest(new LobbyInfo(s, Util.DEFAULT_MIN_PLAYERS, Util.DEFAULT_MAX_PLAYERS, -1.0, new PlayerInfo[0]));
 			entry.setEnabled(false);
 		} catch (ProtocolException e) {
 			e.printStackTrace();

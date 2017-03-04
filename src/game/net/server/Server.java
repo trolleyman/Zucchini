@@ -45,8 +45,8 @@ public class Server implements Runnable {
 			return;
 		}
 		
-		createLobby("TestLobby", 2, 4);
-		createLobby("SmallTestLobby", 1, 2);
+		createLobby("TestLobby1", Util.DEFAULT_MIN_PLAYERS, Util.DEFAULT_MAX_PLAYERS);
+		createLobby("TestLobby2", Util.DEFAULT_MIN_PLAYERS, Util.DEFAULT_MAX_PLAYERS);
 	}
 	
 	private void outUDP(String msg) {

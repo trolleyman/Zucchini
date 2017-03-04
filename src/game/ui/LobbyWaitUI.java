@@ -8,14 +8,15 @@ import game.render.*;
 import game.ui.component.ButtonComponent;
 import game.world.ClientWorld;
 import game.world.EntityBank;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
+import org.omg.CORBA.INTERNAL;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 
 public class LobbyWaitUI extends UI implements InputPipeMulti {
-	private static final float PADDING = 30.0f;
+	private static final float PADDING = 50.0f;
+	private static final float INTERNAL_PADDING = 30.0f;
 	
 	private final String lobbyName;
 	
@@ -160,36 +161,46 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		this.time += dt;
 		synchronized (lobbyInfoLock) {
 			if (newLobbyInfo != null) {
-				if (newLobbyInfo.countdownTime == -1) {
+				// Replace lobbyInfo with the new lobbyInfo
+				lobbyInfo = newLobbyInfo;
+				newLobbyInfo = null;
+				
+				if (lobbyInfo.countdownTime == -1) {
 					p5 = false;
 					p4 = false;
 					p3 = false;
 					p2 = false;
 					p1 = false;
 				} else {
-					if (!p5 && newLobbyInfo.countdownTime <= 5.0) {
+					if (!p5 && lobbyInfo.countdownTime <= 5.0) {
 						System.out.println("Lobby: Game starts in 5...");
 						p5 = true;
 					}
-					if (!p4 && newLobbyInfo.countdownTime <= 4.0) {
+					if (!p4 && lobbyInfo.countdownTime <= 4.0) {
 						System.out.println("Lobby: Game starts in 4...");
 						p4 = true;
 					}
-					if (!p3 && newLobbyInfo.countdownTime <= 3.0) {
+					if (!p3 && lobbyInfo.countdownTime <= 3.0) {
 						System.out.println("Lobby: Game starts in 3...");
 						p3 = true;
 					}
-					if (!p2 && newLobbyInfo.countdownTime <= 2.0) {
+					if (!p2 && lobbyInfo.countdownTime <= 2.0) {
 						System.out.println("Lobby: Game starts in 2...");
 						p2 = true;
 					}
-					if (!p1 && newLobbyInfo.countdownTime <= 1.0) {
+					if (!p1 && lobbyInfo.countdownTime <= 1.0) {
 						System.out.println("Lobby: Game starts in 1...");
 						p1 = true;
 					}
 				}
+			} else {
+				// Decrement current lobbyInfo countdown time
+				if (lobbyInfo != null && lobbyInfo.countdownTime != -1) {
+					lobbyInfo.countdownTime -= dt;
+					if (lobbyInfo.countdownTime < 0.0)
+						lobbyInfo.countdownTime = 0.0;
+				}
 			}
-			lobbyInfo = newLobbyInfo;
 		}
 		this.toggleReadyButton.update(dt);
 	}
@@ -198,23 +209,51 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	public void render(IRenderer r) {
 		if (accepted && lobbyInfo != null) {
 			// Draw lobby view ui screen
-			r.drawText(font, lobbyName + "      " + lobbyInfo.players.length + "/" + lobbyInfo.maxPlayers,
+			r.drawText(font, lobbyName,
 					Align.TL, false, PADDING, r.getHeight() - PADDING, 1.0f);
 			
-			float y = r.getHeight() - PADDING - font.getHeight(1.0f) - 5.0f;
+			r.drawText(font, lobbyInfo.players.length + "/" + lobbyInfo.maxPlayers,
+					Align.TR, false, r.getWidth() - PADDING, r.getHeight() - PADDING, 1.0f);
+			
+			// Draw countdown time
+			if (lobbyInfo != null && lobbyInfo.countdownTime != -1) {
+				Vector4f col;
+				if (lobbyInfo.countdownTime < 1.0f)
+					col = ColorUtil.GREEN;
+				else if (lobbyInfo.countdownTime < 3.0f)
+					col = ColorUtil.GREEN;
+				else
+					col = ColorUtil.GREEN;
+				
+				String s = String.format("%.3f", lobbyInfo.countdownTime);
+				r.drawText(font, s, Align.BL, false,
+						r.getWidth() - PADDING - font.getWidth("9.999", 1.0f),
+						PADDING, 1.0f, col);
+			}
+			
+			// Draw players
+			float x1 = PADDING + font.getWidth("_:", 1.0f);
+			float x2 = x1 + INTERNAL_PADDING;
+			float y1 = r.getHeight() - PADDING - font.getHeight(1.0f) - INTERNAL_PADDING;
+			
 			for (int i = 0; i < lobbyInfo.players.length; i++) {
 				PlayerInfo playerInfo = lobbyInfo.players[i];
 				
-				r.drawText(font, playerInfo.team + ":",
-						Align.TR, false, PADDING + 30.0f, y, 1.0f);
-				r.drawText(font, playerInfo.name,
-						Align.TL, false, PADDING + 30.0f, y, 1.0f);
-				if (playerInfo.ready)
-					r.drawTexture(readyTex, Align.TR, r.getWidth() - PADDING, y);
-				else
-					r.drawTexture(unreadyTex, Align.TR, r.getWidth() - PADDING, y);
+				Texture tex;
+				if (playerInfo.ready) tex = readyTex;
+				else tex = unreadyTex;
 				
-				y -= font.getHeight(1.0f) + 5.0f;
+				float y2 = y1 - font.getHeight(1.0f) / 2.0f;
+				
+				r.drawText(font, playerInfo.team + ":",
+						Align.TR, false, x1, y1, 1.0f);
+				r.drawText(font, playerInfo.name,
+						Align.TL, false, x2, y1, 1.0f);
+				
+				r.drawTexture(tex, Align.MR, r.getWidth() - PADDING, y2);
+				
+				y1 -= font.getHeight(1.0f);
+				y1 -= INTERNAL_PADDING;
 			}
 			
 			toggleReadyButton.setX(r.getWidth()/2 - toggleReadyButton.getWidth()/2);
