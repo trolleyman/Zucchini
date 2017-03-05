@@ -84,8 +84,8 @@ public abstract class Weapon extends Item {
 			if (this.currentShots == 0) {
 				// Reload
 				System.out.println("Reloading...");
-				this.reload(ua);
-
+				this.startReload(ua);
+				
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
 				this.currentShots = this.shots;
@@ -100,27 +100,9 @@ public abstract class Weapon extends Item {
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
 			System.out.println("Reloaded.");
+			this.endReload(ua);
 			this.reloading = false;
-			this.reloadSoundID=-1;
 			updated = true;
-		}
-		
-		//audio for reloading
-		if(this.reloading){
-			if(this.reloadingTime == 2.0f){//2 sec reload time for pistol and machine gun
-				if(reloadSoundID == -1){
-					this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
-				}else{
-					ua.audio.updateSourcePos(reloadSoundID, this.position);
-				}
-			}
-			if(this.reloadingTime == 5.0f){//5 sec reload time for rocket launcher
-				if(reloadSoundID == -1){
-					this.reloadSoundID = ua.audio.play("rocket_reload[5sec].wav", 1f, this.position);
-				}else{
-					ua.audio.updateSourcePos(reloadSoundID, this.position);
-				}
-			}
 		}
 		
 		if (updated)
@@ -169,7 +151,9 @@ public abstract class Weapon extends Item {
 	
 	protected abstract void fire(UpdateArgs ua);
 	
-	protected abstract void reload(UpdateArgs ua);
+	protected abstract void startReload(UpdateArgs ua);
+	
+	protected abstract void endReload(UpdateArgs ua);
 	
 	@Override
 	public abstract Weapon clone();
