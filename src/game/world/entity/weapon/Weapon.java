@@ -131,7 +131,11 @@ public abstract class Weapon extends Item {
 	@Override
 	public void update(UpdateArgs ua) {
 		boolean updated = false;
-		if (this.fire && this.currentCooldown <= 0.0f) {
+		if (this.fire && this.ammo == 0 && this.currentShots == 0) {
+			// TODO: Running out of ammo sound
+			System.out.println("Weapon: *Click*: Out of ammo");
+			this.fire = false;
+		} else if (this.fire && this.currentCooldown <= 0.0f) {
 			updated = true;
 			// Fire!!!
 			//System.out.println("BANG: Deviation: " + deviation);
@@ -149,7 +153,11 @@ public abstract class Weapon extends Item {
 				this.reload(ua);
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
-				this.currentShots = this.shots;
+				if (this.ammo != -1 && this.ammo < this.shots)
+					this.currentShots = this.ammo;
+				else
+					this.currentShots = this.shots;
+				
 				if (this.ammo != -1)
 					this.ammo = Math.max(0, this.ammo - this.shots);
 				
@@ -187,7 +195,7 @@ public abstract class Weapon extends Item {
 		} else {
 			int a;
 			if (!this.reloading) a = this.ammo;
-			else a = this.ammo + this.shots - (int)Math.ceil((1 - (this.currentCooldown / this.reloadingTime)) * this.shots);
+			else a = this.ammo + this.currentShots - (int)Math.ceil((1 - (this.currentCooldown / this.reloadingTime)) * this.currentShots);
 			
 			Font f = r.getFontBank().getFont("emulogic.ttf");
 			String s = "" + a;
@@ -197,8 +205,8 @@ public abstract class Weapon extends Item {
 		x -= 20.0f;
 		
 		float p;
-		if (!this.reloading) p = this.shots;
-		else p = (1 - (this.currentCooldown / this.reloadingTime)) * this.shots;
+		if (!this.reloading) p = this.currentShots;
+		else p = (1 - (this.currentCooldown / this.reloadingTime)) * this.currentShots;
 		
 		for (int i = 0; i < currentShots; i++) {
 			if (this.reloading) {
