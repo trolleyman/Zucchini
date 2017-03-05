@@ -36,16 +36,16 @@ public class RocketLauncher extends Weapon {
 	@Override
 	public void update(UpdateArgs ua) {
 		super.update(ua);
-		
-		if (this.reloadSoundID != -1) {
-			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
-		}
 	}
 	
 	@Override
 	protected void startReload(UpdateArgs ua) {
-		System.out.println("Reloading rocket launcher...");
-		this.reloadSoundID = ua.audio.play("rocket_reload[5sec].wav", 1.0f, this.position);
+		if (this.reloadSoundID == -1) {
+			System.out.println("Reloading rocket launcher...");
+			this.reloadSoundID = ua.audio.play("rocket_reload[5sec].wav", 1.0f, this.position);
+		}else{
+			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
+		}
 	}
 	
 	@Override

@@ -97,6 +97,11 @@ public abstract class Weapon extends Item {
 		if (this.semiAuto)
 			this.fire = false;
 		
+		//update reload sound position
+		if(this.reloading){
+			this.startReload(ua);
+		}
+		
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
 			System.out.println("Reloaded.");

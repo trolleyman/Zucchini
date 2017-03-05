@@ -27,15 +27,16 @@ public class MachineGun extends Weapon {
 	@Override
 	public void update(UpdateArgs ua) {
 		super.update(ua);
-		
-		if (this.reloadSoundID != -1) {
-			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
-		}
 	}
 	
 	@Override
 	protected void startReload(UpdateArgs ua) {
-		this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
+		if (this.reloadSoundID == -1) {
+			System.out.println("Reloading machine gun...");
+			this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
+		}else{
+			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
+		}
 	}
 	
 	@Override
