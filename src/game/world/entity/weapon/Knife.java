@@ -23,7 +23,8 @@ public class Knife extends Weapon {
 	public void render(IRenderer r) {
 		Texture t = r.getTextureBank().getTexture("knife.png");
 		float ratio = t.getHeight() / (float)t.getWidth();
-		r.drawTexture(t, Align.BM, position.x, position.y, 0.1f, 0.1f * ratio, angle);
+		float w = 0.08f;
+		r.drawTexture(t, Align.BM, position.x, position.y, w, w * ratio, angle);
 	}
 	
 	@Override
