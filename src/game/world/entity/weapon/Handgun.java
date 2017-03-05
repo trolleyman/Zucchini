@@ -13,8 +13,8 @@ public class Handgun extends Weapon {
 		super(g);
 	}
 	
-	public Handgun(Vector2f position) {
-		super(position, true, 0.1f, 8, 2.0f,
+	public Handgun(Vector2f position, int ammo) {
+		super(position, ammo, true, 0.1f, 8, 2.0f,
 				(float)Math.toRadians(0.1f), (float)Math.toRadians(1.0f), (float)Math.toRadians(0.5f), (float)Math.toRadians(0.2f));
 	}
 	

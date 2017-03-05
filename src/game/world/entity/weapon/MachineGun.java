@@ -11,8 +11,8 @@ public class MachineGun extends Weapon {
 	super(g);
 }
 	
-	public MachineGun(Vector2f position) {
-		super(position, false, 0.05f, 30, 2.0f,
+	public MachineGun(Vector2f position, int ammo) {
+		super(position, ammo, false, 0.05f, 30, 2.0f,
 				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
 	}
 	

@@ -1,7 +1,11 @@
 package game.world.entity.weapon;
 
+import game.ColorUtil;
 import game.Util;
+import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.UpdateArgs;
 import game.world.entity.Item;
 import game.world.entity.update.SetHeldItem;
@@ -20,6 +24,9 @@ public abstract class Weapon extends Item {
 	
 	/** Has fireStart been called since the last update? */
 	private transient boolean fire = false;
+	
+	/** The number of ammunition left */
+	private int ammo;
 	
 	private boolean semiAuto;
 	
@@ -40,6 +47,8 @@ public abstract class Weapon extends Item {
 		this.currentShots = g.currentShots;
 		this.reloading = g.reloading;
 		
+		this.ammo = g.ammo;
+		
 		this.semiAuto = g.semiAuto;
 		
 		this.cooldown = g.cooldown;
@@ -58,29 +67,35 @@ public abstract class Weapon extends Item {
 	/**
 	 * Constructs a weapon. The deviation is set to 0.
 	 * @param position Position of the weapon in the world
+	 * @param _ammo The current ammunition held
+	 * @param _semiAuto If the weapon is semi-auto or not
 	 * @param _cooldown The minimum time in seconds between each shot
 	 * @param _shots The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 */
-	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime) {
-		this(position, _semiAuto, _cooldown, _shots, _reloadingTime, 0.0f);
+	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime) {
+		this(position, _ammo, _semiAuto, _cooldown, _shots, _reloadingTime, 0.0f);
 	}
 	
 	/**
 	 * Constructs a weapon. The deviation is constant.
 	 * @param position Position of the weapon in the world
+	 * @param _ammo The current ammunition held
+	 * @param _semiAuto If the weapon is semi-auto or not
 	 * @param _cooldown The minimum time in seconds between each shot
 	 * @param _shots The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 * @param deviation The deviation.
 	 */
-	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float deviation) {
-		this(position, _semiAuto, _cooldown, _shots, _reloadingTime, deviation, deviation, 0.0f, 0.0f);
+	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float deviation) {
+		this(position, _ammo, _semiAuto, _cooldown, _shots, _reloadingTime, deviation, deviation, 0.0f, 0.0f);
 	}
 	
 	/**
 	 * Constructs a weapon.
 	 * @param position Position of the weapon in the world
+	 * @param _ammo The current ammunition held
+	 * @param _semiAuto If the weapon is semi-auto or not
 	 * @param _cooldown The minimum time in seconds between each shot
 	 * @param _shots The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
@@ -89,8 +104,9 @@ public abstract class Weapon extends Item {
 	 * @param _deviationInc How much the deviation is incremented by each shot, in radians
 	 * @param _deviationDecay How much the deviation decays by per second, in radians
 	 */
-	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float _deviationMin, float _deviationMax, float _deviationInc, float _deviationDecay) {
-		super(position);		
+	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float _deviationMin, float _deviationMax, float _deviationInc, float _deviationDecay) {
+		super(position);
+		this.ammo = _ammo;
 		this.semiAuto = _semiAuto;
 		
 		this.cooldown = _cooldown;
@@ -134,6 +150,9 @@ public abstract class Weapon extends Item {
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
 				this.currentShots = this.shots;
+				if (this.ammo != -1)
+					this.ammo = Math.max(0, this.ammo - this.shots);
+				
 			} else {
 				this.currentCooldown = this.cooldown;
 			}
@@ -160,6 +179,23 @@ public abstract class Weapon extends Item {
 	public void renderUI(IRenderer r) {
 		float x = r.getWidth() - Util.HUD_PADDING;
 		float y = Util.HUD_PADDING;
+		
+		if (this.ammo == -1) {
+			Texture t = r.getTextureBank().getTexture("infinity.png");
+			r.drawTexture(t, Align.BR, x, y);
+			x -= t.getWidth();
+		} else {
+			int a;
+			if (!this.reloading) a = this.ammo;
+			else a = this.ammo + this.shots - (int)Math.ceil((1 - (this.currentCooldown / this.reloadingTime)) * this.shots);
+			
+			Font f = r.getFontBank().getFont("emulogic.ttf");
+			String s = "" + a;
+			r.drawText(f, s, Align.BR, false, x, y, 1.0f, ColorUtil.WHITE);
+			x -= f.getWidth(s, 1.0f);
+		}
+		x -= 20.0f;
+		
 		float p;
 		if (!this.reloading) p = this.shots;
 		else p = (1 - (this.currentCooldown / this.reloadingTime)) * this.shots;

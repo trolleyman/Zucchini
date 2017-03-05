@@ -87,7 +87,7 @@ public class TextButtonComponent extends AbstractButtonComponent {
 		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players",
 				Align.BR, false, x+BOX_W-BORDER_WIDTH-INTERNAL_PADDING, y+BORDER_WIDTH+INTERNAL_PADDING, scale);
 	}
-
+	
 	/**
 	 * Returns whether the button is selected or not
 	 * @return boolean Is the button currently selected?

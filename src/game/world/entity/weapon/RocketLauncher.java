@@ -16,8 +16,8 @@ public class RocketLauncher extends Weapon {
 		super(rl);
 	}
 	
-	public RocketLauncher(Vector2f position) {
-		super(position, true, 0.0f, 1, 5.0f, (float)Math.toRadians(4.0f));
+	public RocketLauncher(Vector2f position, int ammo) {
+		super(position, ammo, true, 0.0f, 1, 5.0f, (float)Math.toRadians(4.0f));
 	}
 	
 	@Override
