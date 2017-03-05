@@ -30,7 +30,7 @@ public class Player extends MovableEntity {
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
-	private static final float MAX_SPEED = 2.75f;
+	private static final float MAX_SPEED = 3.0f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
 	

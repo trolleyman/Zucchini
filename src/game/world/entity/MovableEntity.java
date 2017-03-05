@@ -54,7 +54,7 @@ public abstract class MovableEntity extends Entity {
 		if (Math.abs(target.distanceSquared(this.velocity)) > Util.EPSILON) {
 			Vector2f newVelocity = new Vector2f();
 			newVelocity.set(this.velocity);
-			newVelocity.lerp(target, (float) ua.dt * 8.0f / momentumScale);
+			newVelocity.lerp(target, Math.min(1.0f, (float) ua.dt * 8.0f / momentumScale));
 			
 			ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), newVelocity));
 		}

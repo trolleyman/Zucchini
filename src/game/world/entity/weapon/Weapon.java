@@ -120,7 +120,7 @@ public abstract class Weapon extends Item {
 		if (this.fire && this.currentCooldown <= 0.0f) {
 			updated = true;
 			// Fire!!!
-			System.out.println("BANG: Deviation: " + deviation);
+			//System.out.println("BANG: Deviation: " + deviation);
 			float fangle = angle + ((float)Math.random() * 2 - 1.0f) * deviation;
 			fangle = Util.normalizeAngle(fangle);
 			this.fire(ua, fangle);

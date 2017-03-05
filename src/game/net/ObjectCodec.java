@@ -20,6 +20,8 @@ import java.lang.reflect.Type;
 public class ObjectCodec {
 	private static final ThreadLocal<Gson> GSON = ThreadLocal.withInitial(() ->
 		new GsonBuilder()
+			.serializeSpecialFloatingPointValues()
+			.setLenient()
 			.registerTypeAdapter(Item.class, new AbstractClassAdapter<Item>(Item.class).nullSafe())
 			.registerTypeAdapter(Entity.class, new AbstractClassAdapter<Entity>(Entity.class).nullSafe())
 			.registerTypeAdapter(EntityUpdate.class, new AbstractClassAdapter<EntityUpdate>(EntityUpdate.class).nullSafe())

@@ -3,6 +3,7 @@ package game.world.map;
 import game.world.entity.weapon.MachineGun;
 import game.world.entity.Pickup;
 import game.world.entity.monster.Zombie;
+import game.world.entity.weapon.PumpActionShotgun;
 import game.world.entity.weapon.RocketLauncher;
 import org.joml.Vector2f;
 
@@ -107,6 +108,7 @@ public class TestMap extends Map {
 		
 		initialEntities.add(new Pickup(new Vector2f(CT, RS), new MachineGun(new Vector2f(0.0f, 0.0f))));
 		initialEntities.add(new Pickup(new Vector2f(CP, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f))));
+		initialEntities.add(new Pickup(new Vector2f(CP - 2.0f, 1.0f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f))));
 		
 		initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
 		//initialEntities.add(new Zombie(new Vector2f(3.5f, 2.0f)));

@@ -17,7 +17,7 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	public RocketLauncher(Vector2f position) {
-		super(position, true, 0.0f, 1, 5.0f, (float)Math.toRadians(5.0f));
+		super(position, true, 0.0f, 1, 5.0f, (float)Math.toRadians(4.0f));
 	}
 	
 	@Override
@@ -34,7 +34,6 @@ public class RocketLauncher extends Weapon {
 	
 	@Override
 	protected void reload(UpdateArgs ua) {
-		System.out.println("Reloading rocket launcher...");
 		ua.audio.play("rocket_reload.wav", 1.0f, this.position);
 	}
 	

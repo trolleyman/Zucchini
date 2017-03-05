@@ -6,10 +6,11 @@ import game.world.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
+import game.world.entity.MovableEntity;
 import game.world.update.PositionUpdate;
 import org.joml.Vector2f;
 
-public abstract class Projectile extends Entity {
+public abstract class Projectile extends MovableEntity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
 	/** for sound */
@@ -19,9 +20,6 @@ public abstract class Projectile extends Entity {
 	/** Identifies the source team of the bullet */
 	private transient int sourceTeamID;
 	
-	/** The current velocity of the projectile */
-	protected Vector2f velocity;
-	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
 	
@@ -30,7 +28,7 @@ public abstract class Projectile extends Entity {
 	}
 	
 	public Projectile(Vector2f position, int _sourceTeamID, Vector2f _velocity, double _ttl) {
-		super(Team.PASSIVE_TEAM, position);
+		super(Team.PASSIVE_TEAM, position, 0.0f);
 		this.prevPosition.set(position);
 		this.sourceTeamID = _sourceTeamID;
 		this.velocity = _velocity;
@@ -41,12 +39,13 @@ public abstract class Projectile extends Entity {
 		super(b);
 		this.prevPosition = new Vector2f(b.prevPosition);
 		this.sourceTeamID = b.sourceTeamID;
-		this.velocity = b.velocity;
 		this.ttl = b.ttl;
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		super.update(ua);
+		
 		Vector2f temp1 = Util.pushTemporaryVector2f();
 		Vector2f temp2 = Util.pushTemporaryVector2f();
 		
@@ -62,12 +61,9 @@ public abstract class Projectile extends Entity {
 		float x = getLength() * Util.getDirX(ang);
 		float y = getLength() * Util.getDirY(ang);
 		
-		temp1.set(velocity).mul((float)ua.dt);
-		Vector2f newPos = new Vector2f(position).add(temp1);
-		ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPos));
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y,
+		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y,
 				(e) -> Team.isHostileTeam(this.sourceTeamID, e.getTeam()));
-		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y, temp1);
+		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
 		
 		// Choose closest point
 		Vector2f closest;
@@ -85,7 +81,7 @@ public abstract class Projectile extends Entity {
 			this.hitMap(ua, mi);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
-			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID);}
+			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID); }
 		} else if (closest == temp2) {
 			// Hit entity
 			this.hitEntity(ua, ei);
