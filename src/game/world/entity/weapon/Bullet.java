@@ -29,7 +29,6 @@ public abstract class Bullet extends Projectile {
 	
 	@Override
 	protected void hitMap(UpdateArgs ua, Vector2f mi) {
-		System.out.println("*Plink*: Bullet hit the map");
 		ua.audio.play("bullet_impact_wall.wav", 1.0f,mi);
 	}
 	

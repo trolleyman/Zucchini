@@ -21,7 +21,6 @@ public class Handgun extends Weapon {
 	@Override
 	protected void fire(UpdateArgs ua, float angle) {
 		ua.audio.play("handgunshot.wav", 0.5f,this.position);
-		System.out.println("BANG!");
 		// Add bullets to entity bank
 		ua.bank.addEntityCached(new HandgunBullet(new Vector2f(position), this.ownerTeam, angle));
 	}
