@@ -1,5 +1,6 @@
 package game.render;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
 import game.render.shader.Shader;
@@ -471,6 +472,7 @@ public class Renderer implements IRenderer {
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);
+		textureShader.setColor(ColorUtil.WHITE);
 		textureShader.bindTexture(tex);
 		textureShader.use();
 		

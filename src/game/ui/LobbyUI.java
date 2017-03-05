@@ -177,5 +177,4 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	public void destroy() {
 		// Nothing to destroy
 	}
-
 }

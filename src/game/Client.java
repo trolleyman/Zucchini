@@ -99,6 +99,7 @@ class Client implements Runnable, InputPipe {
 			System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
 			next.handleResize(renderer.getWidth(), renderer.getHeight());
 			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
+			ui.destroy();
 		}
 		ui = next;
 		

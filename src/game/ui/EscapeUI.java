@@ -43,7 +43,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		start(); //java convention to keep constructor under 10 lines
 	}
 	
-	public void start(){
+	public void start() {
 		fileBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
 				textureBank.getTexture("file.png"),
@@ -86,8 +86,6 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(audioBtn);
 		this.inputHandlers.add(quitBtn);
 		this.inputHandlers.add(continueBtn);
-	
-		
 	}
 	
 	@Override
@@ -154,5 +152,4 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

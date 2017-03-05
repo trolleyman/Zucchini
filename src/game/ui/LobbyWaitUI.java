@@ -299,7 +299,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void destroy() {
-		
+		// Nothing to destroy
 	}
 	
 	@Override
