@@ -13,6 +13,7 @@ import game.world.UpdateArgs;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.SetHeldItem;
+import game.world.entity.weapon.Knife;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -33,6 +34,10 @@ public class Player extends MovableEntity {
 	private static final float MAX_SPEED = 3.0f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
+	
+	public static Item getDefaultHeldItem() {
+		return new Knife(new Vector2f(0.0f, 0.0f));
+	}
 	
 	/** If the player is moving north */
 	private transient boolean moveNorth = false;
@@ -63,8 +68,10 @@ public class Player extends MovableEntity {
 	public Player(int team, Vector2f position, Item _heldItem) {
 		super(team, position, 1.0f);
 		this.heldItem = _heldItem;
-		if (this.heldItem != null)
+		if (this.heldItem != null) {
+			this.heldItem.setOwner(this.getId());
 			this.heldItem.setOwnerTeam(this.getTeam());
+		}
 	}
 	
 	/**
