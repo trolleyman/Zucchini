@@ -91,9 +91,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 			for (int i = 0; i < lobbies.size(); i++) {
 				final int l = i;
 				TextButtonComponent lobbyButton = new TextButtonComponent(
-						() -> {
-							lobbySelect(l);
-						}, Align.BL, 300, 300, fontBank.getFont("emulogic.ttf"), 0.5f, lobbies.get(i));
+						() -> lobbySelect(l), 300, 300, fontBank.getFont("emulogic.ttf"), 0.5f, lobbies.get(i));
 				lobby_buttons.add(lobbyButton);
 				this.inputHandlers.add(lobby_buttons.get(i));
 			}
