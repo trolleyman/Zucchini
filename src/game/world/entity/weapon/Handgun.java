@@ -9,6 +9,8 @@ import game.render.Align;
 import game.render.IRenderer;
 
 public class Handgun extends Weapon {
+	private int reloadSoundID = -1;
+	
 	public Handgun(Handgun g) {
 		super(g);
 	}
@@ -25,8 +27,22 @@ public class Handgun extends Weapon {
 	}
 	
 	@Override
-	protected void reload(UpdateArgs ua) {
-
+	public void update(UpdateArgs ua) {
+		super.update(ua);
+		
+		if (this.reloadSoundID != -1) {
+			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
+		}
+	}
+	
+	@Override
+	protected void startReload(UpdateArgs ua) {
+		this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
+	}
+	
+	@Override
+	protected void endReload(UpdateArgs ua) {
+		this.reloadSoundID = -1;
 	}
 	
 	@Override
