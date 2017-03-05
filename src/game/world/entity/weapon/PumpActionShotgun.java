@@ -16,7 +16,7 @@ public class PumpActionShotgun extends Weapon {
 	}
 	
 	public PumpActionShotgun(Vector2f position) {
-		super(position, true, 0.3f, 8, 5.0f, (float)Math.toRadians(1.0f));
+		super(position, true, 0.3f, 8, 4.0f, (float)Math.toRadians(1.0f));
 	}
 	
 	@Override
