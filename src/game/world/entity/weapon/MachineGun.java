@@ -3,7 +3,6 @@ package game.world.entity.weapon;
 import game.ColorUtil;
 import game.render.Align;
 import game.render.IRenderer;
-import game.render.Texture;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
 
@@ -13,13 +12,13 @@ public class MachineGun extends Weapon {
 }
 	
 	public MachineGun(Vector2f position) {
-		super(position, false, 0.05f, 30, 2.0f);
+		super(position, false, 0.05f, 30, 2.0f,
+				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
 	}
 	
 	@Override
-	protected void fire(UpdateArgs ua) {
-		ua.audio.play("handgunshot.wav", 0.5f,this.position);
-		System.out.println("BANG!");
+	protected void fire(UpdateArgs ua, float angle) {
+		ua.audio.play("handgunshot.wav", 0.5f, this.position);
 		// Add bullets to entity bank
 		ua.bank.addEntityCached(new MachineGunBullet(new Vector2f(position), this.ownerTeam, angle));
 	}

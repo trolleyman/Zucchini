@@ -17,7 +17,7 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	public RocketLauncher(Vector2f position) {
-		super(position, true, 0.0f, 1, 5.0f);
+		super(position, true, 0.0f, 1, 5.0f, (float)Math.toRadians(5.0f));
 	}
 	
 	@Override
@@ -26,10 +26,10 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	@Override
-	protected void fire(UpdateArgs ua) {
+	protected void fire(UpdateArgs ua, float angle) {
 		System.out.println("Whoosh! Rocket fired!");
 		ua.audio.play("rocket-launcher.wav", 0.5f, this.position);
-		ua.bank.addEntityCached(new Rocket(position, this.ownerTeam, this.angle));
+		ua.bank.addEntityCached(new Rocket(position, this.ownerTeam, angle));
 	}
 	
 	@Override

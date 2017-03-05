@@ -7,6 +7,8 @@ import game.world.entity.Item;
 import game.world.update.SetHeldItem;
 import org.joml.Vector2f;
 
+import java.util.Random;
+
 /**
  * A weapon is something that the player can hold, and fire.
  * 
@@ -27,6 +29,12 @@ public abstract class Weapon extends Item {
 	private int shots;
 	private float reloadingTime;
 	
+	private float deviation;
+	private float deviationMin;
+	private float deviationMax;
+	private float deviationInc;
+	private float deviationDecay;
+	
 	public Weapon(Weapon g) {
 		super(g);
 		
@@ -41,16 +49,49 @@ public abstract class Weapon extends Item {
 		this.reloadingTime = g.reloadingTime;
 		
 		this.fire = g.fire;
+		
+		this.deviation = g.deviation;
+		this.deviationMin = g.deviationMin;
+		this.deviationMax = g.deviationMax;
+		this.deviationInc = g.deviationInc;
+		this.deviationDecay = g.deviationDecay;
 	}
 	
 	/**
-	 * Constructs a semi-auto weapon, with a cooldown
+	 * Constructs a weapon. The deviation is set to 0.
 	 * @param position Position of the weapon in the world
 	 * @param _cooldown The minimum time in seconds between each shot
 	 * @param _shots The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 */
 	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime) {
+		this(position, _semiAuto, _cooldown, _shots, _reloadingTime, 0.0f);
+	}
+	
+	/**
+	 * Constructs a weapon. The deviation is constant.
+	 * @param position Position of the weapon in the world
+	 * @param _cooldown The minimum time in seconds between each shot
+	 * @param _shots The number of shots in a clip
+	 * @param _reloadingTime The time it takes to reload the weapon
+	 * @param deviation The deviation.
+	 */
+	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float deviation) {
+		this(position, _semiAuto, _cooldown, _shots, _reloadingTime, deviation, deviation, 0.0f, 0.0f);
+	}
+	
+	/**
+	 * Constructs a weapon.
+	 * @param position Position of the weapon in the world
+	 * @param _cooldown The minimum time in seconds between each shot
+	 * @param _shots The number of shots in a clip
+	 * @param _reloadingTime The time it takes to reload the weapon
+	 * @param _deviationMin The starting deviation, in radians
+	 * @param _deviationMax The maximum deviation, in radians
+	 * @param _deviationInc How much the deviation is incremented by each shot, in radians
+	 * @param _deviationDecay How much the deviation decays by per second, in radians
+	 */
+	public Weapon(Vector2f position, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float _deviationMin, float _deviationMax, float _deviationInc, float _deviationDecay) {
 		super(position);		
 		this.semiAuto = _semiAuto;
 		
@@ -58,6 +99,11 @@ public abstract class Weapon extends Item {
 		this.shots = _shots;
 		this.currentShots = this.shots;
 		this.reloadingTime = _reloadingTime;
+		this.deviation = _deviationMin;
+		this.deviationMin = _deviationMin;
+		this.deviationMax = _deviationMax;
+		this.deviationInc = _deviationInc;
+		this.deviationDecay = _deviationDecay;
 	}
 	
 	@Override
@@ -74,7 +120,12 @@ public abstract class Weapon extends Item {
 		if (this.fire && this.currentCooldown <= 0.0f) {
 			updated = true;
 			// Fire!!!
-			this.fire(ua);
+			System.out.println("BANG: Deviation: " + deviation);
+			float fangle = angle + ((float)Math.random() * 2 - 1.0f) * deviation;
+			fangle = Util.normalizeAngle(fangle);
+			this.fire(ua, fangle);
+			// Increment deviation
+			this.deviation += deviationInc;
 			
 			// Decrement shots left
 			this.currentShots--;
@@ -89,10 +140,13 @@ public abstract class Weapon extends Item {
 				this.currentCooldown = this.cooldown;
 			}
 		}
-		//System.out.println("cooldown: " + this.currentCooldown);
 		if (this.semiAuto)
 			this.fire = false;
 		
+		// Update deviation
+		this.deviation = Math.max(deviationMin, Math.min(deviationMax, deviation - (float)ua.dt * deviationDecay));
+		
+		// Update cooldown
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
 			System.out.println("Reloaded.");
@@ -109,10 +163,8 @@ public abstract class Weapon extends Item {
 		float x = r.getWidth() - Util.HUD_PADDING;
 		float y = Util.HUD_PADDING;
 		float p;
-		if (!this.reloading)
-			p = this.shots;
-		else
-			p = (1 - (this.currentCooldown / this.reloadingTime)) * this.shots;
+		if (!this.reloading) p = this.shots;
+		else p = (1 - (this.currentCooldown / this.reloadingTime)) * this.shots;
 		
 		for (int i = 0; i < currentShots; i++) {
 			if (this.reloading) {
@@ -144,7 +196,7 @@ public abstract class Weapon extends Item {
 		this.fire = false;
 	}
 	
-	protected abstract void fire(UpdateArgs ua);
+	protected abstract void fire(UpdateArgs ua, float angle);
 	
 	protected abstract void reload(UpdateArgs ua);
 	
