@@ -15,6 +15,7 @@ import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
+import game.world.update.SetStartTimeWorldUpdate;
 import org.joml.Vector2f;
 
 /**
@@ -23,6 +24,9 @@ import org.joml.Vector2f;
  * @author Callum
  */
 public class ServerWorld extends World implements Cloneable {
+	/** Time in seconds between start time updates */
+	private static final float START_TIME_UPDATE_DT = 0.5f;
+	
 	/** Cached UpdateArgs object */
 	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null);
 	
@@ -31,6 +35,9 @@ public class ServerWorld extends World implements Cloneable {
 	
 	/** The clients */
 	private ArrayList<ServerWorldClient> clients = new ArrayList<>();
+	
+	/** The time since the last startTime update */
+	private float startTimeUpdate;
 	
 	/**
 	 * Clones a ServerWorld
@@ -41,6 +48,8 @@ public class ServerWorld extends World implements Cloneable {
 		this.audio = w.audio;
 		
 		this.clients = w.clients;
+		
+		this.startTimeUpdate = w.startTimeUpdate;
 	}
 	
 	/**
@@ -56,6 +65,8 @@ public class ServerWorld extends World implements Cloneable {
 		for (Entity e : map.getInitialEntities()) {
 			this.bank.addEntityCached(e);
 		}
+		
+		this.startTimeUpdate = 0.0f;
 	}
 	
 	/**
@@ -117,47 +128,61 @@ public class ServerWorld extends World implements Cloneable {
 		}
 	}
 	
-	public EntityBank getEntityBank() {
-		return this.bank;
-	}
-	
 	@Override
 	protected synchronized void updateStep(double dt) {
-		ua.dt = dt;
-		ua.bank = bank;
-		ua.map = map;
-		ua.audio = audio;
-		
-		// Ensure that no entity updates are left out
-		this.bank.processCache(clients);
-		
-		// Update entities
-		for (Entity e : this.bank.entities.values()) {
-			e.update(ua);
-		}
-		
-		// Send audio
-		for (AudioEvent ae : audio.clearCache()) {
-			for (ServerWorldClient c : clients) {
-				if (c.handler.isClosed())
-					continue;
-				
-				try {
-					c.handler.getClientInfo().tcpConn.sendString(Protocol.sendAudioEvent(ae));
-				} catch (ProtocolException ex) {
-					// This is ok as ClientHandler takes care of this
+		if (this.startTime != 0.0f) {
+			this.startTimeUpdate += dt;
+			
+			if (this.startTimeUpdate > START_TIME_UPDATE_DT) {
+				this.startTimeUpdate = 0.0f;
+				String s = Protocol.sendWorldUpdate(new SetStartTimeWorldUpdate(this.startTime));
+				for (ServerWorldClient c : clients) {
+					try {
+						c.handler.sendStringTcp(s);
+					} catch (ProtocolException e) {
+						// This is fine as the handler takes care of it
+					}
 				}
 			}
 		}
 		
-		// Send entity updates
-		this.bank.processCache(clients);
-		
-		// *DING-DONG* *DING-DONG* bring out yer dead
-		for (Entity e : this.bank.entities.values()) {
-			if (e.getHealth() <= 0.0f) {
-				e.death(ua);
-				this.bank.removeEntityCached(e.getId());
+		if (!this.isPaused()) {
+			ua.dt = dt;
+			ua.bank = bank;
+			ua.map = map;
+			ua.audio = audio;
+			
+			// Ensure that no entity updates are left out
+			this.bank.processCache(clients);
+			
+			// Update entities
+			for (Entity e : this.bank.entities.values()) {
+				e.update(ua);
+			}
+			
+			// Send audio
+			for (AudioEvent ae : audio.clearCache()) {
+				for (ServerWorldClient c : clients) {
+					if (c.handler.isClosed())
+						continue;
+					
+					try {
+						c.handler.getClientInfo().tcpConn.sendString(Protocol.sendAudioEvent(ae));
+					} catch (ProtocolException ex) {
+						// This is ok as ClientHandler takes care of this
+					}
+				}
+			}
+			
+			// Send entity updates
+			this.bank.processCache(clients);
+			
+			// *DING-DONG* *DING-DONG* bring out yer dead
+			for (Entity e : this.bank.entities.values()) {
+				if (e.getHealth() <= 0.0f) {
+					e.death(ua);
+					this.bank.removeEntityCached(e.getId());
+				}
 			}
 		}
 		

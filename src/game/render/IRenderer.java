@@ -68,6 +68,11 @@ public interface IRenderer {
 	TextureBank getTextureBank();
 	
 	/**
+	 * Returns the {@link FontBank} instance.
+	 */
+	FontBank getFontBank();
+	
+	/**
 	 * Gets the ModelView matrix stack.
 	 * <p>
 	 * See <a target="_top" href="http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/>here</a> for more info.

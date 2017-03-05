@@ -10,9 +10,9 @@ import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
-import game.world.update.AngleUpdate;
-import game.world.update.PositionUpdate;
-import game.world.update.SetHeldItem;
+import game.world.entity.update.AngleUpdate;
+import game.world.entity.update.PositionUpdate;
+import game.world.entity.update.SetHeldItem;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;

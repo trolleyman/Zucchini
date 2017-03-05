@@ -55,8 +55,11 @@ public class Renderer implements IRenderer {
 	/** Current input handler */
 	private InputHandler ih;
 	
-	/** Image bank */
-	private TextureBank ib;
+	/** Texture bank */
+	private TextureBank tb;
+	
+	/** Font bank */
+	private FontBank fb;
 	
 	/** Current window width (in pixels) */
 	private int windowW;
@@ -192,7 +195,10 @@ public class Renderer implements IRenderer {
 		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
 		
 		// Load images
-		ib = new TextureBank();
+		tb = new TextureBank();
+		
+		// Intiialize FontBank
+		fb = new FontBank();
 		
 		// Generate meshes
 		generateMeshes();
@@ -324,7 +330,7 @@ public class Renderer implements IRenderer {
 	@Override
 	public void destroy() {
 		// Free the images
-		ib.destroy();
+		tb.destroy();
 		
 		// Free the boxes
 		box.destroy();
@@ -373,7 +379,12 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public TextureBank getTextureBank() {
-		return ib;
+		return tb;
+	}
+	
+	@Override
+	public FontBank getFontBank() {
+		return fb;
 	}
 	
 	public void align(Align a, float w, float h) {

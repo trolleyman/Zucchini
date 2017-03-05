@@ -8,12 +8,11 @@ import game.action.AimAction;
 import game.audio.event.AudioEvent;
 import game.exception.InvalidMessageException;
 import game.exception.ProtocolException;
-import game.world.ClientWorld;
 import game.world.entity.Entity;
 import game.world.map.Map;
-import game.world.update.EntityUpdate;
+import game.world.entity.update.EntityUpdate;
+import game.world.update.WorldUpdate;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 
 public class Protocol {
@@ -57,6 +56,7 @@ public class Protocol {
 	private static final String TAG_LOBBY_CREATE_REJECT  = "[LOBBY_CREATE_REJECT]";
 	private static final String TAG_READY_TOGGLE         = "[READY_TOGGLE]";
 	private static final String TAG_WORLD_START          = "[WORLD_START]";
+	private static final String TAG_WORLD_UPDATE         = "[WORLD_UPDATE]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {
@@ -440,5 +440,18 @@ public class Protocol {
 		String sMap = s.substring(i+1);
 		Map map = ObjectCodec.getGson().fromJson(sMap, Map.class);
 		return new WorldStart(map, playerId);
+	}
+	
+	/**************** World Update ****************/
+	public static String sendWorldUpdate(WorldUpdate update) {
+		return TAG_WORLD_UPDATE + ObjectCodec.worldUpdateToString(update);
+	}
+	
+	public static boolean isWorldUpdate(String msg) {
+		return msg.startsWith(TAG_WORLD_UPDATE);
+	}
+	
+	public static WorldUpdate parseWorldUpdate(String msg) throws ProtocolException {
+		return ObjectCodec.worldUpdateFromString(msg.substring(TAG_WORLD_UPDATE.length()));
 	}
 }

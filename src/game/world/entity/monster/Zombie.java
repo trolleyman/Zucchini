@@ -9,7 +9,7 @@ import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
 import game.world.map.PathFindingMap;
-import game.world.update.PositionUpdate;
+import game.world.entity.update.PositionUpdate;
 import org.joml.Vector2f;
 
 public class Zombie extends AutonomousEntity {

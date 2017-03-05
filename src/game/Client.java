@@ -59,11 +59,8 @@ class Client implements Runnable, InputPipe {
 			return;
 		}
 		
-		// Intiialize FontBank
-		FontBank fontBank = new FontBank();
-		
 		// Initialize UI
-		ui = new StartUI(connection, audio, renderer.getTextureBank(), fontBank);
+		ui = new StartUI(connection, audio, renderer.getTextureBank(), renderer.getFontBank());
 	}
 	
 	@Override

@@ -5,13 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import game.Util;
 import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.world.entity.Entity;
-import game.world.update.EntityUpdate;
+import game.world.entity.update.EntityUpdate;
 import org.joml.Vector2f;
 
 public class EntityBank {

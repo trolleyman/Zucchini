@@ -4,10 +4,8 @@ import game.Util;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 import game.world.entity.Item;
-import game.world.update.SetHeldItem;
+import game.world.entity.update.SetHeldItem;
 import org.joml.Vector2f;
-
-import java.util.Random;
 
 /**
  * A weapon is something that the player can hold, and fire.

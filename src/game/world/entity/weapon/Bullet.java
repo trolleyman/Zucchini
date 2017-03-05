@@ -5,7 +5,7 @@ import game.Util;
 import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.UpdateArgs;
-import game.world.update.HealthUpdate;
+import game.world.entity.update.HealthUpdate;
 import org.joml.Vector2f;
 
 public abstract class Bullet extends Projectile {

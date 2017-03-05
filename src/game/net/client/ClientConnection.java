@@ -13,7 +13,8 @@ import game.net.TCPConnection;
 import game.net.UDPConnection;
 import game.net.WorldStart;
 import game.world.entity.Entity;
-import game.world.update.EntityUpdate;
+import game.world.entity.update.EntityUpdate;
+import game.world.update.WorldUpdate;
 
 public class ClientConnection implements IClientConnection {
 	private String name;
@@ -155,6 +156,11 @@ public class ClientConnection implements IClientConnection {
 					String reason = Protocol.parseLobbyCreateReject(msg);
 					synchronized (cchLock) {
 						cch.handleLobbyCreateReject(reason);
+					}
+				} else if (Protocol.isWorldUpdate(msg)) {
+					WorldUpdate update = Protocol.parseWorldUpdate(msg);
+					synchronized (cchLock) {
+						cch.handleWorldUpdate(update);
 					}
 				} else {
 					System.err.println("[TCP]: " + name + ": Warning: Unknown message received: " + msg);

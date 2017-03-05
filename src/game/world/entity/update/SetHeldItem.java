@@ -1,4 +1,4 @@
-package game.world.update;
+package game.world.entity.update;
 
 import game.world.entity.Entity;
 import game.world.entity.Item;

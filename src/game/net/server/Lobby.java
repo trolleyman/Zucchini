@@ -10,7 +10,6 @@ import game.world.EntityBank;
 import game.world.ServerWorld;
 import game.world.Team;
 import game.world.map.Map;
-import game.world.update.EntityUpdate;
 
 import java.util.ArrayList;
 

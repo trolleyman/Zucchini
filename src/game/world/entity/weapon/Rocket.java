@@ -7,7 +7,7 @@ import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.UpdateArgs;
 import game.world.entity.Explosion;
-import game.world.update.VelocityUpdate;
+import game.world.entity.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 public class Rocket extends Projectile {

@@ -1,21 +1,18 @@
 package game.net;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import game.LobbyInfo;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
 import game.world.Team;
 import game.world.entity.Entity;
 import game.world.entity.Item;
 import game.world.entity.weapon.HandgunBullet;
-import game.world.update.EntityUpdate;
+import game.world.entity.update.EntityUpdate;
+import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 public class ObjectCodec {
 	private static final ThreadLocal<Gson> GSON = ThreadLocal.withInitial(() ->
@@ -25,7 +22,8 @@ public class ObjectCodec {
 			.registerTypeAdapter(Item.class, new AbstractClassAdapter<Item>(Item.class).nullSafe())
 			.registerTypeAdapter(Entity.class, new AbstractClassAdapter<Entity>(Entity.class).nullSafe())
 			.registerTypeAdapter(EntityUpdate.class, new AbstractClassAdapter<EntityUpdate>(EntityUpdate.class).nullSafe())
-			.registerTypeAdapter(AudioEvent.class, new AbstractClassAdapter<Entity>(AudioEvent.class).nullSafe())
+			.registerTypeAdapter(AudioEvent.class, new AbstractClassAdapter<AudioEvent>(AudioEvent.class).nullSafe())
+			.registerTypeAdapter(WorldUpdate.class, new AbstractClassAdapter<WorldUpdate>(WorldUpdate.class).nullSafe())
 			.create()
 	);
 	
@@ -123,6 +121,13 @@ public class ObjectCodec {
 	}
 	public static AudioEvent audioEventFromString(String s) throws ProtocolException {
 		return genFromString(s, AudioEvent.class);
+	}
+	
+	public static String worldUpdateToString(WorldUpdate e) {
+		return genToSting(e, WorldUpdate.class);
+	}
+	public static WorldUpdate worldUpdateFromString(String s) throws ProtocolException {
+		return genFromString(s, WorldUpdate.class);
 	}
 	
 	public static void main(String[] args) throws ProtocolException {

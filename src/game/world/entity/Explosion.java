@@ -4,7 +4,7 @@ import game.ColorUtil;
 import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
-import game.world.update.HealthUpdate;
+import game.world.entity.update.HealthUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;

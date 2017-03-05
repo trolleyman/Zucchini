@@ -1,11 +1,10 @@
 package game.world.entity;
 
 import game.Util;
-import game.ai.AStar;
 import game.ai.Node;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
-import game.world.update.AngleUpdate;
+import game.world.entity.update.AngleUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;

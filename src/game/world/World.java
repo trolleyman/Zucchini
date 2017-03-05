@@ -18,6 +18,9 @@ public abstract class World {
 	/** Entity bank */
 	protected EntityBank bank;
 	
+	/** Time until the world starts updating */
+	protected float startTime;
+	
 	/**
 	 * Constructs the world
 	 * @param _map The map
@@ -27,6 +30,8 @@ public abstract class World {
 		this.map = _map;
 		
 		this.bank = _bank;
+		
+		this.startTime = 5.0f;
 	}
 	
 	/**
@@ -36,6 +41,9 @@ public abstract class World {
 	public synchronized void update(double dt) {
 		dtPool += dt;
 		while (dtPool > Util.DT_PER_UPDATE) {
+			this.startTime -= Util.DT_PER_UPDATE;
+			if (this.startTime < 0.0f)
+				this.startTime = 0.0f;
 			updateStep(Util.DT_PER_UPDATE);
 			dtPool -= Util.DT_PER_UPDATE;
 		}
@@ -46,5 +54,13 @@ public abstract class World {
 	 * @param dt The number of seconds to update the world by
 	 */
 	protected abstract void updateStep(double dt);
+	
+	public void setStartTime(float startTime) {
+		this.startTime = startTime;
+	}
+	
+	public boolean isPaused() {
+		return this.startTime != 0.0f;
+	}
 }
 
