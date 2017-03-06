@@ -1,5 +1,6 @@
 package game.world.entity;
 
+import com.google.gson.annotations.SerializedName;
 import org.joml.Vector2f;
 
 import game.audio.AudioManager;
@@ -32,6 +33,7 @@ public abstract class Entity implements Cloneable {
 	/**
 	 * Position of the entity
 	 */
+	@SerializedName("pos")
 	public Vector2f position;
 	
 	/**

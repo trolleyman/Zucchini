@@ -1,5 +1,6 @@
 package game.world.entity.weapon;
 
+import com.google.gson.annotations.SerializedName;
 import game.ColorUtil;
 import game.Util;
 import game.render.Align;
@@ -17,9 +18,12 @@ import org.joml.Vector2f;
  * @author Callum
  */
 public abstract class Weapon extends Item {
+	@SerializedName("ccdn")
 	private float currentCooldown = 0.0f;
 	/** Current shots left in clip */
+	@SerializedName("cshots")
 	private int currentShots;
+	@SerializedName("rdg")
 	private boolean reloading = false;
 	
 	/** Has fireStart been called since the last update? */
@@ -28,20 +32,25 @@ public abstract class Weapon extends Item {
 	/** The number of ammunition left */
 	private int ammo;
 	
+	@SerializedName("semi")
 	private boolean semiAuto;
 	
+	@SerializedName("cdn")
 	private float cooldown;
 	private int shots;
+	@SerializedName("rdgTime")
 	private float reloadingTime;
 	
+	@SerializedName("dv")
 	private float deviation;
+	@SerializedName("dvMn")
 	private float deviationMin;
+	@SerializedName("dvMx")
 	private float deviationMax;
+	@SerializedName("dvI")
 	private float deviationInc;
+	@SerializedName("dvD")
 	private float deviationDecay;
-	
-	/**for sound*/
-	private transient int reloadSoundID = -1;
 	
 	public Weapon(Weapon g) {
 		super(g);

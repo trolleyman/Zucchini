@@ -1,6 +1,5 @@
 package game.world.entity.update;
 
-import game.net.ObjectCodec;
 import game.world.entity.Entity;
 import game.world.entity.Item;
 import game.world.entity.Player;

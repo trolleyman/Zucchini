@@ -1,4 +1,4 @@
-package game.net;
+package game.net.codec;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;

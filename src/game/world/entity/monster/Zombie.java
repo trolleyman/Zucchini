@@ -18,8 +18,8 @@ import org.joml.Vector2f;
 public class Zombie extends AutonomousEntity {
 	private static final float MAX_SPEED = 1.0f;
 	private static final float RADIUS = 0.15f;
-	private boolean soundSourceInit = false;
-	private int zombieSoundID;
+	private transient boolean soundSourceInit = false;
+	private transient int zombieSoundID;
 	
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED);

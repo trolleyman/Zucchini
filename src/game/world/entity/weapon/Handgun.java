@@ -10,7 +10,7 @@ import game.render.Align;
 import game.render.IRenderer;
 
 public class Handgun extends Weapon {
-	private int reloadSoundID = -1;
+	private transient int reloadSoundID = -1;
 	
 	public Handgun(Handgun g) {
 		super(g);

@@ -54,8 +54,7 @@ public class Player extends MovableEntity {
 	private Item heldItem;
 	
 	/** Has the player been assigned a footstep sound source? */
-	private boolean soundSourceInit = false;
-	private int walkingSoundID = -1; // sound source id associated with player movement
+	private transient int walkingSoundID = -1; // sound source id associated with player movement
 	
 	private transient boolean beganUse = false;
 	

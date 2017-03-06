@@ -9,7 +9,7 @@ import game.world.entity.Player;
 import org.joml.Vector2f;
 
 public class MachineGun extends Weapon {
-	private int reloadSoundID = -1;
+	private transient int reloadSoundID = -1;
 	
 	/** Where the line of sight intersects with the map */
 	private transient Vector2f lineOfSightIntersecton = new Vector2f();

@@ -1,5 +1,6 @@
 package game.world.entity;
 
+import com.google.gson.annotations.SerializedName;
 import game.Util;
 import game.world.UpdateArgs;
 import game.world.entity.update.PositionUpdate;
@@ -12,9 +13,11 @@ public abstract class MovableEntity extends Entity {
 	 * <p>
 	 * The higher this is, the "heavier" the entity will feel
 	 **/
+	@SerializedName("mscale")
 	protected float momentumScale;
 	
 	/** The current velocity of the entity. */
+	@SerializedName("vel")
 	public Vector2f velocity;
 	
 	public MovableEntity(int team, Vector2f position, float _momentumScale) {

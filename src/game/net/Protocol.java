@@ -8,6 +8,7 @@ import game.action.AimAction;
 import game.audio.event.AudioEvent;
 import game.exception.InvalidMessageException;
 import game.exception.ProtocolException;
+import game.net.codec.ObjectCodec;
 import game.world.entity.Entity;
 import game.world.map.Map;
 import game.world.entity.update.EntityUpdate;

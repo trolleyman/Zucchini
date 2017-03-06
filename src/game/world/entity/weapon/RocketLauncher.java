@@ -12,7 +12,7 @@ import org.joml.Vector4f;
 public class RocketLauncher extends Weapon {
 	private static final Vector4f COLOR = new Vector4f(0.0f, 0.4f, 0.0f, 1.0f);
 	
-	private int reloadSoundID = -1;
+	private transient int reloadSoundID = -1;
 	
 	public RocketLauncher(RocketLauncher rl) {
 		super(rl);
