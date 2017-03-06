@@ -184,7 +184,6 @@ public abstract class Weapon extends Item {
 		// Update cooldown
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
-			System.out.println("Reloaded.");
 			this.endReload(ua);
 			this.reloading = false;
 			updated = true;
