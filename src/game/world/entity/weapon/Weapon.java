@@ -143,7 +143,7 @@ public abstract class Weapon extends Item {
 		boolean updated = false;
 		if (this.fire && this.ammo == 0 && this.currentShots == 0) {
 			// TODO: Running out of ammo sound
-			System.out.println("Weapon: *Click*: Out of ammo");
+			System.out.println("[Game]: [Weapon]: *Click*: Out of ammo");
 			this.fire = false;
 		} else if (this.fire && this.currentCooldown <= 0.0f) {
 			updated = true;
