@@ -134,7 +134,7 @@ public class ObjectCodec {
 	}
 	
 	public static void main(String[] args) throws ProtocolException {
-		HandgunBullet b = new HandgunBullet(new Vector2f(2.0f, 3.0f), Team.START_FREE_TEAM, 1.0f);
+		HandgunBullet b = new HandgunBullet(new Vector2f(2.0f, 3.0f), Entity.INVALID_ID, Team.START_FREE_TEAM, 1.0f);
 		String s = GSON.get().toJson(b, Entity.class);
 		System.out.println("JSON: " + s);
 		Entity e = GSON.get().fromJson(s, Entity.class);

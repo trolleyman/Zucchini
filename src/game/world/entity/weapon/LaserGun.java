@@ -1,6 +1,9 @@
 package game.world.entity.weapon;
 
 import game.world.entity.Entity;
+import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageType;
+import game.world.entity.update.DamageUpdate;
 import game.world.entity.update.HealthUpdate;
 import game.world.map.Wall;
 import org.joml.Vector2f;
@@ -70,8 +73,10 @@ public class LaserGun extends Weapon {
 			if (es != null) {
 				for (Entity e : es) {
 					// Only damage if the id is not who shot the laser, unless it is after the first shot
-					if (e.getId() != this.ownerId || prevWall != null)
-						ua.bank.updateEntityCached(new HealthUpdate(e.getId(), -10.0f));
+					if (e.getId() != this.ownerId || prevWall != null) {
+						Damage damage = new Damage(ownerId, ownerTeam, DamageType.LASER_DAMAGE, 10.0f);
+						ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
+					}
 				}
 			}
 			

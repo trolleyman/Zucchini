@@ -9,7 +9,7 @@ import game.render.IRenderer;
 import game.render.Texture;
 import game.world.UpdateArgs;
 import game.world.entity.Item;
-import game.world.entity.update.SetHeldItem;
+import game.world.entity.update.HeldItemUpdate;
 import org.joml.Vector2f;
 
 /**
@@ -190,7 +190,7 @@ public abstract class Weapon extends Item {
 		}
 		
 		if (updated)
-			ua.bank.updateEntityCached(new SetHeldItem(this.ownerId, this.clone()));
+			ua.bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
 	}
 	
 	@Override

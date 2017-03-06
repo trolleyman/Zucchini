@@ -1,6 +1,5 @@
 package game.world.entity;
 
-import game.ColorUtil;
 import game.Util;
 import game.action.Action;
 import game.action.AimAction;
@@ -12,7 +11,7 @@ import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
-import game.world.entity.update.SetHeldItem;
+import game.world.entity.update.HeldItemUpdate;
 import game.world.entity.weapon.Knife;
 import org.joml.Vector2f;
 
@@ -259,14 +258,14 @@ public class Player extends MovableEntity {
 		this.dropHeldItem(bank, this.position);
 		item.setOwner(this.getId());
 		item.setOwnerTeam(this.getTeam());
-		bank.updateEntityCached(new SetHeldItem(this.getId(), item));
+		bank.updateEntityCached(new HeldItemUpdate(this.getId(), item));
 		this.heldItem = item;
 	}
 	
 	private void dropHeldItem(EntityBank bank, Vector2f position) {
 		if (this.heldItem != null)
 			bank.addEntityCached(new Pickup(new Vector2f(position), this.heldItem));
-		bank.updateEntityCached(new SetHeldItem(this.getId(), null));
+		bank.updateEntityCached(new HeldItemUpdate(this.getId(), null));
 		this.heldItem = null;
 	}
 	

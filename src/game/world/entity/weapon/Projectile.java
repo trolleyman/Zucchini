@@ -15,19 +15,23 @@ public abstract class Projectile extends MovableEntity {
 	private transient int whizzSoundID = -1;
 	
 	/** Identifies the source team of the bullet */
-	private transient int sourceTeamID;
+	protected transient int ownerId;
+	
+	/** Identifies the source team of the bullet */
+	protected transient int ownerTeam;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
 	
-	public Projectile(Vector2f position, int sourceTeamID, float angle, float speed, double ttl) {
-		this(position, sourceTeamID, new Vector2f(speed * Util.getDirX(angle), speed * Util.getDirY(angle)), ttl);
+	public Projectile(Vector2f position, int ownerId, int ownerTeam, float angle, float speed, double ttl) {
+		this(position, ownerId, ownerTeam, new Vector2f(speed * Util.getDirX(angle), speed * Util.getDirY(angle)), ttl);
 	}
 	
-	public Projectile(Vector2f position, int _sourceTeamID, Vector2f _velocity, double _ttl) {
+	public Projectile(Vector2f position, int _ownerId, int _sourceTeamID, Vector2f _velocity, double _ttl) {
 		super(Team.PASSIVE_TEAM, position, 0.0f);
 		this.prevPosition.set(position);
-		this.sourceTeamID = _sourceTeamID;
+		this.ownerId = _ownerId;
+		this.ownerTeam = _sourceTeamID;
 		this.velocity = _velocity;
 		this.ttl = _ttl;
 	}
@@ -35,7 +39,7 @@ public abstract class Projectile extends MovableEntity {
 	public Projectile(Projectile b) {
 		super(b);
 		this.prevPosition = new Vector2f(b.prevPosition);
-		this.sourceTeamID = b.sourceTeamID;
+		this.ownerTeam = b.ownerTeam;
 		this.ttl = b.ttl;
 	}
 	
@@ -58,7 +62,7 @@ public abstract class Projectile extends MovableEntity {
 		float y = getLength() * Util.getDirY(ang);
 		
 		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y,
-				(e) -> Team.isHostileTeam(this.sourceTeamID, e.getTeam()));
+				(e) -> Team.isHostileTeam(this.ownerTeam, e.getTeam()));
 		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
 		
 		// Choose closest point

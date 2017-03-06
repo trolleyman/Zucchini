@@ -7,8 +7,11 @@ import game.render.Texture;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
+import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageType;
+import game.world.entity.update.DamageUpdate;
 import game.world.entity.update.HealthUpdate;
-import game.world.entity.update.SetHeldItem;
+import game.world.entity.update.HeldItemUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -107,10 +110,11 @@ public class Knife extends Weapon {
 		
 		if (closest != null) {
 			System.out.println("Weapon: Knifed " + closest.getId() + " (" + closest + ")");
-			ua.bank.updateEntityCached(new HealthUpdate(closest.getId(), -5.0f));
+			Damage damage = new Damage(ownerId, ownerTeam, DamageType.BULLET_DAMAGE, 1.0f);
+			ua.bank.updateEntityCached(new DamageUpdate(closest.getId(), damage));
 		}
 		this.stabbed = true;
-		ua.bank.updateEntityCached(new SetHeldItem(this.ownerId, this.clone()));
+		ua.bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
 	}
 	
 	@Override

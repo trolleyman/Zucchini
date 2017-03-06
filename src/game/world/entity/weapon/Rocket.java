@@ -18,8 +18,8 @@ public class Rocket extends Projectile {
 	private static final float W = 0.05f;
 	private static final float H = 0.2f;
 	
-	public Rocket(Vector2f position, int sourceTeamID, float angle) {
-		super(position, sourceTeamID, angle, INITIAL_SPEED, 12.0);
+	public Rocket(Vector2f position, int ownerId, int ownerTeam, float angle) {
+		super(position, ownerId, ownerTeam, angle, INITIAL_SPEED, 12.0);
 	}
 	
 	public Rocket(Rocket r) {
@@ -64,7 +64,7 @@ public class Rocket extends Projectile {
 	private void hit(UpdateArgs ua, Vector2f pos) {
 		System.out.println("BOOM! Explosion at " + pos.x + ", " + pos.y);
 		ua.audio.play("explosion.wav", 1.0f, pos);
-		ua.bank.addEntityCached(new Explosion(pos, 10.0f, 1.5f));
+		ua.bank.addEntityCached(new Explosion(pos, ownerId, ownerTeam, 10.0f, 1.5f));
 	}
 	
 	@Override

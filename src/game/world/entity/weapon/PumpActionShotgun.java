@@ -42,7 +42,7 @@ public class PumpActionShotgun extends Weapon {
 		for (int i = 0; i < SHOTS_PER_SHELL; i++) {
 			float fang = angle + ((float)Math.random() * 2 - 1.0f) * SPREAD;
 			fang = Util.normalizeAngle(fang);
-			ua.bank.addEntityCached(new PumpActionShotgunBullet(new Vector2f(muzzlePos), this.ownerTeam, fang));
+			ua.bank.addEntityCached(new PumpActionShotgunBullet(new Vector2f(muzzlePos), this.ownerId, this.ownerTeam, fang));
 		}
 		
 		// TODO: Play shotgun fire sound

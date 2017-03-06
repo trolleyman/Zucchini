@@ -104,7 +104,8 @@ public abstract class AutonomousEntity extends MovableEntity {
 			
 		if (this.destination == null && newDest != null)
 			this.destination = new Vector2f();
-		this.destination.set(newDest);
+		if (newDest == null)
+			this.destination = null;
 		
 		if (prevDest == null) {
 			regenRoute(map);

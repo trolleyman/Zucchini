@@ -1,6 +1,7 @@
 package game.world.entity;
 
 import com.google.gson.annotations.SerializedName;
+import game.world.entity.damage.Damage;
 import org.joml.Vector2f;
 
 import game.audio.AudioManager;
@@ -133,6 +134,13 @@ public abstract class Entity implements Cloneable {
 	 */
 	protected float getMaxHealth() {
 		return DEFAULT_MAX_HEALTH;
+	}
+	
+	/**
+	 * Damages the entity.
+	 */
+	public void addDamage(Damage damage) {
+		this.addHealth(-damage.amount);
 	}
 	
 	/**
