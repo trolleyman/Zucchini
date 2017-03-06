@@ -55,7 +55,7 @@ public class Player extends MovableEntity {
 	
 	/** Has the player been assigned a footstep sound source? */
 	private boolean soundSourceInit = false;
-	private int walkingSoundID; // sound source id associated with player movement
+	private int walkingSoundID = -1; // sound source id associated with player movement
 	
 	private transient boolean beganUse = false;
 	
@@ -67,10 +67,7 @@ public class Player extends MovableEntity {
 	public Player(int team, Vector2f position, Item _heldItem) {
 		super(team, position, 1.0f);
 		this.heldItem = _heldItem;
-		if (this.heldItem != null) {
-			this.heldItem.setOwner(this.getId());
-			this.heldItem.setOwnerTeam(this.getTeam());
-		}
+		updateHeldItemInfo();
 	}
 	
 	/**
@@ -161,22 +158,21 @@ public class Player extends MovableEntity {
 		if (this.heldItem != null)
 			this.heldItem.update(ua);
 		
-		if (!soundSourceInit) {
-			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
-			ua.audio.pauseLoop(walkingSoundID);
-			soundSourceInit = true;
-		}
-		
 		// Play walking sounds
 		if (moveNorth || moveSouth || moveEast || moveWest) {
 			//System.out.println("Starting sound id: " + walkingSoundID);
-			ua.audio.continueLoop(this.walkingSoundID,this.position);
+			if (walkingSoundID == -1){
+				this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.6f,this.position);
+			} else {
+				ua.audio.continueLoop(this.walkingSoundID,this.position);
+			}
 		} else {
 			//System.out.println("Stopping sound id: " + walkingSoundID);
-			ua.audio.pauseLoop(this.walkingSoundID);
-		} 
-		
-		
+			if (walkingSoundID != -1){
+				ua.audio.pauseLoop(this.walkingSoundID);
+				walkingSoundID=-1;
+			}
+		}
 	}
 	
 	@Override

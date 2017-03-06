@@ -40,6 +40,9 @@ public abstract class Weapon extends Item {
 	private float deviationInc;
 	private float deviationDecay;
 	
+	/**for sound*/
+	private transient int reloadSoundID = -1;
+	
 	public Weapon(Weapon g) {
 		super(g);
 		
@@ -67,8 +70,6 @@ public abstract class Weapon extends Item {
 	/**
 	 * Constructs a weapon. The deviation is set to 0.
 	 * @param position Position of the weapon in the world
-	 * @param _ammo The current ammunition held
-	 * @param _semiAuto If the weapon is semi-auto or not
 	 * @param _cooldown The minimum time in seconds between each shot
 	 * @param _shots The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
@@ -149,7 +150,8 @@ public abstract class Weapon extends Item {
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload
-				this.reload(ua);
+				this.startReload(ua);
+				
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
 				if (this.ammo != -1 && this.ammo < this.shots)
@@ -173,6 +175,8 @@ public abstract class Weapon extends Item {
 		// Update cooldown
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
+			System.out.println("Reloaded.");
+			this.endReload(ua);
 			this.reloading = false;
 			updated = true;
 		}
@@ -238,7 +242,9 @@ public abstract class Weapon extends Item {
 	
 	protected abstract void fire(UpdateArgs ua, float angle);
 	
-	protected abstract void reload(UpdateArgs ua);
+	protected abstract void startReload(UpdateArgs ua);
+	
+	protected abstract void endReload(UpdateArgs ua);
 	
 	@Override
 	public abstract Weapon clone();

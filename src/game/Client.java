@@ -102,7 +102,6 @@ class Client implements Runnable, InputPipe {
 			ui.destroy();
 		}
 		ui = next;
-		
 	}
 	
 	private void render() {

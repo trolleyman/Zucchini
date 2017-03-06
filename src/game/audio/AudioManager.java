@@ -6,18 +6,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import game.Util;
 import org.joml.Vector2f;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL11;
-
 import static org.lwjgl.openal.AL10.*;
 import org.lwjgl.openal.ALC;
 import static org.lwjgl.openal.ALC10.*;
 import org.lwjgl.openal.ALCCapabilities;
 import static org.lwjgl.system.MemoryUtil.NULL;
-
 public class AudioManager implements IAudioManager{
 	private long device;
     private long context;
@@ -29,7 +26,6 @@ public class AudioManager implements IAudioManager{
     private static Vector2f listenerPos = new Vector2f(0, 0);
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
-
     /**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
      * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
@@ -66,8 +62,8 @@ public class AudioManager implements IAudioManager{
 				}
 				source.setBuffer(soundBuffer.getBufferId());
 				soundSourcesList.add(source);
-				//special case: explosion sound, be more louder and able to hear this far away
-				if(filename.equals("explosion.wav")){
+				//special cases: explosion sound and gun firing, be more louder and able to hear this far away
+				if(filename.equals("explosion.wav") || filename.equals("handgunshot.wav")){
 					source.setRolloffFactor(1f);
 					source.setReferenceDistance(1f);
 				}
@@ -76,9 +72,9 @@ public class AudioManager implements IAudioManager{
 			System.out.println("Loaded audio: " + listOfFiles[j].getName());
 			j++;
 		}
-
 		//play bgm
 		SoundSource bgm = new SoundSource(true,true);
+		bgm.setVolume(1.0f);
 		SoundBuffer buffer = new SoundBuffer(Util.getResourcesDir() + "/audio_assets/[bgm]Desolation.wav");
 		bgm.setBuffer(buffer.getBufferId());
 		bgm.play();
@@ -89,7 +85,6 @@ public class AudioManager implements IAudioManager{
 		System.out.println(listOfFiles.length + " audio file(s) loaded.");
 		
     }
-
     /**
      * Starts OpenAL procedures and creates sources layout
      * @throws Exception
@@ -113,24 +108,25 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("bullet_impact_wall.wav", 30);
 		fileSourceMap.put("bullet_whiz1.wav", 0);
 		fileSourceMap.put("bullet_whizz_silent.wav", 30);
-		fileSourceMap.put("bullet_whizz2.wav", 30);
+		fileSourceMap.put("bullet_whizz2.wav", 0);
 		fileSourceMap.put("bullet_whizz3.wav", 0);
 		fileSourceMap.put("explosion.wav", 5);
-		fileSourceMap.put("footsteps_running.wav", 50);
+		fileSourceMap.put("footsteps_running.wav", 30);
 		fileSourceMap.put("footsteps_walking.wav", 0);
-		fileSourceMap.put("grunt1.wav", 0);
+		fileSourceMap.put("grunt1.wav", 5);
 		fileSourceMap.put("grunt2.wav", 5);
+		fileSourceMap.put("grunt3.wav", 5);
+		fileSourceMap.put("grunt4.wav", 5);
 		fileSourceMap.put("gun_reload[2sec].wav", 5);
-		fileSourceMap.put("handgunshot.wav", 50);
+		fileSourceMap.put("handgunshot.wav", 30);
+		fileSourceMap.put("laser_round.wav", 15);
+		fileSourceMap.put("lasergun-fire.wav", 15);
 		fileSourceMap.put("punch.wav", 5);
-		fileSourceMap.put("rocket_reload.wav", 5);
+		fileSourceMap.put("rocket_reload[5sec].wav", 5);
 		fileSourceMap.put("rocket-launcher.wav", 5);
 		fileSourceMap.put("zombie1.wav", 5);
 		fileSourceMap.put("zombie2.wav", 5);
 		fileSourceMap.put("zombie3.wav", 5);
-		fileSourceMap.put("zombie4.wav", 5);
-		fileSourceMap.put("zombie5.wav", 5);
-
     }
     
 //    public void addSoundSources(String name, List<SoundSource> soundSources) {
@@ -140,6 +136,7 @@ public class AudioManager implements IAudioManager{
 //    public SoundSource getSoundSource(String name) {
 //        return this.soundSourcesMap.get(name);
 //    }
+    
     
     /**
      * Iterate available sound sources for a buffer and return it
@@ -172,23 +169,18 @@ public class AudioManager implements IAudioManager{
             soundSource.play();
         }
     }
-
 //    public void removeSoundSource(String name) {
 //        this.soundSourceMap.remove(name);
 //    }
-
     public void addSoundBuffer(SoundBuffer soundBuffer) {
         this.soundBufferList.add(soundBuffer);
     }
-
     public SoundListener getListener() {
         return this.listener;
     }
-
     public void setListener(SoundListener listener) {
         this.listener = listener;
     }
-
     public void updateListenerPosition(Vector2f pos) {
     	listener.setPosition(pos);
     }
@@ -221,17 +213,28 @@ public class AudioManager implements IAudioManager{
      * @param volume, the volume of the sound
      */
     @Override
-	public void play(String name, float volume, Vector2f position) {
+	public int play(String name, float volume, Vector2f position) {
     	//check that we have a source to play
     	SoundSource source = findAvailableSoundSource(name);
     	if (source != null){
 			source.setVolume(volume);
 			source.setPosition(position);
 			source.play();
+			return source.getSourceId();
 			//DSystem.out.println("Played "+name+" at position: "+position.toString());
     	}
+    	return -1;
 	}
-        
+    
+    /**
+     * updates a position of a source
+     */
+    @Override
+	public void updateSourcePos(int sourceID, Vector2f position) {
+		SoundSource source = getSoundSource(sourceID);
+		source.setPosition(position);
+	}
+    
     /**
      * Plays a wav file in a continous loop, returns -1 if no source can be found to play from!
      * @return A sourceID that can be used to stop a particular source, returns -1 if no available source
@@ -240,11 +243,12 @@ public class AudioManager implements IAudioManager{
 	public int playLoop(String name, float volume, Vector2f position) {
     	SoundSource source = findAvailableSoundSource(name);
     	if (source != null){
-        	//System.out.println("Found and using (client) sourceID: " + source.getSourceId());
+        	System.out.println("Found and using (client) sourceID: " + source.getSourceId()+" for sound "+name);
 			source.setVolume(volume);
 			source.setLooping(true);
 			source.setPosition(position);
 			source.play();
+			//source.setInUse(true);
 			return(source.getSourceId());
     	}
 		return -1;
@@ -267,6 +271,7 @@ public class AudioManager implements IAudioManager{
     	if (!source.isPlaying()){
     		source.play();
     	}
+    	//source.setVolume(1f);
     }
     
     /**
@@ -282,7 +287,9 @@ public class AudioManager implements IAudioManager{
 	    }
     	if (source.isPlaying()){
     		source.pause();
+    		//source.setInUse(false);
     	}
+    	//source.setVolume(0f);
     }
     
     /**
@@ -298,15 +305,16 @@ public class AudioManager implements IAudioManager{
 	    }
     	System.out.println("source: "+source);
     	System.out.println("Stopping sourceID: " +source.getSourceId());
+    	source.setInUse(false);
     	source.stop();
 	}
-	
+    
     /**
      * Given a sound source ID, this will return the sound source object returns null if it isnt found
      * @param sourceID
      * @return SoundSource
      */
-    private SoundSource getSoundSource(int sourceID){
+    public SoundSource getSoundSource(int sourceID){
     	for (List<SoundSource> list : this.soundSourcesMap.values()){
     		for(SoundSource source : list){
     			if (source.getSourceId()==sourceID){
@@ -331,14 +339,74 @@ public class AudioManager implements IAudioManager{
 	
     public static void main(String args[]) throws Exception{
     	AudioManager soundMgr = new AudioManager();
-
     	char c =' ' ;
         int idb = 0;
         int idw = 0;
         int idw2 = 0;
-
+        
+		int idw3 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw3: "+idw3);
+		soundMgr.pauseLoop(idw3);
+		int idw4 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw4: "+idw4);
+		soundMgr.pauseLoop(idw4);
+		int idw5 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw5: "+idw5);
+		soundMgr.pauseLoop(idw5);
+		int idw6 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
+		System.out.println("idw6: "+idw6);
+		soundMgr.pauseLoop(idw6);
+		int idw7 = soundMgr.playLoop("footsteps_running.wav",0f,listenerPos);
+		System.out.println("idw7: "+idw7);
+		soundMgr.pauseLoop(idw7);
+		
         while (c != 'q'){
         	c = (char) System.in.read();
+        	if (c=='1'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw3).isPlaying());
+        		if((soundMgr.getSoundSource(idw3).isPlaying())){
+        			soundMgr.pauseLoop(idw3);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw3, listenerPos);
+        		}
+        	}
+        	if (c=='2'){
+        		System.out.println("is idw4 playing?: "+ soundMgr.getSoundSource(idw4).isPlaying());
+        		if((soundMgr.getSoundSource(idw4).isPlaying())){
+        			soundMgr.pauseLoop(idw4);
+        			System.out.println("should pause idw4");
+        		}else{
+        			soundMgr.continueLoop(idw4, listenerPos);
+        		}
+        	}
+        	if (c=='3'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw5).isPlaying());
+        		if((soundMgr.getSoundSource(idw5).isPlaying())){
+        			soundMgr.pauseLoop(idw5);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw5, listenerPos);
+        		}
+        	}
+        	if (c=='4'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw6).isPlaying());
+        		if((soundMgr.getSoundSource(idw6).isPlaying())){
+        			soundMgr.pauseLoop(idw6);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw6, listenerPos);
+        		}
+        	}
+        	if (c=='5'){
+        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw7).isPlaying());
+        		if((soundMgr.getSoundSource(idw7).isPlaying())){
+        			soundMgr.pauseLoop(idw7);
+        			System.out.println("should pause idw3");
+        		}else{
+        			soundMgr.continueLoop(idw7, listenerPos);
+        		}
+        	}
         	if (c=='b'){
         		idb = soundMgr.playLoop("[bgm]Desolation.wav",0.8f,listenerPos);
         	}
@@ -382,5 +450,6 @@ public class AudioManager implements IAudioManager{
         }
         soundMgr.cleanup();
     }
-}
 	
+	
+}

@@ -9,6 +9,8 @@ public class SoundSource {
 	
 	private final float zPos = 1.0f; //fixed z pos since our game will be 2D
     private final int sourceId;
+    private float volume;
+    private boolean inUse = false;
 
     /**
      * The object that represents an entity that creates some form of sound
@@ -48,6 +50,22 @@ public class SoundSource {
     }
     
     /**
+     * returns if this source is in use
+     * @return
+     */
+    public boolean inUse(){
+    	return this.inUse;
+    }
+    
+    /**
+     * sets if this source is in use
+     * @param bool
+     */
+    public void setInUse(boolean bool){
+    	this.inUse = bool;
+    }
+    
+    /**
      * Returns a source id
      * @return sourceID
      */
@@ -84,9 +102,14 @@ public class SoundSource {
     //this method will eventually be depreciated, as we will let OpenAL handle volumes
 	public void setVolume(final float volume)
 	{
+		this.volume = volume;
 		alSourcef(sourceId, AL10.AL_GAIN, volume);
 	}
-
+	
+	public float getVolume(){
+		return volume;
+	}
+	
     /**
      * Continues to play a source previously paused
      */
@@ -109,7 +132,7 @@ public class SoundSource {
      * @param position
      */
     public void setPosition(Vector2f position) {
-        alSource3f(sourceId, AL_POSITION, position.x, position.y, zPos);
+        alSource3f(sourceId, AL_POSITION, position.x, position.y , zPos);
     }
 
     /**

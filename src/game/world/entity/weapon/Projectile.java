@@ -12,8 +12,7 @@ public abstract class Projectile extends MovableEntity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
 	/** for sound */
-	private transient boolean soundSourceInit = false;
-	private transient int whizzSoundID;
+	private transient int whizzSoundID = -1;
 	
 	/** Identifies the source team of the bullet */
 	private transient int sourceTeamID;
@@ -51,7 +50,6 @@ public abstract class Projectile extends MovableEntity {
 		this.ttl -= ua.dt;
 		if (ttl <= 0.0f) {
 			ua.bank.removeEntityCached(this.getId());
-			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID);}
 		}
 		
 		// Calculate intersection
@@ -79,24 +77,23 @@ public abstract class Projectile extends MovableEntity {
 			this.hitMap(ua, mi);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
-			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID); }
 		} else if (closest == temp2) {
 			// Hit entity
 			this.hitEntity(ua, ei);
 			// Remove projectile from the world
 			ua.bank.removeEntityCached(this.getId());
-			if(soundSourceInit){ ua.audio.pauseLoop(whizzSoundID);}
 		}
 		
 		prevPosition.set(position);
 		
-		if (!soundSourceInit) {
-			this.whizzSoundID = ua.audio.playLoop("bullet_whizz_silent.wav", 0.1f,this.position);
-			ua.audio.pauseLoop(whizzSoundID);
-			soundSourceInit = true;
-		}
+		
 		// Play sounds
-		ua.audio.continueLoop(this.whizzSoundID,this.position);
+		if (whizzSoundID == -1) {
+			this.whizzSoundID = ua.audio.play("bullet_whizz_silent.wav", 0.6f,this.position);
+		} else {
+			ua.audio.continueLoop(whizzSoundID, this.position);
+		}
+				
 		
 		Util.popTemporaryVector2f();
 		Util.popTemporaryVector2f();
