@@ -92,7 +92,7 @@ public abstract class Entity implements Cloneable {
 	 * @param ua The UpdateArgs class
 	 */
 	public void death(UpdateArgs ua) {
-		System.out.println("*URK*: Death of entity " + id + ". R.I.P.");
+		System.out.println("[Game]: *URK*: Death of entity " + id + ". R.I.P.");
 	}
 	
 	/**

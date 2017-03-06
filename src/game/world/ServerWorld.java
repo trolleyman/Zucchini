@@ -93,7 +93,7 @@ public class ServerWorld extends World implements Cloneable {
 					p.handleAction(bank, a);
 					break;
 				}
-				System.err.println("Warning: Could not find player with ID " + swc.playerId);
+				//System.err.println("Warning: Could not find player with ID " + swc.playerId);
 				break;
 			}
 		}
