@@ -305,6 +305,22 @@ public class EntityBank {
 		return l;
 	}
 	
+	/**
+	 * Get all entities that satisfy a predicate
+	 * @return The entities. Can be null if there were no entities.
+	 */
+	public ArrayList<Entity> getEntities(Predicate<Entity> pred) {
+		ArrayList<Entity> ret = null;
+		for (Entity e : entities.values()) {
+			if (pred.test(e)) {
+				if (ret == null)
+					ret = new ArrayList<>();
+				ret.add(e);
+			}
+		}
+		return ret;
+	}
+	
 	public int getNextFreeTeam() {
 		return nextFreeTeam++;
 	}

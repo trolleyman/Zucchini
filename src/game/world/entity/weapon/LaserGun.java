@@ -1,5 +1,7 @@
 package game.world.entity.weapon;
 
+import game.world.entity.Entity;
+import game.world.entity.update.HealthUpdate;
 import game.world.map.Wall;
 import org.joml.Vector2f;
 
@@ -9,9 +11,14 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 
+import java.util.ArrayList;
+
 public class LaserGun extends Weapon {
 	private static final int MAX_REFLECTIONS = 3;
 	private static final float MAX_LASER_LENGTH = 10.0f;
+	
+	private transient Wall prevWall = null;
+	private transient Vector2f curPos = null;
 	
 	public LaserGun(LaserGun g) {
 		super(g);
@@ -35,8 +42,6 @@ public class LaserGun extends Weapon {
 		return x;
 	}
 	
-	private transient Wall prevWall = null;
-	
 	@Override
 	protected void fire(UpdateArgs ua, float fangle) {
 		// Play audio
@@ -45,7 +50,7 @@ public class LaserGun extends Weapon {
 		// Fire laser segments
 		prevWall = null;
 		Vector2f curDir = Util.pushTemporaryVector2f().set(Util.getDirX(fangle), Util.getDirY(fangle));
-		Vector2f curPos = new Vector2f(Util.getDirX(fangle), Util.getDirY(fangle)).mul(getHeight()).add(position);
+		curPos = new Vector2f(Util.getDirX(fangle), Util.getDirY(fangle)).mul(getHeight()).add(position);
 		float lengthLeft = MAX_LASER_LENGTH;
 		for (int i = 0; i < MAX_REFLECTIONS && lengthLeft > 0.0; i++) {
 			// Calc new max pos
@@ -58,6 +63,17 @@ public class LaserGun extends Weapon {
 			
 			// Spawn new segment
 			ua.bank.addEntityCached(new LaserBulletSegment(this.ownerTeam, curPos, newPos));
+			
+			// Damage entities that contact with laser
+			// TODO: Fix so that entities can collide with outer extents of laser
+			ArrayList<Entity> es = ua.bank.getEntities((e) -> e.intersects(curPos.x, curPos.y, newPos.x, newPos.y) != null);
+			if (es != null) {
+				for (Entity e : es) {
+					// Only damage if the id is not who shot the laser, unless it is after the first shot
+					if (e.getId() != this.ownerId || prevWall != null)
+						ua.bank.updateEntityCached(new HealthUpdate(e.getId(), -10.0f));
+				}
+			}
 			
 			if (intersection == null)
 				break;
