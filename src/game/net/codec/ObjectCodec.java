@@ -11,20 +11,23 @@ import game.world.entity.weapon.HandgunBullet;
 import game.world.entity.update.EntityUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.io.IOException;
 
 public class ObjectCodec {
 	private static final ThreadLocal<Gson> GSON = ThreadLocal.withInitial(() ->
 		new GsonBuilder()
-			.serializeSpecialFloatingPointValues()
-			.setLenient()
-			.registerTypeAdapter(Item.class, new AbstractClassAdapter<Item>(Item.class).nullSafe())
-			.registerTypeAdapter(Entity.class, new AbstractClassAdapter<Entity>(Entity.class).nullSafe())
-			.registerTypeAdapter(EntityUpdate.class, new AbstractClassAdapter<EntityUpdate>(EntityUpdate.class).nullSafe())
-			.registerTypeAdapter(AudioEvent.class, new AbstractClassAdapter<AudioEvent>(AudioEvent.class).nullSafe())
-			.registerTypeAdapter(WorldUpdate.class, new AbstractClassAdapter<WorldUpdate>(WorldUpdate.class).nullSafe())
-			.create()
+				.serializeSpecialFloatingPointValues()
+				.setLenient()
+				.registerTypeAdapter(Vector2f.class, new Vector2fAdapter().nullSafe())
+				.registerTypeAdapter(Vector3f.class, new Vector3fAdapter().nullSafe())
+				.registerTypeAdapter(Item.class, new AbstractClassAdapter<Item>(Item.class).nullSafe())
+				.registerTypeAdapter(Entity.class, new AbstractClassAdapter<Entity>(Entity.class).nullSafe())
+				.registerTypeAdapter(EntityUpdate.class, new AbstractClassAdapter<EntityUpdate>(EntityUpdate.class).nullSafe())
+				.registerTypeAdapter(AudioEvent.class, new AbstractClassAdapter<AudioEvent>(AudioEvent.class).nullSafe())
+				.registerTypeAdapter(WorldUpdate.class, new AbstractClassAdapter<WorldUpdate>(WorldUpdate.class).nullSafe())
+				.create()
 	);
 	
 	private static final ThreadLocal<JsonParser> PARSER = ThreadLocal.withInitial(JsonParser::new);
