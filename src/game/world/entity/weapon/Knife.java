@@ -80,11 +80,6 @@ public class Knife extends Weapon {
 	}
 	
 	@Override
-	protected void reload(UpdateArgs ua) {
-		// Reload
-	}
-	
-	@Override
 	protected void fire(UpdateArgs ua, float angle) {
 		ArrayList<Entity> es = ua.bank.getEntitiesNear(position.x, position.y, KNIFE_RANGE);
 		Entity closest = null;

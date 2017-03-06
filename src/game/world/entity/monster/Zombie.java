@@ -10,7 +10,6 @@ import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
 import game.world.map.PathFindingMap;
 import game.world.entity.update.PositionUpdate;
-import game.world.update.PositionUpdate;
 
 import java.util.Random;
 
@@ -21,7 +20,6 @@ public class Zombie extends AutonomousEntity {
 	private static final float RADIUS = 0.15f;
 	private boolean soundSourceInit = false;
 	private int zombieSoundID;
-	private int walkingSoundID;
 	
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED);

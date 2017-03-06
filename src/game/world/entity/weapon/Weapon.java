@@ -242,9 +242,9 @@ public abstract class Weapon extends Item {
 	
 	protected abstract void fire(UpdateArgs ua, float angle);
 	
-	protected abstract void startReload(UpdateArgs ua);
+	protected void startReload(UpdateArgs ua) {};
 	
-	protected abstract void endReload(UpdateArgs ua);
+	protected void endReload(UpdateArgs ua) {};
 	
 	@Override
 	public abstract Weapon clone();

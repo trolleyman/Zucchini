@@ -35,11 +35,6 @@ public class PumpActionShotgun extends Weapon {
 	}
 	
 	@Override
-	protected void reload(UpdateArgs ua) {
-		// TODO: Play shotgun reload sound
-	}
-	
-	@Override
 	protected void fire(UpdateArgs ua, float angle) {
 		Vector2f muzzlePos = new Vector2f().set(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);;
 		
