@@ -29,6 +29,8 @@ public class Player extends MovableEntity {
 	public static final float LINE_OF_SIGHT_MIN = 1.0f;
 	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
+	/** The angle of which the player can see */
+	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(160.0);
 	
 	/** The speed of the player in m/s */
 	private static final float MAX_SPEED = 3.0f;

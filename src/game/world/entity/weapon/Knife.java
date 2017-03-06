@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class Knife extends Weapon {
 	private static final float COOLDOWN_TIME = 0.2f;
 	private static final float KNIFE_RANGE = 0.8f;
-	private static final float KNIFE_FOV = (float)Math.toRadians(120);
+	private static final float KNIFE_FOV = (float)Math.toRadians(140);
 	
 	private static final float STAB_ANIMATION_TIME = 0.1f;
 	private static final float STAB_ANIMATION_LENGTH = 0.25f;
@@ -84,13 +84,6 @@ public class Knife extends Weapon {
 		// Reload
 	}
 	
-	private boolean inFov(float angle, float aimAngle, float fov) {
-		float diff = Math.abs(angle - aimAngle);
-		if (diff > Math.PI)
-			diff = (float)(2*Math.PI) - diff;
-		return diff < fov;
-	}
-	
 	@Override
 	protected void fire(UpdateArgs ua, float angle) {
 		ArrayList<Entity> es = ua.bank.getEntitiesNear(position.x, position.y, KNIFE_RANGE);
@@ -101,7 +94,7 @@ public class Knife extends Weapon {
 				continue;
 			
 			float angleTo = Util.getAngle(position.x, position.y, e.position.x, e.position.y);
-			if (!inFov(angleTo, angle, KNIFE_FOV))
+			if (Util.getAngleDiff(angleTo, angle) < KNIFE_FOV / 2)
 				continue;
 			
 			// Is in fov - get closest

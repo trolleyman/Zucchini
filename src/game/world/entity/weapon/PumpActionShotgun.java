@@ -21,8 +21,8 @@ public class PumpActionShotgun extends Weapon {
 	
 	@Override
 	public void render(IRenderer r) {
-		// TODO: Render shotgun texture
-		r.drawBox(Align.MM, position.x, position.y, 0.1f, 0.45f, ColorUtil.YELLOW, this.angle);
+		Align a = isHeld() ? Align.BM : Align.MM;
+		r.drawBox(a, position.x, position.y, 0.1f, getHeight(), ColorUtil.YELLOW, this.angle);
 	}
 	
 	@Override
@@ -41,14 +41,20 @@ public class PumpActionShotgun extends Weapon {
 	
 	@Override
 	protected void fire(UpdateArgs ua, float angle) {
+		Vector2f muzzlePos = new Vector2f().set(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);;
+		
 		// Fire series of bullets
 		for (int i = 0; i < SHOTS_PER_SHELL; i++) {
 			float fang = angle + ((float)Math.random() * 2 - 1.0f) * SPREAD;
 			fang = Util.normalizeAngle(fang);
-			ua.bank.addEntityCached(new PumpActionShotgunBullet(position, this.ownerTeam, fang));
+			ua.bank.addEntityCached(new PumpActionShotgunBullet(new Vector2f(muzzlePos), this.ownerTeam, fang));
 		}
 		
 		// TODO: Play shotgun fire sound
+	}
+	
+	private float getHeight() {
+		return 0.45f;
 	}
 	
 	@Override

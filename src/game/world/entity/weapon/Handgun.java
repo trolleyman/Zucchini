@@ -1,5 +1,6 @@
 package game.world.entity.weapon;
 
+import game.Util;
 import game.render.Texture;
 import game.world.UpdateArgs;
 import org.joml.Vector2f;
@@ -19,10 +20,16 @@ public class Handgun extends Weapon {
 	}
 	
 	@Override
-	protected void fire(UpdateArgs ua, float angle) {
-		ua.audio.play("handgunshot.wav", 0.5f,this.position);
+	protected void fire(UpdateArgs ua, float fangle) {
+		// Calculate position
+		Vector2f bulletPos = new Vector2f(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);
+		
+		// Play audio
+		ua.audio.play("handgunshot.wav", 0.5f, new Vector2f(bulletPos));
+		
 		// Add bullets to entity bank
-		ua.bank.addEntityCached(new HandgunBullet(new Vector2f(position), this.ownerTeam, angle));
+		// TODO: ua.bank.addEntityCached(new GunshotEffect(new Vector2f(bulletPos)));
+		ua.bank.addEntityCached(new HandgunBullet(bulletPos, this.ownerTeam, fangle));
 	}
 	
 	@Override
@@ -32,7 +39,7 @@ public class Handgun extends Weapon {
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.PINK, this.angle);
+		r.drawBox(Align.BM, position.x, position.y, 0.2f, getHeight(), ColorUtil.PINK, this.angle);
 	}
 	
 	@Override
@@ -42,6 +49,10 @@ public class Handgun extends Weapon {
 		x -= 20.0f;
 		x -= 10.0f;
 		return x;
+	}
+	
+	private float getHeight() {
+		return 0.2f;
 	}
 	
 	@Override

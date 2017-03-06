@@ -184,10 +184,7 @@ public class Map {
 	}
 	
 	private boolean inFov(float angle, float aimAngle, float fov) {
-		float diff = Math.abs(angle - aimAngle);
-		if (diff > Math.PI)
-			diff = (float)(2*Math.PI) - diff;
-		return diff < fov;
+		return Util.getAngleDiff(angle, aimAngle) < (fov / 2);
 	}
 	
 	/**
@@ -224,8 +221,8 @@ public class Map {
 		}
 		
 		// And also project lines on the edge of the fov.
-		float langle = Util.normalizeAngle(aimAngle - fov);
-		float rangle = Util.normalizeAngle(aimAngle + fov);
+		float langle = Util.normalizeAngle(aimAngle - fov/2);
+		float rangle = Util.normalizeAngle(aimAngle + fov/2);
 		Vector3f ltemp = Util.pushTemporaryVector3f();
 		Vector3f rtemp = Util.pushTemporaryVector3f();
 		projectLine(points, pos, max, langle, ltemp);

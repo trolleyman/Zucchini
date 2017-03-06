@@ -1,6 +1,7 @@
 package game.world.entity.weapon;
 
 import game.ColorUtil;
+import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
@@ -21,10 +22,16 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
-	protected void fire(UpdateArgs ua, float angle) {
-		ua.audio.play("handgunshot.wav", 0.5f, this.position);
+	protected void fire(UpdateArgs ua, float fangle) {
+		// Calculate bullet position
+		Vector2f muzzlePos = new Vector2f();
+		getMuzzlePos(muzzlePos);
+		
+		// Play audio
+		ua.audio.play("handgunshot.wav", 0.5f, new Vector2f(muzzlePos));
+		
 		// Add bullets to entity bank
-		ua.bank.addEntityCached(new MachineGunBullet(new Vector2f(position), this.ownerTeam, angle));
+		ua.bank.addEntityCached(new MachineGunBullet(muzzlePos, this.ownerTeam, fangle));
 	}
 	
 	@Override
@@ -52,10 +59,14 @@ public class MachineGun extends Weapon {
 			lineOfSightIntersecton.set(x, y);
 		}
 		// Draw laser sight
+		Vector2f muzzlePos = Util.pushTemporaryVector2f();
+		getMuzzlePos(muzzlePos);
 		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
+		Util.popTemporaryVector2f();
 		
 		// Draw weapon
-		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN, this.angle);
+		Align a = isHeld() ? Align.BM : Align.MM;
+		r.drawBox(a, position.x, position.y, 0.2f, getHeight(), ColorUtil.CYAN, this.angle);
 	}
 	
 	@Override
@@ -65,6 +76,15 @@ public class MachineGun extends Weapon {
 		x -= 10.0f;
 		x -= 10.0f;
 		return x;
+	}
+	
+	private void getMuzzlePos(Vector2f dest) {
+		float h = isHeld() ? getHeight() : getHeight()/2;
+		dest.set(Util.getDirX(angle), Util.getDirY(angle)).mul(h).add(this.position);
+	}
+	
+	private float getHeight() {
+		return 0.2f;
 	}
 	
 	@Override

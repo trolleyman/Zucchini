@@ -222,6 +222,16 @@ public class Util {
 		return normalizeAngle(angle);
 	}
 	
+	/**
+	 * Gets the acute/obtuse angle between two angles
+	 */
+	public static float getAngleDiff(float x, float y) {
+		float diff = Math.abs(x - y);
+		if (diff > Math.PI)
+			diff = (float)(2*Math.PI) - diff;
+		return diff;
+	}
+	
 	public static float getDirX(float angle) {
 		return (float)Math.sin(angle);
 	}
