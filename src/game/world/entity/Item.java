@@ -21,6 +21,10 @@ public abstract class Item extends Entity {
 		this.ownerId = i.ownerId;
 	}
 	
+	public boolean isHeld() {
+		return this.ownerId != Entity.INVALID_ID;
+	}
+	
 	/**
 	 * Sets the owner for this item.
 	 */

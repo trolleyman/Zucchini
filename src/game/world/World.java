@@ -31,7 +31,7 @@ public abstract class World {
 		
 		this.bank = _bank;
 		
-		this.startTime = 5.0f;
+		this.startTime = Util.GAME_START_WAIT_SECS;
 	}
 	
 	/**

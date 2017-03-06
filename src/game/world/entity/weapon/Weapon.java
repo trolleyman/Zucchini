@@ -149,7 +149,6 @@ public abstract class Weapon extends Item {
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload
-				System.out.println("Reloading...");
 				this.reload(ua);
 				this.currentCooldown = this.reloadingTime;
 				this.reloading = true;
@@ -174,7 +173,6 @@ public abstract class Weapon extends Item {
 		// Update cooldown
 		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
-			System.out.println("Reloaded.");
 			this.reloading = false;
 			updated = true;
 		}

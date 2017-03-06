@@ -48,15 +48,12 @@ public class Player extends MovableEntity {
 	/** If the player is moving west */
 	private transient boolean moveWest  = false;
 	
-	/** Where the line of sight intersects with the map */
-	private transient Vector2f lineOfSightIntersecton = new Vector2f();
-	
 	/**The currently held item. Not necessarily a weapon */
 	private Item heldItem;
 	
 	/** Has the player been assigned a footstep sound source? */
 	private boolean soundSourceInit = false;
-	private int walkingSoundID;//sound source id associated with player movement
+	private int walkingSoundID; // sound source id associated with player movement
 	
 	private transient boolean beganUse = false;
 	
@@ -91,6 +88,20 @@ public class Player extends MovableEntity {
 		this.beganUse = p.beganUse;
 	}
 	
+	private void updateHeldItemInfo() {
+		if (this.heldItem != null) {
+			this.heldItem.setOwner(this.getId());
+			this.heldItem.setOwnerTeam(this.getTeam());
+			this.heldItem.angle = this.angle;
+			
+			// Calculate position
+			Vector2f offset = Util.pushTemporaryVector2f();
+			offset.set(Util.getDirX(angle+(float)Math.PI/2), Util.getDirY(angle+(float)Math.PI/2)).mul(0.15f);
+			this.heldItem.position.set(this.position).add(offset);
+			Util.popTemporaryVector2f();
+		}
+	}
+	
 	@Override
 	protected float getMaxHealth() {
 		return 10.0f;
@@ -106,11 +117,6 @@ public class Player extends MovableEntity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		if (this.heldItem != null) {
-			this.heldItem.setOwner(this.getId());
-			this.heldItem.setOwnerTeam(this.getTeam());
-		}
-		
 		{
 			Vector2f temp = Util.pushTemporaryVector2f();
 			temp.zero();
@@ -149,11 +155,9 @@ public class Player extends MovableEntity {
 		}
 		Util.popTemporaryVector2f();
 		
-		if (this.heldItem != null) {
-			this.heldItem.position.set(this.position);
-			this.heldItem.angle = this.angle;
+		updateHeldItemInfo();
+		if (this.heldItem != null)
 			this.heldItem.update(ua);
-		}
 		
 		if (!soundSourceInit) {
 			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
@@ -177,35 +181,20 @@ public class Player extends MovableEntity {
 	public void clientUpdate(UpdateArgs ua) {
 		super.clientUpdate(ua);
 		
-		float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
-		float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
-		
-		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
-			lineOfSightIntersecton.set(x, y);
-		
+		updateHeldItemInfo();
 		if (this.heldItem != null)
 			this.heldItem.clientUpdate(ua);
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		if (lineOfSightIntersecton == null) {
-			lineOfSightIntersecton = new Vector2f();
-			float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
-			float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
-			lineOfSightIntersecton.set(x, y);
-		}
+		updateHeldItemInfo();
+		if (this.heldItem != null)
+			this.heldItem.render(r);
 		
-		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
-		
-		if (this.heldItem != null) {
-			this.heldItem.position.set(this.position);
-			this.heldItem.angle = this.angle;
-			this.heldItem.render(r);
-		}
 	}
 	
 	/**
@@ -243,18 +232,26 @@ public class Player extends MovableEntity {
 		break;
 		case PICKUP: {
 			// Get pickups around to the player
-			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.4f);
+			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.5f);
 			Optional<Entity> oe = es.stream()
 					.filter((e) -> e instanceof Pickup)
 					.min((l, r) -> Float.compare(l.position.distanceSquared(this.position), r.position.distanceSquared(this.position)));
 			if (oe.isPresent()) {
 				Pickup p = (Pickup) oe.get();
+				
+				// Drop current item
+				this.dropHeldItem(bank, p.position);
+				
+				// Get item
 				Item item = p.getItem();
+				
+				// Own item & pickup item
 				item.setOwnerTeam(this.getTeam());
 				item.setOwner(this.getId());
-				bank.removeEntityCached(p.getId());
-				this.dropHeldItem(bank, p.position);
 				this.pickupItem(bank, item);
+				
+				// Remove pickup entity
+				bank.removeEntityCached(p.getId());
 			}
 			break;
 		}
@@ -277,12 +274,12 @@ public class Player extends MovableEntity {
 	}
 	
 	@Override
-	public Player clone() {
-		return new Player(this);
+	public Vector2f intersects(float x0, float y0, float x1, float y1) {
+		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1, null);
 	}
 	
 	@Override
-	public Vector2f intersects(float x0, float y0, float x1, float y1) {
-		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1, null);
+	public Player clone() {
+		return new Player(this);
 	}
 }

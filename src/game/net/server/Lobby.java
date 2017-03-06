@@ -80,7 +80,7 @@ public class Lobby {
 						// Start countdown
 						prevTime = System.nanoTime();
 						this.countingDown = true;
-						countdownTime = 5.0;
+						countdownTime = Util.LOBBY_WAIT_SECS;
 					}
 				}
 				

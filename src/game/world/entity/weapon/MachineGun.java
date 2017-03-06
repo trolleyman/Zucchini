@@ -4,9 +4,13 @@ import game.ColorUtil;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
+import game.world.entity.Player;
 import org.joml.Vector2f;
 
 public class MachineGun extends Weapon {
+	/** Where the line of sight intersects with the map */
+	private transient Vector2f lineOfSightIntersecton = new Vector2f();
+	
 	public MachineGun(MachineGun g) {
 	super(g);
 }
@@ -29,7 +33,28 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
+	public void clientUpdate(UpdateArgs ua) {
+		super.clientUpdate(ua);
+		
+		float x = position.x + Player.LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
+		float y = position.y + Player.LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
+		
+		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
+			lineOfSightIntersecton.set(x, y);
+	}
+	
+	@Override
 	public void render(IRenderer r) {
+		if (lineOfSightIntersecton == null) {
+			lineOfSightIntersecton = new Vector2f();
+			float x = position.x + Player.LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
+			float y = position.y + Player.LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
+			lineOfSightIntersecton.set(x, y);
+		}
+		// Draw laser sight
+		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
+		
+		// Draw weapon
 		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN, this.angle);
 	}
 	
