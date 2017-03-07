@@ -204,6 +204,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
+		r.beginWorldFramebuffer();
+		
 		// Set model view matrix
 		r.getModelViewMatrix()
 			.pushMatrix()
@@ -261,6 +263,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
 					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
 		}
+		
+		r.endWorldFramebuffer();
 	}
 	
 	/**

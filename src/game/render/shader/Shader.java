@@ -24,7 +24,9 @@ public class Shader {
 	 * Returns the number of shaders currently loaded.
 	 */
 	public static int getShadersLoaded() {
-		return shadersLoaded;
+		int loaded = shadersLoaded;
+		shadersLoaded = 0;
+		return loaded;
 	}
 	
 	/** The currently used shader. This is used for optimization. */

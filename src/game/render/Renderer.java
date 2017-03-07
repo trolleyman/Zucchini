@@ -3,6 +3,7 @@ package game.render;
 import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
+import game.render.shader.FramebufferShader;
 import game.render.shader.Shader;
 import game.render.shader.SimpleShader;
 import game.render.shader.TextureShader;
@@ -14,6 +15,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -22,7 +24,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Renderer implements IRenderer {
 	private static final int CIRCLE_VERTICES = 128;
-
+	
 	/** Window handle. See <a target="_top" href="http://www.glfw.org/docs/latest/window_guide.html#window_object">here</a> */
 	private long window;
 	
@@ -32,12 +34,15 @@ public class Renderer implements IRenderer {
 	// Shaders
 	private SimpleShader simpleShader;
 	private TextureShader textureShader;
+	private FramebufferShader framebufferShader;
 	
 	// Meshes
 	/** Box VAO */
 	private VAO box;
 	/** Textured box VAO */
 	private VAO boxUV;
+	/** Textured box VAO (reversed) */
+	private VAO boxRevUV;
 	/** Dynamic textured box VAO */
 	private VAO boxDynamic;
 	/** Dynamic textured box VBO */
@@ -52,6 +57,9 @@ public class Renderer implements IRenderer {
 	
 	/** Circle VAO. This is a circle at 0,0 of radius 1, with CIRCLE_VERTICES number of vertices */
 	private VAO circle;
+	
+	/** Framebuffer that holds the world render prior to post-processing */
+	private FrameBuffer worldFramebuffer;
 	
 	/** Current input handler */
 	private InputHandler ih;
@@ -73,6 +81,9 @@ public class Renderer implements IRenderer {
 	
 	/** Should the game recalculate the projection matrix on the next frame? */
 	private boolean dirty;
+	
+	/** Should the game regen shaders next frame? */
+	private boolean regenShaders;
 	
 	/** Projection matrix */
 	private MatrixStackf matProjection = new MatrixStackf(1);
@@ -141,6 +152,10 @@ public class Renderer implements IRenderer {
 		
 		// Setup input handlers
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+			if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
+				this.regenShaders = true;
+			}
+			
 			this.ih.handleKey(key, scancode, action, mods);
 		});
 		glfwSetCharCallback(window, (window, cp) -> {
@@ -167,6 +182,7 @@ public class Renderer implements IRenderer {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
+			worldFramebuffer.resize(w, h);
 			this.ih.handleResize(w, h);
 		});
 		int[] wBuf = new int[1];
@@ -190,10 +206,10 @@ public class Renderer implements IRenderer {
 		System.out.println("DPI Scale: " + screenToPixelCoordinates(1));
 		
 		// Load shaders
-		System.out.println("Loading shaders...");
-		simpleShader = new SimpleShader();
-		textureShader = new TextureShader();
-		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
+		loadShaders();
+		
+		// Load framebuffer
+		worldFramebuffer = new FrameBuffer(windowW, windowH);
 		
 		// Load images
 		tb = new TextureBank();
@@ -225,7 +241,7 @@ public class Renderer implements IRenderer {
 		double scale = this.windowW / this.windowScreenW;
 		return coord * scale;
 	}
-
+	
 	/**
 	 * Generate the VAO meshes.
 	 */
@@ -254,12 +270,40 @@ public class Renderer implements IRenderer {
 		VBO positions = new VBO(vertexPositions, AccessFrequency.STATIC);
 		VBO uvs = new VBO(vertexUVs, AccessFrequency.STATIC);
 		
+		float[] vertexPositionsRev = {
+				// t0
+				0.0f, 0.0f, // BL
+				0.0f, 1.0f, // TL
+				1.0f, 0.0f, // BR
+				// t1
+				0.0f, 1.0f, // TL
+				1.0f, 1.0f, // TR
+				1.0f, 0.0f, // BR
+		};
+		float[] vertexUVsRev = {
+				// t0
+				0.0f, 1.0f, // BL
+				0.0f, 0.0f, // TL
+				1.0f, 1.0f, // BR
+				// t1
+				0.0f, 0.0f, // TL
+				1.0f, 0.0f, // TR
+				1.0f, 1.0f, // BR
+		};
+		
+		VBO positionsRev = new VBO(vertexPositionsRev, AccessFrequency.STATIC);
+		VBO uvsRev = new VBO(vertexUVsRev, AccessFrequency.STATIC);
+		
 		box = new VAO();
 		box.addData(simpleShader, "position", positions, 2, 0, 0);
 		
 		boxUV = new VAO();
 		boxUV.addData(textureShader, "position", positions, 2, 0, 0);
 		boxUV.addData(textureShader, "uv", uvs, 2, 0, 0);
+		
+		boxRevUV = new VAO();
+		boxRevUV.addData(textureShader, "position", positionsRev, 2, 0, 0);
+		boxRevUV.addData(textureShader, "uv", uvsRev, 2, 0, 0);
 		
 		boxDynamicVBO = new VBO(vertexUVs, AccessFrequency.DYNAMIC);
 		boxDynamic = new VAO();
@@ -328,6 +372,20 @@ public class Renderer implements IRenderer {
 		this.ih.handleResize(windowW, windowH);
 	}
 	
+	private void destroyShaders() {
+		simpleShader.destroy();
+		textureShader.destroy();
+		framebufferShader.destroy();
+	}
+	
+	private void loadShaders() {
+		System.out.println("Loading shaders...");
+		simpleShader = new SimpleShader();
+		textureShader = new TextureShader();
+		framebufferShader = new FramebufferShader();
+		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
+	}
+	
 	@Override
 	public void destroy() {
 		// Free the images
@@ -336,10 +394,16 @@ public class Renderer implements IRenderer {
 		// Free the boxes
 		box.destroy();
 		boxUV.destroy();
+		boxRevUV.destroy();
+		boxDynamic.destroy();
+		polygonVAO.destroy();
+		circle.destroy();
 		
 		// Free the shaders
-		simpleShader.destroy();
-		textureShader.destroy();
+		destroyShaders();
+		
+		// Free the framebuffers
+		worldFramebuffer.destroy();
 		
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(window);
@@ -357,8 +421,16 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void beginFrame() {
+		if (regenShaders) {
+			destroyShaders();
+			loadShaders();
+			regenShaders = false;
+		}
+		
 		if (this.dirty)
 			recalcProjectionMatrix();
+		
+		worldFramebuffer.unbind();
 		
 		glStencilMask(0xFF);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
@@ -367,6 +439,31 @@ public class Renderer implements IRenderer {
 		this.disableStencil();
 		
 		matModelView.clear();
+		
+		Shader.useNullProgram();
+	}
+	
+	@Override
+	public void beginWorldFramebuffer() {
+		worldFramebuffer.bind();
+		
+		glStencilMask(0xFF);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
+		
+		this.disableStencilDraw();
+		this.disableStencil();
+	}
+	
+	@Override
+	public void endWorldFramebuffer() {
+		worldFramebuffer.unbind();
+		
+		int color = worldFramebuffer.getColorTexId();
+		framebufferShader.bindTextureId(color);
+		framebufferShader.use();
+		
+		boxRevUV.bind();
+		boxRevUV.draw(GL_TRIANGLES, 6);
 		
 		Shader.useNullProgram();
 	}
