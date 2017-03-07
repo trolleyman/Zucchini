@@ -8,6 +8,5 @@ out vec4 out_color;
 
 void main() {
     vec4 tex_col = texture(tex, t_uv);
-    float avg = (tex_col.r + tex_col.g + tex_col.b) / 3.0f;
-    out_color = vec4(vec3(avg, avg, avg), tex_col.a);
+    out_color = vec4(vec3(1.0f, 1.0f, 1.0f) - tex_col.rgb, tex_col.a);
 }
