@@ -64,8 +64,12 @@ public class LaserGun extends Weapon {
 			Vector2f intersection = ua.map.intersectsLine(curPos.x, curPos.y, newPos.x, newPos.y, newPos, wall,
 					(w) -> prevWall == null || !w.p0.equals(prevWall.p0) && !w.p1.equals(prevWall.p1));
 			
+			float newLengthLeft = lengthLeft - curPos.distance(newPos);
+			
 			// Spawn new segment
-			ua.bank.addEntityCached(new LaserBulletSegment(this.ownerTeam, curPos, newPos));
+			ua.bank.addEntityCached(new LaserBulletSegment(this.ownerTeam,
+					curPos, lengthLeft/MAX_LASER_LENGTH,
+					newPos, newLengthLeft/MAX_LASER_LENGTH));
 			
 			// Damage entities that contact with laser
 			// TODO: Fix so that entities can collide with outer extents of laser
@@ -97,7 +101,7 @@ public class LaserGun extends Weapon {
 			Util.popTemporaryVector2f();
 			
 			// Update loop variables for next segment
-			lengthLeft -= curPos.distance(newPos);
+			lengthLeft = newLengthLeft;
 			curPos = newPos;
 			if (prevWall == null)
 				prevWall = new Wall(0.0f, 0.0f, 0.0f, 0.0f);
