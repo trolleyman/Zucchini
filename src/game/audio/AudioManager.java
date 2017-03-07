@@ -105,9 +105,9 @@ public class AudioManager implements IAudioManager{
     	//there are a max of 250 sources
         fileSourceMap.put("[bgm]Desolation.wav", 0);
 		fileSourceMap.put("bullet_impact_body.wav", 10);
-		fileSourceMap.put("bullet_impact_wall.wav", 30);
+		fileSourceMap.put("bullet_impact_wall.wav", 20);
 		fileSourceMap.put("bullet_whiz1.wav", 0);
-		fileSourceMap.put("bullet_whizz_silent.wav", 30);
+		fileSourceMap.put("bullet_whizz_silent.wav", 20);
 		fileSourceMap.put("bullet_whizz2.wav", 0);
 		fileSourceMap.put("bullet_whizz3.wav", 0);
 		fileSourceMap.put("explosion.wav", 5);
@@ -117,16 +117,19 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("grunt2.wav", 5);
 		fileSourceMap.put("grunt3.wav", 5);
 		fileSourceMap.put("grunt4.wav", 5);
-		fileSourceMap.put("gun_reload[2sec].wav", 5);
+		fileSourceMap.put("gun_reload[2sec].wav", 3);
 		fileSourceMap.put("handgunshot.wav", 30);
-		fileSourceMap.put("laser_round.wav", 15);
-		fileSourceMap.put("lasergun-fire.wav", 15);
-		fileSourceMap.put("punch.wav", 5);
+		fileSourceMap.put("laser_round.wav", 5);
+		fileSourceMap.put("lasergun-fire.wav", 5);
+		fileSourceMap.put("pump-shotgun-reload[4sec].wav", 3);
+		fileSourceMap.put("pump-shotgun-shot.wav", 5);
+		fileSourceMap.put("punch-hit.wav", 5);
 		fileSourceMap.put("rocket_reload[5sec].wav", 5);
 		fileSourceMap.put("rocket-launcher.wav", 5);
-		fileSourceMap.put("zombie1.wav", 5);
-		fileSourceMap.put("zombie2.wav", 5);
-		fileSourceMap.put("zombie3.wav", 5);
+		fileSourceMap.put("slash.wav", 20);
+		fileSourceMap.put("zombie1.wav", 20);
+		fileSourceMap.put("zombie2.wav", 20);
+		fileSourceMap.put("zombie3.wav", 20);
     }
     
 //    public void addSoundSources(String name, List<SoundSource> soundSources) {
