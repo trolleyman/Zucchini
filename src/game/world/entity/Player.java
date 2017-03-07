@@ -11,7 +11,6 @@ import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.update.PositionUpdate;
-import game.world.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -60,6 +59,8 @@ public class Player extends MovableEntity {
 	public Player(int team, Vector2f position, Item _heldItem) {
 		super(team, position, 1.0f);
 		this.heldItem = _heldItem;
+		if (this.heldItem != null)
+			this.heldItem.setOwnerTeam(this.getTeam());
 		
 		this.lineOfSightIntersecton = new Vector2f();
 	}
@@ -89,19 +90,22 @@ public class Player extends MovableEntity {
 	}
 	
 	public void pickupItem(EntityBank bank, Item item) {
-		if (this.heldItem != null)
-			this.dropHeldItem(bank, this.position);
-		
+		this.dropHeldItem(bank, this.position);
 		this.heldItem = item;
+		this.heldItem.setOwnerTeam(this.getTeam());
 	}
 	
 	public void dropHeldItem(EntityBank bank, Vector2f position) {
-		bank.addEntityCached(new Pickup(position, this.heldItem));
+		if (this.heldItem != null)
+			bank.addEntityCached(new Pickup(new Vector2f(position), this.heldItem));
 		this.heldItem = null;
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		if (this.heldItem != null)
+			this.heldItem.setOwnerTeam(this.getTeam());
+		
 		{
 			Vector2f temp = Util.pushTemporaryVector2f();
 			temp.zero();
@@ -140,21 +144,21 @@ public class Player extends MovableEntity {
 		}
 		Util.popTemporaryVector2f();
 		
-		this.heldItem.position = this.position;
+		this.heldItem.position.set(this.position);
 		this.heldItem.angle = this.angle;
 		this.heldItem.update(ua);
 		
 		// Play walking sounds
 		if (moveNorth || moveSouth || moveEast || moveWest) {
 			//System.out.println("Starting sound id: " + walkingSoundID);
-			ua.audio.continueLoop(this.walkingSoundID);
+			ua.audio.continueLoop(this.walkingSoundID,this.position);
 		} else {
 			//System.out.println("Stopping sound id: " + walkingSoundID);
 			ua.audio.pauseLoop(this.walkingSoundID);
 		}
 		
 		if (!soundSourceInit) {
-			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f);
+			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
 			ua.audio.pauseLoop(this.walkingSoundID);
 			soundSourceInit = true;
 		}
@@ -178,7 +182,7 @@ public class Player extends MovableEntity {
 		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 		
-		this.heldItem.position = this.position;
+		this.heldItem.position.set(this.position);
 		this.heldItem.angle = this.angle;
 		this.heldItem.render(r);
 	}
@@ -220,7 +224,9 @@ public class Player extends MovableEntity {
 			if (oe.isPresent()) {
 				Pickup p = (Pickup) oe.get();
 				Item item = p.getItem();
+				item.setOwnerTeam(this.getTeam());
 				bank.removeEntityCached(p.getId());
+				this.dropHeldItem(bank, p.position);
 				this.pickupItem(bank, item);
 			}
 			break;

@@ -6,7 +6,10 @@ import game.render.IRenderer;
 import game.world.PhysicsUtil;
 import game.world.entity.Entity;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 /**
@@ -18,8 +21,13 @@ public class Map {
 	public static Map createTestMap() {
 //		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 //		return new MazeMap(maze, 1.5f);
+		
 		return new TestMap();
+		
+//		return new SimpleMap();
 	}
+	
+	private static final float LINE_OF_SIGHT_EPSILON = 0.00001f;
 	
 	/** The "walls" of the map that entities can collide with */
 	public ArrayList<Wall> walls;
@@ -144,108 +152,79 @@ public class Map {
 		}
 	}
 	
-	/**
-	 * Gets the line of sight data for the position given.
-	 * @param pos The position of the camera in the world
-	 * @param num The number of samples
-	 * @param max The maximum length of the line of sight
-	 * @param buf Where to store the buffer. If this is null, will allocate a new float array.
-	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
-	 */
-	public float[] getLineOfSight(Vector2f pos, int num, float max, float[] buf) {
+	private void projectLine(ArrayList<Vector3f> points, Vector2f pos, float max, float angle, Vector3f dest) {
+		float x = pos.x + max * Util.getDirX(angle);
+		float y = pos.y + max * Util.getDirY(angle);
 		Vector2f temp = Util.pushTemporaryVector2f();
-		int len = num * 2 + 4;
-		if (buf == null || buf.length != len)
-			buf = new float[len];
-		buf[0] = pos.x;
-		buf[1] = pos.y;
-		for (int i = 0; i <= num; i++) {
-			// Get current angle
-			double ang = -((double)i / num * Math.PI * 2);
-			// Convert angle to cartesian co-ords (length of max)
-			float x = pos.x + max * (float)Math.sin(ang);
-			float y = pos.y + max * (float)Math.cos(ang);
-			Vector2f intersection = this.intersectsLine(pos.x, pos.y, x, y, temp);
-			if (intersection == null) {
-				buf[2+i*2  ] = x;
-				buf[2+i*2+1] = y;
-			} else {
-				buf[2+i*2  ] = intersection.x;
-				buf[2+i*2+1] = intersection.y;
-			}
+		Vector2f intersection = this.intersectsLine(pos.x, pos.y, x, y, temp);
+		if (intersection == null) {
+			dest.x = x;
+			dest.y = y;
+		} else {
+			dest.x = temp.x;
+			dest.y = temp.y;
 		}
+		dest.z = angle;
 		Util.popTemporaryVector2f();
+		points.add(dest);
+	}
+	
+	private FloatBuffer putFloat(FloatBuffer buf, float f) {
+		if (buf.position() == buf.capacity()) {
+			buf = MemoryUtil.memRealloc(buf, buf.capacity() * 2);
+		}
+		buf.put(f);
 		return buf;
 	}
 	
-	/*
+	/**
 	 * Gets the line of sight data for the position given.
 	 * @param pos The position of the camera in the world
-	 * @param num The number of samples
 	 * @param max The maximum length of the line of sight
-	 * @param buf Where to store the buffer. If this is null, will allocate a new float array.
+	 * @param buf Where to store the buffer. This **MUST** be allocated using MemoryUtils.memAllocFloat()
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
-	/*
-	public float[] getLineOfSightNew(Vector2f pos, int num, float max, float[] buf) {
-		int len = num * 2 + 4;
-		if (buf == null || buf.length != len)
-			buf = new float[len];
-		buf[0] = pos.x;
-		buf[1] = pos.y;
-		for (int i = 2; i < len-1; i += 2) {
-			// Get current angle
-			double ang = -((double) (i / 2 - 2) / num * Math.PI * 2);
-			float x = pos.x + max * (float) Math.sin(ang);
-			float y = pos.y + max * (float) Math.cos(ang);
-			buf[i] = x;
-			buf[i + 1] = y;
+	 */
+	public FloatBuffer getLineOfSight(Vector2f pos, float max, FloatBuffer buf) {
+		// Calculate points
+		ArrayList<Vector3f> points = new ArrayList<>();
+		for (Wall w : walls) {
+			Vector3f temp0 = Util.pushTemporaryVector3f();
+			Vector3f temp1 = Util.pushTemporaryVector3f();
+			Vector3f temp2 = Util.pushTemporaryVector3f();
+			Vector3f temp3 = Util.pushTemporaryVector3f();
+			
+			float angle;
+			angle = Util.getAngle(pos.x, pos.y, w.p0.x, w.p0.y);
+			projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, temp0);
+			projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, temp1);
+			
+			angle = Util.getAngle(pos.x, pos.y, w.p1.x, w.p1.y);
+			projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, temp2);
+			projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, temp3);
 		}
 		
-		for (Wall wall : walls) {
-			Vector2f p0 = wall.p0;
-			Vector2f p1 = wall.p1;
-			
-			// Calculate angles for points
-			double a0 = Util.getAngle(pos.x, pos.y, p0.x, p0.y);
-			double a1 = Util.getAngle(pos.x, pos.y, p1.x, p1.y);
-			
-			// Swap a0 & a1 and p0 & p1 so that we are always going clockwise from a0 to a1.
-			boolean swap = false;
-			double d = a1 - a0;
-			if (d < 0.0f) {
-				swap = true;
-			}
-			if (Math.abs(d) > Math.PI) {
-				swap = !swap;
-			}
-			
-			if (swap) {
-				double temp = a1;
-				a1 = a0;
-				a0 = temp;
-				
-				Vector2f tempv = p1;
-				p1 = p0;
-				p0 = tempv;
-			}
-			
-			// Set stuff clockwise from a0 to a1 to interpolated p0/p1 values
-			double ang = a0;
-			while (ang <= a1) {
-				buf[i];
-				buf[i+1];
-				
-				i += 2;
-				if (i >= num * 2 + 2) {
-					i = 2;
-				}
-			}
+		// Sort points in order of angle, lowest first
+		points.sort((l, r) -> -Float.compare(l.z, r.z));
+		
+		// Put into buffer
+		buf.clear();
+		buf = putFloat(buf, pos.x);
+		buf = putFloat(buf, pos.y);
+		
+		float firstX = points.size() == 0 ? pos.x : points.get(0).x;
+		float firstY = points.size() == 0 ? pos.y : points.get(0).y;
+		for (Vector3f p : points) {
+			buf = putFloat(buf, p.x);
+			buf = putFloat(buf, p.y);
+			Util.popTemporaryVector3f();
 		}
 		
-		buf[len-2] = buf[2];
-		buf[len-1] = buf[3];
+		buf = putFloat(buf, firstX);
+		buf = putFloat(buf, firstY);
+		
+		buf.flip();
 		return buf;
-	}*/
+	}
 	
 	/**
 	 * Render the map

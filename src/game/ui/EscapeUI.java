@@ -105,7 +105,7 @@ public class EscapeUI extends UI implements InputPipeMulti{
 		this.winWidth = w;
 		this.winHeight = h;
 		InputPipeMulti.super.handleResize(w, h);
-		int btnSize = audioBtn.getHeight();
+		int btnSize = 300; //audioBtn.getHeight();
 		System.out.println(btnSize);
 	}
 

@@ -1,4 +1,4 @@
-package game.world.entity;
+package game.world.entity.weapon;
 
 import game.ColorUtil;
 import game.render.Align;
@@ -17,20 +17,20 @@ public class MachineGun extends Weapon {
 	
 	@Override
 	protected void fire(UpdateArgs ua) {
-		ua.audio.play("handgunshot.wav", 1.0f);
+		ua.audio.play("handgunshot.wav", 1.0f, this.position);
 		System.out.println("BANG!");
 		// Add bullets to entity bank
-		ua.bank.addEntityCached(new MachineGunBullet(new Vector2f(position), angle));
+		ua.bank.addEntityCached(new MachineGunBullet(new Vector2f(position), this.ownerTeam, angle));
 	}
 	
 	@Override
 	protected void reload(UpdateArgs ua) {
-		ua.audio.play("gun_reload[2sec].wav", 1.0f);
+		ua.audio.play("gun_reload[2sec].wav", 1.0f,this.position);
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN);
+		r.drawBox(Align.MM, position.x, position.y, 0.2f, 0.2f, ColorUtil.CYAN, this.angle);
 	}
 	
 	@Override

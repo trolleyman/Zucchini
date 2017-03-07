@@ -1,17 +1,19 @@
 package game.audio;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.openal.AL10;
 
 import static org.lwjgl.openal.AL10.*;
 
 public class SoundSource {
-
+	
+	private final float zPos = 1.0f; //fixed z pos since our game will be 2D
     private final int sourceId;
 
     /**
      * The object that represents an entity that creates some form of sound
      * @param loop, Is this sound to be looped?
-     * @param relative, Ws the sound relative to the player? In other words will this sound be heard from everywhere?
+     * @param relative, Was the sound relative to the player?
      */
     public SoundSource(boolean loop, boolean relative) {
         this.sourceId = alGenSources();
@@ -21,6 +23,8 @@ public class SoundSource {
         if (relative) {
             alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
         }
+        alSourcef(sourceId, AL_MAX_DISTANCE, 1f);
+        
     }
 
     /**
@@ -84,8 +88,8 @@ public class SoundSource {
      * Sets the position of a source
      * @param position
      */
-    public void setPosition(Vector3f position) {
-        alSource3f(sourceId, AL_POSITION, position.x, position.y, position.z);
+    public void setPosition(Vector2f position) {
+        alSource3f(sourceId, AL_POSITION, position.x, position.y, zPos);
     }
 
     /**

@@ -2,6 +2,7 @@ package game.world;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import game.Util;
 import game.net.IServerConnection;
@@ -252,17 +253,21 @@ public class EntityBank {
 	}
 	
 	/**
-	 * Checks if a line intersects with any collideable entity
+	 * Checks if a line intersects with any collideable entity. Only tests entities that the predicate returns true for.
 	 * @param x0 Start x-coordinate of the line
 	 * @param y0 Start y-coordinate of the line
 	 * @param x1 End x-coordinate of the line
 	 * @param y1 End y-coordinate of the line
+	 * @param pred The predicate
 	 * @return null if there was no intersection, the closest intersection to x0,y0 otherwise
 	 */
-	public EntityIntersection getIntersection(float x0, float y0, float x1, float y1) {
+	public EntityIntersection getIntersection(float x0, float y0, float x1, float y1, Predicate<Entity> pred) {
 		int id = Entity.INVALID_ID;
 		Vector2f ret = null;
 		for (Entity e : entities) {
+			if (!pred.test(e))
+				continue;
+			
 			Vector2f intersection = e.intersects(x0, y0, x1, y1);
 			if (ret == null) {
 				ret = intersection;

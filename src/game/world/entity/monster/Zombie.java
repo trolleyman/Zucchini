@@ -1,4 +1,4 @@
-package game.world.entity;
+package game.world.entity.monster;
 
 import game.ColorUtil;
 import game.Util;
@@ -6,6 +6,8 @@ import game.render.IRenderer;
 import game.world.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.entity.AutonomousEntity;
+import game.world.entity.Entity;
 import game.world.map.PathFindingMap;
 import game.world.update.PositionUpdate;
 import org.joml.Vector2f;

@@ -20,52 +20,52 @@ public interface IRenderer {
 	 * <b>Replaces</b> the current {@link InputHandler}
 	 * @param ih The {@link InputHandler}
 	 */
-	public void setInputHandler(InputHandler ih);
+	void setInputHandler(InputHandler ih);
 	/**
 	 * Sets whether or not to enable VSync
 	 * @param enable true to enable VSync
 	 */
-	public void setVSync(boolean enable);
+	void setVSync(boolean enable);
 	
 	/**
 	 * Returns the width of the renderer. This is the inner width of the window.
 	 * @return Number of pixels wide
 	 */
-	public int getWidth();
+	int getWidth();
 	/**
 	 * Returns the height of the renderer. This is the inner height of the window.
 	 * @return Number of pixels high
 	 */
-	public int getHeight();
+	int getHeight();
 	
 	/**
 	 * Shows the renderer. This shows the window.
 	 */
-	public void show();
+	void show();
 	/**
 	 * Destroys the renderer, freeing any resources it has allocated during runtime.
 	 */
-	public void destroy();
+	void destroy();
 	
 	/**
 	 * Returns whether the user has quitted the window.
 	 * @return true if the user has requested the window to shut down.
 	 */
-	public boolean shouldClose();
+	boolean shouldClose();
 	
 	/**
 	 * This should be called at the beginning of every frame, never at any other time.
 	 */
-	public void beginFrame();
+	void beginFrame();
 	/**
 	 * This should be called at the end of every frame, never at any other time.
 	 */
-	public void endFrame();
+	void endFrame();
 	
 	/**
 	 * Returns the {@link TextureBank} instance.
 	 */
-	public TextureBank getTextureBank();
+	TextureBank getTextureBank();
 	
 	/**
 	 * Gets the ModelView matrix stack.
@@ -73,7 +73,7 @@ public interface IRenderer {
 	 * See <a target="_top" href="http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/>here</a> for more info.
 	 * @return The matrix stack
 	 */
-	public MatrixStackf getModelViewMatrix();
+	MatrixStackf getModelViewMatrix();
 	
 	/**
 	 * Draws a line with a specified thickness and color
@@ -84,7 +84,7 @@ public interface IRenderer {
 	 * @param c The color of the line. See {@link game.ColorUtil ColorUtil}.
 	 * @param thickness Thickness in pixels of the line
 	 */
-	public void drawLine(float x0, float y0, float x1, float y1, Vector4f c, float thickness);
+	void drawLine(float x0, float y0, float x1, float y1, Vector4f c, float thickness);
 	
 	/**
 	 * Draws the texture specified to the screen at x,y (relative to the
@@ -94,7 +94,7 @@ public interface IRenderer {
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 */
-	public default void drawTexture(Texture tex, Align a, float x, float y) {
+	default void drawTexture(Texture tex, Align a, float x, float y) {
 		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight(), 0.0f);
 	}
 	
@@ -107,7 +107,7 @@ public interface IRenderer {
 	 * @param y The y-coordinate
 	 * @param r The rotation
 	 */
-	public default void drawTexture(Texture tex, Align a, float x, float y, float r) {
+	default void drawTexture(Texture tex, Align a, float x, float y, float r) {
 		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight(), r);
 	}
 	
@@ -122,7 +122,7 @@ public interface IRenderer {
 	 * @param w The width
 	 * @param h The height
 	 */
-	public default void drawTexture(Texture tex, Align a, float x, float y, float w, float h) {
+	default void drawTexture(Texture tex, Align a, float x, float y, float w, float h) {
 		this.drawTexture(tex, a, x, y, w, h, 0.0f);
 	}
 	
@@ -138,15 +138,15 @@ public interface IRenderer {
 	 * @param h The height
 	 * @param r The rotation
 	 */
-	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r);
+	void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r);
 	
-	public default void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float u0, float v0, float u1, float v1) {
+	default void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float u0, float v0, float u1, float v1) {
 		this.drawTextureUV(tex, a, x, y, w, h, 0.0f, u0, v0, u1, v1);
 	}
 	
-	public void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1);
+	void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1);
 
-	public void drawText(Font f, String s, Align a, float x, float y, float scale);
+	void drawText(Font f, String s, Align a, float x, float y, float scale);
 	
 	/**
 	 * Draws a solid-color box to the screen at x,y (relative to the
@@ -159,7 +159,7 @@ public interface IRenderer {
 	 * @param h The height
 	 * @param c The color
 	 */
-	public default void drawBox(Align a, float x, float y, float w, float h, Vector4f c) {
+	default void drawBox(Align a, float x, float y, float w, float h, Vector4f c) {
 		this.drawBox(a, x, y, w, h, c, 0.0f);
 	}
 	
@@ -175,9 +175,9 @@ public interface IRenderer {
 	 * @param c The color
 	 * @param r The rotation
 	 */
-	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r);
+	void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r);
 	
-	public default void drawTriangleFan(float[] data, float x, float y) {
+	default void drawTriangleFan(float[] data, float x, float y) {
 		this.drawTriangleFan(data, x, y, ColorUtil.WHITE);
 	}
 	
@@ -188,7 +188,7 @@ public interface IRenderer {
 	 * @param y The circle's centre y-coordinate
 	 * @param c The color of the object
 	 */
-	public void drawTriangleFan(float[] data, float x, float y, Vector4f c);
+	void drawTriangleFan(float[] data, float x, float y, Vector4f c);
 
 	/**
 	 * Draws a triangle fan of the data provided. See GL_TRIANGLE_FAN for the details.
@@ -197,13 +197,13 @@ public interface IRenderer {
 	 * @param y The circle's centre y-coordinate
 	 * @param c The color of the object
 	 */
-	public void drawTriangleFan(FloatBuffer data, float x, float y, Vector4f c);
+	void drawTriangleFan(FloatBuffer data, float x, float y, Vector4f c);
 
-	public default void drawCircle(float x, float y, float radius) {
+	default void drawCircle(float x, float y, float radius) {
 		this.drawCircle(x, y, radius, ColorUtil.WHITE);
 	}
 	
-	public void drawCircle(float x, float y, float radius, Vector4f c);
+	void drawCircle(float x, float y, float radius, Vector4f c);
 	
 	/**
 	 * Enables stencil drawing
@@ -211,32 +211,32 @@ public interface IRenderer {
 	 * Call {@link #disableStencilDraw()} to disable the stencil buffer drawing.
 	 * @param i The number to fill the buffer with
 	 */
-	public void enableStencilDraw(int i);
+	void enableStencilDraw(int i);
 	
 	/**
 	 * Disables stencil drawing.
 	 * <p>
 	 * Remember to call {@link #enableStencil(int)} after to actually enable the stencil check.
 	 */
-	public void disableStencilDraw();
+	void disableStencilDraw();
 	
 	/**
 	 * Enables stencil checking
 	 * @param i The number passed to {@link #enableStencilDraw(int)}
 	 */
-	public void enableStencil(int i);
+	void enableStencil(int i);
 	
 	/**
 	 * Disables stencil checking
 	 */
-	public void disableStencil();
+	void disableStencil();
 	
 	/**
 	 * Gets the current mouse x-coordinate
 	 */
-	public double getMouseX();
+	double getMouseX();
 	/**
 	 * Gets the current mouse y-coordinate
 	 */
-	public double getMouseY();
+	double getMouseY();
 }
