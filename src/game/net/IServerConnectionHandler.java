@@ -7,5 +7,10 @@ public interface IServerConnectionHandler {
 	 * Called when an action has been performed
 	 * @param a The action
 	 */
-	public void handleAction(Action a);
+	void handleAction(Action a);
+	
+	/**
+	 * Called when the client requests a full update on the next snapshot
+	 */
+	void handleFullUpdateRequest();
 }

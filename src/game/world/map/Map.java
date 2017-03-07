@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
+import game.world.entity.Entity;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -21,13 +22,37 @@ public class Map {
 	}
 	
 	/** The "walls" of the map that entities can collide with */
-	protected ArrayList<Wall> walls;
+	public ArrayList<Wall> walls;
+	/** The intiial starting entities in the map */
+	protected ArrayList<Entity> initialEntities;
+	/** What scale the pathfinding algorithm should use */
+	private float pathFindingScale;
+	/** The cached pathfinding map */
+	private PathFindingMap pathFindingMap = null;
 	
 	/**
 	 * Construct a map with the specified walls
 	 */
-	protected Map(ArrayList<Wall> _walls) {
+	protected Map(ArrayList<Wall> _walls, float _pathfindingScale) {
+		this(_walls, new ArrayList<>(), _pathfindingScale);
+	}
+	
+	/**
+	 * Construct a map with the specified walls and initial entities
+	 */
+	protected Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale) {
 		this.walls = _walls;
+		this.initialEntities = _initialEntities;
+		this.pathFindingScale = _pathFindingScale;
+	}
+	
+	/**
+	 * Gets the cached current pathfinding map
+	 */
+	public PathFindingMap getPathFindingMap() {
+		if (pathFindingMap == null)
+			this.pathFindingMap = new PathFindingMap(this, pathFindingScale);
+		return pathFindingMap;
 	}
 	
 	/**
@@ -153,14 +178,13 @@ public class Map {
 		return buf;
 	}
 	
-	/**
+	/*
 	 * Gets the line of sight data for the position given.
 	 * @param pos The position of the camera in the world
 	 * @param num The number of samples
 	 * @param max The maximum length of the line of sight
 	 * @param buf Where to store the buffer. If this is null, will allocate a new float array.
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
-	 */
 	/*
 	public float[] getLineOfSightNew(Vector2f pos, int num, float max, float[] buf) {
 		int len = num * 2 + 4;
@@ -236,6 +260,10 @@ public class Map {
 			
 			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
 		}
+	}
+	
+	public ArrayList<Entity> getInitialEntities() {
+		return initialEntities;
 	}
 }
 

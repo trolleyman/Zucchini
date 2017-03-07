@@ -185,7 +185,6 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public UI next() {
-		// TODO: Handle exiting
 		return nextUI;
 	}
 	
