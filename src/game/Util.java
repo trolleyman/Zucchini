@@ -257,7 +257,11 @@ public class Util {
 	}
 	
 	public static boolean isDebugRenderMode() {
-		return false;
+		// Used to get around IDE "Always returns false/true"
+		boolean b = false;
+		if (System.getenv("abcdefghijklmnop") == null)
+			return b;
+		return b;
 	}
 	
 	/**

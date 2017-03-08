@@ -3,10 +3,7 @@ package game.render;
 import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
-import game.render.shader.FramebufferShader;
-import game.render.shader.Shader;
-import game.render.shader.SimpleShader;
-import game.render.shader.TextureShader;
+import game.render.shader.*;
 import org.joml.MatrixStackf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -15,7 +12,6 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import java.nio.FloatBuffer;
-import java.util.Arrays;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -34,15 +30,13 @@ public class Renderer implements IRenderer {
 	// Shaders
 	private SimpleShader simpleShader;
 	private TextureShader textureShader;
-	private FramebufferShader framebufferShader;
+	private LightingShader lightingShader;
 	
 	// Meshes
 	/** Box VAO */
 	private VAO box;
 	/** Textured box VAO */
 	private VAO boxUV;
-	/** Textured box VAO (reversed) */
-	private VAO boxRevUV;
 	/** Dynamic textured box VAO */
 	private VAO boxDynamic;
 	/** Dynamic textured box VBO */
@@ -59,7 +53,10 @@ public class Renderer implements IRenderer {
 	private VAO circle;
 	
 	/** Framebuffer that holds the world render prior to post-processing */
-	private FrameBuffer worldFramebuffer;
+	private Framebuffer worldFramebuffer;
+	
+	/** Framebuffer that holds the light render prior to post-processing */
+	private Framebuffer lightFramebuffer;
 	
 	/** Current input handler */
 	private InputHandler ih;
@@ -183,6 +180,7 @@ public class Renderer implements IRenderer {
 			this.windowH = h;
 			this.dirty = true;
 			worldFramebuffer.resize(w, h);
+			lightFramebuffer.resize(w, h);
 			this.ih.handleResize(w, h);
 		});
 		int[] wBuf = new int[1];
@@ -208,8 +206,9 @@ public class Renderer implements IRenderer {
 		// Load shaders
 		loadShaders();
 		
-		// Load framebuffer
-		worldFramebuffer = new FrameBuffer(windowW, windowH);
+		// Load framebuffers
+		worldFramebuffer = new Framebuffer(windowW, windowH);
+		lightFramebuffer = new Framebuffer(windowW, windowH);
 		
 		// Load images
 		tb = new TextureBank();
@@ -270,40 +269,12 @@ public class Renderer implements IRenderer {
 		VBO positions = new VBO(vertexPositions, AccessFrequency.STATIC);
 		VBO uvs = new VBO(vertexUVs, AccessFrequency.STATIC);
 		
-		float[] vertexPositionsRev = {
-				// t0
-				0.0f, 0.0f, // BL
-				0.0f, 1.0f, // TL
-				1.0f, 0.0f, // BR
-				// t1
-				0.0f, 1.0f, // TL
-				1.0f, 1.0f, // TR
-				1.0f, 0.0f, // BR
-		};
-		float[] vertexUVsRev = {
-				// t0
-				0.0f, 1.0f, // BL
-				0.0f, 0.0f, // TL
-				1.0f, 1.0f, // BR
-				// t1
-				0.0f, 0.0f, // TL
-				1.0f, 0.0f, // TR
-				1.0f, 1.0f, // BR
-		};
-		
-		VBO positionsRev = new VBO(vertexPositionsRev, AccessFrequency.STATIC);
-		VBO uvsRev = new VBO(vertexUVsRev, AccessFrequency.STATIC);
-		
 		box = new VAO();
 		box.addData(simpleShader, "position", positions, 2, 0, 0);
 		
 		boxUV = new VAO();
 		boxUV.addData(textureShader, "position", positions, 2, 0, 0);
 		boxUV.addData(textureShader, "uv", uvs, 2, 0, 0);
-		
-		boxRevUV = new VAO();
-		boxRevUV.addData(textureShader, "position", positionsRev, 2, 0, 0);
-		boxRevUV.addData(textureShader, "uv", uvsRev, 2, 0, 0);
 		
 		boxDynamicVBO = new VBO(vertexUVs, AccessFrequency.DYNAMIC);
 		boxDynamic = new VAO();
@@ -375,14 +346,14 @@ public class Renderer implements IRenderer {
 	private void destroyShaders() {
 		simpleShader.destroy();
 		textureShader.destroy();
-		framebufferShader.destroy();
+		lightingShader.destroy();
 	}
 	
 	private void loadShaders() {
 		System.out.println("Loading shaders...");
 		simpleShader = new SimpleShader();
 		textureShader = new TextureShader();
-		framebufferShader = new FramebufferShader();
+		lightingShader = new LightingShader();
 		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
 	}
 	
@@ -394,7 +365,6 @@ public class Renderer implements IRenderer {
 		// Free the boxes
 		box.destroy();
 		boxUV.destroy();
-		boxRevUV.destroy();
 		boxDynamic.destroy();
 		polygonVAO.destroy();
 		circle.destroy();
@@ -430,7 +400,7 @@ public class Renderer implements IRenderer {
 		if (this.dirty)
 			recalcProjectionMatrix();
 		
-		worldFramebuffer.unbind();
+		Framebuffer.bindDefault();
 		
 		glStencilMask(0xFF);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
@@ -444,7 +414,7 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void beginWorldFramebuffer() {
+	public void beginDrawWorld() {
 		worldFramebuffer.bind();
 		
 		glStencilMask(0xFF);
@@ -455,16 +425,32 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void endWorldFramebuffer() {
-		worldFramebuffer.unbind();
+	public void endDrawWorld() {
+		Framebuffer.bindDefault();
+	}
+	
+	@Override
+	public void beginDrawLighting() {
+		lightFramebuffer.bind();
 		
-		int color = worldFramebuffer.getColorTexId();
-		framebufferShader.bindTextureId(color);
-		framebufferShader.use();
+		glStencilMask(0xFF);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 		
-		boxRevUV.bind();
-		boxRevUV.draw(GL_TRIANGLES, 6);
-		
+		this.disableStencilDraw();
+		this.disableStencil();
+	}
+	
+	@Override
+	public void endDrawLighting() {
+		Framebuffer.bindDefault();
+	}
+	
+	@Override
+	public void drawWorldLighting() {
+		lightingShader.setWorldFramebuffer(worldFramebuffer);
+		lightingShader.setLightFramebuffer(lightFramebuffer);
+		lightingShader.draw();
 		Shader.useNullProgram();
 	}
 	

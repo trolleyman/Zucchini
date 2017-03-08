@@ -13,6 +13,7 @@ import game.exception.ProtocolException;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.Align;
+import game.render.Framebuffer;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.map.Map;
@@ -23,6 +24,7 @@ import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
+import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -73,10 +75,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
-	/** This is the min line of sight buffer. */
-	private FloatBuffer losMinBuf = MemoryUtil.memAllocFloat(32);
-	/** This is the max line of sight buffer. */
-	private FloatBuffer losMaxBuf = MemoryUtil.memAllocFloat(32);
+	/** This is the line of sight buffer. */
+	private FloatBuffer losBuf = MemoryUtil.memAllocFloat(32);
 	
 	/** Audio Manager */
 	private AudioManager audio;
@@ -204,57 +204,26 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
-		r.beginWorldFramebuffer();
-		
 		// Set model view matrix
 		r.getModelViewMatrix()
-			.pushMatrix()
-			.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
-			.scale(cameraZoom)
-			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+				.pushMatrix()
+				.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
+				.scale(cameraZoom)
+				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
-		// Get player
-		Player p = getPlayer();
+		calculateLineOfSight();
 		
-		// Render map background
-		this.map.renderBackground(r);
-		
-		if (p != null) {
-			// Render line of sight
-			Vector2f pos = p.position;
-			losMinBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MIN, losMinBuf);
-			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-			losMaxBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losMaxBuf);
-			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-		}
-		
-		if (Util.isDebugRenderMode()) {
-			//drawDebugLines(r, losMinBuf);
-			drawDebugLines(r, losMaxBuf);
-		}
-		
-		// Render map foreground
-		this.map.renderForeground(r);
-		
-		if (p != null && !Util.isDebugRenderMode()) {
-			// Draw stencil
-			r.enableStencilDraw(1);
-			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-			
-			// Disable stencil draw
-			r.disableStencilDraw();
-			r.enableStencil(1);
-		}
-		
-		// Render entities
-		for (Entity e : this.bank.entities.values()) {
-			e.render(r);
-		}
-		
-		r.disableStencil();
+		r.beginDrawWorld();
+		drawWorld(r);
+		r.endDrawWorld();
+		r.beginDrawLighting();
+		//drawLineOfSightStencil(r);
+		drawLighting(r);
+		r.endDrawLighting();
 		
 		r.getModelViewMatrix().popMatrix();
+		
+		r.drawWorldLighting();
 		
 		// Render start time
 		if (this.startTime != 0.0f) {
@@ -263,8 +232,56 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
 					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
 		}
+	}
+	
+	private void calculateLineOfSight() {
+		// Get player
+		Player p = getPlayer();
 		
-		r.endWorldFramebuffer();
+		if (p != null) {
+			// Render line of sight
+			Vector2f pos = p.position;
+			losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losBuf);
+		} else {
+			// TODO: Display whole screen in line of sight if there is no player
+		}
+	}
+	
+	private void drawWorld(IRenderer r) {
+		// Get player
+		Player p = getPlayer();
+		
+		// Render map background
+		this.map.renderBackground(r);
+		
+		if (Util.isDebugRenderMode()) {
+			if (p != null) {
+				// Render line of sight (debug)
+				r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+			}
+			drawDebugLines(r, losBuf);
+		}
+		
+		// Render map foreground
+		this.map.renderForeground(r);
+		
+		// Render entities
+		for (Entity e : this.bank.entities.values()) {
+			e.render(r);
+		}
+	}
+	
+	private void drawLineOfSightStencil(IRenderer r) {
+		r.enableStencilDraw(1);
+		
+		r.drawTriangleFan(losBuf, 0, 0, ColorUtil.WHITE);
+		
+		r.disableStencilDraw();
+		r.enableStencil(1);
+	}
+	
+	private void drawLighting(IRenderer r) {
+		r.drawCircle(0.0f, 0.0f, 1.0f, ColorUtil.WHITE);
 	}
 	
 	/**

@@ -61,12 +61,18 @@ public interface IRenderer {
 	/**
 	 * Begins the rendering to the world framebuffer
 	 */
-	void beginWorldFramebuffer();
+	void beginDrawWorld();
 	
 	/**
 	 * Ends the rendering to the world framebuffer, and draws the result to the screen
 	 */
-	void endWorldFramebuffer();
+	void endDrawWorld();
+	
+	void beginDrawLighting();
+	
+	void endDrawLighting();
+	
+	void drawWorldLighting();
 	
 	/**
 	 * This should be called at the end of every frame, never at any other time.

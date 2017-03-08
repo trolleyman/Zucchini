@@ -10,18 +10,18 @@ import static org.lwjgl.opengl.GL30.*;
 /**
  * Represents an OpenGL Framebuffer object
  */
-public class FrameBuffer {
+public class Framebuffer {
 	
 	/** Framebuffer ID */
-	int fbId;
+	private int fbId;
 	
 	/** Color Texture ID */
-	int colorTexId;
+	private int colorTexId;
 	
 	/** Depth & stencil Renderbuffer ID */
-	int depthStencilTexId;
+	private int depthStencilTexId;
 	
-	public FrameBuffer(int width, int height) {
+	public Framebuffer(int width, int height) {
 		colorTexId = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, colorTexId);
 		
@@ -56,7 +56,7 @@ public class FrameBuffer {
 			
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
-		this.unbind();
+		Framebuffer.bindDefault();
 	}
 	
 	private void resizeColorTex(int width, int height) {
@@ -78,7 +78,7 @@ public class FrameBuffer {
 		this.resizeColorTex(width, height);
 		this.resizeDepthStencilTex(width, height);
 		
-		this.unbind();
+		Framebuffer.bindDefault();
 	}
 	
 	/**
@@ -96,18 +96,18 @@ public class FrameBuffer {
 	}
 	
 	/**
-	 * Sets the default OpenGL framebuffer
-	 */
-	public void unbind() {
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-	
-	/**
 	 * Destroys this framebuffer, freeing the resources associated with it
 	 */
 	public void destroy() {
 		glDeleteTextures(colorTexId);
 		glDeleteTextures(depthStencilTexId);
 		glDeleteFramebuffers(fbId);
+	}
+	
+	/**
+	 * Sets the default OpenGL framebuffer
+	 */
+	public static void bindDefault() {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 }

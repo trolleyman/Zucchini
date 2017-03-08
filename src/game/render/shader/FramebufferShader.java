@@ -1,6 +1,6 @@
 package game.render.shader;
 
-import game.render.Texture;
+import game.render.Framebuffer;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 
-public class FramebufferShader extends Shader {
+public class FramebufferShader extends PassShader {
 	/** Texture uniform location */
 	private int texUniform;
 	
@@ -27,10 +27,10 @@ public class FramebufferShader extends Shader {
 	private FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
 	
 	/**
-	 * Constructs a texture shader with the default name
+	 * Constructs a framebuffer shader with the specified name
 	 */
-	public FramebufferShader() {
-		super("framebuffer");
+	public FramebufferShader(String name) {
+		super(name);
 		
 		texUniform = getUniformLocation("tex");
 		transUniform = getUniformLocation("trans");
@@ -40,11 +40,11 @@ public class FramebufferShader extends Shader {
 	}
 	
 	/**
-	 * Binds an OpenGL texture to the shader
-	 * @param texId The texture id
+	 * Binds a framebuffer as input to the shader
+	 * @param fb The framebuffer
 	 */
-	public void bindTextureId(int texId) {
-		this.tex = texId;
+	public void setFramebuffer(Framebuffer fb) {
+		this.tex = fb.getColorTexId();
 		
 		if (getCurrentShader() == this)
 			uploadTexture();
