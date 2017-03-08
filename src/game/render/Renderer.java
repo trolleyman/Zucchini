@@ -5,6 +5,7 @@ import game.InputHandler;
 import game.Util;
 import game.render.shader.*;
 import org.joml.MatrixStackf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -32,6 +33,7 @@ public class Renderer implements IRenderer {
 	private TextureShader textureShader;
 	private LightingPassShader lightingPassShader;
 	private PointLightShader pointLightShader;
+	private SpotlightShader spotlightShader;
 	
 	// Meshes
 	/** Box VAO */
@@ -349,6 +351,7 @@ public class Renderer implements IRenderer {
 		textureShader.destroy();
 		lightingPassShader.destroy();
 		pointLightShader.destroy();
+		spotlightShader.destroy();
 	}
 	
 	private void loadShaders() {
@@ -357,6 +360,7 @@ public class Renderer implements IRenderer {
 		textureShader = new TextureShader();
 		lightingPassShader = new LightingPassShader();
 		pointLightShader = new PointLightShader();
+		spotlightShader = new SpotlightShader();
 		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
 	}
 	
@@ -659,6 +663,26 @@ public class Renderer implements IRenderer {
 		pointLightShader.setLightPosition(data.get(0), data.get(1));
 		pointLightShader.setAttenuationFactor(attenuationFactor);
 		pointLightShader.use();
+		
+		// Draw triangle fan
+		polygonVBO.setData(data);
+		polygonVAO.draw(GL_TRIANGLE_FAN, data.remaining() / 2);
+		
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngle, float coneDirectionX, float coneDirectionY) {
+		matModelView.pushMatrix();
+		
+		spotlightShader.setProjectionMatrix(matProjection);
+		spotlightShader.setModelViewMatrix(matModelView);
+		spotlightShader.setColor(c);
+		spotlightShader.setLightPosition(data.get(0), data.get(1));
+		spotlightShader.setAttenuationFactor(attenuationFactor);
+		spotlightShader.setConeAngle(coneAngle);
+		spotlightShader.setConeDirection(coneDirectionX, coneDirectionY);
+		spotlightShader.use();
 		
 		// Draw triangle fan
 		polygonVBO.setData(data);

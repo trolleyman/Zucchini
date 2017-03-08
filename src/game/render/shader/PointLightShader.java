@@ -5,8 +5,7 @@ import org.joml.Vector2f;
 import static org.lwjgl.opengl.GL20.*;
 
 /**
- * A shader that calculates the correct alpha for a point light at the position specified
- * with the max distance specified.
+ * Used to render a point light with a color, position and attenuation factor.
  *
  * @author Callum
  */
@@ -18,10 +17,17 @@ public class PointLightShader extends SimpleShader {
 	private float attenuationFactor = 1.0f;
 	
 	/**
-	 * Constructs the color shader
+	 * Constructs the shader with a default name
 	 */
 	public PointLightShader() {
-		super("lightPoint");
+		this("pointlight");
+	}
+	
+	/**
+	 * Constructs the shader with a specified name
+	 */
+	public PointLightShader(String name) {
+		super(name);
 		
 		lightPositionUniform = getUniformLocation("lightPosition");
 		attenuationFactorUniform = getUniformLocation("attenuationFactor");

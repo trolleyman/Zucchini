@@ -3,7 +3,7 @@
 uniform vec4 color;
 uniform float attenuationFactor;
 
-in vec2 t_rpos;
+in vec2 t_fromLight;
 
 out vec4 out_color;
 
@@ -12,7 +12,7 @@ out vec4 out_color;
 Where a = attenuation, k = attenuation factor, and d = distance. */
 
 void main() {
-	float dist = length(t_rpos);
+	float dist = length(t_fromLight);
 	float attenuation = 1 / (1 + attenuationFactor * dist * dist);
-    out_color = color * attenuation;
+	out_color = color * attenuation;
 }

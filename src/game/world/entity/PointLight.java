@@ -1,7 +1,8 @@
-package game.world;
+package game.world.entity;
 
 import game.render.IRenderer;
-import game.world.entity.Entity;
+import game.world.Team;
+import game.world.UpdateArgs;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -12,12 +13,12 @@ public class PointLight extends Entity {
 	/** The intensity multiplier below at which the intensity is assumed to be 0. */
 	private static final float CUTOFF_INTENSITY = 0.01f;
 	
-	private Vector4f color;
-	private float attenuationFactor;
+	protected Vector4f color;
+	protected float attenuationFactor;
 	private boolean dynamic;
 	
-	private boolean losGenerated = false;
-	private transient FloatBuffer losBuf = null;
+	private transient boolean losGenerated = false;
+	protected transient FloatBuffer losBuf = null;
 	
 	public PointLight(PointLight l) {
 		super(l);
@@ -62,22 +63,21 @@ public class PointLight extends Entity {
 	 *     d = sqrt(1/a - 1 - k);
 	 * </pre>
 	 */
-	private float getCutoffDist() {
+	protected float getCutoffDist() {
 		return (float) Math.sqrt(1/CUTOFF_INTENSITY - 1 - attenuationFactor);
 	}
 	
 	/**
 	 * Generate line of sight
 	 */
-	private void generateLoS(Map map) {
+	protected void generateLoS(Map map) {
 		losBuf = map.getLineOfSight(position, getCutoffDist(), losBuf);
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {}
 	
-	@Override
-	public void render(IRenderer r, Map map) {
+	protected void generateLosIfNecessary(Map map) {
 		if (!losGenerated) {
 			// Generate LoS if we haven't generated it yet...
 			generateLoS(map);
@@ -86,6 +86,11 @@ public class PointLight extends Entity {
 			// Or if we are dynamic.
 			generateLoS(map);
 		}
+	}
+	
+	@Override
+	public void render(IRenderer r, Map map) {
+		generateLosIfNecessary(map);
 		
 		r.drawPointLight(losBuf, color, attenuationFactor);
 	}

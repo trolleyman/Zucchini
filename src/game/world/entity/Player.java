@@ -8,7 +8,6 @@ import game.render.IRenderer;
 import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
-import game.world.PointLight;
 import game.world.UpdateArgs;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
@@ -32,6 +31,9 @@ public class Player extends MovableEntity {
 	/** The angle of which the player can see */
 	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(160.0);
 	
+	private static final Vector4f SPOT_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
+	private static final Vector4f TORCH_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
+	
 	/** The speed of the player in m/s */
 	private static final float MAX_SPEED = 3.0f;
 	/** The radius of the player in m */
@@ -50,10 +52,12 @@ public class Player extends MovableEntity {
 	/** If the player is moving west */
 	private transient boolean moveWest  = false;
 	
-	/**The currently held item. Not necessarily a weapon */
+	/** The currently held item. Not necessarily a weapon */
 	private Item heldItem;
 	
 	private PointLight pointLight;
+	/** The torch of the player */
+	private Spotlight torch;
 	
 	/** Has the player been assigned a footstep sound source? */
 	private transient int walkingSoundID = -1; // sound source id associated with player movement
@@ -68,7 +72,14 @@ public class Player extends MovableEntity {
 	public Player(int team, Vector2f position, Item _heldItem) {
 		super(team, position, 1.0f);
 		this.heldItem = _heldItem;
-		this.pointLight = new PointLight(new Vector2f(this.position), LightUtil.LIGHT_WARM_FLUORESCENT, 1.5f, true);
+		this.pointLight = new PointLight(
+				new Vector2f(this.position),
+				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.52f),
+				0.3f, true);
+		this.torch = new Spotlight(
+				new Vector2f(position),
+				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.5f),
+				0.1f, true, (float) Math.toRadians(10.0f));
 		updateChildrenInfo();
 	}
 	
@@ -89,10 +100,13 @@ public class Player extends MovableEntity {
 		this.beganUse = p.beganUse;
 		
 		this.pointLight = p.pointLight.clone();
+		this.torch = p.torch.clone();
 	}
 	
 	private void updateChildrenInfo() {
 		this.pointLight.position.set(this.position);
+		this.torch.position.set(this.position);
+		this.torch.angle = this.angle;
 		
 		if (this.heldItem != null) {
 			this.heldItem.setOwner(this.getId());
@@ -162,6 +176,7 @@ public class Player extends MovableEntity {
 		
 		updateChildrenInfo();
 		this.pointLight.update(ua);
+		this.torch.update(ua);
 		if (this.heldItem != null)
 			this.heldItem.update(ua);
 		
@@ -186,10 +201,7 @@ public class Player extends MovableEntity {
 	public void clientUpdate(UpdateArgs ua) {
 		super.clientUpdate(ua);
 		
-		this.pointLight = new PointLight(
-				new Vector2f(this.position),
-				new Vector4f(LightUtil.LIGHT_WARM_FLUORESCENT.x, LightUtil.LIGHT_WARM_FLUORESCENT.y, LightUtil.LIGHT_WARM_FLUORESCENT.z, 0.5f),
-				0.4f, true);
+		
 		
 		updateChildrenInfo();
 		this.pointLight.clientUpdate(ua);
@@ -199,8 +211,14 @@ public class Player extends MovableEntity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
+		this.torch = new Spotlight(
+				new Vector2f(position),
+				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.8f),
+				0.01f, true, (float) Math.toRadians(10.0f));
+		
 		updateChildrenInfo();
 		this.pointLight.render(r, map);
+		this.torch.render(r, map);
 		if (this.heldItem != null)
 			this.heldItem.render(r, map);
 		
@@ -215,6 +233,7 @@ public class Player extends MovableEntity {
 		
 		updateChildrenInfo();
 		this.pointLight.renderLight(r, map);
+		this.torch.renderLight(r, map);
 		if (this.heldItem != null)
 			this.heldItem.renderLight(r, map);
 	}

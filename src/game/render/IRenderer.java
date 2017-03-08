@@ -3,6 +3,7 @@ package game.render;
 import game.ColorUtil;
 import game.InputHandler;
 import org.joml.MatrixStackf;
+import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import java.nio.FloatBuffer;
@@ -240,6 +241,20 @@ public interface IRenderer {
 	 * @param data The shape of the light, specified in triangle fan format.
 	 */
 	void drawPointLight(FloatBuffer data, Vector4f c, float attenuationFactor);
+	
+	/**
+	 * Draws a spotlight at the specified position with the specified color, attenuation, cone angle and direction.
+	 * @param data The shape of the light, specified in triangle fan format.
+	 */
+	default void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngle, Vector2f coneDirection) {
+		drawSpotlight(data, c, attenuationFactor, coneAngle, coneDirection.x, coneDirection.y);
+	}
+	
+	/**
+	 * Draws a spotlight at the specified position with the specified color, attenuation, cone angle and direction.
+	 * @param data The shape of the light, specified in triangle fan format.
+	 */
+	void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngle, float coneDirectionX, float coneDirectionY);
 	
 	/**
 	 * Enables stencil drawing

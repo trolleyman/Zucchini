@@ -217,6 +217,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.beginDrawLighting();
 		//drawLineOfSightStencil(r);
 		drawLighting(r);
+		r.disableStencil();
 		r.endDrawLighting();
 		
 		r.getModelViewMatrix().popMatrix();
@@ -279,7 +280,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	private void drawLighting(IRenderer r) {
-		r.drawCircle(0.0f, 0.0f, 3.0f, ColorUtil.WHITE);
+		r.drawCircle(0.0f, 0.0f, 1.0f, ColorUtil.WHITE);
 		
 		for (Entity e : this.bank.entities.values()) {
 			e.renderLight(r, map);
