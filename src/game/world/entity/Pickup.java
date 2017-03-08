@@ -1,9 +1,9 @@
 package game.world.entity;
 
 import game.render.IRenderer;
-import game.world.EntityBank;
 import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 /**
@@ -40,12 +40,12 @@ public class Pickup extends Entity {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		// Render the contained item
 		this.item.position
 				.set(this.position)
 				.add(0.0f, (float) Math.sin(time * 4.0f) * 0.1f);
-		this.item.render(r);
+		this.item.render(r, map);
 	}
 	
 	@Override

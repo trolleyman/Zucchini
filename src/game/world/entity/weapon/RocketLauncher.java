@@ -4,8 +4,8 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
-import game.render.Texture;
 import game.world.UpdateArgs;
+import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -23,7 +23,7 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		r.drawBox(a, position.x, position.y, 0.1f, getHeight(), COLOR, this.angle);
 	}

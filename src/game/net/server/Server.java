@@ -339,6 +339,9 @@ public class Server implements Runnable {
 	private void handleUdpMessage(String name, String msg) {
 		synchronized (lock) {
 			ClientHandler handler = clients.get(name);
+			if (handler == null)
+				return;
+			
 			ClientInfo info = handler.getClientInfo();
 			
 			// Get lobby

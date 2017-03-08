@@ -10,8 +10,8 @@ import game.world.entity.Entity;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.DamageUpdate;
-import game.world.entity.update.HealthUpdate;
 import game.world.entity.update.HeldItemUpdate;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class Knife extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		float mag = 0.0f;
 		if (this.stabbed) {
 			mag = STAB_ANIMATION_LENGTH * (float)Math.sin((this.stabTime / STAB_ANIMATION_TIME) * Math.PI);

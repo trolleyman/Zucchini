@@ -72,7 +72,7 @@ public interface IRenderer {
 	
 	void endDrawLighting();
 	
-	void drawWorldLighting();
+	void drawWorldWithLighting();
 	
 	/**
 	 * This should be called at the end of every frame, never at any other time.
@@ -234,6 +234,12 @@ public interface IRenderer {
 	}
 	
 	void drawCircle(float x, float y, float radius, Vector4f c);
+	
+	/**
+	 * Draws a point light at the specified position with the specified color and attenuation.
+	 * @param data The shape of the light, specified in triangle fan format.
+	 */
+	void drawPointLight(FloatBuffer data, Vector4f c, float attenuationFactor);
 	
 	/**
 	 * Enables stencil drawing

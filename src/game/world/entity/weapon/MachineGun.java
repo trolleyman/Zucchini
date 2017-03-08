@@ -6,6 +6,7 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 import game.world.entity.Player;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 public class MachineGun extends Weapon {
@@ -67,7 +68,7 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		if (lineOfSightIntersecton == null) {
 			lineOfSightIntersecton = new Vector2f();
 			float x = position.x + Player.LINE_OF_SIGHT_MAX * (float)Math.sin(angle);

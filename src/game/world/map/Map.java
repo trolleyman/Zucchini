@@ -244,10 +244,13 @@ public class Map {
 	 * @param max The maximum length of the line of sight
 	 * @param aimAngle The current angle of the player
 	 * @param fov The field of view of the player
-	 * @param buf Where to store the buffer. This <b>**MUST**</b> be allocated using MemoryUtils.memAllocFloat()
+	 * @param buf Where to store the buffer. This <b>**MUST**</b> be allocated using MemoryUtil.memAllocFloat()
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
 	 */
 	public FloatBuffer getLineOfSight(Vector2f pos, float max, float aimAngle, float fov, FloatBuffer buf) {
+		if (buf == null)
+			buf = MemoryUtil.memAllocFloat(64);
+		
 		// Calculate points
 		ArrayList<Vector3f> points = new ArrayList<>();
 		
@@ -306,10 +309,12 @@ public class Map {
 	 * Gets the line of sight data for the position given.
 	 * @param pos The position of the camera in the world
 	 * @param max The maximum length of the line of sight
-	 * @param buf Where to store the buffer. This **MUST** be allocated using MemoryUtils.memAllocFloat()
+	 * @param buf Where to store the buffer. This **MUST** be allocated using MemoryUtils.memAllocFloat(), or be null.
 	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
 	 */
 	public FloatBuffer getLineOfSight(Vector2f pos, float max, FloatBuffer buf) {
+		if (buf == null)
+			buf = MemoryUtil.memAllocFloat(64);
 		// Calculate points
 		ArrayList<Vector3f> points = new ArrayList<>();
 		for (Wall w : walls) {

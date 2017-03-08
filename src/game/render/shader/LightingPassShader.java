@@ -1,20 +1,12 @@
 package game.render.shader;
 
 import game.render.Framebuffer;
-import org.joml.Matrix4f;
-import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL20.*;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
-
-public class LightingShader extends PassShader {
+public class LightingPassShader extends PassShader {
 	/** World uniform location */
 	private int worldUniform;
 	
@@ -30,8 +22,8 @@ public class LightingShader extends PassShader {
 	/**
 	 * Constructs the lighting shader
 	 */
-	public LightingShader() {
-		super("lighting");
+	public LightingPassShader() {
+		super("lightingPass");
 		
 		worldUniform = getUniformLocation("world");
 		lightUniform = getUniformLocation("light");

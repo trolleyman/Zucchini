@@ -30,7 +30,8 @@ public class Renderer implements IRenderer {
 	// Shaders
 	private SimpleShader simpleShader;
 	private TextureShader textureShader;
-	private LightingShader lightingShader;
+	private LightingPassShader lightingPassShader;
+	private PointLightShader pointLightShader;
 	
 	// Meshes
 	/** Box VAO */
@@ -346,14 +347,16 @@ public class Renderer implements IRenderer {
 	private void destroyShaders() {
 		simpleShader.destroy();
 		textureShader.destroy();
-		lightingShader.destroy();
+		lightingPassShader.destroy();
+		pointLightShader.destroy();
 	}
 	
 	private void loadShaders() {
 		System.out.println("Loading shaders...");
 		simpleShader = new SimpleShader();
 		textureShader = new TextureShader();
-		lightingShader = new LightingShader();
+		lightingPassShader = new LightingPassShader();
+		pointLightShader = new PointLightShader();
 		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
 	}
 	
@@ -447,10 +450,10 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawWorldLighting() {
-		lightingShader.setWorldFramebuffer(worldFramebuffer);
-		lightingShader.setLightFramebuffer(lightFramebuffer);
-		lightingShader.draw();
+	public void drawWorldWithLighting() {
+		lightingPassShader.setWorldFramebuffer(worldFramebuffer);
+		lightingPassShader.setLightFramebuffer(lightFramebuffer);
+		lightingPassShader.draw();
 		Shader.useNullProgram();
 	}
 	
@@ -643,6 +646,24 @@ public class Renderer implements IRenderer {
 		
 		// Draw circle
 		circle.draw(GL_TRIANGLE_FAN, CIRCLE_VERTICES);
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawPointLight(FloatBuffer data, Vector4f c, float attenuationFactor) {
+		matModelView.pushMatrix();
+		
+		pointLightShader.setProjectionMatrix(matProjection);
+		pointLightShader.setModelViewMatrix(matModelView);
+		pointLightShader.setColor(c);
+		pointLightShader.setLightPosition(data.get(0), data.get(1));
+		pointLightShader.setAttenuationFactor(attenuationFactor);
+		pointLightShader.use();
+		
+		// Draw triangle fan
+		polygonVBO.setData(data);
+		polygonVAO.draw(GL_TRIANGLE_FAN, data.remaining() / 2);
+		
 		matModelView.popMatrix();
 	}
 	

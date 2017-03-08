@@ -13,7 +13,6 @@ import game.exception.ProtocolException;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.Align;
-import game.render.Framebuffer;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.map.Map;
@@ -24,7 +23,6 @@ import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
-import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -76,7 +74,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
 	/** This is the line of sight buffer. */
-	private FloatBuffer losBuf = MemoryUtil.memAllocFloat(32);
+	private FloatBuffer losBuf = null;
 	
 	/** Audio Manager */
 	private AudioManager audio;
@@ -223,7 +221,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		r.getModelViewMatrix().popMatrix();
 		
-		r.drawWorldLighting();
+		r.drawWorldWithLighting();
 		
 		// Render start time
 		if (this.startTime != 0.0f) {
@@ -267,7 +265,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		// Render entities
 		for (Entity e : this.bank.entities.values()) {
-			e.render(r);
+			e.render(r, map);
 		}
 	}
 	
@@ -281,7 +279,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	private void drawLighting(IRenderer r) {
-		r.drawCircle(0.0f, 0.0f, 1.0f, ColorUtil.WHITE);
+		r.drawCircle(0.0f, 0.0f, 3.0f, ColorUtil.WHITE);
+		
+		for (Entity e : this.bank.entities.values()) {
+			e.renderLight(r, map);
+		}
 	}
 	
 	/**
@@ -396,7 +398,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		// Render entities
 		for (Entity e : this.bank.entities.values()) {
-			e.render(r);
+			e.render(r, map);
 		}
 		
 		r.getModelViewMatrix().popMatrix();

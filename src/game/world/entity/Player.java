@@ -8,12 +8,15 @@ import game.render.IRenderer;
 import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
+import game.world.PointLight;
 import game.world.UpdateArgs;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.entity.weapon.Knife;
+import game.world.map.Map;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -50,6 +53,8 @@ public class Player extends MovableEntity {
 	/**The currently held item. Not necessarily a weapon */
 	private Item heldItem;
 	
+	private PointLight pointLight;
+	
 	/** Has the player been assigned a footstep sound source? */
 	private transient int walkingSoundID = -1; // sound source id associated with player movement
 	
@@ -63,7 +68,8 @@ public class Player extends MovableEntity {
 	public Player(int team, Vector2f position, Item _heldItem) {
 		super(team, position, 1.0f);
 		this.heldItem = _heldItem;
-		updateHeldItemInfo();
+		this.pointLight = new PointLight(new Vector2f(this.position), LightUtil.LIGHT_WARM_FLUORESCENT, 1.5f, true);
+		updateChildrenInfo();
 	}
 	
 	/**
@@ -81,9 +87,13 @@ public class Player extends MovableEntity {
 		this.heldItem = p.heldItem.clone();
 		
 		this.beganUse = p.beganUse;
+		
+		this.pointLight = p.pointLight.clone();
 	}
 	
-	private void updateHeldItemInfo() {
+	private void updateChildrenInfo() {
+		this.pointLight.position.set(this.position);
+		
 		if (this.heldItem != null) {
 			this.heldItem.setOwner(this.getId());
 			this.heldItem.setOwnerTeam(this.getTeam());
@@ -150,7 +160,8 @@ public class Player extends MovableEntity {
 		}
 		Util.popTemporaryVector2f();
 		
-		updateHeldItemInfo();
+		updateChildrenInfo();
+		this.pointLight.update(ua);
 		if (this.heldItem != null)
 			this.heldItem.update(ua);
 		
@@ -175,20 +186,37 @@ public class Player extends MovableEntity {
 	public void clientUpdate(UpdateArgs ua) {
 		super.clientUpdate(ua);
 		
-		updateHeldItemInfo();
+		this.pointLight = new PointLight(
+				new Vector2f(this.position),
+				new Vector4f(LightUtil.LIGHT_WARM_FLUORESCENT.x, LightUtil.LIGHT_WARM_FLUORESCENT.y, LightUtil.LIGHT_WARM_FLUORESCENT.z, 0.5f),
+				0.4f, true);
+		
+		updateChildrenInfo();
+		this.pointLight.clientUpdate(ua);
 		if (this.heldItem != null)
 			this.heldItem.clientUpdate(ua);
 	}
 	
 	@Override
-	public void render(IRenderer r) {
-		updateHeldItemInfo();
+	public void render(IRenderer r, Map map) {
+		updateChildrenInfo();
+		this.pointLight.render(r, map);
 		if (this.heldItem != null)
-			this.heldItem.render(r);
+			this.heldItem.render(r, map);
 		
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
+	}
+	
+	@Override
+	public void renderLight(IRenderer r, Map map) {
+		super.renderLight(r, map);
+		
+		updateChildrenInfo();
+		this.pointLight.renderLight(r, map);
+		if (this.heldItem != null)
+			this.heldItem.renderLight(r, map);
 	}
 	
 	/**

@@ -7,7 +7,7 @@ import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.DamageUpdate;
-import game.world.entity.update.HealthUpdate;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class Explosion extends Entity {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		r.drawCircle(this.position.x, this.position.y, this.radius, ColorUtil.RED);
 	}
 	

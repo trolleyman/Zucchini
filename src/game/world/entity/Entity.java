@@ -2,9 +2,9 @@ package game.world.entity;
 
 import com.google.gson.annotations.SerializedName;
 import game.world.entity.damage.Damage;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
-import game.audio.AudioManager;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 
@@ -98,8 +98,16 @@ public abstract class Entity implements Cloneable {
 	/**
 	 * Renders the entity to the screen
 	 * @param r The renderer
+	 * @param map
 	 */
-	public abstract void render(IRenderer r);
+	public abstract void render(IRenderer r, Map map);
+	
+	/**
+	 * Renders the light associated with the entity. By default the entity emits no light.
+	 * @param r The renderer
+	 * @param map
+	 */
+	public void renderLight(IRenderer r, Map map) {}
 	
 	/**
 	 * Calculates an intersection with the entity and a line

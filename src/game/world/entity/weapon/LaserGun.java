@@ -4,7 +4,7 @@ import game.world.entity.Entity;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.DamageUpdate;
-import game.world.entity.update.HealthUpdate;
+import game.world.map.Map;
 import game.world.map.Wall;
 import org.joml.Vector2f;
 
@@ -32,7 +32,7 @@ public class LaserGun extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		r.drawBox(a, position.x, position.y, 0.15f, getHeight(), ColorUtil.RED, this.angle);
 	}

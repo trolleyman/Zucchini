@@ -8,6 +8,7 @@ import game.world.EntityIntersection;
 import game.world.UpdateArgs;
 import game.world.entity.Explosion;
 import game.world.entity.update.VelocityUpdate;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 public class Rocket extends Projectile {
@@ -42,7 +43,7 @@ public class Rocket extends Projectile {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		r.drawBox(Align.BM, position.x, position.y, W, H, ColorUtil.WHITE, Util.getAngle(velocity.x, velocity.y));
 	}
 	

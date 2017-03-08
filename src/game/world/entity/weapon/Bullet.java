@@ -8,10 +8,10 @@ import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.DamageUpdate;
-import game.world.entity.update.HealthUpdate;
 
 import java.util.Random;
 
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 public abstract class Bullet extends Projectile {
@@ -51,7 +51,7 @@ public abstract class Bullet extends Projectile {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		Vector2f temp = Util.pushTemporaryVector2f();
 		temp.set(velocity).normalize().mul(this.getLength());
 		float x = temp.x;
