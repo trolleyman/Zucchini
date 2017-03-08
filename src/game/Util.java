@@ -91,7 +91,9 @@ public class Util {
 	public static String getResourcesDir() {
 		return Util.getBasePath() + '/' + "resources/";
 	}
-	
+
+	private static final int STACK_SIZE_WARNING_LEN = 2048;
+
 	// ======= Vector3f Stack =======
 	private static final ThreadLocal<ArrayList<Vector3f>> vector3fStack = new ThreadLocal<ArrayList<Vector3f>>() {
 		@Override
@@ -116,7 +118,7 @@ public class Util {
 		v.zero();
 		stackSize++;
 		vector3fStackSize.set(stackSize);
-		if (stackSize > 256) {
+		if (stackSize > STACK_SIZE_WARNING_LEN) {
 			System.err.println("Warning: Vector3f stack size: " + stackSize);
 		}
 		return v;
@@ -155,7 +157,7 @@ public class Util {
 		v.zero();
 		stackSize++;
 		vector2fStackSize.set(stackSize);
-		if (stackSize > 256) {
+		if (stackSize > STACK_SIZE_WARNING_LEN) {
 			System.err.println("Warning: Vector2f stack size: " + stackSize);
 		}
 		return v;
