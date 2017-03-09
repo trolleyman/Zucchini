@@ -1,6 +1,9 @@
 package game.ai;
 
 import java.util.HashMap;
+
+import game.world.map.PathFindingMap;
+
 import java.util.ArrayList;
 
 
@@ -40,7 +43,9 @@ public class AStar {
  * @param walkable the map
  */
 	public AStar(Node start, Node goal, boolean[][] walkable) {
+		
 		this.start = start;
+		
 		this.goal = goal;
 		width = walkable.length;
 		height = walkable[0].length;
@@ -107,7 +112,7 @@ public class AStar {
 
 			for (int x = currentNode.getX() - 1; x <= currentNode.getX() + 1; x++) {
 				for (int y = currentNode.getY() - 1; y <= currentNode.getY() + 1; y++) {
-					if (x < width && x >= 0 && y >= 0 && y < height) {
+					if (x < width && x >= 0 && y >= 0 ) {
 							
 					
 						

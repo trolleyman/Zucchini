@@ -41,7 +41,7 @@ public class Map {
 	/** The intiial starting entities in the map */
 	protected transient ArrayList<Entity> initialEntities;
 	/** What scale the pathfinding algorithm should use */
-	private float pathFindingScale;
+	private float pathFindingScale = 10;
 	/** The cached pathfinding map */
 	private transient PathFindingMap pathFindingMap = null;
 	
