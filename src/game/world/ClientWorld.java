@@ -159,6 +159,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	private void drawDebugLines(IRenderer r, FloatBuffer buf) {
+		if (buf == null)
+			return;
+		
 		float x = buf.limit() <= 1 ? 0.0f : buf.get(0);
 		float y = buf.limit() <= 1 ? 0.0f : buf.get(1);
 		for (int i = 2; i < buf.limit() - 3; i += 2) {

@@ -35,12 +35,12 @@ public abstract class Bullet extends Projectile {
 	}
 	
 	@Override
-	protected void hitMap(UpdateArgs ua, Vector2f mi) {
+	protected void hitMap(UpdateArgs ua, Vector2f mi, Vector2f vel) {
 		ua.audio.play("bullet_impact_wall.wav", 1.0f,mi);
 	}
 	
 	@Override
-	protected void hitEntity(UpdateArgs ua, EntityIntersection ei) {
+	protected void hitEntity(UpdateArgs ua, EntityIntersection ei, Vector2f vel) {
 		// Hit an entity, damage
 		System.out.println("Ow! Bullet hit entity id " + ei.id);
 		Damage odamage = new Damage(ownerId, ownerTeam, DamageType.BULLET_DAMAGE, damage);

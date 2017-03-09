@@ -53,19 +53,22 @@ public class Rocket extends Projectile {
 	}
 	
 	@Override
-	protected void hitMap(UpdateArgs ua, Vector2f mi) {
-		this.hit(ua, new Vector2f(mi));
+	protected void hitMap(UpdateArgs ua, Vector2f mi, Vector2f velocity) {
+		this.hit(ua, new Vector2f(mi), velocity);
 	}
 	
 	@Override
-	protected void hitEntity(UpdateArgs ua, EntityIntersection ei) {
-		this.hit(ua, new Vector2f(ei.x, ei.y));
+	protected void hitEntity(UpdateArgs ua, EntityIntersection ei, Vector2f velocity) {
+		this.hit(ua, new Vector2f(ei.x, ei.y), velocity);
 	}
 	
-	private void hit(UpdateArgs ua, Vector2f pos) {
-		System.out.println("BOOM! Explosion at " + pos.x + ", " + pos.y);
+	private void hit(UpdateArgs ua, Vector2f pos, Vector2f vel) {
+		System.out.println("[Game]: BOOM! Explosion at " + pos.x + ", " + pos.y + " with vel " + vel.x + ", " + vel.y);
 		ua.audio.play("explosion.wav", 1.0f, pos);
-		ua.bank.addEntityCached(new Explosion(pos, ownerId, ownerTeam, 10.0f, 1.5f));
+		
+		Vector2f nvel = Util.pushTemporaryVector2f().set(vel).normalize().mul(0.05f);
+		ua.bank.addEntityCached(new Explosion(pos.sub(nvel), ownerId, ownerTeam, 30.0f, 3.0f));
+		Util.popTemporaryVector2f();
 	}
 	
 	@Override

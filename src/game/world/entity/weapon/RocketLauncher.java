@@ -32,7 +32,7 @@ public class RocketLauncher extends Weapon {
 	protected void fire(UpdateArgs ua, float angle) {
 		Vector2f muzzlePos = new Vector2f().set(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);;
 		
-		System.out.println("Whoosh! Rocket fired!");
+		// System.out.println("[Game]: Whoosh! Rocket fired!");
 		ua.audio.play("rocket-launcher.wav", 0.5f, this.position);
 		ua.bank.addEntityCached(new Rocket(muzzlePos, this.ownerId, this.ownerTeam, angle));
 	}

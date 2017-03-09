@@ -105,4 +105,23 @@ public class PointLight extends Entity {
 	public PointLight clone() {
 		return new PointLight(this);
 	}
+	
+	/**
+	 * Gets the attenuation factor necessary to have an attenuation of {@code cutoff} at {@code radius} distance
+	 * away from the centre of the point.
+	 * <p>
+	 * <pre>
+	 *     a = 1 / (1 + k * d^2);
+	 *     a * (1 + k * d^2) = 1;
+	 *     a + ak + ad^2 = 1;
+	 *     ak = 1 - a - ad^2;
+	 *     k = (1 - a - ad^2) / a;
+	 *     k = 1/a - 1 - d^2;
+	 * </pre>
+	 * <p>
+	 * Where a = attenuation, k = attenuation factor, and d = distance.
+	 */
+	public static float getAttenuationFactor(float radius, float cutoff) {
+		return 1.0f / cutoff - 1.0f - radius * radius;
+	}
 }

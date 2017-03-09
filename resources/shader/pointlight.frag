@@ -14,5 +14,5 @@ Where a = attenuation, k = attenuation factor, and d = distance. */
 void main() {
 	float dist = length(t_fromLight);
 	float attenuation = 1 / (1 + attenuationFactor * dist * dist);
-	out_color = color * attenuation;
+	out_color = vec4(color.rgb, color.a * attenuation);
 }
