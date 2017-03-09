@@ -4,7 +4,11 @@ package game.audio;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import org.lwjgl.openal.*;
-
+/**
+ * Sound buffer for storage of wav files to be played by sources
+ * @author Yean
+ *
+ */
 public class SoundBuffer {
 	private final int bufferId;
 	private String bufferName;

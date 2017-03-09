@@ -1,5 +1,6 @@
 package game.audio;
 import java.io.File;
+
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -15,6 +16,13 @@ import org.lwjgl.openal.ALC;
 import static org.lwjgl.openal.ALC10.*;
 import org.lwjgl.openal.ALCCapabilities;
 import static org.lwjgl.system.MemoryUtil.NULL;
+
+/**
+ * This is the main audio manager class that will contain methods to play sounds, update position of sounds and listeners (players).
+ * The audio manager is capable of simulating a world space of several sound effects playing at once and manages what sounds a player can hear.
+ * @author Yean
+ *
+ */
 public class AudioManager implements IAudioManager{
 	private long device;
     private long context;
@@ -63,9 +71,13 @@ public class AudioManager implements IAudioManager{
 				source.setBuffer(soundBuffer.getBufferId());
 				soundSourcesList.add(source);
 				//special cases: explosion sound and gun firing, be more louder and able to hear this far away
-				if(filename.equals("explosion.wav") || filename.equals("handgunshot.wav")){
+				if(filename.equals("explosion.wav")){
 					source.setRolloffFactor(1f);
-					source.setReferenceDistance(1f);
+					source.setReferenceDistance(1.5f);
+				}
+				if( filename.equals("handgunshot.wav")){
+					source.setRolloffFactor(2f);
+					source.setReferenceDistance(1.5f);
 				}
 			}
 			soundSourcesMap.put(soundBufferMap.get(soundBuffer.getBufferId()), soundSourcesList);
@@ -132,14 +144,6 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("zombie3.wav", 20);
     }
     
-//    public void addSoundSources(String name, List<SoundSource> soundSources) {
-//        this.soundSourcesMap.put(name, soundSources);
-//    }
-//
-//    public SoundSource getSoundSource(String name) {
-//        return this.soundSourcesMap.get(name);
-//    }
-    
     
     /**
      * Iterate available sound sources for a buffer and return it
@@ -156,6 +160,11 @@ public class AudioManager implements IAudioManager{
 		return null;
     }
     
+    /**
+     * Finds the id of the next available sound source to be used
+     * @param wavfile
+     * @return id
+     */
     public int findAvailableSoundSourceID(String wavfile){
 		List<SoundSource> sources = this.soundSourcesMap.get(wavfile);
 		for (SoundSource source : sources){
@@ -165,25 +174,35 @@ public class AudioManager implements IAudioManager{
 		}
 		return -1;
     }
-    
-    public void playSoundSource(String name) {
-        SoundSource soundSource = findAvailableSoundSource(name);
-        if (soundSource != null && !soundSource.isPlaying()) {
-            soundSource.play();
-        }
-    }
-//    public void removeSoundSource(String name) {
-//        this.soundSourceMap.remove(name);
-//    }
+
+    /**
+     * Adds a sound buffer
+     * @param soundBuffer
+     */
     public void addSoundBuffer(SoundBuffer soundBuffer) {
         this.soundBufferList.add(soundBuffer);
     }
+    
+    /**
+     * Gets the listener
+     * @return listener
+     */
     public SoundListener getListener() {
         return this.listener;
     }
+    
+    /**
+     * Sets the listener
+     * @param listener
+     */
     public void setListener(SoundListener listener) {
         this.listener = listener;
     }
+    
+    /**
+     * Update where the listener is in the game world
+     * @param pos
+     */
     public void updateListenerPosition(Vector2f pos) {
     	listener.setPosition(pos);
     }
@@ -274,7 +293,6 @@ public class AudioManager implements IAudioManager{
     	if (!source.isPlaying()){
     		source.play();
     	}
-    	//source.setVolume(1f);
     }
     
     /**
@@ -290,9 +308,7 @@ public class AudioManager implements IAudioManager{
 	    }
     	if (source.isPlaying()){
     		source.pause();
-    		//source.setInUse(false);
     	}
-    	//source.setVolume(0f);
     }
     
     /**
@@ -308,7 +324,6 @@ public class AudioManager implements IAudioManager{
 	    }
     	System.out.println("source: "+source);
     	System.out.println("Stopping sourceID: " +source.getSourceId());
-    	source.setInUse(false);
     	source.stop();
 	}
     
