@@ -1,17 +1,15 @@
 package game.ui;
 
-import game.InputHandler;
-import game.InputPipeMulti;
-import game.Util;
-import game.audio.AudioManager;
+import game.*;
 import game.render.Align;
-import game.render.Font;
 import game.render.IRenderer;
-import game.render.TextureBank;
-import game.world.ClientWorld;
+import game.ui.component.ButtonComponent;
+import game.ui.component.ImageComponent;
+import game.ui.component.TextButtonComponent;
 
 import java.util.ArrayList;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_C;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
@@ -24,7 +22,7 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
-	private Font f;
+	private float lobby_spacing = 80;
 	
 	/** The start button */
 	private ButtonComponent joinButton;
@@ -34,73 +32,81 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
-	private TextureBank tb;
 	
+	/** Test lobbies for button generation */
+	private ArrayList<LobbyInfo> lobbies = new ArrayList<>();
+	private LobbyInfo currentLobby = null;
 	
-	private TextButtonComponent lobby0;
-	private TextButtonComponent lobby1;
-	private TextButtonComponent lobby2;
-	private TextButtonComponent lobby3;
-	private ArrayList<TextButtonComponent> lobbies = new ArrayList<>();
+	private ArrayList<TextButtonComponent> lobby_buttons = new ArrayList<>();
 	
-	public LobbyUI(AudioManager audio, TextureBank tb) {
-		super(audio);
+	public LobbyUI(UI _ui) {
+		super(_ui);
 		
-		f = new Font(Util.getBasePath() + "resources/fonts/terminal2.ttf");
-		this.tb = tb;
-		
+		// Create Join Button
 		joinButton = new ButtonComponent(
-			() -> { this.nextUI = new GameUI(audio, tb, ClientWorld.createTestWorld(audio)); },
+			() -> {
+				if (currentLobby != null)
+					this.nextUI = new LobbyWaitUI(this, currentLobby.getLobbyName(), true);
+			},
 			Align.BL, 100, 100,
-			tb.getTexture("joinDefault.png"),
-			tb.getTexture("joinHover.png"),
-			tb.getTexture("joinPressed.png")
+			textureBank.getTexture("joinDefault.png"),
+			textureBank.getTexture("joinHover.png"),
+			textureBank.getTexture("joinPressed.png")
 		);
-		
+
+		// Create Back Button
 		backButton = new ButtonComponent(
-			() -> { this.nextUI = new StartUI(audio, tb); },
+			() -> this.nextUI = new StartUI(this),
 			Align.BL, 100, 100,
-			tb.getTexture("backDefault.png"),
-			tb.getTexture("backHover.png"),
-			tb.getTexture("backPressed.png")
+			textureBank.getTexture("backDefault.png"),
+			textureBank.getTexture("backHover.png"),
+			textureBank.getTexture("backPressed.png")
 		);
 		
+		// Create Background Image
 		backgroundImage = new ImageComponent(
-			Align.BL, 0, 0, tb.getTexture("Start_BG.png"), 0.0f
+			Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
-		
-		lobby0 = new TextButtonComponent(
-				() -> {lobbySelect(0);}, Align.BL, 300, 300, f, "Lobby1 - 0/16 Players", 1);
-		lobby1 = new TextButtonComponent(
-				() -> {lobbySelect(1);}, Align.BL, 300, 300, f, "Lobby2 - 0/16 Players", 1);
-		lobby2 = new TextButtonComponent(
-				() -> {lobbySelect(2);}, Align.BL, 300, 300, f, "Lobby3 - 0/16 Players", 1);
-		lobby3 = new TextButtonComponent(
-				() -> {lobbySelect(3);}, Align.BL, 300, 300, f, "Lobby4 - 0/16 Players", 1);
-		
-		this.inputHandlers.add(joinButton);
-		this.inputHandlers.add(backButton);
-		this.inputHandlers.add(lobby0);
-		this.inputHandlers.add(lobby1);
-		this.inputHandlers.add(lobby2);
-		this.inputHandlers.add(lobby3);
-		
-		lobbies.add(lobby0);
-		lobbies.add(lobby1);
-		lobbies.add(lobby2);
-		lobbies.add(lobby3);
+
+		connection.getLobbies(this::refresh, (err) -> System.err.println("Error retreiving lobbies: " + err));
 	}
 
+	/**
+	 * Is called when any of the lobbies are selected
+	 * @param lobby
+	 */
 	private void lobbySelect(int lobby) {
-		for (int i=0; i < lobbies.size(); i++) {
-			lobbies.get(i).setSelected(false);
+		for (int i=0; i < lobby_buttons.size(); i++) {
+			lobby_buttons.get(i).setSelected(false);
 		}
-		lobbies.get(lobby).setSelected(true);
+		lobby_buttons.get(lobby).setSelected(true);
+		currentLobby = lobbies.get(lobby);
+	}
+
+	private void refresh(ArrayList<LobbyInfo> lobs) {
+		synchronized (this) {
+			lobbies = lobs;
+			lobby_buttons.clear();
+			this.inputHandlers.clear();
+			for (int i = 0; i < lobbies.size(); i++) {
+				final int l = i;
+				TextButtonComponent lobbyButton = new TextButtonComponent(
+						() -> {
+							lobbySelect(l);
+						}, Align.BL, 300, 300, fontBank.getFont("emulogic.ttf"), 0.5f, lobbies.get(i));
+				lobby_buttons.add(lobbyButton);
+				this.inputHandlers.add(lobby_buttons.get(i));
+			}
+			this.inputHandlers.add(joinButton);
+			this.inputHandlers.add(backButton);
+		}
 	}
 
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
-		return this.inputHandlers;
+		synchronized (this) {
+			return new ArrayList<>(this.inputHandlers);
+		}
 	}
 	
 	@Override
@@ -114,47 +120,47 @@ public class LobbyUI extends UI implements InputPipeMulti {
 	public void handleKey(int key, int scancode, int action, int mods) {
 		
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
-		 	System.out.println("escape pressed");
-			this.nextUI = new StartUI(audio, tb);
+		// Allows escape to be pressed to return to previous menu
+		if (action == GLFW_PRESS) {
+			if (key == GLFW_KEY_ESCAPE) {
+				System.out.println("escape pressed");
+				this.nextUI = new StartUI(this);
+			} else if (key == GLFW_KEY_C) {
+				System.out.println("c pressed");
+				this.nextUI = new LobbyCreateUI(this);
+			}
 		}
 	}
 	
 	@Override
 	public void update(double dt) {
+		// Run the update method for all of the buttons
 		joinButton.update(dt);
 		backButton.update(dt);
-		lobby0.update(dt);
-		lobby1.update(dt);
-		lobby2.update(dt);
-		lobby3.update(dt);
+		for (int i=0; i < lobby_buttons.size(); i++) {
+			lobby_buttons.get(i).update(dt);
+		}
 	}
 
 	@Override
 	public void render(IRenderer r) {
+		//Set locations of the primary menu buttons
 		joinButton.setX((int) (windowW/2.0 - joinButton.getWidth()/2.0));
-		joinButton.setY((int) (windowH/2.0 - joinButton.getHeight()/2.0) + 140);
+		joinButton.setY((int) (windowH/2.0 - joinButton.getHeight()/2.0) + 150);
 		backButton.setX((int) (windowW/2.0 - backButton.getWidth()/2.0));
 		backButton.setY((int) (windowH/2.0 - backButton.getHeight()/2.0));
-		lobby0.setX((int) (windowW/2.0 - lobby0.getWidth()/2.0));
-		lobby0.setY((int) (windowH/2.0 - lobby0.getHeight()/2.0) - 140);
-		
-		lobby1.setX((int) (windowW/2.0 - lobby1.getWidth()/2.0));
-		lobby1.setY((int) (windowH/2.0 - lobby1.getHeight()/2.0) - 220);
-		
-		lobby2.setX((int) (windowW/2.0 - lobby2.getWidth()/2.0));
-		lobby2.setY((int) (windowH/2.0 - lobby2.getHeight()/2.0) - 300);
-		
-		lobby3.setX((int) (windowW/2.0 - lobby3.getWidth()/2.0));
-		lobby3.setY((int) (windowH/2.0 - lobby3.getHeight()/2.0) - 380);
-		
+
+		//Render these and the background image
 		backgroundImage.render(r);
 		joinButton.render(r);
 		backButton.render(r);
-		lobby0.render(r);
-		lobby1.render(r);
-		lobby2.render(r);
-		lobby3.render(r);
+
+		// Set location of and render each of the lobby buttons
+		for (int i=0; i < lobby_buttons.size(); i++) {
+			lobby_buttons.get(i).setX((int) (windowW/2.0 - lobby_buttons.get(i).getWidth()/2.0));
+			lobby_buttons.get(i).setY((int) (windowH/2.0 - lobby_buttons.get(i).getHeight()/2.0) - 60 - (i+1)*lobby_spacing);
+			lobby_buttons.get(i).render(r);
+		}
 	}
 
 	@Override

@@ -1,5 +1,10 @@
 package game;
 
+import game.exception.NameException;
+import game.exception.ProtocolException;
+import game.net.client.ClientConnection;
+import game.net.client.IClientConnection;
+import game.render.FontBank;
 import org.lwjgl.Version;
 
 import game.audio.AudioManager;
@@ -23,13 +28,24 @@ class Client implements Runnable, InputPipe {
 	
 	private AudioManager audio;
 	
+	private IClientConnection connection;
+	
 	/**
 	 * Previous time in nanoseconds of update.
 	 */
 	private long prevTime;
 	
-	public Client(boolean _fullscreen) {
+	public Client(boolean _fullscreen, String name) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
+		
+		// Initialize connection to server
+		try {
+			connection = new ClientConnection(name);
+		} catch (ProtocolException | NameException e) {
+			System.err.println("Error: Could not connect to server:");
+			e.printStackTrace();
+			System.exit(1); // Currently just exit if we can't connect to the server
+		}
 		
 		// Initialize renderer
 		renderer = new Renderer(this, _fullscreen);
@@ -43,8 +59,11 @@ class Client implements Runnable, InputPipe {
 			return;
 		}
 		
+		// Intiialize FontBank
+		FontBank fontBank = new FontBank();
+		
 		// Initialize UI
-		ui = new StartUI(audio, renderer.getTextureBank());
+		ui = new StartUI(connection, audio, renderer.getTextureBank(), fontBank);
 	}
 	
 	@Override
@@ -85,7 +104,6 @@ class Client implements Runnable, InputPipe {
 			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
 		}
 		ui = next;
-		
 	}
 	
 	private void render() {
@@ -95,7 +113,10 @@ class Client implements Runnable, InputPipe {
 	}
 	
 	public static void main(String[] args) {
-		new Client(false).run();
+		String name = "default";
+		if (args.length >= 1)
+			name = args[0];
+		new Client(false, name).run();
 		System.exit(0);
 	}
 }

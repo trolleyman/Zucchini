@@ -1,52 +1,58 @@
 package game.render;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.stb.STBTruetype.*;
 
-import org.lwjgl.BufferUtils;
+import java.nio.ByteBuffer;
+
+import org.joml.Vector4f;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.system.MemoryUtil;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 
-import sun.nio.ch.IOUtil;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.lwjgl.stb.STBTruetype.*;
-import static org.lwjgl.BufferUtils.*;
+import java.util.HashMap;
 
 public class Font {
-
+	
+	private static final int FIRST_CHAR = 32;
+	private static final int NUM_CHARS = 96;
+	
 	private STBTTFontinfo fontInfo;
 	private STBTTBakedChar.Buffer cdata;
+	
+	private HashMap<Integer, Integer> charToIndex;
+	
 	private Texture text;
 	
-	int BITMAP_W = 512;
-	int BITMAP_H = 512;
+	private int BITMAP_W = 512;
+	private int BITMAP_H = 512;
 	
-	IntBuffer ascent = MemoryUtil.memAllocInt(1);
-	IntBuffer descent = MemoryUtil.memAllocInt(1);
-	IntBuffer lineGap = MemoryUtil.memAllocInt(1);
+	private int[] ascent = new int[1];
+	private int[] descent = new int[1];
+	private int[] lineGap = new int[1];
+	
+	private final int pixelHeight;
 	
 	public Font(String path) {
+		this(path, 64);
+	}
+	
+	public Font(String path, int _pixelHeight) {
+		this.pixelHeight = _pixelHeight;
+		
+		charToIndex = new HashMap<>();
+		
+		for (int i = 0; i < NUM_CHARS; i++) {
+			charToIndex.put(i + FIRST_CHAR, i);
+		}
 		
 		fontInfo = STBTTFontinfo.malloc();
-		cdata = STBTTBakedChar.malloc(96);
+		cdata = STBTTBakedChar.malloc(NUM_CHARS);
 		
 		try {
 			RandomAccessFile file = new RandomAccessFile(path, "r");
@@ -58,7 +64,8 @@ public class Font {
 			
 			stbtt_InitFont(fontInfo, ttf);
 			ByteBuffer bitmap = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H);
-			stbtt_BakeFontBitmap(ttf, 64, bitmap, BITMAP_W, BITMAP_H, 32, cdata);
+			stbtt_BakeFontBitmap(ttf, pixelHeight, bitmap, BITMAP_W, BITMAP_H, FIRST_CHAR, cdata);
+			
 			bitmap.rewind();
 			
 			ByteBuffer rgba = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H * 4);
@@ -69,7 +76,6 @@ public class Font {
 				rgba.put((byte) -1);
 				rgba.put(bitmap.get());
 			}
-			
 			rgba.rewind();
 			
 			text = new Texture(rgba, BITMAP_W, BITMAP_H, GL_RGBA);
@@ -88,43 +94,63 @@ public class Font {
 		return this.text;
 	}
 	
+	private boolean isCharCached(int c) {
+		return charToIndex.containsKey(c);
+	}
+	
+	private int getCharIndex(int c) {
+		return charToIndex.getOrDefault(c, -1);
+	}
+	
 	public float getWidth(String s, float scale) {
-		return 0.0f; // TODO
+		FontAdvancer fa = getAdvancer(0, 0, scale);
+		
+		for (int i = 0; i < s.length();) {
+			int c = s.codePointAt(i);
+			
+			fa.advance(c);
+			
+			i += Character.charCount(c);
+		}
+		
+		float w = fa.getX();
+		fa.free();
+		return w;
 	}
 	
 	public float getHeight(float scale) {
-		return (ascent.get(0) - descent.get(0)) * scale;
+//		return 0.0f;
+		return pixelHeight * scale;
+//		return (ascent.get(0) - descent.get(0)) * scale;
 	}
 	
-	private float[] xBuf = new float[1];
-	private float[] yBuf = new float[1];
+	public FontAdvancer getAdvancer(float x, float y, float scale) {
+		return new FontAdvancer(scale, this::isCharCached, this::getCharIndex, cdata, x, y, BITMAP_W, BITMAP_H);
+	}
 	
-	public void render(Renderer r, String s, float x, float y, float scale){
-		STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
+	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale, Vector4f color) {
+		if (!fromBaseline) {
+			// Position so that y is at the bottom, not baseline
+			float descentProportion = (float)-descent[0] / (float)(ascent[0] - descent[0]);
+			y += descentProportion * pixelHeight * scale;
+		}
 		
-		xBuf[0] = x;
-		yBuf[0] = 0.0f;
+		FontAdvancer fa = getAdvancer(x, 0.0f, scale);
 		
-		for (int i=0; i<s.length(); i++) {
-			int ascii = (int) s.charAt(i);
-			ascii = ascii - 32;
+		for (int i = 0; i < s.length();) {
+			int c = s.codePointAt(i);
 			
-			float dx;
-			if (ascii < cdata.limit()){
-				float prevX = xBuf[0];
-				stbtt_GetBakedQuad(cdata, BITMAP_W, BITMAP_H, ascii, xBuf, yBuf, q, true);
-				dx = xBuf[0] - prevX;
-				xBuf[0] = prevX + dx * scale;
-			} else {
-				System.out.println("Error: Character "+s.charAt(i)+" in string not recognised");
+			STBTTAlignedQuad q = fa.advance(c);
+			if (q == null)
 				continue;
-			}
 			
 			float w = (q.x1() - q.x0())*scale;
 			float h = (q.y1() - q.y0())*scale;
-			r.drawTextureUV(text, Align.TL, q.x0(), y - q.y0(), w, h, q.s0(), q.t0(), q.s1(), q.t1());
+			r.drawTextureUV(text, Align.TL, q.x0(), y - q.y0(), w, h, 0.0f, q.s0(), q.t0(), q.s1(), q.t1(), color);
+			
+			i += Character.charCount(c);
 		}
 		
-		q.free();
+		fa.free();
 	}
 }

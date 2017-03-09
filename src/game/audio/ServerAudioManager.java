@@ -6,10 +6,12 @@ import org.joml.Vector2f;
 
 import game.audio.event.AudioContinueLoopEvent;
 import game.audio.event.AudioEvent;
+import game.audio.event.AudioIsPlayingCheck;
 import game.audio.event.AudioPauseLoopEvent;
 import game.audio.event.AudioPlayEvent;
 import game.audio.event.AudioPlayLoopEvent;
 import game.audio.event.AudioStopEvent;
+import game.audio.event.AudioUpdateSourcePosEvent;
 
 public class ServerAudioManager implements IAudioManager {
 	private int nextAudioID = 0;
@@ -26,8 +28,10 @@ public class ServerAudioManager implements IAudioManager {
 	}
 	
 	@Override
-	public void play(String name, float volume, Vector2f position) {
-		events.add(new AudioPlayEvent(name, volume, position));
+	public int play(String name, float volume, Vector2f position) {
+		int id = this.nextAudioID++;
+		events.add(new AudioPlayEvent(name,id, volume, position));
+		return id;
 	}
 	
 	@Override
@@ -50,5 +54,10 @@ public class ServerAudioManager implements IAudioManager {
 	@Override
 	public void pauseLoop(int id) {
 		events.add(new AudioPauseLoopEvent(id));
+	}
+
+	@Override
+	public void updateSourcePos(int sourceID, Vector2f position) {
+		events.add(new AudioUpdateSourcePosEvent(sourceID, position));
 	}
 }

@@ -9,6 +9,8 @@ public class SoundSource {
 	
 	private final float zPos = 1.0f; //fixed z pos since our game will be 2D
     private final int sourceId;
+    private float volume;
+    private boolean inUse = false;
 
     /**
      * The object that represents an entity that creates some form of sound
@@ -23,10 +25,46 @@ public class SoundSource {
         if (relative) {
             alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
         }
-        alSourcef(sourceId, AL_MAX_DISTANCE, 1f);
+        //ROLLOFF FACTOR: how sound levels will fall off the further the source is, the higher the more drop off
+        alSourcef(sourceId, AL_ROLLOFF_FACTOR, 3f);
+        //REFERENCE_DISTANCE: the distance where sound has a gain of 1 (i.e no drop off)
+        alSourcef(sourceId, AL_REFERENCE_DISTANCE, 1.5f);
+
         
     }
 
+    /**
+     * Sets the rolloff factor for a source
+     * @param value
+     */
+    public void setRolloffFactor(float value){
+        alSourcef(sourceId, AL_ROLLOFF_FACTOR, value);
+    }
+    
+    /**
+     * Sets the reference distance for a source
+     * @param value
+     */
+    public void setReferenceDistance(float value){
+        alSourcef(sourceId, AL_REFERENCE_DISTANCE, value);
+    }
+    
+    /**
+     * returns if this source is in use
+     * @return
+     */
+    public boolean inUse(){
+    	return this.inUse;
+    }
+    
+    /**
+     * sets if this source is in use
+     * @param bool
+     */
+    public void setInUse(boolean bool){
+    	this.inUse = bool;
+    }
+    
     /**
      * Returns a source id
      * @return sourceID
@@ -64,9 +102,14 @@ public class SoundSource {
     //this method will eventually be depreciated, as we will let OpenAL handle volumes
 	public void setVolume(final float volume)
 	{
+		this.volume = volume;
 		alSourcef(sourceId, AL10.AL_GAIN, volume);
 	}
-
+	
+	public float getVolume(){
+		return volume;
+	}
+	
     /**
      * Continues to play a source previously paused
      */
@@ -89,7 +132,7 @@ public class SoundSource {
      * @param position
      */
     public void setPosition(Vector2f position) {
-        alSource3f(sourceId, AL_POSITION, position.x, position.y, zPos);
+        alSource3f(sourceId, AL_POSITION, position.x, position.y , zPos);
     }
 
     /**

@@ -12,11 +12,14 @@ import org.joml.Vector2f;
 public abstract class Projectile extends Entity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
+	/** for sound */
+	private transient int whizzSoundID = -1;
+	
 	/** Identifies the source team of the bullet */
-	private int sourceTeamID;
+	private transient int sourceTeamID;
 	
 	/** The current velocity of the projectile */
-	protected transient Vector2f velocity;
+	protected Vector2f velocity;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
@@ -88,6 +91,15 @@ public abstract class Projectile extends Entity {
 		}
 		
 		prevPosition.set(position);
+		
+		
+		// Play sounds
+		if (whizzSoundID == -1){
+			this.whizzSoundID = ua.audio.play("bullet_whizz_silent.wav", 0.6f,this.position);
+		}else{
+			ua.audio.continueLoop(whizzSoundID, this.position);
+		}
+				
 		
 		Util.popTemporaryVector2f();
 		Util.popTemporaryVector2f();

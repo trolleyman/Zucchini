@@ -10,7 +10,9 @@ import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.update.AngleUpdate;
 import game.world.update.PositionUpdate;
+import game.world.update.SetHeldItem;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -22,7 +24,9 @@ import java.util.Optional;
  * @author Callum
  */
 public class Player extends MovableEntity {
-	/** The size of the player's line of sight */
+	/** The min distance a player can see */
+	public static final float LINE_OF_SIGHT_MIN = 1.0f;
+	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	
 	/** The speed of the player in m/s */
@@ -40,14 +44,13 @@ public class Player extends MovableEntity {
 	private transient boolean moveWest  = false;
 	
 	/** Where the line of sight intersects with the map */
-	private transient Vector2f lineOfSightIntersecton;
+	private transient Vector2f lineOfSightIntersecton = new Vector2f();
 	
 	/**The currently held item. Not necessarily a weapon */
 	private Item heldItem;
 	
 	/** Has the player been assigned a footstep sound source? */
-	private boolean soundSourceInit = false;
-	private int walkingSoundID;//sound source id associated with player movement
+	private int walkingSoundID=-1;//sound source id associated with player movement
 	
 	private transient boolean beganUse = false;
 	
@@ -61,8 +64,6 @@ public class Player extends MovableEntity {
 		this.heldItem = _heldItem;
 		if (this.heldItem != null)
 			this.heldItem.setOwnerTeam(this.getTeam());
-		
-		this.lineOfSightIntersecton = new Vector2f();
 	}
 	
 	/**
@@ -80,8 +81,6 @@ public class Player extends MovableEntity {
 		this.heldItem = p.heldItem.clone();
 		
 		this.beganUse = p.beganUse;
-		
-		this.lineOfSightIntersecton = p.lineOfSightIntersecton;
 	}
 	
 	@Override
@@ -89,22 +88,20 @@ public class Player extends MovableEntity {
 		return 10.0f;
 	}
 	
-	public void pickupItem(EntityBank bank, Item item) {
-		this.dropHeldItem(bank, this.position);
+	public void setHeldItem(Item item) {
 		this.heldItem = item;
-		this.heldItem.setOwnerTeam(this.getTeam());
 	}
 	
-	public void dropHeldItem(EntityBank bank, Vector2f position) {
-		if (this.heldItem != null)
-			bank.addEntityCached(new Pickup(new Vector2f(position), this.heldItem));
-		this.heldItem = null;
+	public Item getHeldItem() {
+		return heldItem;
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		if (this.heldItem != null)
+		if (this.heldItem != null) {
+			this.heldItem.setOwner(this.getId());
 			this.heldItem.setOwnerTeam(this.getTeam());
+		}
 		
 		{
 			Vector2f temp = Util.pushTemporaryVector2f();
@@ -144,24 +141,27 @@ public class Player extends MovableEntity {
 		}
 		Util.popTemporaryVector2f();
 		
-		this.heldItem.position.set(this.position);
-		this.heldItem.angle = this.angle;
-		this.heldItem.update(ua);
+		if (this.heldItem != null) {
+			this.heldItem.position.set(this.position);
+			this.heldItem.angle = this.angle;
+			this.heldItem.update(ua);
+		}
 		
 		// Play walking sounds
 		if (moveNorth || moveSouth || moveEast || moveWest) {
 			//System.out.println("Starting sound id: " + walkingSoundID);
-			ua.audio.continueLoop(this.walkingSoundID,this.position);
+			if (walkingSoundID == -1){
+				this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.6f,this.position);
+			}else{
+				ua.audio.continueLoop(this.walkingSoundID,this.position);
+			}
 		} else {
 			//System.out.println("Stopping sound id: " + walkingSoundID);
-			ua.audio.pauseLoop(this.walkingSoundID);
-		}
-		
-		if (!soundSourceInit) {
-			this.walkingSoundID = ua.audio.playLoop("footsteps_running.wav", 0.6f,this.position);
-			ua.audio.pauseLoop(this.walkingSoundID);
-			soundSourceInit = true;
-		}
+			if(walkingSoundID != -1){
+				ua.audio.pauseLoop(this.walkingSoundID);
+				walkingSoundID=-1;
+			}
+		} 
 	}
 	
 	@Override
@@ -173,18 +173,30 @@ public class Player extends MovableEntity {
 		
 		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
+		
+		if (this.heldItem != null)
+			this.heldItem.clientUpdate(ua);
 	}
 	
 	@Override
 	public void render(IRenderer r) {
+		if (lineOfSightIntersecton == null) {
+			lineOfSightIntersecton = new Vector2f();
+			float x = position.x + LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
+			float y = position.y + LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
+			lineOfSightIntersecton.set(x, y);
+		}
+		
 		r.drawLine(position.x, position.y, lineOfSightIntersecton.x, lineOfSightIntersecton.y, ColorUtil.RED, 1.0f);
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 		
-		this.heldItem.position.set(this.position);
-		this.heldItem.angle = this.angle;
-		this.heldItem.render(r);
+		if (this.heldItem != null) {
+			this.heldItem.position.set(this.position);
+			this.heldItem.angle = this.angle;
+			this.heldItem.render(r);
+		}
 	}
 	
 	/**
@@ -202,17 +214,22 @@ public class Player extends MovableEntity {
 		case END_MOVE_SOUTH  : this.moveSouth = false; break;
 		case END_MOVE_EAST   : this.moveEast  = false; break;
 		case END_MOVE_WEST   : this.moveWest  = false; break;
-		case AIM: super.angle = ((AimAction)a).getAngle(); break;
+		case AIM:
+			angle = ((AimAction)a).getAngle();
+			bank.updateEntityCached(new AngleUpdate(this.getId(), angle));
+			break;
 		case BEGIN_USE: {
 			if (!this.beganUse) {
 				this.beganUse = true;
-				this.heldItem.beginUse();
+				if (this.heldItem != null)
+					this.heldItem.beginUse();
 			}
 		}
 		break;
 		case END_USE: {
 			this.beganUse = false;
-			this.heldItem.endUse();
+			if (this.heldItem != null)
+				this.heldItem.endUse();
 		}
 		break;
 		case PICKUP: {
@@ -225,6 +242,7 @@ public class Player extends MovableEntity {
 				Pickup p = (Pickup) oe.get();
 				Item item = p.getItem();
 				item.setOwnerTeam(this.getTeam());
+				item.setOwner(this.getId());
 				bank.removeEntityCached(p.getId());
 				this.dropHeldItem(bank, p.position);
 				this.pickupItem(bank, item);
@@ -232,6 +250,21 @@ public class Player extends MovableEntity {
 			break;
 		}
 		}
+	}
+	
+	private void pickupItem(EntityBank bank, Item item) {
+		this.dropHeldItem(bank, this.position);
+		item.setOwner(this.getId());
+		item.setOwnerTeam(this.getTeam());
+		bank.updateEntityCached(new SetHeldItem(this.getId(), item));
+		this.heldItem = item;
+	}
+	
+	private void dropHeldItem(EntityBank bank, Vector2f position) {
+		if (this.heldItem != null)
+			bank.addEntityCached(new Pickup(new Vector2f(position), this.heldItem));
+		bank.updateEntityCached(new SetHeldItem(this.getId(), null));
+		this.heldItem = null;
 	}
 	
 	@Override

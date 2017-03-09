@@ -1,6 +1,7 @@
 package game.networking.main;
 
 import game.networking.server.*;
+import game.networking.test.ServerTest;
 import game.networking.client.*;
 
 public class NetMain
@@ -8,7 +9,7 @@ public class NetMain
 
 	public static void main(String[] args)
 	{
-		ServerTest serverTest = new ServerTest(8888);
+		ServerTest serverTest = new ServerTest();
 		serverTest.startServer();
 
 		// char = 2bytes

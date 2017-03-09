@@ -42,12 +42,9 @@ public abstract class World {
 	}
 	
 	/**
-	 * An update step. This is called with a constant dt ({@link #DT_PER_UPDATE})
+	 * An update step. This is called with a constant dt ({@link Util#DT_PER_UPDATE})
 	 * @param dt The number of seconds to update the world by
 	 */
 	protected abstract void updateStep(double dt);
-	
-	
-	
 }
 

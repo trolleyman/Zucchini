@@ -471,7 +471,7 @@ public class Renderer implements IRenderer {
 	@Override
 	public void drawTextureUV(
 			Texture tex, Align a, float x, float y, float w, float h, float r,
-			float u0, float v0, float u1, float v1) {
+			float u0, float v0, float u1, float v1, Vector4f color) {
 		
 		matModelView.pushMatrix();
 		matModelView.translate(x, y, 0.0f);
@@ -482,6 +482,7 @@ public class Renderer implements IRenderer {
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);
 		textureShader.bindTexture(tex);
+		textureShader.setColor(color);
 		textureShader.use();
 		
 		// Upload UV data
@@ -549,8 +550,6 @@ public class Renderer implements IRenderer {
 		matModelView.popMatrix();
 	}
 	
-	
-	
 	private double[] xBuf = new double[1];
 	private double[] yBuf = new double[1];
 	@Override
@@ -595,12 +594,12 @@ public class Renderer implements IRenderer {
 		glStencilFunc(GL_ALWAYS, 0, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	}
-
+	
 	@Override
-	public void drawText(Font f, String s, Align a, float x, float y, float scale) {
-		//matModelView.pushMatrix();
-		//align(a, -f.getWidth(s, scale), -f.getHeight(scale));
-		f.render(this, s, x, y, scale);
-		//matModelView.popMatrix();
+	public void drawText(Font f, String s, Align a, boolean fromBaseline, float x, float y, float scale, Vector4f color) {
+		matModelView.pushMatrix();
+		align(a, -f.getWidth(s, scale), -f.getHeight(scale));
+		f.render(this, s, fromBaseline, x, y, scale, color);
+		matModelView.popMatrix();
 	}
 }

@@ -144,9 +144,17 @@ public interface IRenderer {
 		this.drawTextureUV(tex, a, x, y, w, h, 0.0f, u0, v0, u1, v1);
 	}
 	
-	void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1);
-
-	void drawText(Font f, String s, Align a, float x, float y, float scale);
+	default void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1) {
+		this.drawTextureUV(tex, a, x, y, w, h, r, u0, v0, u1, v1, ColorUtil.WHITE);
+	}
+	
+	void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float r, float u0, float v0, float u1, float v1, Vector4f color);
+	
+	default void drawText(Font f, String s, Align a, boolean fromBaseline, float x, float y, float scale) {
+		this.drawText(f, s, a, fromBaseline, x, y, scale, ColorUtil.WHITE);
+	}
+	
+	void drawText(Font f, String s, Align a, boolean fromBaseline, float x, float y, float scale, Vector4f color);
 	
 	/**
 	 * Draws a solid-color box to the screen at x,y (relative to the
