@@ -2,7 +2,8 @@
 
 uniform vec4 color;
 uniform float attenuationFactor;
-uniform float coneAngle;
+uniform float coneAngleMin;
+uniform float coneAngleMax;
 uniform vec2 coneDirection;
 
 in vec2 t_fromLight;
@@ -17,12 +18,17 @@ void main() {
 	// Calc if in spotlight
 	vec2 fromLightNormal = normalize(t_fromLight);
 	float angle = acos(dot(fromLightNormal, coneDirection));
-	if (angle > coneAngle) {
+	if (angle > coneAngleMax) {
 		out_color = vec4(0.0f);
 	} else {
-		// Calc colour
+		// Calc attenuation
 		float dist = length(t_fromLight);
 		float attenuation = 1 / (1 + attenuationFactor * dist * dist);
-		out_color = color * attenuation;
+		
+		// Calc edges
+		float p = 1.0f - clamp((angle - coneAngleMin) / (coneAngleMax - coneAngleMin), 0.0f, 1.0f);
+		
+		// Calc color
+		out_color = vec4(color.rgb, color.a * p * attenuation);
 	}
 }

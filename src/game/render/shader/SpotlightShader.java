@@ -2,8 +2,6 @@ package game.render.shader;
 
 import org.joml.Vector2f;
 
-import java.util.Vector;
-
 import static org.lwjgl.opengl.GL20.*;
 
 /**
@@ -12,8 +10,11 @@ import static org.lwjgl.opengl.GL20.*;
  * @author Callum
  */
 public class SpotlightShader extends PointLightShader {
-	private int coneAngleUniform;
-	private float coneAngle = (float) Math.toRadians(45.0);
+	private int coneAngleMinUniform;
+	private float coneAngleMin = (float) Math.toRadians(45.0);
+	
+	private int coneAngleMaxUniform;
+	private float coneAngleMax = (float) Math.toRadians(50.0);
 	
 	private int coneDirectionUniform;
 	private Vector2f coneDirection = new Vector2f(1.0f, 0.0f);
@@ -21,15 +22,23 @@ public class SpotlightShader extends PointLightShader {
 	public SpotlightShader() {
 		super("spotlight");
 		
-		coneAngleUniform = getUniformLocation("coneAngle");
+		coneAngleMinUniform = getUniformLocation("coneAngleMin");
+		coneAngleMaxUniform = getUniformLocation("coneAngleMax");
 		coneDirectionUniform = getUniformLocation("coneDirection");
 	}
 	
-	public void setConeAngle(float angle) {
-		this.coneAngle = angle;
+	public void setConeAngleMin(float angle) {
+		this.coneAngleMin = angle;
 		
 		if (Shader.getCurrentShader() == this)
-			uploadConeAngle();
+			uploadConeAngleMin();
+	}
+	
+	public void setConeAngleMax(float angle) {
+		this.coneAngleMax = angle;
+		
+		if (Shader.getCurrentShader() == this)
+			uploadConeAngleMax();
 	}
 	
 	public void setConeDirection(Vector2f direction) {
@@ -43,8 +52,12 @@ public class SpotlightShader extends PointLightShader {
 			uploadConeDirection();
 	}
 	
-	private void uploadConeAngle() {
-		glUniform1f(coneAngleUniform, coneAngle);
+	private void uploadConeAngleMin() {
+		glUniform1f(coneAngleMinUniform, coneAngleMin);
+	}
+	
+	private void uploadConeAngleMax() {
+		glUniform1f(coneAngleMaxUniform, coneAngleMax);
 	}
 	
 	private void uploadConeDirection() {
@@ -55,7 +68,8 @@ public class SpotlightShader extends PointLightShader {
 	public void use() {
 		super.use();
 		
-		uploadConeAngle();
+		uploadConeAngleMin();
+		uploadConeAngleMax();
 		uploadConeDirection();
 	}
 }

@@ -246,15 +246,15 @@ public interface IRenderer {
 	 * Draws a spotlight at the specified position with the specified color, attenuation, cone angle and direction.
 	 * @param data The shape of the light, specified in triangle fan format.
 	 */
-	default void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngle, Vector2f coneDirection) {
-		drawSpotlight(data, c, attenuationFactor, coneAngle, coneDirection.x, coneDirection.y);
+	default void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, Vector2f coneDirection) {
+		drawSpotlight(data, c, attenuationFactor, coneAngleMin, coneAngleMax, coneDirection.x, coneDirection.y);
 	}
 	
 	/**
 	 * Draws a spotlight at the specified position with the specified color, attenuation, cone angle and direction.
 	 * @param data The shape of the light, specified in triangle fan format.
 	 */
-	void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngle, float coneDirectionX, float coneDirectionY);
+	void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, float coneDirectionX, float coneDirectionY);
 	
 	/**
 	 * Enables stencil drawing

@@ -79,7 +79,7 @@ public class Player extends MovableEntity {
 		this.torch = new Spotlight(
 				new Vector2f(position),
 				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.5f),
-				0.1f, true, (float) Math.toRadians(10.0f));
+				0.1f, true, (float) Math.toRadians(10.0f), (float) Math.toRadians(12.0f));
 		updateChildrenInfo();
 	}
 	
@@ -213,8 +213,8 @@ public class Player extends MovableEntity {
 	public void render(IRenderer r, Map map) {
 		this.torch = new Spotlight(
 				new Vector2f(position),
-				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.8f),
-				0.01f, true, (float) Math.toRadians(10.0f));
+				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.6f),
+				0.01f, true, (float) Math.toRadians(10.0f), (float) Math.toRadians(20.0f));
 		
 		updateChildrenInfo();
 		this.pointLight.render(r, map);

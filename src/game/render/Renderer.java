@@ -672,7 +672,7 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngle, float coneDirectionX, float coneDirectionY) {
+	public void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, float coneDirectionX, float coneDirectionY) {
 		matModelView.pushMatrix();
 		
 		spotlightShader.setProjectionMatrix(matProjection);
@@ -680,7 +680,8 @@ public class Renderer implements IRenderer {
 		spotlightShader.setColor(c);
 		spotlightShader.setLightPosition(data.get(0), data.get(1));
 		spotlightShader.setAttenuationFactor(attenuationFactor);
-		spotlightShader.setConeAngle(coneAngle);
+		spotlightShader.setConeAngleMin(coneAngleMin);
+		spotlightShader.setConeAngleMax(coneAngleMax);
 		spotlightShader.setConeDirection(coneDirectionX, coneDirectionY);
 		spotlightShader.use();
 		
