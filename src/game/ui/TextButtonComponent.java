@@ -222,4 +222,13 @@ public class TextButtonComponent extends UIComponent
 		return (int) BOX_H;
 	}
 
+	public String toString()
+	{
+		if (lobbyInfo != null)
+		{
+			return lobbyInfo.lobbyName;
+		} else
+			return text;
+	}
+
 }

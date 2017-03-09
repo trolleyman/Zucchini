@@ -9,6 +9,7 @@ import game.render.IRenderer;
 import game.render.TextureBank;
 import game.world.ClientWorld;
 
+import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
@@ -36,6 +37,10 @@ public class LobbyUI extends UI implements InputPipeMulti
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
+	/** The page of lobbies we listed */
+	private int lobbiesPerPage;
+	/** The more lobbies button */
+	private TextButtonComponent moreLobbiesButton;
 
 	/** Test lobbies for button generation */
 	private ArrayList<LobbyInfo> lobbies = new ArrayList<>();
@@ -66,6 +71,24 @@ public class LobbyUI extends UI implements InputPipeMulti
 			}, (err) -> {
 			});
 		}, Align.BL, 200, 80, fontBank.getFont("emulogic.ttf"), 0.5f, "Refresh");
+
+		// Create Refresh Button
+		moreLobbiesButton = new TextButtonComponent(() -> {
+			connection.getLobbies((lobs) -> {
+				ArrayList<TextButtonComponent> toDelete = new ArrayList<>();
+				for (int i = 0; i < lobbiesPerPage; i++)
+				{
+					toDelete.add(lobby_buttons.get(0));
+					lobby_buttons.remove(lobby_buttons.get(0));
+				}
+				for (int i = 0; i < toDelete.size(); i++)
+				{
+					lobby_buttons.add(toDelete.get(i));
+				}
+				toDelete.clear();
+			}, (err) -> {
+			});
+		}, Align.BL, 150, 80, fontBank.getFont("emulogic.ttf"), 0.5f, "Cycle");
 
 		connection.getLobbies((lobs) ->
 
@@ -108,6 +131,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 		this.inputHandlers.add(joinButton);
 		this.inputHandlers.add(backButton);
 		this.inputHandlers.add(refreshButton);
+		this.inputHandlers.add(moreLobbiesButton);
 	}
 
 	@Override
@@ -144,6 +168,8 @@ public class LobbyUI extends UI implements InputPipeMulti
 		joinButton.update(dt);
 		backButton.update(dt);
 		refreshButton.update(dt);
+		moreLobbiesButton.update(dt);
+
 		for (int i = 0; i < lobby_buttons.size(); i++)
 		{
 			lobby_buttons.get(i).update(dt);
@@ -162,19 +188,29 @@ public class LobbyUI extends UI implements InputPipeMulti
 		refreshButton.setY((int) (windowH - refreshButton.getHeight() - 10));
 		refreshButton.setX((int) (windowW - refreshButton.getWidth() - 10));
 
+		moreLobbiesButton.setX(windowW - refreshButton.getWidth() - 10);
+		moreLobbiesButton.setY((int) (windowH / 2.0 - refreshButton.getHeight() - 10));
+
 		// Render these and the background image
 		backgroundImage.render(r);
 		joinButton.render(r);
 		backButton.render(r);
 
 		refreshButton.render(r);
+		moreLobbiesButton.render(r);
 
+		lobbiesPerPage = 0;
 		// Set location of and render each of the lobby buttons
 		for (int i = 0; i < lobby_buttons.size(); i++)
 		{
-			lobby_buttons.get(i).setX((int) (windowW / 2.0 - lobby_buttons.get(i).getWidth() / 2.0));
-			lobby_buttons.get(i).setY((int) (windowH / 2.0 - lobby_buttons.get(i).getHeight() / 2.0) - 60 - (i + 1) * lobby_spacing);
-			lobby_buttons.get(i).render(r);
+			int placeY = (int) ((int) (windowH / 2.0 - lobby_buttons.get(i).getHeight() / 2.0) - 60 - (i + 1) * lobby_spacing);
+			if (placeY >= 0)
+			{
+				lobby_buttons.get(i).setX((int) (windowW / 2.0 - lobby_buttons.get(i).getWidth() / 2.0));
+				lobby_buttons.get(i).setY(placeY);
+				lobby_buttons.get(i).render(r);
+				lobbiesPerPage++;
+			}
 		}
 	}
 
