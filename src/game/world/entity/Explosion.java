@@ -15,7 +15,7 @@ import org.joml.Vector4f;
 import java.util.ArrayList;
 
 public class Explosion extends Entity {
-	private static final Vector4f EXPLOSION_COLOR = new Vector4f(1.0f, 0.7f, 0.0f, 0.5f);
+	private static final Vector4f EXPLOSION_COLOR = new Vector4f(1.0f, 0.53f, 0.17f, 0.0f);
 	
 	/** The damage suffered at distance 1. The maxDamage at distance is determined by the inverse square law */
 	private transient float maxDamage;
@@ -56,7 +56,7 @@ public class Explosion extends Entity {
 	private void constructLight() {
 		this.startAttenuationFactor = PointLight.getAttenuationFactor(radius, 0.1f);
 		this.endAttenuationFactor = PointLight.getAttenuationFactor(radius, 0.8f);
-		this.light = new PointLight(position, new Vector4f(1.0f, 0.53f, 0.17f, 0.0f), startAttenuationFactor, false);
+		this.light = new PointLight(position, EXPLOSION_COLOR, startAttenuationFactor, false);
 	}
 	
 	@Override
