@@ -201,8 +201,6 @@ public class Player extends MovableEntity {
 	public void clientUpdate(UpdateArgs ua) {
 		super.clientUpdate(ua);
 		
-		
-		
 		updateChildrenInfo();
 		this.pointLight.clientUpdate(ua);
 		if (this.heldItem != null)
@@ -211,10 +209,14 @@ public class Player extends MovableEntity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
+		this.pointLight = new PointLight(
+				new Vector2f(this.position),
+				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.4f),
+				0.3f, true);
 		this.torch = new Spotlight(
 				new Vector2f(position),
 				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.6f),
-				0.01f, true, (float) Math.toRadians(10.0f), (float) Math.toRadians(20.0f));
+				0.01f, true, (float) Math.toRadians(30.0f), (float) Math.toRadians(60.0f));
 		
 		updateChildrenInfo();
 		this.pointLight.render(r, map);

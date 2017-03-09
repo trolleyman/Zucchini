@@ -34,7 +34,7 @@ public class Pickup extends Entity {
 	}
 	
 	private void generateLight() {
-		this.light = new PointLight(position, new Vector4f(1.0f, 1.0f, 1.0f, 0.5f), 1.1f, false);
+		this.light = new PointLight(position, new Vector4f(1.0f, 1.0f, 1.0f, 0.4f), 1.1f, false);
 	}
 	
 	private void setParams() {

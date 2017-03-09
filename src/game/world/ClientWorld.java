@@ -218,7 +218,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		drawWorld(r);
 		r.endDrawWorld();
 		r.beginDrawLighting();
-		//drawLineOfSightStencil(r);
+		if (getPlayer() != null)
+			drawLineOfSightStencil(r);
 		drawLighting(r);
 		r.disableStencil();
 		r.endDrawLighting();
