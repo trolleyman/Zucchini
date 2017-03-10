@@ -133,6 +133,7 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("handgunshot.wav", 30);
 		fileSourceMap.put("laser_round.wav", 5);
 		fileSourceMap.put("lasergun-fire.wav", 5);
+		fileSourceMap.put("no-ammo-click.wav", 3);
 		fileSourceMap.put("pump-shotgun-reload[4sec].wav", 3);
 		fileSourceMap.put("pump-shotgun-shot.wav", 5);
 		fileSourceMap.put("punch-hit.wav", 5);
