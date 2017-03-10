@@ -3,6 +3,7 @@ package game.world.entity;
 import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.entity.light.PointLight;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;

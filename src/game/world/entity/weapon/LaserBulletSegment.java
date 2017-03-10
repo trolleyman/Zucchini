@@ -47,6 +47,8 @@ public class LaserBulletSegment extends Entity {
 		
 		this.startGrad = startGrad;
 		this.endGrad = endGrad;
+		
+		
 	}
 	
 	@Override

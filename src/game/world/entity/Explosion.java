@@ -7,6 +7,7 @@ import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
+import game.world.entity.light.PointLight;
 import game.world.entity.update.DamageUpdate;
 import game.world.map.Map;
 import org.joml.Vector2f;

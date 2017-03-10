@@ -1,16 +1,14 @@
-package game.world.entity;
+package game.world.entity.light;
 
-import game.ColorUtil;
 import game.Util;
-import game.render.Align;
 import game.render.IRenderer;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class Spotlight extends PointLight {
-	private float coneAngleMin;
-	private float coneAngleMax;
+	public float coneAngleMin;
+	public float coneAngleMax;
 	
 	public Spotlight(Spotlight l) {
 		super(l);

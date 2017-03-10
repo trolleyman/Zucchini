@@ -1,8 +1,9 @@
-package game.world.entity;
+package game.world.entity.light;
 
 import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.entity.Entity;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -13,8 +14,8 @@ public class PointLight extends Entity {
 	/** The intensity multiplier below at which the intensity is assumed to be 0. */
 	private static final float CUTOFF_INTENSITY = 0.01f;
 	
-	protected Vector4f color;
-	protected float attenuationFactor;
+	public Vector4f color;
+	public float attenuationFactor;
 	private boolean dynamic;
 	
 	private transient boolean losGenerated = false;

@@ -9,6 +9,8 @@ import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.entity.light.PointLight;
+import game.world.entity.light.Spotlight;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.HeldItemUpdate;
@@ -215,8 +217,8 @@ public class Player extends MovableEntity {
 				0.3f, true);
 		this.torch = new Spotlight(
 				new Vector2f(position),
-				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.6f),
-				0.01f, true, (float) Math.toRadians(30.0f), (float) Math.toRadians(60.0f));
+				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 0.7f),
+				0.01f, true, (float) Math.toRadians(30.0f), (float) Math.toRadians(80.0f));
 		
 		updateChildrenInfo();
 		this.pointLight.render(r, map);
