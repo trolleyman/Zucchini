@@ -19,8 +19,6 @@ import game.world.ClientWorld;
  */
 
 public class EscapeUI extends UI implements InputPipeMulti {
-	private TextureBank bank;
-	
 	private ButtonComponent fileBtn;
 	private ButtonComponent helpBtn;
 	private ButtonComponent audioBtn;
@@ -52,23 +50,23 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	public void start() {
 		fileBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("filebtn.png"),
-				bank.getTexture("fileclicked.png"),
-				bank.getTexture("fileclicked.png")
+				textureBank.getTexture("filebtn.png"),
+				textureBank.getTexture("fileclicked.png"),
+				textureBank.getTexture("fileclicked.png")
 		);
 		
 		helpBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("helpbtn.png"),
-				bank.getTexture("helpclicked.png"),
-				bank.getTexture("helpclicked.png")
+				textureBank.getTexture("helpbtn.png"),
+				textureBank.getTexture("helpclicked.png"),
+				textureBank.getTexture("helpclicked.png")
 		);
 		
 		audioBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
-				bank.getTexture("audiobtn.png"),
-				bank.getTexture("audioclicked.png"),
-				bank.getTexture("audioclicked.png")
+				textureBank.getTexture("audiobtn.png"),
+				textureBank.getTexture("audioclicked.png"),
+				textureBank.getTexture("audioclicked.png")
 		);
 		
 		quitBtn = new ButtonComponent(
@@ -77,17 +75,17 @@ public class EscapeUI extends UI implements InputPipeMulti {
 					this.nextUI = new StartUI(this);
 				},
 				Align.BL, 0, 0,
-				bank.getTexture("quitbtn.png"),
-				bank.getTexture("quitclicked.png"),
-				bank.getTexture("quitclicked.png")
+				textureBank.getTexture("quitbtn.png"),
+				textureBank.getTexture("quitclicked.png"),
+				textureBank.getTexture("quitclicked.png")
 		);
 		
 		continueBtn = new ButtonComponent(
 				() -> this.nextUI = new GameUI(this, world),
 				Align.BL, 0, 0,
-				bank.getTexture("continuebtn.png"),
-				bank.getTexture("continueclicked.png"),
-				bank.getTexture("continueclicked.png")
+				textureBank.getTexture("continuebtn.png"),
+				textureBank.getTexture("continueclicked.png"),
+				textureBank.getTexture("continueclicked.png")
 		);
 		
 		this.inputHandlers.add(fileBtn);
