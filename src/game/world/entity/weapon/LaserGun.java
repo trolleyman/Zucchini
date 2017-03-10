@@ -28,7 +28,8 @@ public class LaserGun extends Weapon {
 	}
 	
 	public LaserGun(Vector2f position, int ammo) {
-		super(position, ammo, true, 0.5f, 1, 0.5f);
+		super(position, ammo, false, 0.09f, 30, 2.0f,
+				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
 	}
 	
 	@Override

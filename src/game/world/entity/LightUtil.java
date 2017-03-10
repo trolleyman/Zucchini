@@ -30,4 +30,42 @@ public class LightUtil {
 	public static final Vector4f LIGHT_SODIUM_VAPOR              = new Vector4f(255/255.0f, 209/255.0f, 178/255.0f, 1.0f);
 	public static final Vector4f LIGHT_METAL_HALIDE              = new Vector4f(242/255.0f, 252/255.0f, 255/255.0f, 1.0f);
 	public static final Vector4f LIGHT_HIGH_PRESSURE_SODIUM      = new Vector4f(255/255.0f, 183/255.0f, 76 /255.0f, 1.0f);
+	
+	/**
+	 * Returns distance above which the light's intensity can be assumed to be 0.
+	 * It is a function of the light's attenuation factor, and the cutoff attenuation.
+	 * <p>
+	 * <pre>
+	 *     a = 1 / (1 + k * d^2);
+	 *     a * (1 + k * d^2) = 1;
+	 *     a + ak + ad^2 = 1;
+	 *     ad^2 = 1 - a - ak;
+	 *     d^2 = 1/a - 1 - k;
+	 *     d = sqrt(1/a - 1 - k);
+	 * </pre>
+	 * <p>
+	 * Where a = attenuation, k = attenuation factor, and d = distance.
+	 */
+	public static float getDistance(float cutoff, float attenuationFactor) {
+		return (float) Math.sqrt(1/cutoff - 1 - attenuationFactor);
+	}
+	
+	/**
+	 * Gets the attenuation factor necessary to have an attenuation of {@code cutoff} at {@code radius} distance
+	 * away from the centre of the point.
+	 * <p>
+	 * <pre>
+	 *     a = 1 / (1 + k * d^2);
+	 *     a * (1 + k * d^2) = 1;
+	 *     a + ak + ad^2 = 1;
+	 *     ak = 1 - a - ad^2;
+	 *     k = (1 - a - ad^2) / a;
+	 *     k = 1/a - 1 - d^2;
+	 * </pre>
+	 * <p>
+	 * Where a = attenuation, k = attenuation factor, and d = distance.
+	 */
+	public static float getAttenuationFactor(float radius, float cutoff) {
+		return 1.0f / cutoff - 1.0f - radius * radius;
+	}
 }

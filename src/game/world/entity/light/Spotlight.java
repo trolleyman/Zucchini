@@ -2,6 +2,7 @@ package game.world.entity.light;
 
 import game.Util;
 import game.render.IRenderer;
+import game.world.entity.LightUtil;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -34,7 +35,7 @@ public class Spotlight extends PointLight {
 	
 	@Override
 	protected void generateLoS(Map map) {
-		losBuf = map.getLineOfSight(position, getCutoffDist(), angle, coneAngleMax*2, losBuf);
+		losBuf = map.getLineOfSight(position, LightUtil.getDistance(CUTOFF_INTENSITY, attenuationFactor), angle, coneAngleMax*2, losBuf);
 	}
 	
 	@Override

@@ -34,6 +34,7 @@ public class Renderer implements IRenderer {
 	private LightingPassShader lightingPassShader;
 	private PointLightShader pointLightShader;
 	private SpotlightShader spotlightShader;
+	private TubeLightShader tubeLightShader;
 	
 	// Meshes
 	/** Box VAO */
@@ -227,7 +228,6 @@ public class Renderer implements IRenderer {
 		
 		// Set OpenGL settings
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_STENCIL);
 		glEnable(GL_STENCIL_TEST);
@@ -352,6 +352,7 @@ public class Renderer implements IRenderer {
 		lightingPassShader.destroy();
 		pointLightShader.destroy();
 		spotlightShader.destroy();
+		tubeLightShader.destroy();
 	}
 	
 	private void loadShaders() {
@@ -361,6 +362,7 @@ public class Renderer implements IRenderer {
 		lightingPassShader = new LightingPassShader();
 		pointLightShader = new PointLightShader();
 		spotlightShader = new SpotlightShader();
+		tubeLightShader = new TubeLightShader();
 		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
 	}
 	
@@ -409,7 +411,9 @@ public class Renderer implements IRenderer {
 		
 		Framebuffer.bindDefault();
 		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glStencilMask(0xFF);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 		
 		this.disableStencilDraw();
@@ -424,7 +428,9 @@ public class Renderer implements IRenderer {
 	public void beginDrawWorld() {
 		worldFramebuffer.bind();
 		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glStencilMask(0xFF);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 		
 		this.disableStencilDraw();
@@ -440,8 +446,9 @@ public class Renderer implements IRenderer {
 	public void beginDrawLighting() {
 		lightFramebuffer.bind();
 		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glStencilMask(0xFF);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 		
 		this.disableStencilDraw();
@@ -455,6 +462,9 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void drawWorldWithLighting() {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 		lightingPassShader.setWorldFramebuffer(worldFramebuffer);
 		lightingPassShader.setLightFramebuffer(lightFramebuffer);
 		lightingPassShader.draw();
@@ -533,7 +543,6 @@ public class Renderer implements IRenderer {
 	@Override
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r) {
 		matModelView.pushMatrix();
-		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		
 		matModelView.translate(x, y, 0.0f);
 		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
@@ -688,6 +697,27 @@ public class Renderer implements IRenderer {
 		// Draw triangle fan
 		polygonVBO.setData(data);
 		polygonVAO.draw(GL_TRIANGLE_FAN, data.remaining() / 2);
+		
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawTubeLight(float x, float y, float angle, float length, float width, Vector4f c, float attenuationFactor) {
+		matModelView.pushMatrix();
+		
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(-angle, 0.0f, 0.0f, 1.0f);
+		align(Align.BM, -width, -length);
+		matModelView.scale(width, length, 1.0f);
+		
+		tubeLightShader.setProjectionMatrix(matProjection);
+		tubeLightShader.setModelViewMatrix(matModelView);
+		tubeLightShader.setColor(c);
+		tubeLightShader.setAttenuationFactor(attenuationFactor);
+		tubeLightShader.use();
+		
+		// Draw 1x1 box (without UV)
+		box.draw(GL_TRIANGLES, 6);
 		
 		matModelView.popMatrix();
 	}

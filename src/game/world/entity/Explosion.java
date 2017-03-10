@@ -55,8 +55,8 @@ public class Explosion extends Entity {
 	}
 	
 	private void constructLight() {
-		this.startAttenuationFactor = PointLight.getAttenuationFactor(radius, 0.1f);
-		this.endAttenuationFactor = PointLight.getAttenuationFactor(radius, 0.8f);
+		this.startAttenuationFactor = LightUtil.getAttenuationFactor(radius, 0.1f);
+		this.endAttenuationFactor = LightUtil.getAttenuationFactor(radius, 0.8f);
 		this.light = new PointLight(position, EXPLOSION_COLOR, startAttenuationFactor, false);
 	}
 	

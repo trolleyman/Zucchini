@@ -4,6 +4,7 @@ import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
+import game.world.entity.LightUtil;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -12,7 +13,7 @@ import java.nio.FloatBuffer;
 
 public class PointLight extends Entity {
 	/** The intensity multiplier below at which the intensity is assumed to be 0. */
-	private static final float CUTOFF_INTENSITY = 0.01f;
+	protected static final float CUTOFF_INTENSITY = 0.01f;
 	
 	public Vector4f color;
 	public float attenuationFactor;
@@ -45,34 +46,10 @@ public class PointLight extends Entity {
 	}
 	
 	/**
-	 * Returns distance above which the light's intensity can be assumed to be 0.
-	 * It is a function of the light's attenuation factor.
-	 * <p>
-	 * <pre>
-	 *     a = 1 / (1 + k * d^2);
-	 * </pre>
-	 * <p>
-	 * Where a = attenuation, k = attenuation factor, and d = distance.
-	 * <p>
-	 * When the we rearrange for dist we get this:
-	 * <p>
-	 * <pre>
-	 *     a * (1 + k * d^2) = 1;
-	 *     a + ak + ad^2 = 1;
-	 *     ad^2 = 1 - a - ak;
-	 *     d^2 = 1/a - 1 - k;
-	 *     d = sqrt(1/a - 1 - k);
-	 * </pre>
-	 */
-	protected float getCutoffDist() {
-		return (float) Math.sqrt(1/CUTOFF_INTENSITY - 1 - attenuationFactor);
-	}
-	
-	/**
 	 * Generate line of sight
 	 */
 	protected void generateLoS(Map map) {
-		losBuf = map.getLineOfSight(position, getCutoffDist(), losBuf);
+		losBuf = map.getLineOfSight(position, LightUtil.getDistance(CUTOFF_INTENSITY, attenuationFactor), losBuf);
 	}
 	
 	@Override
@@ -105,24 +82,5 @@ public class PointLight extends Entity {
 	@Override
 	public PointLight clone() {
 		return new PointLight(this);
-	}
-	
-	/**
-	 * Gets the attenuation factor necessary to have an attenuation of {@code cutoff} at {@code radius} distance
-	 * away from the centre of the point.
-	 * <p>
-	 * <pre>
-	 *     a = 1 / (1 + k * d^2);
-	 *     a * (1 + k * d^2) = 1;
-	 *     a + ak + ad^2 = 1;
-	 *     ak = 1 - a - ad^2;
-	 *     k = (1 - a - ad^2) / a;
-	 *     k = 1/a - 1 - d^2;
-	 * </pre>
-	 * <p>
-	 * Where a = attenuation, k = attenuation factor, and d = distance.
-	 */
-	public static float getAttenuationFactor(float radius, float cutoff) {
-		return 1.0f / cutoff - 1.0f - radius * radius;
 	}
 }

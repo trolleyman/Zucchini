@@ -137,11 +137,15 @@ public class Shader {
 		return loc;
 	}
 	
+	public boolean isCurrentShader() {
+		return getCurrentShader() == this;
+	}
+	
 	/**
 	 * Uses the program of the shader. See {@link org.lwjgl.opengl.GL20#glUseProgram(int) glUseProgram(int)}
 	 */
 	public void use() {
-		if (currentShader == this) // Shader already used
+		if (isCurrentShader())
 			return;
 		
 		glUseProgram(program);

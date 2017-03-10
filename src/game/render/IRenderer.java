@@ -257,6 +257,18 @@ public interface IRenderer {
 	void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, float coneDirectionX, float coneDirectionY);
 	
 	/**
+	 * Draws a tube light at the
+	 * @param x The start x-coordinate of the tube
+	 * @param y The start y-coordinate of the tube
+	 * @param angle The angle of the tube direction
+	 * @param length The length of the tube
+	 * @param width The width of the tube
+	 * @param c The color of the tube light
+	 * @param attenuationFactor The attenuation factor of the light
+	 */
+	void drawTubeLight(float x, float y, float angle, float length, float width, Vector4f c, float attenuationFactor);
+	
+	/**
 	 * Enables stencil drawing
 	 * <p>
 	 * Call {@link #disableStencilDraw()} to disable the stencil buffer drawing.

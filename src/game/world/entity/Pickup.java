@@ -15,8 +15,6 @@ public class Pickup extends Entity {
 	private Item item;
 	private transient double time = 0.0f;
 	
-	private PointLight light;
-	
 	public Pickup(Vector2f position, Item _item) {
 		super(Team.PASSIVE_TEAM, position);
 		this.item = _item;
@@ -34,15 +32,10 @@ public class Pickup extends Entity {
 		return item;
 	}
 	
-	private void generateLight() {
-		this.light = new PointLight(position, new Vector4f(1.0f, 1.0f, 1.0f, 0.4f), 1.1f, false);
-	}
-	
 	private void setParams() {
 		this.item.position
 				.set(this.position)
 				.add(0.0f, (float) Math.sin(time * 4.0f) * 0.1f);
-		this.light.position.set(position);
 	}
 	
 	@Override
@@ -57,22 +50,8 @@ public class Pickup extends Entity {
 	@Override
 	public void render(IRenderer r, Map map) {
 		// Render the contained item
-		if (light == null)
-			generateLight();
 		setParams();
-		this.light.render(r, map);
 		this.item.render(r, map);
-	}
-	
-	@Override
-	public void renderLight(IRenderer r, Map map) {
-		super.renderLight(r, map);
-		
-		if (light == null)
-			generateLight();
-		setParams();
-		this.light.renderLight(r, map);
-		this.item.renderLight(r, map);
 	}
 	
 	@Override

@@ -31,7 +31,7 @@ public class Player extends MovableEntity {
 	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	/** The angle of which the player can see */
-	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(160.0);
+	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(360.0);
 	
 	private static final Vector4f SPOT_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
 	private static final Vector4f TORCH_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
