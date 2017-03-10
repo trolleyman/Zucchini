@@ -84,7 +84,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		);
 		
 		continueBtn = new ButtonComponent(
-				() -> { this.nextUI = new GameUI(audio, bank, world); },
+				() -> { this.nextUI = new GameUI(connection, audio, bank, fontBank, world); },
 				Align.BL, 0, 0,
 				bank.getTexture("continuebtn.png"),
 				bank.getTexture("continueclicked.png"),

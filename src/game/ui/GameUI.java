@@ -14,7 +14,7 @@ import game.world.ClientWorld;
 
 import game.world.World;
 import game.world.entity.Player;
-//import org.joml.Vector4f;
+import org.joml.Vector4f;
 
 import game.world.entity.Item;
 import game.world.entity.Player;
@@ -24,7 +24,7 @@ import game.world.map.Map;
 
 import java.util.ArrayList;
 
-//import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * The GameUI is the UI responsible for rendering, updating the game and handling input
@@ -75,10 +75,10 @@ public class GameUI extends UI implements InputPipeMulti {
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
 		 	System.out.println("escape pressed");
-			this.nextUI = new EscapeUI(audio, bank, world);
+			this.nextUI = new EscapeUI(connection, audio, bank, fontBank, world);
 		} else if (key == GLFW_KEY_UP && action == GLFW_PRESS){ //up arrow for now - may change to "M" later 
 			System.out.println("M pressed");
-			this.nextUI = new MiniMap(audio, bank, world);
+			this.nextUI = new MiniMap(connection, audio, bank, fontBank, world);
 		}
 	}
 	
@@ -122,7 +122,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	public void stencil(IRenderer r){ //CURRENTLY ABSOLUTELY NOT WORKING
 	
-		// Clear Screen, Depth Buffer & Stencil Buffer
+		/*// Clear Screen, Depth Buffer & Stencil Buffer
 	   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	 
 	   // Clip Plane Equations
@@ -153,7 +153,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	   glTranslatef(0.0f, height, 0.0f);               // Position The Object
 	   glRotatef(xrot, 1.0f, 0.0f, 0.0f);              // Rotate Local Coordinate System On X Axis
 	   glRotatef(yrot, 0.0f, 1.0f, 0.0f);              // Rotate Local Coordinate System On Y Axis
-		*/
+		
 		
 	   Vector4f colour = ColorUtil.WHITE;
 		r.drawBox(Align.MM, winWidth/2, winHeight/2, 100, 100, colour);
@@ -168,8 +168,9 @@ public class GameUI extends UI implements InputPipeMulti {
    	glColor4f(1.0f, 1.0f, 1.0f, 0.8f);                  // Set Color To White With 80% Alpha
    	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);          // Blending Based On Source Alpha And 1 Minus Dest Alpha
    	this.world.render(r);                                // Draw The Floor To The Screen
-   	
+   	*/
 	}
+	
 	public void createMiniMap(IRenderer r){ //ALSO ABSOLUTELY NOT WORKING
 		
 		//r.drawBox(Align.BL, (float) 100, (float) 100, (float) 300, (float) 300, ColorUtil.WHITE);	
