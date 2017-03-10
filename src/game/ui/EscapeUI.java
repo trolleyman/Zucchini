@@ -30,6 +30,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	private int buttonHeight;
 	private ClientWorld world;
 	
+	private boolean destroy = false;
 	private UI nextUI;
 	
 	private float winWidth;
@@ -41,10 +42,8 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		start();
 	}
 	
-	
-	public EscapeUI(IClientConnection _conn, AudioManager audio, TextureBank _bank, FontBank _fb, ClientWorld _world) {
-		super(_conn, audio, _bank, _fb);
-	//	this.bank = _bank;
+	public EscapeUI(UI _ui, ClientWorld _world) {
+		super(_ui);
 		nextUI = this;
 		this.world = _world;
 		buttonHeight = 200;
@@ -53,7 +52,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		start(); //java convention to keep constructor under 10 lines
 	}
 	
-	public void start(){
+	public void start() {
 		fileBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
 				bank.getTexture("filebtn.png"),
@@ -76,7 +75,10 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		);
 		
 		quitBtn = new ButtonComponent(
-				() -> { this.nextUI = new StartUI(connection, audio, bank, fontBank); },
+				() -> {
+					this.destroy = true;
+					this.nextUI = new StartUI(this);
+				},
 				Align.BL, 0, 0,
 				bank.getTexture("quitbtn.png"),
 				bank.getTexture("quitclicked.png"),
@@ -84,7 +86,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		);
 		
 		continueBtn = new ButtonComponent(
-				() -> { this.nextUI = new GameUI(connection, audio, bank, fontBank, world); },
+				() -> this.nextUI = new GameUI(this, world),
 				Align.BL, 0, 0,
 				bank.getTexture("continuebtn.png"),
 				bank.getTexture("continueclicked.png"),
@@ -96,8 +98,6 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(audioBtn);
 		this.inputHandlers.add(quitBtn);
 		this.inputHandlers.add(continueBtn);
-	
-		
 	}
 	
 	@Override
@@ -113,6 +113,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		int btnSize = 300;//audioBtn.getHeight();
 		System.out.println(btnSize);
 	}
+	
 	@Override
 	public void update(double dt) {
 		
@@ -122,6 +123,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		quitBtn.update(dt);
 		continueBtn.update(dt);
 	}
+
 	@Override
 	public void render(IRenderer r) {
 		float height = winHeight - 200;
@@ -143,20 +145,20 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		continueBtn.render(r);
 		
 	}
+
 	@Override
 	public UI next() {
-		// TODO Auto-generated method stub
 		return nextUI;
 	}
+
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return "Escape UI";
-	}
-	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-		
+		return "EscapeUI";
 	}
 
+	@Override
+	public void destroy() {
+		if (destroy)
+			this.world.destroy();
+	}
 }

@@ -16,6 +16,10 @@ public class Pickup extends Entity {
 	public Pickup(Vector2f position, Item _item) {
 		super(Team.PASSIVE_TEAM, position);
 		this.item = _item;
+		if (this.item != null) {
+			this.item.setOwner(Entity.INVALID_ID);
+			this.item.setOwnerTeam(Team.INVALID_TEAM);
+		}
 	}
 	
 	public Pickup(Pickup p) {

@@ -1,8 +1,9 @@
 package game.world.entity;
 
+import com.google.gson.annotations.SerializedName;
+import game.world.entity.damage.Damage;
 import org.joml.Vector2f;
 
-import game.audio.AudioManager;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 
@@ -32,6 +33,7 @@ public abstract class Entity implements Cloneable {
 	/**
 	 * Position of the entity
 	 */
+	@SerializedName("pos")
 	public Vector2f position;
 	
 	/**
@@ -134,11 +136,10 @@ public abstract class Entity implements Cloneable {
 	}
 	
 	/**
-	 * @author abby
-	 * @return health, the current health
+	 * Damages the entity.
 	 */
-	public float getCurrentHealth(){
-		return this.health;
+	public void addDamage(Damage damage) {
+		this.addHealth(-damage.amount);
 	}
 	
 	/**

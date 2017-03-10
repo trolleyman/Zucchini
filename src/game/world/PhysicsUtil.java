@@ -2,6 +2,8 @@ package game.world;
 
 import org.joml.Vector2f;
 
+import java.awt.geom.Line2D;
+
 public class PhysicsUtil {
 	
 	/**

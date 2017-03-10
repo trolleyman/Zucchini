@@ -5,7 +5,10 @@ import game.Util;
 import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.UpdateArgs;
-import game.world.update.HealthUpdate;
+import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageType;
+import game.world.entity.update.DamageUpdate;
+import game.world.entity.update.HealthUpdate;
 
 import java.util.Random;
 
@@ -16,13 +19,13 @@ public abstract class Bullet extends Projectile {
 	/** Damage of the bullet */
 	private transient float damage;
 	
-	public Bullet(Vector2f position, int sourceTeamID, float angle, float speed, double ttl, float _damage) {
-		super(position, sourceTeamID, angle, speed, ttl);
+	public Bullet(Vector2f position, int ownerId, int ownerTeam, float angle, float speed, double ttl, float _damage) {
+		super(position, ownerId, ownerTeam, angle, speed, ttl);
 		this.damage = _damage;
 	}
 	
-	public Bullet(Vector2f position, int sourceTeamID, Vector2f velocity, double ttl, float _damage) {
-		super(position, sourceTeamID, velocity, ttl);
+	public Bullet(Vector2f position, int ownerId, int ownerTeam, Vector2f velocity, double ttl, float _damage) {
+		super(position, ownerId, ownerTeam, velocity, ttl);
 		this.damage = _damage;
 	}
 	
@@ -40,7 +43,8 @@ public abstract class Bullet extends Projectile {
 	protected void hitEntity(UpdateArgs ua, EntityIntersection ei) {
 		// Hit an entity, damage
 		System.out.println("Ow! Bullet hit entity id " + ei.id);
-		ua.bank.updateEntityCached(new HealthUpdate(ei.id, -damage));
+		Damage odamage = new Damage(ownerId, ownerTeam, DamageType.BULLET_DAMAGE, damage);
+		ua.bank.updateEntityCached(new DamageUpdate(ei.id, odamage));
 		ua.audio.play("bullet_impact_body.wav", 1.0f, new Vector2f(ei.x,ei.y));
 		Random rng = new Random();
 		ua.audio.play("grunt"+(rng.nextInt(4)+1)+".wav", 0.8f, new Vector2f(ei.x,ei.y));
