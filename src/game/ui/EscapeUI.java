@@ -37,14 +37,11 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	private float winHeight;
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
-	public EscapeUI(UI ui){
-		super(ui);
-		start();
-	}
 	
 	public EscapeUI(UI _ui, ClientWorld _world) {
 		super(_ui);
 		nextUI = this;
+		
 		this.world = _world;
 		buttonHeight = 200;
 		buttonWidth = 200;
@@ -143,7 +140,6 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		audioBtn.render(r);
 		quitBtn.render(r);
 		continueBtn.render(r);
-		
 	}
 
 	@Override
