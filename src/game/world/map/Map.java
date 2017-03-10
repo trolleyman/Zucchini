@@ -15,6 +15,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 /**
  * Represents a specified map.
@@ -82,21 +83,71 @@ public class Map {
 	 * @return null if there was no intersection
 	 */
 	public Vector2f intersectsLine(float x0, float y0, float x1, float y1, Vector2f dest) {
+		return intersectsLine(x0, y0, x1, y1, dest, null, (w) -> true );
+	}
+	
+	/**
+	 * Returns the point at which the line given intersects with the map.
+	 * @param x0 Start x-coordinate of the line
+	 * @param y0 Start y-coordinate of the line
+	 * @param x1 End x-coordinate of the line
+	 * @param y1 End x-coordinate of the line
+	 * @param dest Where to store the result of the operation. If this is null, the function allocates
+	 *             a new Vector2f.
+	 * @param destWall Where to store the wall that intersects with the line. If this is null, this is not used.
+	 * @param pred The predicate to apply to each wall in turn. If false, ignores the wall.
+	 * @return null if there was no intersection
+	 */
+	public Vector2f intersectsLine(float x0, float y0, float x1, float y1, Vector2f dest, Wall destWall, Predicate<Wall> pred) {
 		Vector2f p0 = Util.pushTemporaryVector2f().set(x0, y0);
 		Vector2f temp1 = Util.pushTemporaryVector2f();
 		Vector2f temp2 = Util.pushTemporaryVector2f();
 		Vector2f acc = null;
+		Wall closestWall = null;
 		for (Wall wall : walls) {
+			if (!pred.test(wall))
+				continue;
+			
 			float x2 = wall.p0.x;
 			float y2 = wall.p0.y;
 			float x3 = wall.p1.x;
 			float y3 = wall.p1.y;
 			
+			// Get intersection
 			Vector2f intersection = PhysicsUtil.intersectLineLine(x0, y0, x1, y1, x2, y2, x3, y3, temp1);
-			Vector2f closest = PhysicsUtil.getClosest(p0, acc, intersection);
-			if (closest != null)
+			
+			// Get closest
+			Vector2f closest;
+			if (acc == null) {
+				closest = intersection;
+				closestWall = wall;
+			} else if (intersection == null) {
+				closest = acc;
+			} else {
+				float accDistSq = acc.distanceSquared(p0);
+				float intersectionDistSq = intersection.distanceSquared(p0);
+				
+				if (accDistSq < intersectionDistSq) {
+					closest = acc;
+				} else {
+					closest = intersection;
+					closestWall = wall;
+				}
+			}
+			
+			if (closest != null) {
 				temp2.set(closest);
-			acc = closest == null ? null : temp2;
+				acc = temp2;
+			}
+		}
+		
+		if (closestWall != null && destWall != null) {
+			if (destWall.p0 == null)
+				destWall.p0 = new Vector2f();
+			destWall.p0.set(closestWall.p0);
+			if (destWall.p1 == null)
+				destWall.p1 = new Vector2f();
+			destWall.p1.set(closestWall.p1);
 		}
 		
 		Vector2f ret;
@@ -186,10 +237,7 @@ public class Map {
 	}
 	
 	private boolean inFov(float angle, float aimAngle, float fov) {
-		float diff = Math.abs(angle - aimAngle);
-		if (diff > Math.PI)
-			diff = (float)(2*Math.PI) - diff;
-		return diff < fov;
+		return Util.getAngleDiff(angle, aimAngle) < (fov / 2);
 	}
 	
 	/**
@@ -226,8 +274,8 @@ public class Map {
 		}
 		
 		// And also project lines on the edge of the fov.
-		float langle = Util.normalizeAngle(aimAngle - fov);
-		float rangle = Util.normalizeAngle(aimAngle + fov);
+		float langle = Util.normalizeAngle(aimAngle - fov/2);
+		float rangle = Util.normalizeAngle(aimAngle + fov/2);
 		Vector3f ltemp = Util.pushTemporaryVector3f();
 		Vector3f rtemp = Util.pushTemporaryVector3f();
 		projectLine(points, pos, max, langle, ltemp);

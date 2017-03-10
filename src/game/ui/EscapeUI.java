@@ -25,6 +25,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	private int buttonHeight;
 	private ClientWorld world;
 	
+	private boolean destroy = false;
 	private UI nextUI;
 	
 	private float winWidth;
@@ -43,7 +44,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		start(); //java convention to keep constructor under 10 lines
 	}
 	
-	public void start(){
+	public void start() {
 		fileBtn = new ButtonComponent(null,
 				Align.BL, 0, 0,
 				textureBank.getTexture("file.png"),
@@ -66,7 +67,10 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		);
 		
 		quitBtn = new ButtonComponent(
-				() -> this.nextUI = new StartUI(this),
+				() -> {
+					this.destroy = true;
+					this.nextUI = new StartUI(this);
+				},
 				Align.BL, 0, 0,
 				textureBank.getTexture("quit.png"),
 				textureBank.getTexture("quit2.png"),
@@ -86,8 +90,6 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(audioBtn);
 		this.inputHandlers.add(quitBtn);
 		this.inputHandlers.add(continueBtn);
-	
-		
 	}
 	
 	@Override
@@ -139,20 +141,17 @@ public class EscapeUI extends UI implements InputPipeMulti {
 
 	@Override
 	public UI next() {
-		// TODO Auto-generated method stub
 		return nextUI;
 	}
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "Escape UI";
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
+		if (destroy)
+			this.world.destroy();
 	}
-
 }

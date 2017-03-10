@@ -164,15 +164,12 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		return old > thresh && nw < thresh;
 	}
 	
-	private boolean p5 = false;
-	private boolean p4 = false;
-	private boolean p3 = false;
-	private boolean p2 = false;
-	private boolean p1 = false;
-	
 	@Override
 	public void update(double dt) {
 		this.time += dt;
+		int prevSecs = -1;
+		if (lobbyInfo != null)
+			prevSecs = (int) Math.floor(lobbyInfo.countdownTime);
 		synchronized (lobbyInfoLock) {
 			if (newLobbyInfo != null) {
 				// Replace lobbyInfo with the new lobbyInfo
@@ -186,39 +183,21 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 						lobbyInfo.countdownTime = 0.0;
 				}
 			}
-			
-			if (lobbyInfo != null) {
-				if (lobbyInfo.countdownTime == -1) {
-					p5 = false;
-					p4 = false;
-					p3 = false;
-					p2 = false;
-					p1 = false;
-				} else {
-					// TODO: Audio for each second
-					if (!p5 && lobbyInfo.countdownTime <= 5.0) {
-						System.out.println("Lobby: Game starts in 5...");
-						p5 = true;
-					}
-					if (!p4 && lobbyInfo.countdownTime <= 4.0) {
-						System.out.println("Lobby: Game starts in 4...");
-						p4 = true;
-					}
-					if (!p3 && lobbyInfo.countdownTime <= 3.0) {
-						System.out.println("Lobby: Game starts in 3...");
-						p3 = true;
-					}
-					if (!p2 && lobbyInfo.countdownTime <= 2.0) {
-						System.out.println("Lobby: Game starts in 2...");
-						p2 = true;
-					}
-					if (!p1 && lobbyInfo.countdownTime <= 1.0) {
-						System.out.println("Lobby: Game starts in 1...");
-						p1 = true;
-					}
-				}
+		}
+		int newSecs = -1;
+		if (lobbyInfo != null)
+			newSecs = (int) Math.floor(lobbyInfo.countdownTime);
+		
+		// If passed an integer amount of seconds
+		if (newSecs < prevSecs) {
+			if (prevSecs == 0) {
+				// Maybe eventually sound a beep for every second
+				System.out.println("[Lobby]: Game starting in " + prevSecs + "...");
+			} else {
+				System.out.println("[Lobby]: Game starting...");
 			}
 		}
+		
 		this.toggleReadyButton.update(dt);
 		this.leaveButton.update(dt);
 	}
@@ -299,7 +278,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void destroy() {
-		
+		// Nothing to destroy
 	}
 	
 	@Override

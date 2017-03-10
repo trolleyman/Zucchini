@@ -10,7 +10,6 @@ import game.world.EntityBank;
 import game.world.ServerWorld;
 import game.world.Team;
 import game.world.map.Map;
-import game.world.update.EntityUpdate;
 
 import java.util.ArrayList;
 
@@ -81,7 +80,7 @@ public class Lobby {
 						// Start countdown
 						prevTime = System.nanoTime();
 						this.countingDown = true;
-						countdownTime = 5.0;
+						countdownTime = Util.LOBBY_WAIT_SECS;
 					}
 				}
 				

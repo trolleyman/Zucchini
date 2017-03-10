@@ -16,7 +16,8 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.map.Map;
-import game.world.update.EntityUpdate;
+import game.world.entity.update.EntityUpdate;
+import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
@@ -111,7 +112,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			this.cameraPos.lerp(p.position, (float)dt * 20.0f);
 			audio.updateListenerPosition(p.position);
 		}
-		else           System.err.println("Warning: Player does not exist");
 		
 		// Send server data
 		dtPool += dt;
@@ -222,7 +222,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			Vector2f pos = p.position;
 			losMinBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MIN, losMinBuf);
 			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-			losMaxBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, (float)Math.toRadians(70.0), losMaxBuf);
+			losMaxBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losMaxBuf);
 			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 		}
 		
@@ -253,6 +253,26 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.disableStencil();
 		
 		r.getModelViewMatrix().popMatrix();
+		
+		// Render start time
+		if (this.startTime != 0.0f) {
+			int i = (int)Math.floor(this.startTime + 1);
+			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
+			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
+					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
+		}
+		
+		// Render UI
+		// Draw mini-map
+		this.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 30.0f);
+		
+		// Draw current ammo
+		if (p != null) {
+			Item i = p.getHeldItem();
+			if (i != null) {
+				i.renderUI(r);
+			}
+		}
 	}
 	
 	/**
@@ -335,14 +355,23 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	public void removeEntity(int id) {
 		this.bank.removeEntityCached(id);
 	}
-
-	public void destroy() {
-		this.connection.close();
-	}
-
+	
 	@Override
 	public void processAudioEvent(AudioEvent ae) {
 		this.clientAudio.processAudioEvent(ae);
+	}
+	
+	@Override
+	public void handleWorldUpdate(WorldUpdate update) {
+		update.updateWorld(this);
+	}
+	
+	public void destroy() {
+		try {
+			this.connection.sendLobbyLeaveRequest();
+		} catch (ProtocolException e) {
+			// The connection handler takes care of this
+		}
 	}
 	
 	/** 

@@ -81,18 +81,6 @@ public class GameUI extends UI implements InputPipeMulti {
 	@Override
 	public void render(IRenderer r) {
 		this.world.render(r);
-		
-		// Draw mini-map
-		this.world.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 30.0f);
-		
-		// Draw current ammo
-		Player p = this.world.getPlayer();
-		if (p != null) {
-			Item i = p.getHeldItem();
-			if (i != null) {
-				i.renderUI(r);
-			}
-		}
 	}
 	
 	@Override
@@ -107,8 +95,6 @@ public class GameUI extends UI implements InputPipeMulti {
 
 	@Override
 	public void destroy() {
-		this.world.destroy();
+		// Do nothing
 	}
-
-
 }
