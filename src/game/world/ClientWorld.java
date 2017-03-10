@@ -261,6 +261,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
 					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
 		}
+		
+		// Render UI
+		// Draw mini-map
+		this.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 30.0f);
+		
+		// Draw current ammo
+		if (p != null) {
+			Item i = p.getHeldItem();
+			if (i != null) {
+				i.renderUI(r);
+			}
+		}
 	}
 	
 	/**
@@ -355,7 +367,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	public void destroy() {
-		this.connection.close();
+		try {
+			this.connection.sendLobbyLeaveRequest();
+		} catch (ProtocolException e) {
+			// The connection handler takes care of this
+		}
 	}
 	
 	/** 
