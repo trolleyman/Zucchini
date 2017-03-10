@@ -212,14 +212,16 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 				.scale(cameraZoom)
 				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
+		Player p = getPlayer();
 		calculateLineOfSight();
 		
 		r.beginDrawWorld();
 		drawWorld(r);
 		r.endDrawWorld();
 		r.beginDrawLighting();
-		if (getPlayer() != null)
+		if (p != null) {
 			drawLineOfSightStencil(r);
+		}
 		drawLighting(r);
 		r.disableStencil();
 		r.endDrawLighting();
@@ -234,6 +236,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
 			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
 					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
+		}
+		
+		// Render UI
+		// Draw mini-map
+		this.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
+		
+		// Draw current ammo
+		if (p != null) {
+			Item i = p.getHeldItem();
+			if (i != null) {
+				i.renderUI(r);
+			}
 		}
 	}
 	
@@ -288,18 +302,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		for (Entity e : this.bank.entities.values()) {
 			e.renderLight(r, map);
-		}
-		
-		// Render UI
-		// Draw mini-map
-		this.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 30.0f);
-		
-		// Draw current ammo
-		if (p != null) {
-			Item i = p.getHeldItem();
-			if (i != null) {
-				i.renderUI(r);
-			}
 		}
 	}
 	
