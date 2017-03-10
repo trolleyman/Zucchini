@@ -367,7 +367,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	public void destroy() {
-		this.connection.close();
+		try {
+			this.connection.sendLobbyLeaveRequest();
+		} catch (ProtocolException e) {
+			// The connection handler takes care of this
+		}
 	}
 	
 	/** 
