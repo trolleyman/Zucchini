@@ -220,7 +220,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		if (p != null) {
 			// Render line of sight
 			Vector2f pos = p.position;
-			losMinBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MIN, losMinBuf);
+			//losMinBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MIN, losMinBuf);
 			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 			losMaxBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losMaxBuf);
 			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
