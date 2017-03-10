@@ -46,6 +46,10 @@ public class Util {
 	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SNAPSHOT_UPDATE} */
 	public static final double DT_PER_SNAPSHOT_UPDATE = NANOS_PER_SNAPSHOT_UPDATE / (double) NANOS_PER_SECOND;
 	
+	// These values will be different for release
+	public static final int LOBBY_WAIT_SECS = 3;
+	public static final int GAME_START_WAIT_SECS = 3;
+	
 	/**
 	 * Debug prints a key to stdout
 	 */
@@ -218,6 +222,16 @@ public class Util {
 			angle = Math.PI + angle;
 		}
 		return normalizeAngle(angle);
+	}
+	
+	/**
+	 * Gets the acute/obtuse angle between two angles
+	 */
+	public static float getAngleDiff(float x, float y) {
+		float diff = Math.abs(x - y);
+		if (diff > Math.PI)
+			diff = (float)(2*Math.PI) - diff;
+		return diff;
 	}
 	
 	public static float getDirX(float angle) {

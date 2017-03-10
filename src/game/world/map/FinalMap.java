@@ -134,16 +134,16 @@ public class FinalMap extends Map {
         wall2D(28.05f, 24, 27.95f, 28);
 
 
-        initialEntities.add(new Pickup(new Vector2f(1, 1), new MachineGun(new Vector2f(0.0f, 0.0f))));
-        initialEntities.add(new Pickup(new Vector2f(2, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f))));
-        initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f))));
-        initialEntities.add(new Pickup(new Vector2f(1.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f))));
+        initialEntities.add(new Pickup(new Vector2f(1, 1), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
+        initialEntities.add(new Pickup(new Vector2f(2, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f), 16)));
+        initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
+        initialEntities.add(new Pickup(new Vector2f(2.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f),14)));
 
         //initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
         //initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
         //initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
     }
-
+    
     public void wall2D(float x0, float y0, float x1, float y1) {
         walls.add(new Wall(x0, y0, x1, y0));
         walls.add(new Wall(x0, y0, x0, y1));
@@ -151,4 +151,3 @@ public class FinalMap extends Map {
         walls.add(new Wall(x0, y1, x1, y1));
     }
 }
-

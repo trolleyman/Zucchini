@@ -54,7 +54,7 @@ public abstract class UI implements InputHandler {
 	public abstract UI next();
 	
 	/**
-	 * Called when the UI is destroyed
+	 * Called when the UI is destroyed so that it will not be used again.
 	 */
 	public abstract void destroy();
 	

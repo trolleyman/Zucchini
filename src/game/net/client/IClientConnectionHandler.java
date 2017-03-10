@@ -4,7 +4,8 @@ import game.LobbyInfo;
 import game.audio.event.AudioEvent;
 import game.net.WorldStart;
 import game.world.entity.Entity;
-import game.world.update.EntityUpdate;
+import game.world.entity.update.EntityUpdate;
+import game.world.update.WorldUpdate;
 
 public interface IClientConnectionHandler {
 	/**
@@ -87,5 +88,12 @@ public interface IClientConnectionHandler {
 	 */
 	default void handleLobbyLeaveNotify() {
 		System.err.println("Warning: CCH Unhandled Event: handleLobbyLeaveNotify");
+	}
+	
+	/**
+	 * Called when a world update is received
+	 */
+	default void handleWorldUpdate(WorldUpdate update) {
+		System.err.println("Warning: CCH Unhandled Event: handleWorldUpdate");
 	}
 }

@@ -22,7 +22,8 @@ public class TextButtonComponent extends AbstractButtonComponent {
 	private final float BOX_W;
 	private final float BOX_H;
 	private final float BORDER_WIDTH;
-
+	private final float INTERNAL_PADDING;
+	
 	/** The font used for the text of the button */
 	private Font f;
 	/** The scale of the text */
@@ -34,8 +35,8 @@ public class TextButtonComponent extends AbstractButtonComponent {
 	/** the status of the button - Selected or not */
 	private boolean selected = false;
 
-	public TextButtonComponent(Runnable _callback, Align _a, float _x, float _y, Font _f, float scale, LobbyInfo lobbyInfo) {
-		super(_a, _x, _y);
+	public TextButtonComponent(Runnable _callback, float _x, float _y, Font _f, float scale, LobbyInfo lobbyInfo) {
+		super(Align.BL, _x, _y);
 		this.callback = _callback;
 		this.f = _f;
 		this.scale = scale;
@@ -43,9 +44,9 @@ public class TextButtonComponent extends AbstractButtonComponent {
 
 
 		BORDER_WIDTH = 5;
+		INTERNAL_PADDING = 12;
 		BOX_W = 800;
 		BOX_H = 64*scale*2;
-
 	}
 	
 	@Override
@@ -76,15 +77,17 @@ public class TextButtonComponent extends AbstractButtonComponent {
 			bcol = ColorUtil.WHITE;
 		}
 		// Draw the outer box (also acts as the border)
-		r.drawBox(a, x, y, BOX_W, BOX_H, bcol);
+		r.drawBox(Align.BL, x, y, BOX_W, BOX_H, bcol);
 		// Draw the inner box
-		r.drawBox(a, x+ BORDER_WIDTH, y+ BORDER_WIDTH, BOX_W-2* BORDER_WIDTH, BOX_H-2* BORDER_WIDTH, box_colour);
+		r.drawBox(Align.BL, x+ BORDER_WIDTH, y+ BORDER_WIDTH, BOX_W-2* BORDER_WIDTH, BOX_H-2* BORDER_WIDTH, box_colour);
 		// Draw the name of the lobby
-		r.drawText(f, lobbyInfo.getLobbyName(), a, false, x+15, y-2, scale);
+		r.drawText(f, lobbyInfo.getLobbyName(),
+				Align.BL, false, x+BORDER_WIDTH+INTERNAL_PADDING, y+BORDER_WIDTH+INTERNAL_PADDING, scale);
 		// Draw the current and max number of players
-		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players", a, false, x+460, y-2, scale);
+		r.drawText(f, lobbyInfo.getPlayerInfo().length+"/"+lobbyInfo.getMaxPlayers()+" Players",
+				Align.BR, false, x+BOX_W-BORDER_WIDTH-INTERNAL_PADDING, y+BORDER_WIDTH+INTERNAL_PADDING, scale);
 	}
-
+	
 	/**
 	 * Returns whether the button is selected or not
 	 * @return boolean Is the button currently selected?

@@ -1,4 +1,4 @@
-package game.world.update;
+package game.world.entity.update;
 
 import game.world.Team;
 import game.world.entity.*;
@@ -158,8 +158,8 @@ public class EntityUpdateReflect<E extends Entity> {
 	}
 	
 	public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
-		Entity mgun = new MachineGun(new Vector2f());
-		Entity hgun = new Handgun(new Vector2f());
+		Entity mgun = new MachineGun(new Vector2f(), 100);
+		Entity hgun = new Handgun(new Vector2f(), 100);
 		Entity player = new Player(Team.START_FREE_TEAM, new Vector2f(), null);
 		
 		EntityUpdateReflect positionUpdate = new EntityUpdateReflect<>(Entity.class, Entity.INVALID_ID);

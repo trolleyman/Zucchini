@@ -5,13 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import game.Util;
 import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.world.entity.Entity;
-import game.world.update.EntityUpdate;
+import game.world.entity.update.EntityUpdate;
 import org.joml.Vector2f;
 
 public class EntityBank {
@@ -304,6 +303,22 @@ public class EntityBank {
 		}
 		Util.popTemporaryVector2f();
 		return l;
+	}
+	
+	/**
+	 * Get all entities that satisfy a predicate
+	 * @return The entities. Can be null if there were no entities.
+	 */
+	public ArrayList<Entity> getEntities(Predicate<Entity> pred) {
+		ArrayList<Entity> ret = null;
+		for (Entity e : entities.values()) {
+			if (pred.test(e)) {
+				if (ret == null)
+					ret = new ArrayList<>();
+				ret.add(e);
+			}
+		}
+		return ret;
 	}
 	
 	public int getNextFreeTeam() {
