@@ -3,14 +3,13 @@ package game.ui;
 import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
-import game.audio.AudioManager;
-import game.net.client.IClientConnection;
 import game.render.Align;
-import game.render.FontBank;
 import game.render.IRenderer;
-import game.render.TextureBank;
 import game.ui.component.ButtonComponent;
 import game.world.ClientWorld;
+import org.joml.Vector4f;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * 
@@ -19,6 +18,8 @@ import game.world.ClientWorld;
  */
 
 public class EscapeUI extends UI implements InputPipeMulti {
+	private static final Vector4f ESCAPE_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.7f);
+	
 	private ButtonComponent fileBtn;
 	private ButtonComponent helpBtn;
 	private ButtonComponent audioBtn;
@@ -101,6 +102,14 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	}
 	
 	@Override
+	public void handleKey(int key, int scancode, int action, int mods) {
+		InputPipeMulti.super.handleKey(key, scancode, action, mods);
+		if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+			this.nextUI = new GameUI(this, world);
+		}
+	}
+	
+	@Override
 	public void handleResize(int w, int h) {
 		this.winWidth = w;
 		this.winHeight = h;
@@ -111,7 +120,6 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void update(double dt) {
-		
 		fileBtn.update(dt);
 		helpBtn.update(dt);
 		audioBtn.update(dt);
@@ -121,6 +129,10 @@ public class EscapeUI extends UI implements InputPipeMulti {
 
 	@Override
 	public void render(IRenderer r) {
+		world.render(r);
+		
+		r.drawBox(Align.BL, 0.0f, 0.0f, winWidth, winHeight, ESCAPE_COLOR);
+		
 		float height = winHeight - 200;
 		fileBtn.setX(0);
 		fileBtn.setY((int) height);
@@ -139,17 +151,17 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		quitBtn.render(r);
 		continueBtn.render(r);
 	}
-
+	
 	@Override
 	public UI next() {
 		return nextUI;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "EscapeUI";
 	}
-
+	
 	@Override
 	public void destroy() {
 		if (destroy)
