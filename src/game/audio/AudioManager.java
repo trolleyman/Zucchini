@@ -79,6 +79,10 @@ public class AudioManager implements IAudioManager{
 					source.setRolloffFactor(2f);
 					source.setReferenceDistance(1.5f);
 				}
+				if( filename.equals("pump-shotgun-shot.wav")){
+					source.setRolloffFactor(2f);
+					source.setReferenceDistance(1.5f);
+				}
 			}
 			soundSourcesMap.put(soundBufferMap.get(soundBuffer.getBufferId()), soundSourcesList);
 			System.out.println("Loaded audio: " + listOfFiles[j].getName());
@@ -379,8 +383,13 @@ public class AudioManager implements IAudioManager{
 		System.out.println("idw7: "+idw7);
 		soundMgr.pauseLoop(idw7);
 		
+		soundMgr.findAvailableSoundSource("pump-shotgun-shot.wav");
+		
         while (c != 'q'){
         	c = (char) System.in.read();
+        	if(c=='.'){
+        		soundMgr.play("pump-shotgun-shot.wav",1.0f, listenerPos);
+        	}
         	if (c=='1'){
         		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw3).isPlaying());
         		if((soundMgr.getSoundSource(idw3).isPlaying())){
