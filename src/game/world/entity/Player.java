@@ -9,6 +9,7 @@ import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.entity.damage.Damage;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.HeldItemUpdate;
@@ -49,7 +50,10 @@ public class Player extends MovableEntity {
 	/** If the player is moving west */
 	private transient boolean moveWest  = false;
 	
-	/**The currently held item. Not necessarily a weapon */
+	/** The name of the player */
+	private String name;
+	
+	/** The currently held item. Not necessarily a weapon */
 	private Item heldItem;
 	
 	/** Has the player been assigned a footstep sound source? */
@@ -60,10 +64,12 @@ public class Player extends MovableEntity {
 	/**
 	 * Constructs a new player at the specified position holding a weapon
 	 * @param position The position
+	 * @param _name The name of the player
 	 * @param _heldItem The currently held item
 	 */
-	public Player(int team, Vector2f position, Item _heldItem) {
+	public Player(int team, Vector2f position, String _name, Item _heldItem) {
 		super(team, position, 1.0f);
+		this.name = _name;
 		this.heldItem = _heldItem;
 		updateHeldItemInfo();
 	}
@@ -80,6 +86,7 @@ public class Player extends MovableEntity {
 		this.moveEast = p.moveEast;
 		this.moveWest = p.moveWest;
 		
+		this.name = p.name;
 		this.heldItem = p.heldItem.clone();
 		
 		this.beganUse = p.beganUse;
@@ -110,6 +117,18 @@ public class Player extends MovableEntity {
 	
 	public Item getHeldItem() {
 		return heldItem;
+	}
+	
+	/**
+	 * Gets the name of the player
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public String getReadableName() {
+		return getName();
 	}
 	
 	@Override

@@ -74,7 +74,7 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param c The client
 	 */
 	public synchronized void addClient(LobbyClient c) {
-		Player player = new Player(c.team, map.getSpawnLocation(c.team), Player.getDefaultHeldItem());
+		Player player = new Player(c.team, map.getSpawnLocation(c.team), c.handler.getClientInfo().name, Player.getDefaultHeldItem());
 		this.bank.addEntity(player);
 		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
 		try {
