@@ -1,9 +1,11 @@
 package game.world.map;
 
+import game.world.entity.weapon.Handgun;
 import game.world.entity.weapon.LaserGun;
 import game.world.entity.weapon.MachineGun;
 import game.world.entity.Pickup;
 import game.world.entity.monster.Zombie;
+import game.world.entity.weapon.PumpActionShotgun;
 import game.world.entity.weapon.RocketLauncher;
 import org.joml.Vector2f;
 
@@ -106,9 +108,11 @@ public class TestMap extends Map {
 			prevY = y;
 		}
 		
-		initialEntities.add(new Pickup(new Vector2f(CT, RS), new MachineGun(new Vector2f(0.0f, 0.0f))));
-		initialEntities.add(new Pickup(new Vector2f(CP, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f))));
-		initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f))));
+		initialEntities.add(new Pickup(new Vector2f(CT, RS), new MachineGun(new Vector2f(0.0f, 0.0f), 128)));
+		initialEntities.add(new Pickup(new Vector2f(CP, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f), 10)));
+		initialEntities.add(new Pickup(new Vector2f(CP - 2.0f, 1.0f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f), 48)));
+		initialEntities.add(new Pickup(new Vector2f(CP + 2.0f, 1.0f), new Handgun(new Vector2f(0.0f, 0.0f), -1)));
+		initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 128)));
 		
 		//initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
 		//initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));

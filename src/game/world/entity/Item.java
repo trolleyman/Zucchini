@@ -1,12 +1,14 @@
 package game.world.entity;
 
+import com.google.gson.annotations.SerializedName;
 import game.render.IRenderer;
 import game.world.Team;
 import org.joml.Vector2f;
 
 public abstract class Item extends Entity {
-	
+	@SerializedName("oTeam")
 	protected int ownerTeam;
+	@SerializedName("oid")
 	protected int ownerId;
 	
 	public Item(Vector2f position) {
@@ -19,6 +21,10 @@ public abstract class Item extends Entity {
 		super(i);
 		this.ownerTeam = i.ownerTeam;
 		this.ownerId = i.ownerId;
+	}
+	
+	public boolean isHeld() {
+		return this.ownerId != Entity.INVALID_ID;
 	}
 	
 	/**

@@ -1,9 +1,10 @@
 package game.world.entity;
 
+import com.google.gson.annotations.SerializedName;
 import game.Util;
 import game.world.UpdateArgs;
-import game.world.update.PositionUpdate;
-import game.world.update.VelocityUpdate;
+import game.world.entity.update.PositionUpdate;
+import game.world.entity.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 public abstract class MovableEntity extends Entity {
@@ -12,9 +13,11 @@ public abstract class MovableEntity extends Entity {
 	 * <p>
 	 * The higher this is, the "heavier" the entity will feel
 	 **/
+	@SerializedName("mscale")
 	protected float momentumScale;
 	
 	/** The current velocity of the entity. */
+	@SerializedName("vel")
 	public Vector2f velocity;
 	
 	public MovableEntity(int team, Vector2f position, float _momentumScale) {
@@ -54,7 +57,7 @@ public abstract class MovableEntity extends Entity {
 		if (Math.abs(target.distanceSquared(this.velocity)) > Util.EPSILON) {
 			Vector2f newVelocity = new Vector2f();
 			newVelocity.set(this.velocity);
-			newVelocity.lerp(target, (float) ua.dt * 8.0f / momentumScale);
+			newVelocity.lerp(target, Math.min(1.0f, (float) ua.dt * 8.0f / momentumScale));
 			
 			ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), newVelocity));
 		}

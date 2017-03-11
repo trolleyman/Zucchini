@@ -1,6 +1,7 @@
 package game.world.entity.weapon;
 
 import game.ColorUtil;
+import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
@@ -11,26 +12,29 @@ import org.joml.Vector4f;
 public class RocketLauncher extends Weapon {
 	private static final Vector4f COLOR = new Vector4f(0.0f, 0.4f, 0.0f, 1.0f);
 	
-	private int reloadSoundID = -1;
+	private transient int reloadSoundID = -1;
 	
 	public RocketLauncher(RocketLauncher rl) {
 		super(rl);
 	}
 	
-	public RocketLauncher(Vector2f position) {
-		super(position, true, 0.0f, 1, 5.0f);
+	public RocketLauncher(Vector2f position, int ammo) {
+		super(position, ammo, true, 0.0f, 1, 5.0f, (float)Math.toRadians(4.0f));
 	}
 	
 	@Override
 	public void render(IRenderer r) {
-		r.drawBox(Align.MM, position.x, position.y, 0.1f, 0.5f, COLOR, this.angle);
+		Align a = isHeld() ? Align.BM : Align.MM;
+		r.drawBox(a, position.x, position.y, 0.1f, getHeight(), COLOR, this.angle);
 	}
 	
 	@Override
-	protected void fire(UpdateArgs ua) {
+	protected void fire(UpdateArgs ua, float angle) {
+		Vector2f muzzlePos = new Vector2f().set(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);;
+		
 		System.out.println("Whoosh! Rocket fired!");
 		ua.audio.play("rocket-launcher.wav", 0.5f, this.position);
-		ua.bank.addEntityCached(new Rocket(position, this.ownerTeam, this.angle));
+		ua.bank.addEntityCached(new Rocket(muzzlePos, this.ownerId, this.ownerTeam, angle));
 	}
 	
 	@Override
@@ -60,6 +64,10 @@ public class RocketLauncher extends Weapon {
 		x -= 25.0f;
 		x -= 10.0f;
 		return x;
+	}
+	
+	private float getHeight() {
+		return 0.5f;
 	}
 	
 	@Override

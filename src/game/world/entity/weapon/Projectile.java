@@ -5,33 +5,33 @@ import game.world.EntityIntersection;
 import game.world.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
-import game.world.entity.Entity;
-import game.world.update.PositionUpdate;
+import game.world.entity.MovableEntity;
 import org.joml.Vector2f;
 
-public abstract class Projectile extends Entity {
+public abstract class Projectile extends MovableEntity {
 	private transient Vector2f prevPosition = new Vector2f();
 	
 	/** for sound */
 	private transient int whizzSoundID = -1;
 	
 	/** Identifies the source team of the bullet */
-	private transient int sourceTeamID;
+	protected transient int ownerId;
 	
-	/** The current velocity of the projectile */
-	protected Vector2f velocity;
+	/** Identifies the source team of the bullet */
+	protected transient int ownerTeam;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
 	
-	public Projectile(Vector2f position, int sourceTeamID, float angle, float speed, double ttl) {
-		this(position, sourceTeamID, new Vector2f(speed * Util.getDirX(angle), speed * Util.getDirY(angle)), ttl);
+	public Projectile(Vector2f position, int ownerId, int ownerTeam, float angle, float speed, double ttl) {
+		this(position, ownerId, ownerTeam, new Vector2f(speed * Util.getDirX(angle), speed * Util.getDirY(angle)), ttl);
 	}
 	
-	public Projectile(Vector2f position, int _sourceTeamID, Vector2f _velocity, double _ttl) {
-		super(Team.PASSIVE_TEAM, position);
+	public Projectile(Vector2f position, int _ownerId, int _sourceTeamID, Vector2f _velocity, double _ttl) {
+		super(Team.PASSIVE_TEAM, position, 0.0f);
 		this.prevPosition.set(position);
-		this.sourceTeamID = _sourceTeamID;
+		this.ownerId = _ownerId;
+		this.ownerTeam = _sourceTeamID;
 		this.velocity = _velocity;
 		this.ttl = _ttl;
 	}
@@ -39,13 +39,14 @@ public abstract class Projectile extends Entity {
 	public Projectile(Projectile b) {
 		super(b);
 		this.prevPosition = new Vector2f(b.prevPosition);
-		this.sourceTeamID = b.sourceTeamID;
-		this.velocity = b.velocity;
+		this.ownerTeam = b.ownerTeam;
 		this.ttl = b.ttl;
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		super.update(ua);
+		
 		Vector2f temp1 = Util.pushTemporaryVector2f();
 		Vector2f temp2 = Util.pushTemporaryVector2f();
 		
@@ -60,12 +61,9 @@ public abstract class Projectile extends Entity {
 		float x = getLength() * Util.getDirX(ang);
 		float y = getLength() * Util.getDirY(ang);
 		
-		temp1.set(velocity).mul((float)ua.dt);
-		Vector2f newPos = new Vector2f(position).add(temp1);
-		ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPos));
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y,
-				(e) -> Team.isHostileTeam(this.sourceTeamID, e.getTeam()));
-		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, newPos.x+x, newPos.y+y, temp1);
+		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y,
+				(e) -> Team.isHostileTeam(this.ownerTeam, e.getTeam()));
+		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
 		
 		// Choose closest point
 		Vector2f closest;
@@ -94,9 +92,9 @@ public abstract class Projectile extends Entity {
 		
 		
 		// Play sounds
-		if (whizzSoundID == -1){
+		if (whizzSoundID == -1) {
 			this.whizzSoundID = ua.audio.play("bullet_whizz_silent.wav", 0.6f,this.position);
-		}else{
+		} else {
 			ua.audio.continueLoop(whizzSoundID, this.position);
 		}
 				

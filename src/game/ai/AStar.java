@@ -141,7 +141,7 @@ public class AStar {
 
 		}
 		// no path found
-		System.out.println("AStar: no path found from " + start + " to " + goal);
+		System.out.println("[Game]: [AStar]: no path found from " + start + " to " + goal);
 		return new ArrayList<>();
 	}
 	/*

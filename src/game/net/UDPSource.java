@@ -43,7 +43,10 @@ public class UDPSource {
 				
 				synchronized (cbLock) {
 					Consumer<String> cb = this.msgCallbacks.get(address);
-					cb.accept(msg);
+					if (cb == null)
+						System.err.println("Warning: No handler for " + address);
+					else
+						cb.accept(msg);
 				}
 			} catch (ProtocolException e) {
 				// Non-fatal error - report to callback and proceed

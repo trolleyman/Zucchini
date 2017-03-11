@@ -1,5 +1,3 @@
-package game.world.entity.monster;
-
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
@@ -9,19 +7,15 @@ import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
 import game.world.map.PathFindingMap;
-import game.world.update.PositionUpdate;
-
+import game.world.entity.update.PositionUpdate;
 import java.util.Random;
-
 import org.joml.Vector2f;
-
 public class Zombie extends AutonomousEntity {
 	private static final float MAX_SPEED = 1.0f;
 	private static final float RADIUS = 0.15f;
-	private boolean soundSourceInit = false;
-	private int zombieSoundID;
-	private int walkingSoundID;
-	private int tickCounter = 0;
+	private transient boolean soundSourceInit = false;
+	private transient int zombieSoundID;
+	
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED);
 	}
@@ -33,17 +27,15 @@ public class Zombie extends AutonomousEntity {
 	@Override
 	public void update(UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
-		tickCounter ++;
-		if (tickCounter > 100){
-			// Set node
-			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-			if (kill == null) {
-				this.setDestination(pfmap, null);
-			} else {
-				this.setDestination(pfmap, kill.position);
-			}
-			tickCounter = 0;
+		
+		// Set node
+		Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
+		if (kill == null) {
+			this.setDestination(pfmap, null);
+		} else {
+			this.setDestination(pfmap, kill.position);
 		}
+		
 		// Update AI
 		super.update(ua);
 		
@@ -64,7 +56,7 @@ public class Zombie extends AutonomousEntity {
 		
 		if (!soundSourceInit) {
 			Random rng = new Random();
-			this.zombieSoundID = ua.audio.play("zombie"+(rng.nextInt(3)+1)+".wav", 1f,this.position);
+			this.zombieSoundID = ua.audio.play("zombie"+(rng.nextInt(3)+1)+".wav", 1f, this.position);
 			//this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.1f,this.position);
 			//System.out.println("found zombie footstep sound "+walkingSoundID+" for zombie "+this.getId());
 			ua.audio.pauseLoop(zombieSoundID);
@@ -75,7 +67,6 @@ public class Zombie extends AutonomousEntity {
 		// Play zombie sounds
 		ua.audio.continueLoop(this.zombieSoundID,this.position);
 		//ua.audio.continueLoop(this.walkingSoundID,this.position);
-
 		Util.popTemporaryVector2f();
 	}
 	

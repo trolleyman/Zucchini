@@ -9,8 +9,8 @@ public class HandgunBullet extends Bullet {
 		super(b);
 	}
 	
-	public HandgunBullet(Vector2f position, int teamID, float angle) {
-		super(position, teamID, angle, SPEED, 10.0, 1.5f);
+	public HandgunBullet(Vector2f position, int ownerId, int teamId, float angle) {
+		super(position, ownerId, teamId, angle, SPEED, 10.0, 1.5f);
 	}
 	
 	@Override

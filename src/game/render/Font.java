@@ -5,6 +5,8 @@ import static org.lwjgl.stb.STBTruetype.*;
 
 import java.nio.ByteBuffer;
 
+import game.ColorUtil;
+import game.Util;
 import org.joml.Vector4f;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTBakedChar;
@@ -129,10 +131,13 @@ public class Font {
 	}
 	
 	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale, Vector4f color) {
+		if (Util.isDebugRenderMode())
+			r.drawBox(Align.BL, x, y, getWidth(s, scale), getHeight(scale), ColorUtil.GREEN);
+		
 		if (!fromBaseline) {
 			// Position so that y is at the bottom, not baseline
-			float descentProportion = (float)-descent[0] / (float)(ascent[0] - descent[0]);
-			y += descentProportion * pixelHeight * scale;
+			float proportion = ((float)-descent[0]) / (float)(ascent[0] - descent[0]);
+			y += proportion * getHeight(scale);
 		}
 		
 		FontAdvancer fa = getAdvancer(x, 0.0f, scale);
@@ -146,7 +151,11 @@ public class Font {
 			
 			float w = (q.x1() - q.x0())*scale;
 			float h = (q.y1() - q.y0())*scale;
-			r.drawTextureUV(text, Align.TL, q.x0(), y - q.y0(), w, h, 0.0f, q.s0(), q.t0(), q.s1(), q.t1(), color);
+			
+			if (Util.isDebugRenderMode())
+				r.drawBox(Align.BL, q.x0(), y - q.y0()*scale - h, w, h, ColorUtil.PINK);
+			
+			r.drawTextureUV(text, Align.BL, q.x0(), y - q.y0()*scale - h, w, h, 0.0f, q.s0(), q.t0(), q.s1(), q.t1(), color);
 			
 			i += Character.charCount(c);
 		}

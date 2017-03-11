@@ -1,11 +1,10 @@
 package game.world.entity;
 
 import game.Util;
-import game.ai.AStar;
 import game.ai.Node;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
-import game.world.update.AngleUpdate;
+import game.world.entity.update.AngleUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -102,12 +101,11 @@ public abstract class AutonomousEntity extends MovableEntity {
 		} else {
 			this.destination = null;
 		}
-			
+		
 		if (this.destination == null && newDest != null)
 			this.destination = new Vector2f();
-		this.destination.set(newDest);
 		
-		if (prevDest == null) {
+		if (prevDest == null || destination == null) {
 			regenRoute(map);
 		} else {
 			Node prevDestNode = map.getClosestNodeTo(prevDest);

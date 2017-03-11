@@ -59,11 +59,8 @@ class Client implements Runnable, InputPipe {
 			return;
 		}
 		
-		// Intiialize FontBank
-		FontBank fontBank = new FontBank();
-		
 		// Initialize UI
-		ui = new StartUI(connection, audio, renderer.getTextureBank(), fontBank);
+		ui = new StartUI(connection, audio, renderer.getTextureBank(), renderer.getFontBank());
 	}
 	
 	@Override
@@ -102,6 +99,7 @@ class Client implements Runnable, InputPipe {
 			System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
 			next.handleResize(renderer.getWidth(), renderer.getHeight());
 			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
+			ui.destroy();
 		}
 		ui = next;
 	}
@@ -113,7 +111,7 @@ class Client implements Runnable, InputPipe {
 	}
 	
 	public static void main(String[] args) {
-		String name = "default";
+		String name = "default1";
 		if (args.length >= 1)
 			name = args[0];
 		new Client(false, name).run();
