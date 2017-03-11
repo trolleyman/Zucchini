@@ -45,7 +45,7 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	public void update(UpdateArgs ua){
 		super.update(ua);
 		//update stateMachine
-		stateMachine.update();
+		stateMachine.update(ua);
 		
 	}
 	

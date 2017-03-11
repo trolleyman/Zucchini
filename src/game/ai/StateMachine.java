@@ -1,5 +1,7 @@
 package game.ai;
 
+import game.world.UpdateArgs;
+
 /**
  * Implementation of a state machine of the {@link IStateMachine} interface
  * @author Yean
@@ -25,10 +27,28 @@ public class StateMachine<E, S extends State<E>> implements IStateMachine<E,S> {
 		this(owner,null);
 	}
 	
+	/**
+	 * Updates the state machine by invoking the current state's code
+	 */
+	@Override
+	public void update(UpdateArgs ua) {
+		if(currentState!=null) currentState.update(this.owner);
+	}
+	
+	
 	public E getOwner(){
 		return owner;
 	}
 	
+	
+	@Override
+	public void changeState(S newState) {
+		previousState = currentState;
+		if(currentState!=null) currentState.exit(owner);
+		currentState=newState;
+		if(currentState!=null) currentState.enter(owner);		
+	}
+
 	@Override
 	public void setInitialState(S state){
 		this.previousState = null;
@@ -41,31 +61,16 @@ public class StateMachine<E, S extends State<E>> implements IStateMachine<E,S> {
 	}
 	
 	@Override
+	public boolean isInState(S state) {
+		return state == currentState;
+	}
+	
+	
+	@Override
 	public S getPreviousState(){
 		return previousState;
 	}
 	
-	public void setOwner(E owner){
-		this.owner = owner;
-	}
-
-
-	/**
-	 * Updates the state machine by invoking the current state's code
-	 */
-	@Override
-	public void update() {
-		if(currentState!=null) currentState.update(this.owner);
-	}
-
-	@Override
-	public void changeState(S newState) {
-		previousState = currentState;
-		if(currentState!=null) currentState.exit(owner);
-		currentState=newState;
-		if(currentState!=null) currentState.enter(owner);		
-	}
-
 	@Override
 	public boolean revertToPreviousState(){
 		if (previousState==null) return false;
@@ -73,11 +78,16 @@ public class StateMachine<E, S extends State<E>> implements IStateMachine<E,S> {
 		return true;
 	}
 	
-	@Override
-	public boolean isInState(S state) {
-		return state == currentState;
+	public void setOwner(E owner){
+		this.owner = owner;
 	}
+
+
+
 	
+
+	
+
 	
 
 }
