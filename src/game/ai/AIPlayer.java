@@ -31,14 +31,15 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		this.heldItem = heldItem;
 		if (this.heldItem != null)
 			this.heldItem.setOwnerTeam(this.getTeam());
+		stateMachine = new StateMachine<AIPlayer, AIPlayerStates>(this,AIPlayerStates.WANDER);
 	}
 	
 	public AIPlayer(AutonomousPlayerEntity ape) {
 		super(ape);
 	}
 	
-	public StateMachine<AIPlayer, AIPlayerStates> getStateMachine(){
-		return (StateMachine<AIPlayer, AIPlayerStates>) stateMachine;
+	public IStateMachine<AIPlayer, AIPlayerStates> getStateMachine(){
+		return stateMachine;
 	}
 	
 	public void update(UpdateArgs ua){
