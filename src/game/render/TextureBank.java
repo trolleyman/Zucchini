@@ -1,9 +1,7 @@
 package game.render;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import game.Util;
 
@@ -18,30 +16,25 @@ public class TextureBank {
 	
 	/**
 	 * Constructs a new TextureBank instance. Images are loaded from the img/ directory, relative to
-	 * the base dir. (See {@link game.Util#getBasePath() Util#getBasePath()})
+	 * the base directory.
 	 */
 	public TextureBank() {
 		System.out.println("Loading textures...");
 		textures = new HashMap<>();
 		
 		// Find all .png files in directory "resources/img/"
-		String baseDir = Util.getResourcesDir();
-		Path imgsDirPath = Paths.get(baseDir, "img");
-		File imgsDir = imgsDirPath.toFile();
-		File[] imgFiles = imgsDir.listFiles((dir, name) -> {
-			return name.endsWith(".png");
-		});
+		HashMap<String, byte[]> imgs = Util.getImages();
 		
-		if (imgFiles == null) {
-			System.out.println("No texture loaded.");
+		if (imgs.size() == 0) {
+			System.out.println("No textures loaded.");
 			return;
 		}
 		
-		for (File file : imgFiles) {
-			Texture i = new Texture(file.toString());
-			String name = file.getName();
+		for (Entry<String, byte[]> e : imgs.entrySet()) {
+			String name = e.getKey();
+			Texture t = new Texture(e.getValue(), name);
 			System.out.println("Loaded texture: " + name);
-			textures.put(name, i);
+			textures.put(name, t);
 		}
 		System.out.println(textures.size() + " texture(s) loaded.");
 	}

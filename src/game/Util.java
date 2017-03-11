@@ -2,10 +2,21 @@ package game;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.security.CodeSource;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.Map.Entry;
 
 import game.render.Align;
 import org.joml.Vector2f;
@@ -81,19 +92,48 @@ public class Util {
 		System.out.println(String.format("Key %s: %-8s %s", actionStr, keyName, modsStr));
 	}
 	
-	/**
-	 * Returns the base path from which all resources are found.
-	 * <p>
-	 * TODO: Currently the current directory, but this should change to be relative to a certain class
-	 *       so that this application can be run from anywhere.
-	 * TODO: Also this function should check if certain directories exist. (img, shader, etc.)
-	 */
-	public static String getBasePath() {
-		return "./";
+	public static HashMap<String, byte[]> getFiles(String base) {
+		return getFiles(base, (s) -> true);
 	}
 	
-	public static String getResourcesDir() {
-		return Util.getBasePath() + '/' + "resources/";
+	public static HashMap<String, byte[]> getFiles(String base, Predicate<String> pattern) {
+		try {
+			HashMap<String, byte[]> ret = new HashMap<>();
+			File localDir = new File("./resources/" + base);
+			if (localDir.exists() && localDir.isDirectory()) {
+				// Get files from local file system
+				File[] files = localDir.listFiles();
+				if (files != null) {
+					for (File f : files) {
+						byte[] bytes = Files.readAllBytes(f.toPath());
+						ret.put(f.getName(), bytes);
+					}
+				}
+			} else {
+				// Get files from jar
+				// TODO
+				throw new RuntimeException("TODO");
+			}
+			return ret;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static HashMap<String, byte[]> getImages() {
+		return getFiles("img", (s) -> s.endsWith(".png"));
+	}
+	
+	public static HashMap<String, byte[]> getFonts() {
+		return getFiles("fonts", (s) -> s.endsWith(".ttf"));
+	}
+	
+	public static HashMap<String, byte[]> getAudioFiles() {
+		return getFiles("audio_assets", (s) -> s.endsWith(".wav"));
+	}
+	
+	public static HashMap<String, byte[]> getShaders() {
+		return getFiles("shader");
 	}
 
 	private static final int STACK_SIZE_WARNING_LEN = 2048;
@@ -368,4 +408,22 @@ public class Util {
 	public static final int DEFAULT_MAX_PLAYERS = 4;
 	
 	public static float HUD_PADDING = 50.0f;
+	
+	public static void main(String[] args) throws IOException {
+		CodeSource codeSource = Util.class.getProtectionDomain().getCodeSource();
+		
+		if (codeSource == null) {
+			System.out.println("Null!");
+			return;
+		}
+		
+		URL jar = codeSource.getLocation();
+		ZipInputStream zip = new ZipInputStream(jar.openStream());
+		ZipEntry ze = null;
+		
+		while ((ze = zip.getNextEntry()) != null) {
+			String name = ze.getName();
+			System.out.println(name);
+		}
+	}
 }

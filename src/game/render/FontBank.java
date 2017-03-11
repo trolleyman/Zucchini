@@ -3,9 +3,11 @@ package game.render;
 import game.Util;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Holds all of the fonts that are used in the program
@@ -20,19 +22,16 @@ public class FontBank {
 		System.out.println("Loading fonts...");
 		fonts = new HashMap<>();
 		
-		// Find all .png files in directory "resources/fonts/"
-		Path fontsDirPath = Paths.get(Util.getResourcesDir(), "fonts");
-		File fontsDir = fontsDirPath.toFile();
-		File[] fontFiles = fontsDir.listFiles((dir, name) -> name.endsWith(".ttf"));
+		HashMap<String, byte[]> fontsData = Util.getFonts();
 		
-		if (fontFiles == null) {
+		if (fontsData.size() == 0) {
 			System.out.println("No fonts loaded.");
 			return;
 		}
 		
-		for (File file : fontFiles) {
-			Font f = new Font(file.toString());
-			String name = file.getName();
+		for (Map.Entry<String, byte[]> e : fontsData.entrySet()) {
+			Font f = new Font(e.getValue());
+			String name = e.getKey();
 			System.out.println("Loaded font: " + name);
 			fonts.put(name, f);
 		}
