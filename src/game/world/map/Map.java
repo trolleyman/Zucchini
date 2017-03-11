@@ -5,6 +5,7 @@ import game.Util;
 import game.exception.ProtocolException;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.PhysicsUtil;
 import game.world.entity.Entity;
 import org.joml.Vector2f;
@@ -370,6 +371,8 @@ public class Map {
 	public void renderBackground(IRenderer r) {
 		Vector4f rect = getRect();
 		r.drawBox(Align.BL, rect.x, rect.y, rect.z, rect.w, ColorUtil.BLACK);
+		Texture background = r.getTextureBank().getTexture("map_background.png");
+		r.drawTexture(background, Align.BL, -1.0f, -1.0f, 32.0f, 32.0f);
 	}
 	
 	/**
@@ -382,7 +385,7 @@ public class Map {
 			float x1 = wall.p1.x;
 			float y1 = wall.p1.y;
 			
-			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
+			r.drawLine(x0, y0, x1, y1, ColorUtil.TRANSPARENT, 1.0f);
 		}
 	}
 	

@@ -14,14 +14,13 @@ public class SoundBuffer {
 	private String bufferName;
 	/**
 	 * A sound buffer represents a sound file loaded in memory to be played by SoundSources
-	 * @param file, the name of a wav file
+	 * @param data the data of the wav file
 	 * @throws Exception
 	 */
-	public SoundBuffer(String filepath) throws Exception {
+	public SoundBuffer(byte[] data, String name) throws Exception {
 		this.bufferId = AL10.alGenBuffers();
-		this.bufferName=filepath.substring(27);
-		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(filepath));
-		WaveData wavFile = WaveData.create(bis);
+		this.bufferName = name;
+		WaveData wavFile = WaveData.create(data);
 		AL10.alBufferData(bufferId, wavFile.format, wavFile.data, wavFile.samplerate);
 		wavFile.dispose();
     }

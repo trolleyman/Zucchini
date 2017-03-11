@@ -2,10 +2,18 @@ package game;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.security.CodeSource;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.Map.Entry;
 
 import game.render.Align;
 import org.joml.Vector2f;
@@ -49,52 +57,6 @@ public class Util {
 	// These values will be different for release
 	public static final int LOBBY_WAIT_SECS = 3;
 	public static final int GAME_START_WAIT_SECS = 3;
-	
-	/**
-	 * Debug prints a key to stdout
-	 */
-	public static void printKey(int key, int scancode, int action, int mods) {
-		String actionStr = "";
-		switch (action) {
-		case GLFW_PRESS  : actionStr = "pressed "; break;
-		case GLFW_RELEASE: actionStr = "released"; break;
-		case GLFW_REPEAT : actionStr = "repeated"; break;
-		}
-		
-		String modsStr = "";
-		if ((mods & GLFW_MOD_SHIFT) != 0)
-			modsStr += "SHIFT ";
-		if ((mods & GLFW_MOD_CONTROL) != 0)
-			modsStr += "CTRL ";
-		if ((mods & GLFW_MOD_ALT) != 0)
-			modsStr += "ALT ";
-		if ((mods & GLFW_MOD_SUPER) != 0)
-			modsStr += "SUPER ";
-		
-		if (!modsStr.equals(""))
-			modsStr = "Mods: " + modsStr;
-		
-		String keyName = glfwGetKeyName(key, scancode);
-		if (keyName == null)
-			keyName = key + ":" + scancode;
-		
-		System.out.println(String.format("Key %s: %-8s %s", actionStr, keyName, modsStr));
-	}
-	
-	/**
-	 * Returns the base path from which all resources are found.
-	 * <p>
-	 * TODO: Currently the current directory, but this should change to be relative to a certain class
-	 *       so that this application can be run from anywhere.
-	 * TODO: Also this function should check if certain directories exist. (img, shader, etc.)
-	 */
-	public static String getBasePath() {
-		return "./";
-	}
-	
-	public static String getResourcesDir() {
-		return Util.getBasePath() + '/' + "resources/";
-	}
 
 	private static final int STACK_SIZE_WARNING_LEN = 2048;
 
@@ -368,4 +330,22 @@ public class Util {
 	public static final int DEFAULT_MAX_PLAYERS = 4;
 	
 	public static float HUD_PADDING = 50.0f;
+	
+	public static void main(String[] args) throws IOException {
+		CodeSource codeSource = Util.class.getProtectionDomain().getCodeSource();
+		
+		if (codeSource == null) {
+			System.out.println("Null!");
+			return;
+		}
+		
+		URL jar = codeSource.getLocation();
+		ZipInputStream zip = new ZipInputStream(jar.openStream());
+		ZipEntry ze = null;
+		
+		while ((ze = zip.getNextEntry()) != null) {
+			String name = ze.getName();
+			System.out.println(name);
+		}
+	}
 }

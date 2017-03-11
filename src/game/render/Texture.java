@@ -1,5 +1,7 @@
 package game.render;
 
+import org.lwjgl.system.MemoryUtil;
+
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -20,18 +22,25 @@ public class Texture {
 	
 	/**
 	 * Constructs a new Texture by reading the file specified.
-	 * @param path The texture location.
+	 * @param bdata The texture data.
 	 */
-	public Texture(String path) {
+	public Texture(byte[] bdata, String name) {
 		int[] wArr = new int[1];
 		int[] hArr = new int[1];
 		int[] compArr = new int[1];
 		
 		// Decode the image
-		ByteBuffer data = stbi_load(path, wArr, hArr, compArr, 4);
+		ByteBuffer idata = MemoryUtil.memAlloc(bdata.length);
+		idata.put(bdata);
+		idata.flip();
+		
+		ByteBuffer data = stbi_load_from_memory(idata, wArr, hArr, compArr, 4);
 		if (data == null)
-			throw new RuntimeException("Failed to load texture: " + path + ": " + stbi_failure_reason());
+			throw new RuntimeException("Failed to load texture: " + name + ": " + stbi_failure_reason());
 		data.rewind();
+		
+		idata.rewind();
+		MemoryUtil.memFree(idata);
 		
 		w = wArr[0];
 		h = hArr[0];
