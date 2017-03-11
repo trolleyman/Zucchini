@@ -8,8 +8,8 @@ import game.Util;
 import game.ai.Node;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
+import game.world.entity.update.AngleUpdate;
 import game.world.map.PathFindingMap;
-import game.world.update.AngleUpdate;
 
 public abstract class AutonomousPlayerEntity extends MovableEntity {
 	private transient Vector2f destination = null;

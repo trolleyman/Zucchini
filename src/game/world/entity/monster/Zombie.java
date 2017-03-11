@@ -1,3 +1,5 @@
+package game.world.entity.monster;
+
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
