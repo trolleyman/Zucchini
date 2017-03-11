@@ -4,7 +4,11 @@ package game.audio;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import org.lwjgl.openal.*;
-
+/**
+ * Sound buffer for storage of wav files to be played by sources
+ * @author Yean
+ *
+ */
 public class SoundBuffer {
 	private final int bufferId;
 	private String bufferName;
@@ -15,7 +19,7 @@ public class SoundBuffer {
 	 */
 	public SoundBuffer(byte[] data, String name) throws Exception {
 		this.bufferId = AL10.alGenBuffers();
-		this.bufferName = name.substring(0, Math.min(27, name.length()));
+		this.bufferName = name;
 		WaveData wavFile = WaveData.create(data);
 		AL10.alBufferData(bufferId, wavFile.format, wavFile.data, wavFile.samplerate);
 		wavFile.dispose();
