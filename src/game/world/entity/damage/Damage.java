@@ -1,11 +1,11 @@
 package game.world.entity.damage;
 
 public class Damage {
-	/** What player this damage originated from. TODO: Currently unused */
+	/** What player this damage originated from. */
 	public int ownerId;
-	/** What team this damage originated from. TODO: Currently unused */
+	/** What team this damage originated from. */
 	public int ownerTeam;
-	/** What type the damage. TODO: Currently unused */
+	/** What type the damage. */
 	public DamageType type;
 	/** The amount of damage this damage applied */
 	public float amount;

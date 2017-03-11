@@ -54,7 +54,7 @@ public class Explosion extends Entity {
 				if (e.getTeam() != Team.PASSIVE_TEAM) {
 					float d2 = e.position.distanceSquared(this.position);
 					float fdamage = maxDamage / Math.min(maxDamage, d2);
-					Damage damage = new Damage(fromId, fromTeam, DamageType.LASER_DAMAGE, fdamage);
+					Damage damage = new Damage(fromId, fromTeam, DamageType.EXPLOSION_DAMAGE, fdamage);
 					ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
 				}
 			}
