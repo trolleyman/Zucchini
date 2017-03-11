@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import game.Resources;
 import game.Util;
 import org.joml.Vector2f;
 import org.lwjgl.openal.AL;
@@ -50,7 +52,7 @@ public class AudioManager implements IAudioManager{
         
         System.out.println("Loading audio...");
         //place all files into the buffer list
-        HashMap<String, byte[]> audioFiles = Util.getAudioFiles();
+        HashMap<String, byte[]> audioFiles = Resources.getAudioFiles();
 		//create array and hashmaps of all sounds
 		for (Entry<String, byte[]> e : audioFiles.entrySet()) {
 	        placeFileInBuffer(e.getValue(), e.getKey());

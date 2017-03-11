@@ -3,6 +3,7 @@ package game.render;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import game.Resources;
 import game.Util;
 
 /**
@@ -23,7 +24,7 @@ public class TextureBank {
 		textures = new HashMap<>();
 		
 		// Find all .png files in directory "resources/img/"
-		HashMap<String, byte[]> imgs = Util.getImages();
+		HashMap<String, byte[]> imgs = Resources.getImages();
 		
 		if (imgs.size() == 0) {
 			System.out.println("No textures loaded.\n");

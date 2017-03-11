@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import game.Resources;
 import game.exception.ShaderCompilationException;
 import game.Util;
 
@@ -64,7 +65,7 @@ public class Shader {
 	public Shader(String _shaderName) {
 		this.shaderName = _shaderName;
 		// Get shader base, e.g. "./resources/shader/simple"
-		HashMap<String, byte[]> shaderData = Util.getShaders();
+		HashMap<String, byte[]> shaderData = Resources.getShaders();
 		for (Entry<String, byte[]> e : shaderData.entrySet()) {
 			if (!e.getKey().equals(shaderName + ShaderType.VERTEX.getExtension())) {
 				continue;

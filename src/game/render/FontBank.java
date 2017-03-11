@@ -1,5 +1,6 @@
 package game.render;
 
+import game.Resources;
 import game.Util;
 
 import java.io.File;
@@ -22,7 +23,7 @@ public class FontBank {
 		System.out.println("Loading fonts...");
 		fonts = new HashMap<>();
 		
-		HashMap<String, byte[]> fontsData = Util.getFonts();
+		HashMap<String, byte[]> fontsData = Resources.getFonts();
 		
 		if (fontsData.size() == 0) {
 			System.out.println("No fonts loaded.\n");
