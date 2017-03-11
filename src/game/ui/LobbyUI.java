@@ -7,6 +7,7 @@ import game.ui.component.ButtonComponent;
 import game.ui.component.ImageComponent;
 import game.ui.component.TextButtonComponent;
 
+import java.awt.*;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 
@@ -32,14 +33,16 @@ public class LobbyUI extends UI implements InputPipeMulti
 	private ButtonComponent backButton;
 	/** The refresh lobby list button */
 	private ButtonComponent refreshButton;
+	/** The next lobby page button */
+	private ButtonComponent nextButton;
+	/** The create lobby button */
+	private ButtonComponent createButton;
 	/** The background image */
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
 	private UI nextUI = this;
-	/** The page of lobbies we listed */
-	private int lobbiesPerPage;
-	/** The more lobbies button */
-	private TextButtonComponent moreLobbiesButton;
+	/** Lobbies to be rendered, starting at this index (4 per page) */
+	private int lobbiesToRender = 0;
 
 	/** Test lobbies for button generation */
 	private ArrayList<LobbyInfo> lobbies = new ArrayList<>();
@@ -63,6 +66,17 @@ public class LobbyUI extends UI implements InputPipeMulti
 			textureBank.getTexture("joinPressed.png")
 		);
 
+		// Create Create Lobby Button
+		createButton = new ButtonComponent(
+				() -> {
+					this.nextUI = new LobbyCreateUI(this);
+				},
+				Align.BL, 100, 100,
+				textureBank.getTexture("createDefault.png"),
+				textureBank.getTexture("createHover.png"),
+				textureBank.getTexture("createPressed.png")
+		);
+
 		// Create Back Button
 		backButton = new ButtonComponent(
 			() -> this.nextUI = new StartUI(this),
@@ -79,6 +93,15 @@ public class LobbyUI extends UI implements InputPipeMulti
 				textureBank.getTexture("refreshDefault.png"),
 				textureBank.getTexture("refreshHover.png"),
 				textureBank.getTexture("refreshPressed.png")
+		);
+
+		// Create Next Button
+		nextButton = new ButtonComponent(
+				() -> this.nextPage(),
+				Align.BL, 100, 100,
+				textureBank.getTexture("nextDefault.png"),
+				textureBank.getTexture("nextHover.png"),
+				textureBank.getTexture("nextPressed.png")
 		);
 		
 		// Create Background Image
@@ -117,8 +140,18 @@ public class LobbyUI extends UI implements InputPipeMulti
 				this.inputHandlers.add(lobby_buttons.get(i));
 			}
 			this.inputHandlers.add(joinButton);
+			this.inputHandlers.add(createButton);
 			this.inputHandlers.add(backButton);
 			this.inputHandlers.add(refreshButton);
+			this.inputHandlers.add(nextButton);
+		}
+	}
+
+	public void nextPage() {
+		if (lobbiesToRender + 4 < lobbies.size()) {
+			lobbiesToRender = lobbiesToRender + 4;
+		} else {
+			lobbiesToRender = 0;
 		}
 	}
 
@@ -159,8 +192,10 @@ public class LobbyUI extends UI implements InputPipeMulti
 	{
 		// Run the update method for all of the buttons
 		joinButton.update(dt);
+		createButton.update(dt);
 		backButton.update(dt);
 		refreshButton.update(dt);
+		nextButton.update(dt);
 
 		for (int i = 0; i < lobby_buttons.size(); i++)
 		{
@@ -173,27 +208,37 @@ public class LobbyUI extends UI implements InputPipeMulti
 	{
 		// Set locations of the primary menu buttons
 		joinButton.setX((int) (windowW / 2.0 - joinButton.getWidth() / 2.0));
-		joinButton.setY((int) (windowH / 2.0 - joinButton.getHeight() / 2.0) + 150);
+		joinButton.setY((int) (windowH / 2.0 - joinButton.getHeight() / 2.0) + 300);
+
+		createButton.setX((int) (windowW / 2.0 - createButton.getWidth() / 2.0));
+		createButton.setY((int) (windowH / 2.0 - createButton.getHeight() / 2.0) + 150);
+
 		backButton.setX((int) (windowW / 2.0 - backButton.getWidth() / 2.0));
 		backButton.setY((int) (windowH / 2.0 - backButton.getHeight() / 2.0));
+
 		refreshButton.setX((int) (windowW / 2.0 + backButton.getWidth() / 2.0) + 160);
 		refreshButton.setY((int) (windowH / 2.0 - refreshButton.getHeight() / 2.0) - 160);
+
+		nextButton.setX((int) (windowW / 2.0 + backButton.getWidth() / 2.0) + 160);
+		nextButton.setY((int) (windowH / 2.0 - nextButton.getHeight() / 2.0) - 280);
 
 
 		// Render these and the background image
 		backgroundImage.render(r);
 		joinButton.render(r);
+		createButton.render(r);
 		backButton.render(r);
 		refreshButton.render(r);
+		nextButton.render(r);
 
 
+		int n = 0;
 		// Set location of and render each of the lobby buttons
-		for (int i = 0; i < lobby_buttons.size(); i++)
-		{
+		for (int i = lobbiesToRender; i < lobby_buttons.size() && i < (lobbiesToRender+4); i++) {
 			lobby_buttons.get(i).setX((int) (windowW / 2.0 - lobby_buttons.get(i).getWidth() / 2.0));
-			lobby_buttons.get(i).setY((int) (windowH / 2.0 - lobby_buttons.get(i).getHeight() / 2.0) - 60 - (i + 1) * lobby_spacing);
+			lobby_buttons.get(i).setY((int) (windowH / 2.0 - lobby_buttons.get(i).getHeight() / 2.0) - 60 - (n + 1) * lobby_spacing);
 			lobby_buttons.get(i).render(r);
-
+			n++;
 		}
 	}
 
