@@ -25,7 +25,7 @@ public class FontBank {
 		HashMap<String, byte[]> fontsData = Util.getFonts();
 		
 		if (fontsData.size() == 0) {
-			System.out.println("No fonts loaded.");
+			System.out.println("No fonts loaded.\n");
 			return;
 		}
 		
@@ -35,7 +35,7 @@ public class FontBank {
 			System.out.println("Loaded font: " + name);
 			fonts.put(name, f);
 		}
-		System.out.println(fonts.size() + " font(s) loaded.");
+		System.out.println(fonts.size() + " font(s) loaded.\n");
 	}
 	
 	public Font getFont(String name) {

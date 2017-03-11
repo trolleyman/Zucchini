@@ -26,7 +26,7 @@ public class TextureBank {
 		HashMap<String, byte[]> imgs = Util.getImages();
 		
 		if (imgs.size() == 0) {
-			System.out.println("No textures loaded.");
+			System.out.println("No textures loaded.\n");
 			return;
 		}
 		
@@ -36,7 +36,7 @@ public class TextureBank {
 			System.out.println("Loaded texture: " + name);
 			textures.put(name, t);
 		}
-		System.out.println(textures.size() + " texture(s) loaded.");
+		System.out.println(textures.size() + " texture(s) loaded.\n");
 	}
 	
 	/**

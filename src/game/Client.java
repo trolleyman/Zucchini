@@ -36,7 +36,7 @@ class Client implements Runnable, InputPipe {
 	private long prevTime;
 	
 	public Client(boolean _fullscreen, String name) {
-		System.out.println("LWJGL " + Version.getVersion() + " loaded.");
+		System.out.println("LWJGL " + Version.getVersion() + " loaded.\n");
 		
 		// Initialize connection to server
 		try {

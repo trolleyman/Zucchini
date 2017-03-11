@@ -2,10 +2,7 @@ package game;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,14 +102,47 @@ public class Util {
 				File[] files = localDir.listFiles();
 				if (files != null) {
 					for (File f : files) {
+						if (!pattern.test(f.getName())) // Only add files that match the pattern
+							continue;
 						byte[] bytes = Files.readAllBytes(f.toPath());
 						ret.put(f.getName(), bytes);
 					}
 				}
 			} else {
-				// Get files from jar
-				// TODO
-				throw new RuntimeException("TODO");
+				// Load from JAR
+				CodeSource codeSource = Util.class.getProtectionDomain().getCodeSource();
+				
+				if (codeSource == null)
+					throw new RuntimeException("Could not locate resources directory: " + base);
+				
+				URL jar = codeSource.getLocation();
+				ZipInputStream zip = new ZipInputStream(jar.openStream());
+				
+				ZipEntry ze;
+				while ((ze = zip.getNextEntry()) != null) {
+					String totalBase = "resources/" + base + '/';
+					String name = ze.getName();
+					if (!name.startsWith(totalBase))
+						continue;
+					
+					// Get filename of resource
+					String filename = name.substring(totalBase.length());
+					if (filename.length() == 0 || !pattern.test(filename))
+						continue;
+					
+					byte[] buffer = new byte[1024];
+					ByteArrayOutputStream os = new ByteArrayOutputStream();
+					int len;
+					while ((len = zip.read(buffer)) > 0) {
+						os.write(buffer, 0, len);
+					}
+					
+					byte[] data = os.toByteArray();
+					// System.out.println(String.format("Loaded file from zip: %s (%d bytes)", name, data.length));
+					ret.put(filename, data);
+				}
+				
+				zip.close();
 			}
 			return ret;
 		} catch (IOException e) {

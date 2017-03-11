@@ -77,7 +77,7 @@ public class AudioManager implements IAudioManager{
 		bgm.setBuffer(buffer.getBufferId());
 		bgm.play();
 		
-		System.out.println(audioFiles.size() + " audio file(s) loaded.");
+		System.out.println(audioFiles.size() + " audio file(s) loaded.\n");
     }
     /**
      * Starts OpenAL procedures and creates sources layout
