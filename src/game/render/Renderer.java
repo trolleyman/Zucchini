@@ -193,7 +193,7 @@ public class Renderer implements IRenderer {
 		System.out.println("Loading shaders...");
 		simpleShader = new SimpleShader();
 		textureShader = new TextureShader();
-		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
+		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.\n");
 		
 		// Load images
 		tb = new TextureBank();

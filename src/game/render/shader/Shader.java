@@ -6,7 +6,10 @@ import static org.lwjgl.opengl.GL20.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
+import game.Resources;
 import game.exception.ShaderCompilationException;
 import game.Util;
 
@@ -61,42 +64,56 @@ public class Shader {
 	 */
 	public Shader(String _shaderName) {
 		this.shaderName = _shaderName;
-		try {
-			// Get shader base, e.g. "./resources/shader/simple"
-			String shaderBase = Util.getResourcesDir() + "/shader/" + shaderName;
+		// Get shader base, e.g. "./resources/shader/simple"
+		HashMap<String, byte[]> shaderData = Resources.getShaders();
+		for (Entry<String, byte[]> e : shaderData.entrySet()) {
+			if (!e.getKey().equals(shaderName + ShaderType.VERTEX.getExtension())) {
+				continue;
+			}
+			String name = e.getKey().substring(0, e.getKey().indexOf(ShaderType.VERTEX.getExtension()));
+			byte[] vertBytes = shaderData.get(name + ShaderType.VERTEX.getExtension());
+			byte[] fragBytes = shaderData.get(name + ShaderType.FRAGMENT.getExtension());
+			if (vertBytes == null) {
+				System.err.println("Warning: Vertex shader does not exist for shader '" + name + "'.");
+				continue;
+			}
+			if (fragBytes == null) {
+				System.err.println("Warning: Framgent shader does not exist for shader '" + name + "'.");
+				continue;
+			}
 			
 			program = glCreateProgram();
-			vertShader = compileAndAttach(shaderBase, ShaderType.VERTEX, program);
-			fragShader = compileAndAttach(shaderBase, ShaderType.FRAGMENT, program);
+			try {
+				vertShader = compileAndAttach(vertBytes, ShaderType.VERTEX, program);
+				fragShader = compileAndAttach(fragBytes, ShaderType.FRAGMENT, program);
+			} catch (ShaderCompilationException ex) {
+				throw new RuntimeException(ex);
+			}
 			
 			glLinkProgram(program);
 			if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
 				throw new RuntimeException("Program linkage error:\n" + glGetProgramInfoLog(program));
 			}
-		} catch (Exception e) {
-			System.err.println("Error: Could not load shader: " + shaderName + ": " + e.toString());
-			System.exit(1);
+			
+			shadersLoaded++;
+			System.out.println("Loaded shader: " + shaderName);
 		}
-		
-		shadersLoaded++;
-		System.out.println("Loaded shader: " + shaderName);
 	}
 	
 	/**
 	 * Compiles and attaches the specified shader to the program specified
-	 * @param shaderBase The base path of the shader
+	 * @param sourceBytes The bytes of the shader source
 	 * @param type The type of the shader. See {@link ShaderType}.
 	 * @param program The OpenGL id of the program
 	 * @return The OpenGL id of the shader compiled
 	 * @throws ShaderCompilationException if the shader could not be compiled
-	 * @throws IOException if the shader could not be loaded
-	 */
-	private int compileAndAttach(String shaderBase, ShaderType type, int program) throws ShaderCompilationException, IOException {
-		String vertSource = new String(Files.readAllBytes(Paths.get(shaderBase + type.getExtension())));
+	 **/
+	private int compileAndAttach(byte[] sourceBytes, ShaderType type, int program) throws ShaderCompilationException {
+		String source = new String(sourceBytes);
 		
 		int shader = glCreateShader(type.glType());
 		
-		glShaderSource(shader, new String(vertSource));
+		glShaderSource(shader, source);
 		
 		glCompileShader(shader);
 		if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
