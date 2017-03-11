@@ -25,7 +25,6 @@ public class TextButtonComponent
 	private float mx;
 	/** The current mouse y */
 	private float my;
-
 	/** The current button x */
 	private float x;
 	/** The current button y */
@@ -42,10 +41,8 @@ public class TextButtonComponent
 	private Font f;
 	// * The scale of the text */
 	private float scale;
-
 	/** The info of the lobby */
 	private LobbyInfo lobbyInfo;
-
 	/** the status of the button - Selected or not */
 	private boolean selected = false;
 
@@ -56,8 +53,7 @@ public class TextButtonComponent
 
 	private String text;
 
-	public TextButtonComponent(Runnable _callback, Align _a, float height, float width, Font _f, float scale, String text)
-	{
+	public TextButtonComponent(Runnable _callback, Align _a, float height, float width, Font _f, float scale, String text) {
 
 		this.callback = _callback;
 		this.a = _a;
@@ -65,8 +61,8 @@ public class TextButtonComponent
 		this.y = 0;
 		this.f = _f;
 		this.scale = scale;
-		this.lobbyInfo = null;
 
+		this.lobbyInfo = null;
 		this.text = text;
 
 		border_width = 5;
@@ -75,8 +71,7 @@ public class TextButtonComponent
 
 	}
 
-	public TextButtonComponent(Runnable _callback, Align _a, float _x, float _y, Font _f, float scale, LobbyInfo lobbyInfo)
-	{
+	public TextButtonComponent(Runnable _callback, Align _a, float _x, float _y, Font _f, float scale, LobbyInfo lobbyInfo) {
 
 		this.callback = _callback;
 		this.a = _a;
@@ -92,34 +87,27 @@ public class TextButtonComponent
 
 	}
 
-	public void handleCursorPos(double xpos, double ypos)
-	{
+	public void handleCursorPos(double xpos, double ypos) {
 		this.mx = (float) xpos;
 		this.my = (float) ypos;
 	}
 
-	public void handleMouseButton(int button, int action, int mods)
-	{
-		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1)
-		{
+	public void handleMouseButton(int button, int action, int mods) {
+		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
 			this.pressed = true;
 		}
 
-		if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_1)
-		{
+		if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_1) {
 			this.released = true;
 		}
 	}
 
-	private boolean isMouseOnButton()
-	{
+	private boolean isMouseOnButton() {
 		return mx >= x && mx < x + BOX_W && my >= y && my < y + BOX_H;
 	}
 
-	public void update(double dt)
-	{
-		if (this.released)
-		{
+	public void update(double dt) {
+		if (this.released) {
 			this.pressed = false;
 			this.released = false;
 			if (isMouseOnButton())
@@ -127,104 +115,80 @@ public class TextButtonComponent
 		}
 
 		// Set the colour of the border of the box based on select or hover
-		if (selected)
-		{
+		if (selected) {
 			border_colour = ColorUtil.WHITE;
-		} else if (isMouseOnButton())
-		{
+		} else if (isMouseOnButton()) {
 			border_colour = ColorUtil.LIGHT_GREY;
-		} else
-		{
+		} else {
 			border_colour = ColorUtil.DARK_GREY;
 		}
 	}
 
-	public void render(IRenderer r)
-	{
+	public void render(IRenderer r) {
 		// Draw the outer box (also acts as the border)
 		r.drawBox(a, x, y, BOX_W, BOX_H, border_colour);
 		// Draw the inner box
 		r.drawBox(a, x + border_width, y + border_width, BOX_W - 2 * border_width, BOX_H - 2 * border_width, box_colour);
 		// Draw the name of the lobby
-		if (lobbyInfo != null)
-		{
+		if (lobbyInfo != null) {
 			r.drawText(f, lobbyInfo.getLobbyName(), a, false, x + 15, y - 2, scale);
 			// Draw the current and max number of players
-			// TODO: display correct number of players in the lobby
 			r.drawText(f, lobbyInfo.getPlayerInfo().length + "/" + lobbyInfo.getMaxPlayers() + " Players", a, false, x + 460, y - 2, scale);
-		} else
-		{
+		} else {
 			r.drawText(f, text, a, false, x + 4, y, scale);
 		}
 	}
 
 	/**
 	 * Returns whether the button is selected or not
-	 * 
 	 * @return boolean Is the button currently selected?
 	 */
-	public boolean getSelected()
-	{
+	public boolean getSelected() {
 		return selected;
 	}
 
 	/**
 	 * Sets the button to be selected or not selected
-	 * 
-	 * @param b
-	 *            true/false based on whether you want the button to be selected
-	 *            or not
+	 * @param b true/false based on whether you want the button to be selected or not
 	 */
-	public void setSelected(boolean b)
-	{
+	public void setSelected(boolean b) {
 		selected = b;
 	}
 
 	/**
 	 * Sets the y co-ordinate of the button
-	 * 
-	 * @param _x
-	 *            The x co-ordinate
+	 * @param _x The x co-ordinate
 	 */
-	public void setX(float _x)
-	{
+	public void setX(float _x) {
 		this.x = _x;
 	}
 
 	/**
 	 * Sets the y co-ordinate of the button
-	 * 
-	 * @param _y
-	 *            The y co-ordinate
+	 * @param _y The y co-ordinate
 	 */
-	public void setY(float _y)
-	{
+	public void setY(float _y) {
 		this.y = _y;
 	}
 
 	/**
 	 * Returns the width of the button
 	 */
-	public int getWidth()
-	{
+	public int getWidth() {
 		return (int) BOX_W;
 	}
 
 	/**
 	 * Returns the height of the button
 	 */
-	public int getHeight()
-	{
+	public int getHeight() {
 		return (int) BOX_H;
 	}
 
-	public String toString()
-	{
-		if (lobbyInfo != null)
-		{
+	public String toString() {
+		if (lobbyInfo != null) {
 			return lobbyInfo.lobbyName;
 		} else
 			return text;
 	}
-
 }
