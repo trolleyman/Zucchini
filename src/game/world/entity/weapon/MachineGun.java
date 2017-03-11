@@ -39,7 +39,6 @@ public class MachineGun extends Weapon {
 	@Override
 	public void update(UpdateArgs ua) {
 		super.update(ua);
-		
 	}
 	
 	@Override
@@ -47,6 +46,7 @@ public class MachineGun extends Weapon {
 		if (this.reloadSoundID == -1) {
 			System.out.println("Reloading machine gun...");
 			this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
+			System.out.println("Set reload Sound: "+ reloadSoundID);
 		}else{
 			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
 		}
