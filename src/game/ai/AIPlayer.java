@@ -2,27 +2,49 @@ package game.ai;
 
 import org.joml.Vector2f;
 
+import game.ColorUtil;
+import game.render.IRenderer;
+import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.entity.AutonomousPlayerEntity;
 import game.world.entity.Item;
-import game.world.entity.Player;
+import game.world.entity.MovableEntity;
 
 /**
  * Represents an AI player, uses a FSM to determine it's actions
  * @author Yean
  *
  */
-public class AIPlayer extends Player{
+public class AIPlayer extends AutonomousPlayerEntity{
 	public boolean debug = true;
 	public IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
+	public Item heldItem;
 
-	public AIPlayer(int team, Vector2f position, Item _heldItem) {
-		super(team, position, _heldItem);
-		stateMachine = new StateMachine<AIPlayer,AIPlayerStates>(this,AIPlayerStates.WANDER);
+	/**
+	 * Contructs an AIPlayer at position with an Item
+	 * @param team
+	 * @param position
+	 * @param heldItem
+	 */
+	public AIPlayer(int team, Vector2f position, Item heldItem) {
+		super(team, position,heldItem);
+		this.heldItem = heldItem;
+		if (this.heldItem != null)
+			this.heldItem.setOwnerTeam(this.getTeam());
 	}
-
+	
+	public AIPlayer(AutonomousPlayerEntity ape) {
+		super(ape);
+	}
+	
+	public StateMachine<AIPlayer, AIPlayerStates> getStateMachine(){
+		return (StateMachine<AIPlayer, AIPlayerStates>) stateMachine;
+	}
 	
 	public void update(UpdateArgs ua){
 		super.update(ua);
+		//update stateMachine
+		stateMachine.update();
 		
 	}
 	
@@ -40,5 +62,19 @@ public class AIPlayer extends Player{
 
 	public boolean debug() {
 		return debug;
+	}
+
+	@Override
+	public MovableEntity clone() {
+		return new AIPlayer(this);
+	}
+
+	@Override
+	public void render(IRenderer r) {
+		float x = position.x + 0.25f * (float) Math.sin(angle);
+		float y = position.y + 0.25f * (float) Math.cos(angle);
+		
+		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
+		r.drawCircle(position.x, position.y, 0.15F, ColorUtil.BLUE);		
 	}
 }
