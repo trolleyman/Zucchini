@@ -3,8 +3,8 @@ package game.ai;
 import org.joml.Vector2f;
 
 import game.ColorUtil;
+import game.Util;
 import game.render.IRenderer;
-import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousPlayerEntity;
 import game.world.entity.Item;
@@ -20,6 +20,14 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	public IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
 	public Item heldItem;
 
+	
+	public AIPlayer(AIPlayer ai) {
+		super(ai);
+		this.debug = ai.debug;
+		this.stateMachine = ai.stateMachine;
+		this.heldItem = ai.heldItem;
+	}
+	
 	/**
 	 * Contructs an AIPlayer at position with an Item
 	 * @param team
@@ -31,17 +39,31 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		this.heldItem = heldItem;
 		if (this.heldItem != null)
 			this.heldItem.setOwnerTeam(this.getTeam());
-		stateMachine = new StateMachine<AIPlayer, AIPlayerStates>(this,AIPlayerStates.WANDER);
+		updateHeldItemInfo();
+		stateMachine = new StateMachine<AIPlayer, AIPlayerStates>(this, AIPlayerStates.WANDER);
 	}
 	
-	public AIPlayer(AutonomousPlayerEntity ape) {
-		super(ape);
+	private void updateHeldItemInfo() {
+		if (this.heldItem != null) {
+			this.heldItem.setOwner(this.getId());
+			this.heldItem.setOwnerTeam(this.getTeam());
+			this.heldItem.angle = this.angle;
+			
+			// Calculate position
+			Vector2f offset = Util.pushTemporaryVector2f();
+			offset.set(Util.getDirX(angle+(float)Math.PI/2), Util.getDirY(angle+(float)Math.PI/2)).mul(0.15f);
+			this.heldItem.position.set(this.position).add(offset);
+			Util.popTemporaryVector2f();
+		}
 	}
+	
+	
 	
 	public IStateMachine<AIPlayer, AIPlayerStates> getStateMachine(){
 		return stateMachine;
 	}
 	
+	@Override
 	public void update(UpdateArgs ua){
 		super.update(ua);
 		//update stateMachine

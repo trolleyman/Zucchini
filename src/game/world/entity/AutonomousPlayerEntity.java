@@ -22,10 +22,13 @@ public abstract class AutonomousPlayerEntity extends MovableEntity {
 		super(team, position, 1.0f);
 	}
 	
-	public AutonomousPlayerEntity(AutonomousPlayerEntity e) {
-		super(e);
+	public AutonomousPlayerEntity(AutonomousPlayerEntity ape) {
+		super(ape);
+		this.maxSpeed = ape.maxSpeed;
+		this.destination = ape.destination;
+		this.route = ape.route;
 	}
-	
+
 	@Override
 	public void update(UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();

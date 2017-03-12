@@ -16,7 +16,7 @@ public class StateMachine<E, S extends State<E>> implements IStateMachine<E,S> {
 	
 	public StateMachine(E owner, S initialState){
 		this.owner = owner;
-		this.currentState = initialState;
+		this.setInitialState(initialState);
 	}
 	
 	public StateMachine(){
