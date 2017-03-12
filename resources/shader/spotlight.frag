@@ -29,6 +29,7 @@ void main() {
 		float p = 1.0f - clamp((angle - coneAngleMin) / (coneAngleMax - coneAngleMin), 0.0f, 1.0f);
 		
 		// Calc color
-		out_color = vec4(color.rgb, color.a * p * attenuation);
+		float a = p * attenuation * color.a;
+		out_color = vec4(color.rgb * a, a);
 	}
 }

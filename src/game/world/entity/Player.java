@@ -37,7 +37,7 @@ public class Player extends MovableEntity {
 	private static final Vector4f TORCH_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
 	
 	/** The speed of the player in m/s */
-	private static final float MAX_SPEED = 3.0f;
+	private static final float MAX_SPEED = 4.0f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
 	

@@ -28,7 +28,7 @@ public class LaserGun extends Weapon {
 	}
 	
 	public LaserGun(Vector2f position, int ammo) {
-		super(position, ammo, false, 0.09f, 30, 2.0f,
+		super(position, ammo, false, 0.04f, 60, 2.0f,
 				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
 	}
 	
@@ -40,9 +40,9 @@ public class LaserGun extends Weapon {
 	
 	@Override
 	protected float renderBullet(IRenderer r, float x, float y, float p) {
-		r.drawBox(Align.BR, x, y, 20.0f, 40.0f * p, ColorUtil.RED);
-		x -= 20.0f;
+		r.drawBox(Align.BR, x, y, 10.0f, 80.0f * p, ColorUtil.RED);
 		x -= 10.0f;
+		//x -= 10.0f;
 		return x;
 	}
 	
