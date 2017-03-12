@@ -44,7 +44,8 @@ public class SilencedPistol extends Weapon {
 		if (this.reloadSoundID == -1) {
 			System.out.println("Reloading silenced pistol...");
 			this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
-		}else{
+		}
+		else{
 			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
 		}	
 	}
