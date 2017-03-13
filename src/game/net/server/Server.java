@@ -368,6 +368,8 @@ public class Server implements Runnable
 							if (lobby.isFull())
 							{
 								errorReason = "Lobby is full";
+							} else if (lobby.isClosed) {
+								errorReason = "Lobby is closed";
 							} else
 							{
 								// No error - join
