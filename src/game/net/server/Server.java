@@ -163,9 +163,10 @@ public class Server implements Runnable
 			{
 				if (clients.containsKey(name))
 				{
-					error = name + " is already connected.";
-				} else
-				{
+					error = name + " is already connected";
+				} else if (!Util.isValidName(name)) {
+					error = "Invalid name";
+				} else {
 					// Send connection success back
 					tcpConn.sendConnectionResponseSuccess();
 
@@ -187,7 +188,6 @@ public class Server implements Runnable
 		} catch (ProtocolException e)
 		{
 			outTCP("Exception while accepting client: " + e.toString());
-			e.printStackTrace();
 		}
 	}
 

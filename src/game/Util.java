@@ -306,7 +306,7 @@ public class Util {
 	 * Returns true if the character entered is valid for a name
 	 */
 	public static boolean isValidNameChar(char c) {
-		return Character.isLetterOrDigit(c);
+		return Character.isLetterOrDigit(c) && !Character.isUpperCase(c);
 	}
 	
 	/**

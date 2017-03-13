@@ -1,22 +1,31 @@
 package game.ui;
 
+import game.ColorUtil;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
 import game.audio.AudioManager;
+import game.exception.NameException;
+import game.exception.ProtocolException;
 import game.net.client.ClientConnection;
+import game.net.client.ClientDiscovery;
 import game.net.client.IClientConnection;
 import game.render.*;
 import game.ui.component.ButtonComponent;
 import game.ui.component.ImageComponent;
 import game.ui.component.TextEntryComponent;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 /**
  * ConnectUI is responsible for the connection of the user to the server.
  */
 public class ConnectUI extends UI implements InputPipeMulti {
+	private final Object connectLock = new Object();
+	private boolean connecting = false;
+	
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
@@ -28,6 +37,12 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	private ButtonComponent connectButton;
 	/** The auto connect button */
 	private ButtonComponent autoConnectButton;
+	
+	private double time = 0.0f;
+	
+	private Texture loadingTex;
+	
+	private String error;
 	
 	private Font font;
 	
@@ -58,9 +73,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 				() -> { ipEntry.setEnabled(true); nameEntry.setEnabled(false); },
 				0.0f, 0.0f, 0.0f);
 		nameEntry = new TextEntryComponent(font,
-				1.0f, Util::isValidNameChar, this::connect, 20,
+				1.0f, Util::isValidNameChar, this::connect, Util.MAX_NAME_LENGTH,
 				() -> { ipEntry.setEnabled(false); nameEntry.setEnabled(true); },
 				0.0f, 0.0f, 0.0f);
+		nameEntry.setEnabled(false);
 		
 		// Create connect Button
 		connectButton = new ButtonComponent(
@@ -85,6 +101,9 @@ public class ConnectUI extends UI implements InputPipeMulti {
 				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
 		
+		// Create loading texture
+		this.loadingTex = textureBank.getTexture("loading.png");
+		
 		// Add buttons to input handlers
 		this.inputHandlers.add(ipEntry);
 		this.inputHandlers.add(nameEntry);
@@ -99,10 +118,19 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void update(double dt) {
+		time += dt;
+		
 		ipEntry.update(dt);
 		nameEntry.update(dt);
 		connectButton.update(dt);
 		autoConnectButton.update(dt);
+		
+		if (connecting) {
+			ipEntry.setEnabled(false);
+			nameEntry.setEnabled(false);
+		} else if (!ipEntry.isEnabled() && !nameEntry.isEnabled()) {
+			ipEntry.setEnabled(true);
+		}
 	}
 	
 	@Override
@@ -131,14 +159,86 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		nameEntry.render(r);
 		connectButton.render(r);
 		autoConnectButton.render(r);
+		if (connecting) {
+			float angle = (float)(time * 5.0 % (Math.PI * 2));
+			r.drawTexture(loadingTex, Align.MM,
+					autoConnectButton.getX() + padding + loadingTex.getWidth()/2 + autoConnectButton.getWidth(),
+					autoConnectButton.getY() + autoConnectButton.getHeight() - loadingTex.getWidth()/2, angle);
+		} else if (error != null) {
+			r.drawText(font, "Error: " + error, Align.TL, false, padding,
+					autoConnectButton.getY() - padding, 0.5f, ColorUtil.RED);
+		}
 	}
 	
 	public void connect() {
-		System.out.println("connect");
+		System.out.println("Connecting...");
+		error = null;
+		new Thread(() -> connectToServer(nameEntry.getString(), ipEntry.getString()), "ConnectUI Connection Starter").start();
 	}
 	
 	public void autoConnect() {
-		System.out.println("autoconnect");
+		System.out.println("Autoconnecting...");
+		error = null;
+		new Thread(() -> connectToServer(nameEntry.getString(), null), "ConnectUI Connection Starter").start();
+	}
+	
+	private String getLastMessage(Throwable t) {
+		while (t.getCause() != null) {
+			t = t.getCause();
+		}
+		return t.getMessage();
+	}
+	
+	private void connectToServer(String name, String sAddress) {
+		try {
+			boolean temp;
+			synchronized (connectLock) {
+				temp = connecting;
+				connecting = true;
+			}
+			if (temp)
+				return;
+			
+			// Connect
+			if (!Util.isValidName(name)) {
+				error = "Name is not valid";
+				return;
+			}
+			
+			if (sAddress == null) {
+				// Autoconnect
+				try {
+					connection = new ClientConnection(name, 3);
+				} catch (ProtocolException e) {
+					error = "Could not connect to server: " + getLastMessage(e);
+					return;
+				} catch (NameException e) {
+					error = "Name is not valid: " + getLastMessage(e);
+					return;
+				}
+			} else {
+				try {
+					InetAddress addr = InetAddress.getByName(sAddress);
+					connection = new ClientConnection(name, addr);
+				} catch (ProtocolException e) {
+					error = "Could not connect to server: " + getLastMessage(e);
+					return;
+				} catch (NameException e) {
+					error = "Name is not valid: " + getLastMessage(e);
+					return;
+				} catch (UnknownHostException e) {
+					error = "Host could not be resolved";
+					return;
+				}
+			}
+			
+			// Connection successful
+			nextUI = new StartUI(this);
+		} finally {
+			synchronized (connectLock) {
+				connecting = false;
+			}
+		}
 	}
 	
 	@Override

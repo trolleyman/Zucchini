@@ -1,5 +1,7 @@
 package game.net.client;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -34,12 +36,44 @@ public class ClientConnection implements IClientConnection {
 	private ArrayList<Consumer<String>> lobbiesErrorCallbacks = new ArrayList<>();
 	
 	public ClientConnection(String _name) throws ProtocolException, NameException {
+		this(_name, -1);
+	}
+	
+	/**
+	 * Autoconnect to the server {@code tries} times. If the number of tries is exceeded, throws a ProtocolException
+	 */
+	public ClientConnection(String _name, int tries) throws ProtocolException, NameException {
 		this.name = _name;
 		
 		ClientDiscovery clientDiscovery = new ClientDiscovery(name);
-		clientDiscovery.tryDiscover();
+		clientDiscovery.tryDiscover(tries);
 		udpConn = clientDiscovery.getUDP();
 		tcpConn = clientDiscovery.getTCP();
+		
+		udpHandler = new Thread(this::runUdpHandler, "ClientConnection UDP Handler");
+		udpHandler.start();
+		
+		tcpHandler = new Thread(this::runTcpHandler, "ClientConnection TCP Handler");
+		tcpHandler.start();
+	}
+	
+	public ClientConnection(String name, InetAddress addr) throws ProtocolException, NameException {
+		this.name = name;
+		
+		udpConn = new UDPConnection();
+		udpConn.connect(new InetSocketAddress(addr, Protocol.UDP_SERVER_PORT));
+		tcpConn = new TCPConnection(addr, Protocol.TCP_SERVER_PORT);
+		
+		// Now to actually connect - send request with local port to connect to.
+		tcpConn.sendConnectionRequest(name, udpConn.getSocket().getLocalPort());
+		
+		// Recieve response
+		try {
+			tcpConn.recvConnectionResponse();
+		} catch (NameException e) {
+			// Name is already in use / name is invalid
+			throw e;
+		}
 		
 		udpHandler = new Thread(this::runUdpHandler, "ClientConnection UDP Handler");
 		udpHandler.start();
