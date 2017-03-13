@@ -23,6 +23,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	private final float scale;
 	private final Predicate<Character> isValidChar;
 	private final Runnable submitFunc;
+	private final Runnable onFocus;
 	
 	public float w;
 	public float h;
@@ -37,18 +38,24 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	private double time = 0.0;
 	private boolean enabled = true;
 	
+	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, float x, float y, float w) {
+		this(f, scale, isValidChar, submitFunc, maxLength, () -> {}, x, y, w);
+	}
+	
 	/**
 	 * Constructs a new TextEntryComponent
 	 * @param f The font to be used
 	 * @param isValidChar Function returning true if the character given is valid.
 	 * @param submitFunc Function that is called when the user presses the ENTER key.
+	 * @param onFocus Function that is called when the user clicks on the entry.
 	 */
-	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, float x, float y, float w) {
+	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, Runnable onFocus, float x, float y, float w) {
 		super(Align.BL, x, y);
 		this.f = f;
 		this.scale = scale;
 		this.isValidChar = isValidChar;
 		this.submitFunc = submitFunc;
+		this.onFocus = onFocus;
 		
 		this.currentString = new ArrayList<>(maxLength);
 		this.maxLength = maxLength;
@@ -83,7 +90,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 		// Draw the current string
 		r.drawText(f, trunc, Align.BL, false, x + BORDER_WIDTH + INNER_PADDING, y + BORDER_WIDTH + INNER_PADDING, scale);
 		// Draw the cursor
-		if ((int) (time * 2) % 2 == 0 && cursorPos <= trucLen) {
+		if ((int) (time * 2) % 2 == 0 && cursorPos <= trucLen && enabled) {
 			// Calculate cursor position
 			FontAdvancer fa = f.getAdvancer(x + BORDER_WIDTH + INNER_PADDING + 1.0f, 0.0f, scale);
 			
@@ -193,6 +200,8 @@ public class TextEntryComponent extends AbstractButtonComponent {
 			// Not clicked
 			return;
 		}
+		
+		onFocus.run();
 		
 		FontAdvancer fa = f.getAdvancer(0.0f, 0.0f, scale);
 		
