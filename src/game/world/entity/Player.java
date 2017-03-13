@@ -3,6 +3,7 @@ package game.world.entity;
 import game.Util;
 import game.action.Action;
 import game.action.AimAction;
+import game.net.Protocol;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
@@ -291,6 +292,15 @@ public class Player extends MovableEntity {
 	@Override
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
 		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1, null);
+	}
+	
+	@Override
+	public void death(UpdateArgs ua) {
+		super.death(ua);
+		Damage d = getLastDamage();
+		Entity from = ua.bank.getEntity(d.ownerId);
+		String s = d.type.getDescription(from, this);
+		ua.packetCache.sendStringTcp(Protocol.sendMessageToClient("", s));
 	}
 	
 	@Override

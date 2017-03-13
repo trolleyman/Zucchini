@@ -58,7 +58,7 @@ public enum DamageType {
 	
 	/**
 	 * Gets a human-readable description of the damage taken by the entity e.
-	 * The returned string has a full stop, and the first character is a capital letter
+	 * The returned string has a full stop.
 	 * @param from The entity bank that has given the damage. Can be null.
 	 * @param to The entity that has taken damage
 	 */
@@ -76,6 +76,6 @@ public enum DamageType {
 			ret += '.';
 		}
 		// Ensure that the first character is a capital letter
-		return Character.toTitleCase(ret.charAt(0)) + ret.substring(1);
+		return ret;
 	}
 }

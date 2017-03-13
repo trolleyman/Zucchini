@@ -96,4 +96,12 @@ public interface IClientConnectionHandler {
 	default void handleWorldUpdate(WorldUpdate update) {
 		System.err.println("Warning: CCH Unhandled Event: handleWorldUpdate");
 	}
+	
+	/**
+	 * Called when a message is received from the server
+	 * @param name Who the message is from. Can be "", in which case will be from the server directly.
+	 */
+	default void handleMessage(String name, String msg) {
+		System.err.println("Warning: CCH Unhandled Event: handleMessage");
+	}
 }

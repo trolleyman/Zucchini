@@ -10,10 +10,7 @@ import game.action.Action;
 import game.audio.event.AudioEvent;
 import game.exception.NameException;
 import game.exception.ProtocolException;
-import game.net.Protocol;
-import game.net.TCPConnection;
-import game.net.UDPConnection;
-import game.net.WorldStart;
+import game.net.*;
 import game.world.entity.Entity;
 import game.world.entity.update.EntityUpdate;
 import game.world.update.WorldUpdate;
@@ -196,6 +193,13 @@ public class ClientConnection implements IClientConnection {
 					synchronized (cchLock) {
 						cch.handleWorldUpdate(update);
 					}
+				} else if (Protocol.isMessageToClient(msg)) {
+					Tuple<String, String> t = Protocol.parseMessageToClient(msg);
+					String name = t.getFirst();
+					String cmsg = t.getFirst();
+					synchronized (cchLock) {
+						cch.handleMessage(name, cmsg);
+					}
 				} else {
 					System.err.println("[TCP]: " + name + ": Warning: Unknown message received: " + msg);
 				}
@@ -273,6 +277,16 @@ public class ClientConnection implements IClientConnection {
 				lobbiesErrorCallbacks.clear();
 			}
 		}
+	}
+	
+	@Override
+	public void sendStringTcp(String msg) throws ProtocolException {
+		tcpConn.sendString(msg);
+	}
+	
+	@Override
+	public void sendStringUdp(String msg) throws ProtocolException {
+		udpConn.sendString(msg);
 	}
 	
 	@Override

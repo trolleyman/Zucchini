@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
+import game.net.Message;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.ClientWorld;

@@ -237,6 +237,14 @@ public class Lobby {
 			}
 			// Interrupt handler so that it sends a new update to clients
 			lobbyHandler.interrupt();
+		} else if (Protocol.isMessageToServer(msg)) {
+			String msgToServer = Protocol.parseMessageToServer(msg);
+			String name = handler.getClientInfo().name;
+			synchronized (clientsLock) {
+				for (LobbyClient c : clients) {
+					c.handler.sendStringTcp(Protocol.sendMessageToClient(name, msgToServer));
+				}
+			}
 		} else {
 			System.err.println("[TCP]: Warning: Unknown message from " + handler.getClientInfo().name + ": " + msg);
 		}

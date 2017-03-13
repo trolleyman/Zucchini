@@ -10,9 +10,12 @@ import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
+import game.net.Message;
+import game.net.PacketCache;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.map.Map;
@@ -20,9 +23,11 @@ import game.world.entity.update.EntityUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -38,6 +43,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private int playerID;
 	/** The connection to the server */
 	private IClientConnection connection;
+	
+	private final Object messageLogLock = new Object();
+	private final ArrayList<Message> messageLog;
+	
+	/** Temporary variable to store message log color */
+	private final Vector4f messageLogColor = new Vector4f();
 	
 	/**
 	 * The position of the camera.
@@ -73,8 +84,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
-	/** This is the min line of sight buffer. */
-	private FloatBuffer losMinBuf = MemoryUtil.memAllocFloat(32);
 	/** This is the max line of sight buffer. */
 	private FloatBuffer losMaxBuf = MemoryUtil.memAllocFloat(32);
 	
@@ -84,7 +93,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private ClientAudioManager clientAudio;
 	
 	/** Client UpdateArgs structure */
-	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null);
+	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, new PacketCache());
 	
 	/**
 	 * Constructs a client world
@@ -94,12 +103,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param _connection The connection to the server
 	 * @param _audio The audio manager
 	 */
-	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection) {
+	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection, ArrayList<Message> _messageLog) {
 		super(map, bank);
 		this.playerID = _playerID;
 		this.audio = _audio;
 		this.clientAudio = new ClientAudioManager(audio);
 		this.connection = _connection;
+		this.messageLog = _messageLog;
 		connection.setHandler(this);
 		
 		this.updateStep(0.0f);
@@ -157,6 +167,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			for (Entity e : this.bank.entities.values())
 				e.clientUpdate(clientUpdateArgs);
+			
+			try {
+				clientUpdateArgs.packetCache.processCache(connection);
+			} catch (ProtocolException e) {
+				// This is ok. This will be handled when the UI loops
+			}
 		}
 	}
 	
@@ -262,9 +278,32 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
 		}
 		
-		// Render UI
+		// === Render UI ===
+		// Draw messages
+		synchronized (messageLogLock) {
+			Font font = r.getFontBank().getFont("emulogic.ttf");
+			float scale = 0.5f;
+			float mh = font.getHeight(scale);
+			float width = 1000.0f;
+			float y = Util.HUD_PADDING + mh;
+			for (int i = messageLog.size()-1; i >= 0; i--) {
+				Message m = messageLog.get(i);
+				double dt = (System.nanoTime() - m.timeReceived) / (double)Util.NANOS_PER_SECOND;
+				float alpha = (float) (10.0 - dt);
+				alpha = Math.min(1.0f, alpha);
+				if (alpha <= 0.0f)
+					break;
+				
+				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha);
+				r.drawBox(Align.BL, Util.HUD_PADDING, y, width, mh, messageLogColor);
+				messageLogColor.set(1.0f, 1.0f, 1.0f, alpha);
+				r.drawText(font, m.toString(), Align.ML, false, 10.0f, y, scale, messageLogColor);
+				y -= mh;
+			}
+		}
+		
 		// Draw mini-map
-		this.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 30.0f);
+		this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 30.0f);
 		
 		// Draw current ammo
 		if (p != null) {
@@ -340,7 +379,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 		}
 	}
-
+	
 	@Override
 	public void addEntity(Entity e) {
 		this.bank.addEntityCached(e);
@@ -364,6 +403,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleWorldUpdate(WorldUpdate update) {
 		update.updateWorld(this);
+	}
+	
+	@Override
+	public void handleMessage(String name, String msg) {
+		synchronized (messageLogLock) {
+			messageLog.add(new Message(name, msg));
+		}
 	}
 	
 	public void destroy() {

@@ -347,7 +347,7 @@ public class Server implements Runnable
 				handler.error(e);
 			}
 		}
-
+		
 		// Get lobby
 		try
 		{

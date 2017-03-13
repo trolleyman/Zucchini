@@ -71,6 +71,16 @@ public interface IClientConnection {
 	void getLobbies(Consumer<ArrayList<LobbyInfo>> successCallback, Consumer<String> errorCallback);
 	
 	/**
+	 * Sends a string to the server via TCP
+	 */
+	void sendStringTcp(String msg) throws ProtocolException;
+	
+	/**
+	 * Sends a string to the server via UDP
+	 */
+	void sendStringUdp(String msg) throws ProtocolException;
+	
+	/**
 	 * Called when the connection to the server should be closed
 	 */
 	void close();
