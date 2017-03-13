@@ -303,7 +303,8 @@ public class Server implements Runnable
 			{
 				for (Lobby lobby : lobbies.values())
 				{
-					lobbyInfos.add(lobby.toLobbyInfo());
+					if (!lobby.isClosed)
+						lobbyInfos.add(lobby.toLobbyInfo());
 				}
 			}
 			try
