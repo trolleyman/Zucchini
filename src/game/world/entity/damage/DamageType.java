@@ -1,6 +1,9 @@
 package game.world.entity.damage;
 
+import game.world.Team;
 import game.world.entity.Entity;
+import game.world.entity.Player;
+import org.joml.Vector2f;
 
 /**
  * Enum that represents what type of damage has been taken/given.
@@ -15,7 +18,7 @@ public enum DamageType {
 			"%1 blew their brains out"),
 	LASER_DAMAGE(
 			new String[] {"%1 reduced %2 to ashes", "%1 exterminated %2", "%2 was erased by %1", "%1 evicerated %2"},
-			new String[] {"%1 shot their laser in the wrong direction", "%1 was snuffed themselves out"}),
+			new String[] {"%1 shot their laser in the wrong direction", "%1 snuffed themselves out"}),
 	EXPLOSION_DAMAGE(
 			"%1 blew %2 up",
 			"%1 blew themselves to smithereens"),
@@ -77,5 +80,18 @@ public enum DamageType {
 		}
 		// Ensure that the first character is a capital letter
 		return ret;
+	}
+	
+	public static void main(String[] args) {
+		Entity a = new Player(Team.START_FREE_TEAM, new Vector2f(), "A", null);
+		a.setId(0);
+		Entity b = new Player(Team.START_FREE_TEAM, new Vector2f(), "B", null);
+		b.setId(1);
+		for (DamageType dt : DamageType.values()) {
+			for (int i = 0; i < 10; i++)
+				System.out.println(dt.name() + " desc: " + dt.getDescription(a, b));
+			for (int i = 0; i < 3; i++)
+				System.out.println(dt.name() + " suic: " + dt.getDescription(a, a));
+		}
 	}
 }
