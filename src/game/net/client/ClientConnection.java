@@ -196,7 +196,7 @@ public class ClientConnection implements IClientConnection {
 				} else if (Protocol.isMessageToClient(msg)) {
 					Tuple<String, String> t = Protocol.parseMessageToClient(msg);
 					String name = t.getFirst();
-					String cmsg = t.getFirst();
+					String cmsg = t.getSecond();
 					synchronized (cchLock) {
 						cch.handleMessage(name, cmsg);
 					}

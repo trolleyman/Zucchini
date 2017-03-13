@@ -1,6 +1,7 @@
 package game.world.entity.weapon;
 
 import game.Util;
+import game.net.Protocol;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;

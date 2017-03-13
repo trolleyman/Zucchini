@@ -289,16 +289,16 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			for (int i = messageLog.size()-1; i >= 0; i--) {
 				Message m = messageLog.get(i);
 				double dt = (System.nanoTime() - m.timeReceived) / (double)Util.NANOS_PER_SECOND;
-				float alpha = (float) (10.0 - dt);
+				float alpha = (float) (4.0 - dt);
 				alpha = Math.min(1.0f, alpha);
 				if (alpha <= 0.0f)
 					break;
 				
-				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha);
+				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha * 0.7f);
 				r.drawBox(Align.BL, Util.HUD_PADDING, y, width, mh, messageLogColor);
 				messageLogColor.set(1.0f, 1.0f, 1.0f, alpha);
-				r.drawText(font, m.toString(), Align.ML, false, 10.0f, y, scale, messageLogColor);
-				y -= mh;
+				r.drawText(font, m.toString(), Align.ML, false, Util.HUD_PADDING + 5.0f, y+mh/2, scale, messageLogColor);
+				y += mh;
 			}
 		}
 		
