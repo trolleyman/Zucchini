@@ -17,7 +17,7 @@ import game.world.entity.MovableEntity;
  */
 public class AIPlayer extends AutonomousPlayerEntity{
 	public boolean debug = true;
-	public IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
+	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
 	public Item heldItem;
 
 	
