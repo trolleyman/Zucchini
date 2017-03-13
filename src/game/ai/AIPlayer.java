@@ -13,7 +13,6 @@ import game.world.entity.MovableEntity;
 /**
  * Represents an AI player, uses a FSM to determine it's actions
  * @author Yean
- *
  */
 public class AIPlayer extends AutonomousPlayerEntity{
 	public boolean debug = true;
@@ -35,7 +34,7 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	 * @param heldItem
 	 */
 	public AIPlayer(int team, Vector2f position, Item heldItem) {
-		super(team, position,heldItem);
+		super(team, position);
 		this.heldItem = heldItem;
 		if (this.heldItem != null)
 			this.heldItem.setOwnerTeam(this.getTeam());

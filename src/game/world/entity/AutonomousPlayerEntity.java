@@ -17,8 +17,8 @@ public abstract class AutonomousPlayerEntity extends MovableEntity {
 	private transient ArrayList<Node> route = new ArrayList<>();
 	/** The max speed of the entity */
 	private transient float maxSpeed;
-
-	public AutonomousPlayerEntity(int team, Vector2f position, Item heldItem) {
+	
+	public AutonomousPlayerEntity(int team, Vector2f position) {
 		super(team, position, 1.0f);
 	}
 	
