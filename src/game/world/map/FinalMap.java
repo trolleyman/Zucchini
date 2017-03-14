@@ -195,11 +195,13 @@ public class FinalMap extends Map {
             }
         }
 
+        // Center is filled with laser guns
         for (int i = 0; i < innerPickups.size(); i++) {
             initialEntities.add(new Pickup(innerPickups.get(i), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
 
         }
 
+        // Add all types of guns for testing only
         initialEntities.add(new Pickup(new Vector2f(1, 1), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
         initialEntities.add(new Pickup(new Vector2f(2, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f), 16)));
         initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
@@ -211,7 +213,14 @@ public class FinalMap extends Map {
         //initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
         //initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
     }
-    
+
+    /**
+     * Draw 4 walls in a rectangle based on 2 opposite corners
+     * @param x0 First x pos
+     * @param y0 First y pos
+     * @param x1 Second x pos
+     * @param y1 Second y pos
+     */
     public void wall2D(float x0, float y0, float x1, float y1) {
         walls.add(new Wall(x0, y0, x1, y0));
         walls.add(new Wall(x0, y0, x0, y1));
