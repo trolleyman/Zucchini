@@ -141,8 +141,8 @@ public class FinalMap extends Map {
         initialEntities.add(new Pickup(new Vector2f(2.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f),14)));
         initialEntities.add(new Pickup(new Vector2f(1.5f,2.5f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f),16)));
 
-        //initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
-        //initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
+        //initialEntities.add(new Zombie(new Vector2f(9.0f, 2.0f)));
+        //initialEntities.add(new Zombie(new Vector2f(10.5f, 6.0f)));
         //initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
     }
     
