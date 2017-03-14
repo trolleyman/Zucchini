@@ -210,7 +210,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 							handleChar(c);
 						}
 					}
-				} catch (UnsupportedFlavorException | IOException e) {
+				} catch (HeadlessException | UnsupportedFlavorException | IOException e) {
 					// Ignore
 				}
 			}
