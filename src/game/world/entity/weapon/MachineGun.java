@@ -6,6 +6,7 @@ import game.render.Align;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 import game.world.entity.Player;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 public class MachineGun extends Weapon {
@@ -39,12 +40,10 @@ public class MachineGun extends Weapon {
 	@Override
 	public void update(UpdateArgs ua) {
 		super.update(ua);
-		
 	}
 	
 	@Override
 	protected void startReload(UpdateArgs ua) {
-		System.out.println("Reloading machine gun...");
 		if (this.reloadSoundID == -1) {
 			System.out.println("Reloading machine gun...");
 			this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
@@ -70,7 +69,7 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		if (lineOfSightIntersecton == null) {
 			lineOfSightIntersecton = new Vector2f();
 			float x = position.x + Player.LINE_OF_SIGHT_MAX * (float)Math.sin(angle);

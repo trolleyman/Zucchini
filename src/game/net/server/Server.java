@@ -413,6 +413,9 @@ public class Server implements Runnable
 		synchronized (lock)
 		{
 			ClientHandler handler = clients.get(name);
+			if (handler == null)
+				return;
+			
 			ClientInfo info = handler.getClientInfo();
 
 			// Get lobby

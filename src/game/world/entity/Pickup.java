@@ -1,10 +1,12 @@
 package game.world.entity;
 
 import game.render.IRenderer;
-import game.world.EntityBank;
 import game.world.Team;
 import game.world.UpdateArgs;
+import game.world.entity.light.PointLight;
+import game.world.map.Map;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
 /**
  * A pickup is an item found on the floor.
@@ -30,6 +32,12 @@ public class Pickup extends Entity {
 		return item;
 	}
 	
+	private void setParams() {
+		this.item.position
+				.set(this.position)
+				.add(0.0f, (float) Math.sin(time * 4.0f) * 0.1f);
+	}
+	
 	@Override
 	public void update(UpdateArgs ua) {}
 	
@@ -40,12 +48,10 @@ public class Pickup extends Entity {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		// Render the contained item
-		this.item.position
-				.set(this.position)
-				.add(0.0f, (float) Math.sin(time * 4.0f) * 0.1f);
-		this.item.render(r);
+		setParams();
+		this.item.render(r, map);
 	}
 	
 	@Override

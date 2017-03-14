@@ -8,10 +8,10 @@ import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.DamageUpdate;
-import game.world.entity.update.HealthUpdate;
 
 import java.util.Random;
 
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 public abstract class Bullet extends Projectile {
@@ -35,12 +35,12 @@ public abstract class Bullet extends Projectile {
 	}
 	
 	@Override
-	protected void hitMap(UpdateArgs ua, Vector2f mi) {
+	protected void hitMap(UpdateArgs ua, Vector2f mi, Vector2f vel) {
 		ua.audio.play("bullet_impact_wall.wav", 1.0f,mi);
 	}
 	
 	@Override
-	protected void hitEntity(UpdateArgs ua, EntityIntersection ei) {
+	protected void hitEntity(UpdateArgs ua, EntityIntersection ei, Vector2f vel) {
 		// Hit an entity, damage
 		System.out.println("Ow! Bullet hit entity id " + ei.id);
 		Damage odamage = new Damage(ownerId, ownerTeam, DamageType.BULLET_DAMAGE, damage);
@@ -51,7 +51,7 @@ public abstract class Bullet extends Projectile {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		Vector2f temp = Util.pushTemporaryVector2f();
 		temp.set(velocity).normalize().mul(this.getLength());
 		float x = temp.x;

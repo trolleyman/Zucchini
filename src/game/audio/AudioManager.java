@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import game.Resources;
 import game.Util;
 import org.joml.Vector2f;
 import org.lwjgl.openal.AL;
@@ -16,6 +19,7 @@ import org.lwjgl.openal.ALC;
 import static org.lwjgl.openal.ALC10.*;
 import org.lwjgl.openal.ALCCapabilities;
 import static org.lwjgl.system.MemoryUtil.NULL;
+
 
 /**
  * This is the main audio manager class that will contain methods to play sounds, update position of sounds and listeners (players).
@@ -34,6 +38,7 @@ public class AudioManager implements IAudioManager{
     private static Vector2f listenerPos = new Vector2f(0, 0);
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
+	
     /**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
      * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
@@ -47,17 +52,13 @@ public class AudioManager implements IAudioManager{
         
         System.out.println("Loading audio...");
         //place all files into the buffer list
-        File folder = new File( Util.getResourcesDir() + "/audio_assets/" );
-		File[] listOfFiles = folder.listFiles();
+        HashMap<String, byte[]> audioFiles = Resources.getAudioFiles();
 		//create array and hashmaps of all sounds
-		for (File file : listOfFiles) {
-		    if (file.isFile()) {
-		    	placeFileInBuffer(file.getName());
-		    }
+		for (Entry<String, byte[]> e : audioFiles.entrySet()) {
+	        placeFileInBuffer(e.getValue(), e.getKey());
 		}
 		
 		//create the sources for each buffer
-		int j = 0;
 		for (SoundBuffer soundBuffer : soundBufferList){
 			String filename = soundBuffer.getBufferName();
 			List<SoundSource> soundSourcesList = new ArrayList<>();
@@ -85,21 +86,17 @@ public class AudioManager implements IAudioManager{
 				}
 			}
 			soundSourcesMap.put(soundBufferMap.get(soundBuffer.getBufferId()), soundSourcesList);
-			System.out.println("Loaded audio: " + listOfFiles[j].getName());
-			j++;
+			System.out.println("Loaded audio: " + soundBuffer.getBufferName());
 		}
 		//play bgm
 		SoundSource bgm = new SoundSource(true,true);
 		bgm.setVolume(1.0f);
-		SoundBuffer buffer = new SoundBuffer(Util.getResourcesDir() + "/audio_assets/[bgm]Desolation.wav");
+		String bgmName = "[bgm]Desolation.wav";
+		SoundBuffer buffer = new SoundBuffer(audioFiles.get(bgmName), bgmName);
 		bgm.setBuffer(buffer.getBufferId());
 		bgm.play();
 		
-		
-		
-		
-		System.out.println(listOfFiles.length + " audio file(s) loaded.");
-		
+		System.out.println(audioFiles.size() + " audio file(s) loaded.\n");
     }
     /**
      * Starts OpenAL procedures and creates sources layout
@@ -350,14 +347,13 @@ public class AudioManager implements IAudioManager{
     
 	/**
 	 * Place file in resources/audio_assets into a buffer, ready to be played
-	 * @param filename
 	 * @throws Exception
 	 */
-	private void placeFileInBuffer(String filename) throws Exception{
-		SoundBuffer buffer = new SoundBuffer( Util.getResourcesDir() + "/audio_assets/"+filename);
+	private void placeFileInBuffer(byte[] data, String name) throws Exception{
+		SoundBuffer buffer = new SoundBuffer(data, name);
 		//add buffer to list and add name to hash map array for easy referencing
 		this.soundBufferList.add(buffer);
-		this.soundBufferMap.put(buffer.getBufferId(), filename);
+		this.soundBufferMap.put(buffer.getBufferId(), name);
 	}
 	
     public static void main(String args[]) throws Exception{
