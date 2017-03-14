@@ -294,7 +294,7 @@ public class EntityBank {
 	public synchronized ArrayList<Entity> getEntitiesNear(float x, float y, float radius) {
 		float r2 = radius*radius;
 		Vector2f temp = Util.pushTemporaryVector2f();
-		temp.set(x, y);
+		temp.set(x, y); 	
 		ArrayList<Entity> l = new ArrayList<>();
 		for (Entity e : this.entities.values()) {
 			float d2 = temp.distanceSquared(e.position);

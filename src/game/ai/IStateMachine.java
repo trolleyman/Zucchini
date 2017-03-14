@@ -10,4 +10,5 @@ public interface IStateMachine<E, S extends State<E>> {
     public boolean isInState(S state);
 	public S getPreviousState();
 	public boolean revertToPreviousState();
+	public State<E> 
 }
