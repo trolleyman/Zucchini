@@ -25,11 +25,15 @@ class Client implements Runnable, InputPipe {
 	 */
 	private UI ui;
 	
+	/**
+	 * The renderer
+	 */
 	private Renderer renderer;
 	
+	/**
+	 * The audio manager
+	 */
 	private AudioManager audio;
-	
-	private IClientConnection connection;
 	
 	/**
 	 * Previous time in nanoseconds of update.

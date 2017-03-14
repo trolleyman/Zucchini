@@ -17,17 +17,17 @@ public class PhysicsUtil {
 	 * @return null if there was no intersection, otherwise the point of intersection
 	 */
 	public static Vector2f intersectLineLine(
-			float p0_x, float p0_y, float p1_x, float p1_y, // Line 1
-			float p2_x, float p2_y, float p3_x, float p3_y, // Line 2
+			float p0x, float p0y, float p1x, float p1y, // Line 1
+			float p2x, float p2y, float p3x, float p3y, // Line 2
 			Vector2f dest) {
 		
 		float s1_x, s1_y, s2_x, s2_y;
-		s1_x = p1_x - p0_x;		s1_y = p1_y - p0_y;
-		s2_x = p3_x - p2_x;		s2_y = p3_y - p2_y;
+		s1_x = p1x - p0x;		s1_y = p1y - p0y;
+		s2_x = p3x - p2x;		s2_y = p3y - p2y;
 		
 		float s, t;
-		s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
-		t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+		s = (-s1_y * (p0x - p2x) + s1_x * (p0y - p2y)) / (-s2_x * s1_y + s1_x * s2_y);
+		t = ( s2_x * (p0y - p2y) - s2_y * (p0x - p2x)) / (-s2_x * s1_y + s1_x * s2_y);
 		
 		if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
 		{
@@ -35,8 +35,8 @@ public class PhysicsUtil {
 			if (dest == null)
 				dest = new Vector2f();
 			
-			dest.x = p0_x + (t * s1_x);
-			dest.y = p0_y + (t * s1_y);
+			dest.x = p0x + (t * s1_x);
+			dest.y = p0y + (t * s1_y);
 			
 			return dest;
 		}
