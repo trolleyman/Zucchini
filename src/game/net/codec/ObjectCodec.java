@@ -100,7 +100,7 @@ public class ObjectCodec {
 	private static <T> T genFromString(String s, Class<T> clazz) throws ProtocolException {
 		try {
 			return GSON.get().fromJson(s, clazz);
-		} catch (JsonSyntaxException e) {
+		} catch (JsonParseException e) {
 			throw new ProtocolException(e);
 		}
 	}
@@ -131,15 +131,5 @@ public class ObjectCodec {
 	}
 	public static WorldUpdate worldUpdateFromString(String s) throws ProtocolException {
 		return genFromString(s, WorldUpdate.class);
-	}
-	
-	public static void main(String[] args) throws ProtocolException {
-		HandgunBullet b = new HandgunBullet(new Vector2f(2.0f, 3.0f), Entity.INVALID_ID, Team.START_FREE_TEAM, 1.0f);
-		String s = GSON.get().toJson(b, Entity.class);
-		System.out.println("JSON: " + s);
-		Entity e = GSON.get().fromJson(s, Entity.class);
-		boolean val = e instanceof HandgunBullet;
-		System.out.println("e instanceof HangunBullet == " + val);
-		assert(val);
 	}
 }
