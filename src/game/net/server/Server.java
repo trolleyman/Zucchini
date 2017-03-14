@@ -163,9 +163,10 @@ public class Server implements Runnable
 			{
 				if (clients.containsKey(name))
 				{
-					error = name + " is already connected.";
-				} else
-				{
+					error = name + " is already connected";
+				} else if (!Util.isValidName(name)) {
+					error = "Invalid name";
+				} else {
 					// Send connection success back
 					tcpConn.sendConnectionResponseSuccess();
 
@@ -187,7 +188,6 @@ public class Server implements Runnable
 		} catch (ProtocolException e)
 		{
 			outTCP("Exception while accepting client: " + e.toString());
-			e.printStackTrace();
 		}
 	}
 
@@ -303,7 +303,8 @@ public class Server implements Runnable
 			{
 				for (Lobby lobby : lobbies.values())
 				{
-					lobbyInfos.add(lobby.toLobbyInfo());
+					if (!lobby.isClosed)
+						lobbyInfos.add(lobby.toLobbyInfo());
 				}
 			}
 			try
@@ -346,7 +347,7 @@ public class Server implements Runnable
 				handler.error(e);
 			}
 		}
-
+		
 		// Get lobby
 		try
 		{
@@ -368,6 +369,8 @@ public class Server implements Runnable
 							if (lobby.isFull())
 							{
 								errorReason = "Lobby is full";
+							} else if (lobby.isClosed) {
+								errorReason = "Lobby is closed";
 							} else
 							{
 								// No error - join
@@ -413,6 +416,9 @@ public class Server implements Runnable
 		synchronized (lock)
 		{
 			ClientHandler handler = clients.get(name);
+			if (handler == null)
+				return;
+			
 			ClientInfo info = handler.getClientInfo();
 
 			// Get lobby

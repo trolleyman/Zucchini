@@ -18,6 +18,7 @@ public class Lobby {
 	public int maxPlayers;
 	public int minPlayers;
 	public double countdownTime = -1.0f;
+	public boolean isClosed = false;
 	
 	private final Object clientsLock = new Object();
 	private ArrayList<LobbyClient> clients;
@@ -119,6 +120,7 @@ public class Lobby {
 		
 		world = new ServerWorld(map, new EntityBank());
 		synchronized (clientsLock) {
+			isClosed = true;
 			for (LobbyClient c : clients)
 				world.addClient(c);
 		}
@@ -235,6 +237,14 @@ public class Lobby {
 			}
 			// Interrupt handler so that it sends a new update to clients
 			lobbyHandler.interrupt();
+		} else if (Protocol.isMessageToServer(msg)) {
+			String msgToServer = Protocol.parseMessageToServer(msg);
+			String name = handler.getClientInfo().name;
+			synchronized (clientsLock) {
+				for (LobbyClient c : clients) {
+					c.handler.sendStringTcp(Protocol.sendMessageToClient(name, msgToServer));
+				}
+			}
 		} else {
 			System.err.println("[TCP]: Warning: Unknown message from " + handler.getClientInfo().name + ": " + msg);
 		}

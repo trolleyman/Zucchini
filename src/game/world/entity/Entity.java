@@ -2,9 +2,9 @@ package game.world.entity;
 
 import com.google.gson.annotations.SerializedName;
 import game.world.entity.damage.Damage;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
-import game.audio.AudioManager;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
 
@@ -50,6 +50,11 @@ public abstract class Entity implements Cloneable {
 	private float health;
 	
 	/**
+	 * This holds the last damage that this entity received. Can be null.
+	 */
+	private transient Damage lastDamage;
+	
+	/**
 	 * Clones the specified entity
 	 * @param e The entity
 	 */
@@ -92,14 +97,25 @@ public abstract class Entity implements Cloneable {
 	 * @param ua The UpdateArgs class
 	 */
 	public void death(UpdateArgs ua) {
-		System.out.println("[Game]: *URK*: Death of entity " + id + ". R.I.P.");
+		if (lastDamage != null) {
+			Entity from = ua.bank.getEntity(lastDamage.ownerId);
+			System.out.println("[Game]: " + lastDamage.type.getDescription(from, this));
+		}
 	}
 	
 	/**
 	 * Renders the entity to the screen
 	 * @param r The renderer
+	 * @param map
 	 */
-	public abstract void render(IRenderer r);
+	public abstract void render(IRenderer r, Map map);
+	
+	/**
+	 * Renders the light associated with the entity. By default the entity emits no light.
+	 * @param r The renderer
+	 * @param map
+	 */
+	public void renderLight(IRenderer r, Map map) {}
 	
 	/**
 	 * Calculates an intersection with the entity and a line
@@ -141,6 +157,14 @@ public abstract class Entity implements Cloneable {
 	 */
 	public void addDamage(Damage damage) {
 		this.addHealth(-damage.amount);
+		this.lastDamage = damage;
+	}
+	
+	/**
+	 * Gets the last damage suffered by the entity. Can be null.
+	 */
+	public Damage getLastDamage() {
+		return lastDamage;
 	}
 	
 	/**
@@ -167,6 +191,13 @@ public abstract class Entity implements Cloneable {
 	 */
 	public int getTeam() {
 		return this.team;
+	}
+	
+	/**
+	 * Gets the human-readable name for the entity.
+	 */
+	public String getReadableName() {
+		return toString();
 	}
 	
 	/**

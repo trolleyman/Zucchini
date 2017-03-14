@@ -8,5 +8,5 @@ in vec2 t_uv;
 out vec4 out_color;
 
 void main() {
-    out_color = color * texture(tex, t_uv);
+	out_color = color * texture(tex, t_uv);
 }

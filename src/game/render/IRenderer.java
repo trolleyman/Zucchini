@@ -3,6 +3,7 @@ package game.render;
 import game.ColorUtil;
 import game.InputHandler;
 import org.joml.MatrixStackf;
+import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import java.nio.FloatBuffer;
@@ -21,11 +22,6 @@ public interface IRenderer {
 	 * @param ih The {@link InputHandler}
 	 */
 	void setInputHandler(InputHandler ih);
-	/**
-	 * Sets whether or not to enable VSync
-	 * @param enable true to enable VSync
-	 */
-	void setVSync(boolean enable);
 	
 	/**
 	 * Returns the width of the renderer. This is the inner width of the window.
@@ -48,6 +44,16 @@ public interface IRenderer {
 	void destroy();
 	
 	/**
+	 * Gets the current renderer settings
+	 */
+	RenderSettings getRenderSettings();
+	
+	/**
+	 * Sets the current render settings
+	 */
+	void setRenderSettings(RenderSettings settings);
+	
+	/**
 	 * Returns whether the user has quitted the window.
 	 * @return true if the user has requested the window to shut down.
 	 */
@@ -57,6 +63,23 @@ public interface IRenderer {
 	 * This should be called at the beginning of every frame, never at any other time.
 	 */
 	void beginFrame();
+	
+	/**
+	 * Begins the rendering to the world framebuffer
+	 */
+	void beginDrawWorld();
+	
+	/**
+	 * Ends the rendering to the world framebuffer, and draws the result to the screen
+	 */
+	void endDrawWorld();
+	
+	void beginDrawLighting();
+	
+	void endDrawLighting();
+	
+	void drawWorldWithLighting();
+	
 	/**
 	 * This should be called at the end of every frame, never at any other time.
 	 */
@@ -217,6 +240,38 @@ public interface IRenderer {
 	}
 	
 	void drawCircle(float x, float y, float radius, Vector4f c);
+	
+	/**
+	 * Draws a point light at the specified position with the specified color and attenuation.
+	 * @param data The shape of the light, specified in triangle fan format.
+	 */
+	void drawPointLight(FloatBuffer data, Vector4f c, float attenuationFactor);
+	
+	/**
+	 * Draws a spotlight at the specified position with the specified color, attenuation, cone angle and direction.
+	 * @param data The shape of the light, specified in triangle fan format.
+	 */
+	default void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, Vector2f coneDirection) {
+		drawSpotlight(data, c, attenuationFactor, coneAngleMin, coneAngleMax, coneDirection.x, coneDirection.y);
+	}
+	
+	/**
+	 * Draws a spotlight at the specified position with the specified color, attenuation, cone angle and direction.
+	 * @param data The shape of the light, specified in triangle fan format.
+	 */
+	void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, float coneDirectionX, float coneDirectionY);
+	
+	/**
+	 * Draws a tube light at the
+	 * @param x The start x-coordinate of the tube
+	 * @param y The start y-coordinate of the tube
+	 * @param angle The angle of the tube direction
+	 * @param length The length of the tube
+	 * @param width The width of the tube
+	 * @param c The color of the tube light
+	 * @param attenuationFactor The attenuation factor of the light
+	 */
+	void drawTubeLight(float x, float y, float angle, float length, float width, Vector4f c, float attenuationFactor);
 	
 	/**
 	 * Enables stencil drawing

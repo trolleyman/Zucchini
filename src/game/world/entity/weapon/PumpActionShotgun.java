@@ -5,6 +5,7 @@ import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
 import game.world.UpdateArgs;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 public class PumpActionShotgun extends Weapon {
@@ -21,7 +22,7 @@ public class PumpActionShotgun extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		r.drawBox(a, position.x, position.y, 0.1f, getHeight(), ColorUtil.YELLOW, this.angle);
 	}
@@ -51,7 +52,7 @@ public class PumpActionShotgun extends Weapon {
 	@Override
 	protected void startReload(UpdateArgs ua) {
 		if (this.reloadSoundID  == -1) {
-			System.out.println("Reloading pump action shotgun...");
+			// System.out.println("Reloading pump action shotgun...");
 			this.reloadSoundID = ua.audio.play("pump-shotgun-reload[4sec].wav", 0.6f, this.position);
 		}else{
 			ua.audio.updateSourcePos(this.reloadSoundID, this.position);

@@ -176,7 +176,7 @@ public abstract class Weapon extends Item {
 			}
 		}
 		
-		if(reloading){
+		if(reloading) {
 			this.startReload(ua);
 		}
 		

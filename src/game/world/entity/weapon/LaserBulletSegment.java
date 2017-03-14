@@ -1,12 +1,13 @@
 package game.world.entity.weapon;
 
-import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
+import game.world.entity.light.TubeLight;
+import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -21,6 +22,8 @@ public class LaserBulletSegment extends Entity {
 	
 	private float startGrad;
 	private float endGrad;
+	
+	private transient TubeLight light;
 	
 	private transient Vector4f color;
 	
@@ -65,13 +68,37 @@ public class LaserBulletSegment extends Entity {
 		}
 	}
 	
+	public void updateLightParams() {
+		if (light == null)
+			light = new TubeLight(new Vector2f(), 0.0f, 0.0f, 0.0f, new Vector4f(), 0.0f);
+		
+		light.position.set(this.position);
+		light.angle = this.angle;
+		light.length = this.length;
+		light.color.set(this.color);
+		light.color.w = 0.5f - 0.8f*(float)(time / TTL);
+		light.width = 1.0f;
+		light.attenuationFactor = 200.0f;
+	}
+	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		if (color == null)
 			color = new Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
 		color.w = 1 - (float)(time / TTL);
 		Texture t = r.getTextureBank().getTexture("laserBullet.png");
 		r.drawTextureUV(t, Align.BM, position.x, position.y, WIDTH, length, angle,  0.0f, endGrad, 1.0f, startGrad, color);
+		
+		updateLightParams();
+		light.render(r, map);
+	}
+	
+	@Override
+	public void renderLight(IRenderer r, Map map) {
+		super.renderLight(r, map);
+		
+		updateLightParams();
+		light.renderLight(r, map);
 	}
 	
 	@Override

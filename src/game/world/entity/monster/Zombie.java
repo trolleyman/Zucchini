@@ -8,6 +8,7 @@ import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
+import game.world.map.Map;
 import game.world.map.PathFindingMap;
 import game.world.entity.update.PositionUpdate;
 
@@ -77,12 +78,17 @@ public class Zombie extends AutonomousEntity {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		float x = position.x + 0.25f * (float) Math.sin(angle);
 		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
 		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
 		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+	}
+	
+	@Override
+	public String getReadableName() {
+		return "a zombie";
 	}
 	
 	@Override

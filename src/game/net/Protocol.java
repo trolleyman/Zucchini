@@ -2,6 +2,7 @@ package game.net;
 
 import com.google.gson.*;
 import game.LobbyInfo;
+import game.Util;
 import game.action.Action;
 import game.action.ActionType;
 import game.action.AimAction;
@@ -24,12 +25,6 @@ public class Protocol {
 	// TODO: Handle TXP_EXIT and UDP_EXIT
 	public static final String UDP_EXIT = "[EXIT_UDP]";
 	public static final String TCP_EXIT = "[EXIT_TCP]";
-	
-	public static final String TCP_PING = "[PING]";
-	public static final String TCP_PONG = "[PONG]";
-	public static final String TCP_MESSAGE = "[MES]"; // TODO: Handle Message
-	
-	public static final String TCPSocketTag = "[TCP_SOCK]";
 	
 	public static final int UDP_DISCOVERY_PORT = 6611;
 	public static final int UDP_SERVER_PORT = 6612;
@@ -58,6 +53,8 @@ public class Protocol {
 	private static final String TAG_READY_TOGGLE         = "[READY_TOGGLE]";
 	private static final String TAG_WORLD_START          = "[WORLD_START]";
 	private static final String TAG_WORLD_UPDATE         = "[WORLD_UPDATE]";
+	private static final String TAG_MESSAGE_TO_SERVER    = "[MESS_S]";
+	private static final String TAG_MESSAGE_TO_CLIENT    = "[MESS_C]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {
@@ -454,5 +451,44 @@ public class Protocol {
 	
 	public static WorldUpdate parseWorldUpdate(String msg) throws ProtocolException {
 		return ObjectCodec.worldUpdateFromString(msg.substring(TAG_WORLD_UPDATE.length()));
+	}
+	
+	/**************** Send Message To Server ****************/
+	public static String sendMessageToServer(String msg) {
+		return TAG_MESSAGE_TO_SERVER + msg;
+	}
+	
+	public static boolean isMessageToServer(String msg) {
+		return msg.startsWith(TAG_MESSAGE_TO_SERVER);
+	}
+	
+	public static String parseMessageToServer(String msg) {
+		return msg.substring(TAG_MESSAGE_TO_SERVER.length());
+	}
+	
+	/**************** Send Message To Client ****************/
+	private static final char NAME_SEPERATOR = ' ';
+	static {
+		// Ensure that the name seperator will not occur in a username
+		assert(!Util.isValidNameChar(NAME_SEPERATOR));
+	}
+	
+	public static String sendMessageToClient(String name, String msg) {
+		return TAG_MESSAGE_TO_CLIENT + name + NAME_SEPERATOR + msg;
+	}
+	
+	public static boolean isMessageToClient(String msg) {
+		return msg.startsWith(TAG_MESSAGE_TO_CLIENT);
+	}
+	
+	public static Tuple<String, String> parseMessageToClient(String msg) throws ProtocolException {
+		msg = msg.substring(TAG_MESSAGE_TO_CLIENT.length());
+		int i = msg.indexOf(NAME_SEPERATOR);
+		if (i == -1)
+			throw new ProtocolException("Invalid Message Packet received: " + msg);
+		
+		String name = msg.substring(0, i);
+		String cmsg = msg.substring(i+1);
+		return new Tuple<>(name, cmsg);
 	}
 }
