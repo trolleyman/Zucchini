@@ -18,6 +18,7 @@ import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.entity.update.TorchLightUpdate;
 import game.world.entity.weapon.Knife;
+import game.world.entity.weapon.Weapon;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -328,6 +329,12 @@ public class Player extends MovableEntity {
 		case TOGGLE_LIGHT:
 			this.torchOn = !this.torchOn;
 			bank.updateEntityCached(new TorchLightUpdate(this.getId(), this.torchOn));
+			break;
+		case RELOAD:
+			if (heldItem != null && heldItem instanceof Weapon) {
+				Weapon w = (Weapon) heldItem;
+				w.doReload(bank);
+			}
 			break;
 		}
 	}

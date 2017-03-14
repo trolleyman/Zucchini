@@ -384,6 +384,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 					connection.error(e);
 				}
 				break;
+			case GLFW_KEY_R:
+				try {
+					connection.sendAction(new Action(ActionType.RELOAD));
+				} catch (ProtocolException e) {
+					connection.error(e);
+				}
+				break;
 			}
 		} else if (action == GLFW_RELEASE) { // End move
 			switch (key) {

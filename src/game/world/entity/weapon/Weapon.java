@@ -7,6 +7,7 @@ import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
 import game.render.Texture;
+import game.world.EntityBank;
 import game.world.UpdateArgs;
 import game.world.entity.Item;
 import game.world.entity.update.HeldItemUpdate;
@@ -37,7 +38,7 @@ public abstract class Weapon extends Item {
 	
 	@SerializedName("cdn")
 	private float cooldown;
-	private int shots;
+	private int shotsPerMag;
 	@SerializedName("rdgTime")
 	private float reloadingTime;
 	
@@ -64,7 +65,7 @@ public abstract class Weapon extends Item {
 		this.semiAuto = g.semiAuto;
 		
 		this.cooldown = g.cooldown;
-		this.shots = g.shots;
+		this.shotsPerMag = g.shotsPerMag;
 		this.reloadingTime = g.reloadingTime;
 		
 		this.fire = g.fire;
@@ -80,11 +81,11 @@ public abstract class Weapon extends Item {
 	 * Constructs a weapon. The deviation is set to 0.
 	 * @param position Position of the weapon in the world
 	 * @param _cooldown The minimum time in seconds between each shot
-	 * @param _shots The number of shots in a clip
+	 * @param _shotsPerMag The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 */
-	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime) {
-		this(position, _ammo, _semiAuto, _cooldown, _shots, _reloadingTime, 0.0f);
+	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shotsPerMag, float _reloadingTime) {
+		this(position, _ammo, _semiAuto, _cooldown, _shotsPerMag, _reloadingTime, 0.0f);
 	}
 	
 	/**
@@ -93,12 +94,12 @@ public abstract class Weapon extends Item {
 	 * @param _ammo The current ammunition held
 	 * @param _semiAuto If the weapon is semi-auto or not
 	 * @param _cooldown The minimum time in seconds between each shot
-	 * @param _shots The number of shots in a clip
+	 * @param _shotsPerMag The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 * @param deviation The deviation.
 	 */
-	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float deviation) {
-		this(position, _ammo, _semiAuto, _cooldown, _shots, _reloadingTime, deviation, deviation, 0.0f, 0.0f);
+	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shotsPerMag, float _reloadingTime, float deviation) {
+		this(position, _ammo, _semiAuto, _cooldown, _shotsPerMag, _reloadingTime, deviation, deviation, 0.0f, 0.0f);
 	}
 	
 	/**
@@ -107,21 +108,21 @@ public abstract class Weapon extends Item {
 	 * @param _ammo The current ammunition held
 	 * @param _semiAuto If the weapon is semi-auto or not
 	 * @param _cooldown The minimum time in seconds between each shot
-	 * @param _shots The number of shots in a clip
+	 * @param _shotsPerMag The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 * @param _deviationMin The starting deviation, in radians
 	 * @param _deviationMax The maximum deviation, in radians
 	 * @param _deviationInc How much the deviation is incremented by each shot, in radians
 	 * @param _deviationDecay How much the deviation decays by per second, in radians
 	 */
-	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shots, float _reloadingTime, float _deviationMin, float _deviationMax, float _deviationInc, float _deviationDecay) {
+	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shotsPerMag, float _reloadingTime, float _deviationMin, float _deviationMax, float _deviationInc, float _deviationDecay) {
 		super(position);
 		this.ammo = _ammo;
 		this.semiAuto = _semiAuto;
 		
 		this.cooldown = _cooldown;
-		this.shots = _shots;
-		this.currentShots = this.shots;
+		this.shotsPerMag = _shotsPerMag;
+		this.currentShots = this.shotsPerMag;
 		this.reloadingTime = _reloadingTime;
 		this.deviation = _deviationMin;
 		this.deviationMin = _deviationMin;
@@ -159,24 +160,14 @@ public abstract class Weapon extends Item {
 			this.currentShots--;
 			if (this.currentShots == 0) {
 				// Reload				
-				this.currentCooldown = this.reloadingTime;
-				if(this.ammo!=0){
-					this.reloading = true;
-				}
-				if (this.ammo != -1 && this.ammo < this.shots)
-					this.currentShots = this.ammo;
-				else
-					this.currentShots = this.shots;
-				
-				if (this.ammo != -1)
-					this.ammo = Math.max(0, this.ammo - this.shots);
+				this.doReload(ua.bank);
 				
 			} else {
 				this.currentCooldown = this.cooldown;
 			}
 		}
 		
-		if(reloading) {
+		if (reloading) {
 			this.startReload(ua);
 		}
 		
@@ -196,6 +187,31 @@ public abstract class Weapon extends Item {
 		
 		if (updated)
 			ua.bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
+	}
+	
+	public void doReload(EntityBank bank) {
+		// Update cooldown and marker variable
+		this.currentCooldown = this.reloadingTime;
+		if (this.ammo != 0){
+			this.reloading = true;
+		}
+		
+		// Empty current mag into ammo pool if not empty
+		if (this.currentShots != 0) {
+			this.ammo += this.currentShots;
+		}
+		
+		// Update current mag shots
+		if (this.ammo != -1 && this.ammo < this.shotsPerMag)
+			this.currentShots = this.ammo;
+		else
+			this.currentShots = this.shotsPerMag;
+		
+		// Update ammo
+		if (this.ammo != -1)
+			this.ammo = Math.max(0, this.ammo - this.shotsPerMag);
+		
+		bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
 	}
 	
 	@Override
@@ -255,9 +271,9 @@ public abstract class Weapon extends Item {
 	
 	protected abstract void fire(UpdateArgs ua, float angle);
 	
-	protected void startReload(UpdateArgs ua) {};
+	protected void startReload(UpdateArgs ua) {}
 	
-	protected void endReload(UpdateArgs ua) {};
+	protected void endReload(UpdateArgs ua) {}
 	
 	@Override
 	public abstract Weapon clone();
