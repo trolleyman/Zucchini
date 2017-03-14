@@ -98,6 +98,8 @@ public class Util {
 		int stackSize = vector3fStackSize.get();
 		stackSize--;
 		vector3fStackSize.set(stackSize);
+		if (stackSize < 0)
+			throw new IndexOutOfBoundsException();
 	}
 	
 	// ======= Vector2f Stack =======
@@ -137,6 +139,8 @@ public class Util {
 		int stackSize = vector2fStackSize.get();
 		stackSize--;
 		vector2fStackSize.set(stackSize);
+		if (stackSize < 0)
+			throw new IndexOutOfBoundsException();
 	}
 	
 	/**

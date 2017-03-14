@@ -2,6 +2,8 @@ package test;
 
 import game.Util;
 import game.render.Align;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.util.Arrays;
+import java.util.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,18 +31,46 @@ class UtilTest {
 		MemoryUtil.memFree(buf2);
 	}
 	
-	private void testSort(float[] arr) {
-		float[] sarr = arr.clone();
-		// Test against library sort
-		Arrays.sort(sarr);
-		buf2.put(sarr);
-		buf2.flip();
+	@Test
+	void testStackVector3f() {
+		Vector3f v1 = Util.pushTemporaryVector3f();
+		assertEquals(new Vector3f(0.0f, 0.0f, 0.0f), v1);
+		v1.set(1.1f, 1.2f, 1.3f);
 		
-		buf1.put(arr);
-		buf1.flip();
-		Util.sortFloatBuffer(buf1);
+		Vector3f v2 = Util.pushTemporaryVector3f();
+		assertEquals(new Vector3f(0.0f, 0.0f, 0.0f), v2);
+		v2.set(2.1f, 2.2f, 2.3f);
+		Util.popTemporaryVector3f();
+		v2 = Util.pushTemporaryVector3f();
+		assertEquals(new Vector3f(0.0f, 0.0f, 0.0f), v2);
+		Vector3f v3 = Util.pushTemporaryVector3f();
+		assertEquals(new Vector3f(0.0f, 0.0f, 0.0f), v3);
+		v3.set(3.1f, 3.2f, 3.3f);
+		Util.popTemporaryVector3f();
+		Util.popTemporaryVector3f();
+		Util.popTemporaryVector3f();
+		assertThrows(IndexOutOfBoundsException.class, Util::popTemporaryVector3f);
+	}
+	
+	@Test
+	void testStackVector2f() {
+		Vector2f v1 = Util.pushTemporaryVector2f();
+		assertEquals(new Vector2f(0.0f, 0.0f), v1);
+		v1.set(1.1f, 1.2f);
 		
-		assertEquals(buf2, buf1);
+		Vector2f v2 = Util.pushTemporaryVector2f();
+		assertEquals(new Vector2f(0.0f, 0.0f), v2);
+		v2.set(2.1f, 2.2f);
+		Util.popTemporaryVector2f();
+		v2 = Util.pushTemporaryVector2f();
+		assertEquals(new Vector2f(0.0f, 0.0f), v2);
+		Vector2f v3 = Util.pushTemporaryVector2f();
+		assertEquals(new Vector2f(0.0f, 0.0f), v3);
+		v3.set(3.1f, 3.2f);
+		Util.popTemporaryVector2f();
+		Util.popTemporaryVector2f();
+		Util.popTemporaryVector2f();
+		assertThrows(IndexOutOfBoundsException.class, Util::popTemporaryVector2f);
 	}
 	
 	@Test
@@ -113,6 +144,20 @@ class UtilTest {
 		assertEquals(false, Util.isValidLobbyName("tooooooooooooooooloooooooooooooong"));
 		assertEquals(true , Util.isValidLobbyName("username"));
 		assertEquals(true , Util.isValidLobbyName("spaces bad"));
+	}
+	
+	private void testSort(float[] arr) {
+		float[] sarr = arr.clone();
+		// Test against library sort
+		Arrays.sort(sarr);
+		buf2.put(sarr);
+		buf2.flip();
+		
+		buf1.put(arr);
+		buf1.flip();
+		Util.sortFloatBuffer(buf1);
+		
+		assertEquals(buf2, buf1);
 	}
 	
 	@Test
