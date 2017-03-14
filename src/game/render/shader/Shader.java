@@ -27,7 +27,9 @@ public class Shader {
 	 * Returns the number of shaders currently loaded.
 	 */
 	public static int getShadersLoaded() {
-		return shadersLoaded;
+		int loaded = shadersLoaded;
+		shadersLoaded = 0;
+		return loaded;
 	}
 	
 	/** The currently used shader. This is used for optimization. */
@@ -152,11 +154,15 @@ public class Shader {
 		return loc;
 	}
 	
+	public boolean isCurrentShader() {
+		return getCurrentShader() == this;
+	}
+	
 	/**
 	 * Uses the program of the shader. See {@link org.lwjgl.opengl.GL20#glUseProgram(int) glUseProgram(int)}
 	 */
 	public void use() {
-		if (currentShader == this) // Shader already used
+		if (isCurrentShader())
 			return;
 		
 		glUseProgram(program);

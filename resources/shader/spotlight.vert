@@ -2,12 +2,13 @@
 
 uniform mat4 mvp;
 
-in vec2 position;
-in vec2 uv;
+uniform vec2 lightPosition;
 
-out vec2 t_uv;
+in vec2 position;
+
+out vec2 t_fromLight;
 
 void main() {
-	t_uv = uv;
+	t_fromLight = position - lightPosition;
 	gl_Position = mvp * vec4(position, 0.0, 1.0);
 }

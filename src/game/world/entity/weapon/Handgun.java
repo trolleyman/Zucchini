@@ -1,8 +1,8 @@
 package game.world.entity.weapon;
 
 import game.Util;
-import game.render.Texture;
 import game.world.UpdateArgs;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 import game.ColorUtil;
@@ -55,7 +55,7 @@ public class Handgun extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		r.drawBox(Align.BM, position.x, position.y, 0.2f, getHeight(), ColorUtil.PINK, this.angle);
 	}
 	

@@ -196,7 +196,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		
 		// If passed an integer amount of seconds
 		if (newSecs < prevSecs) {
-			// Maybe eventually sound a beep for every second
+			// TODO: Maybe sound a beep for every second
 			System.out.println("[Lobby]: Game starting in " + prevSecs + "...");
 		}
 		

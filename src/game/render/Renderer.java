@@ -3,9 +3,7 @@ package game.render;
 import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
-import game.render.shader.Shader;
-import game.render.shader.SimpleShader;
-import game.render.shader.TextureShader;
+import game.render.shader.*;
 import org.joml.MatrixStackf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -18,11 +16,12 @@ import java.nio.FloatBuffer;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Renderer implements IRenderer {
 	private static final int CIRCLE_VERTICES = 128;
-
+	
 	/** Window handle. See <a target="_top" href="http://www.glfw.org/docs/latest/window_guide.html#window_object">here</a> */
 	private long window;
 	
@@ -32,6 +31,10 @@ public class Renderer implements IRenderer {
 	// Shaders
 	private SimpleShader simpleShader;
 	private TextureShader textureShader;
+	private LightingPassShader lightingPassShader;
+	private PointLightShader pointLightShader;
+	private SpotlightShader spotlightShader;
+	private TubeLightShader tubeLightShader;
 	
 	// Meshes
 	/** Box VAO */
@@ -53,6 +56,12 @@ public class Renderer implements IRenderer {
 	/** Circle VAO. This is a circle at 0,0 of radius 1, with CIRCLE_VERTICES number of vertices */
 	private VAO circle;
 	
+	/** Framebuffer that holds the world render prior to post-processing */
+	private Framebuffer worldFramebuffer;
+	
+	/** Framebuffer that holds the light render prior to post-processing */
+	private Framebuffer lightFramebuffer;
+	
 	/** Current input handler */
 	private InputHandler ih;
 	
@@ -73,6 +82,9 @@ public class Renderer implements IRenderer {
 	
 	/** Should the game recalculate the projection matrix on the next frame? */
 	private boolean dirty;
+	
+	/** Should the game regen shaders next frame? */
+	private boolean regenShaders;
 	
 	/** Projection matrix */
 	private MatrixStackf matProjection = new MatrixStackf(1);
@@ -141,6 +153,10 @@ public class Renderer implements IRenderer {
 		
 		// Setup input handlers
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+			if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
+				this.regenShaders = true;
+			}
+			
 			this.ih.handleKey(key, scancode, action, mods);
 		});
 		glfwSetCharCallback(window, (window, cp) -> {
@@ -167,6 +183,8 @@ public class Renderer implements IRenderer {
 			this.windowW = w;
 			this.windowH = h;
 			this.dirty = true;
+			worldFramebuffer.resize(w, h);
+			lightFramebuffer.resize(w, h);
 			this.ih.handleResize(w, h);
 		});
 		int[] wBuf = new int[1];
@@ -190,10 +208,11 @@ public class Renderer implements IRenderer {
 		System.out.println("DPI Scale: " + screenToPixelCoordinates(1));
 		
 		// Load shaders
-		System.out.println("Loading shaders...");
-		simpleShader = new SimpleShader();
-		textureShader = new TextureShader();
-		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.\n");
+		loadShaders();
+		
+		// Load framebuffers
+		worldFramebuffer = new Framebuffer(windowW, windowH);
+		lightFramebuffer = new Framebuffer(windowW, windowH);
 		
 		// Load images
 		tb = new TextureBank();
@@ -209,7 +228,6 @@ public class Renderer implements IRenderer {
 		
 		// Set OpenGL settings
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_STENCIL);
 		glEnable(GL_STENCIL_TEST);
@@ -225,7 +243,7 @@ public class Renderer implements IRenderer {
 		double scale = this.windowW / this.windowScreenW;
 		return coord * scale;
 	}
-
+	
 	/**
 	 * Generate the VAO meshes.
 	 */
@@ -328,6 +346,26 @@ public class Renderer implements IRenderer {
 		this.ih.handleResize(windowW, windowH);
 	}
 	
+	private void destroyShaders() {
+		simpleShader.destroy();
+		textureShader.destroy();
+		lightingPassShader.destroy();
+		pointLightShader.destroy();
+		spotlightShader.destroy();
+		tubeLightShader.destroy();
+	}
+	
+	private void loadShaders() {
+		System.out.println("Loading shaders...");
+		simpleShader = new SimpleShader();
+		textureShader = new TextureShader();
+		lightingPassShader = new LightingPassShader();
+		pointLightShader = new PointLightShader();
+		spotlightShader = new SpotlightShader();
+		tubeLightShader = new TubeLightShader();
+		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.\n");
+	}
+	
 	@Override
 	public void destroy() {
 		// Free the images
@@ -336,10 +374,15 @@ public class Renderer implements IRenderer {
 		// Free the boxes
 		box.destroy();
 		boxUV.destroy();
+		boxDynamic.destroy();
+		polygonVAO.destroy();
+		circle.destroy();
 		
 		// Free the shaders
-		simpleShader.destroy();
-		textureShader.destroy();
+		destroyShaders();
+		
+		// Free the framebuffers
+		worldFramebuffer.destroy();
 		
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(window);
@@ -357,10 +400,20 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void beginFrame() {
+		if (regenShaders) {
+			destroyShaders();
+			loadShaders();
+			regenShaders = false;
+		}
+		
 		if (this.dirty)
 			recalcProjectionMatrix();
 		
+		Framebuffer.bindDefault();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glStencilMask(0xFF);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 		
 		this.disableStencilDraw();
@@ -368,6 +421,53 @@ public class Renderer implements IRenderer {
 		
 		matModelView.clear();
 		
+		Shader.useNullProgram();
+	}
+	
+	@Override
+	public void beginDrawWorld() {
+		worldFramebuffer.bind();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glStencilMask(0xFF);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
+		
+		this.disableStencilDraw();
+		this.disableStencil();
+	}
+	
+	@Override
+	public void endDrawWorld() {
+		Framebuffer.bindDefault();
+	}
+	
+	@Override
+	public void beginDrawLighting() {
+		lightFramebuffer.bind();
+		
+		glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
+		glStencilMask(0xFF);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
+		
+		this.disableStencilDraw();
+		this.disableStencil();
+	}
+	
+	@Override
+	public void endDrawLighting() {
+		Framebuffer.bindDefault();
+	}
+	
+	@Override
+	public void drawWorldWithLighting() {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
+		lightingPassShader.setWorldFramebuffer(worldFramebuffer);
+		lightingPassShader.setLightFramebuffer(lightFramebuffer);
+		lightingPassShader.draw();
 		Shader.useNullProgram();
 	}
 	
@@ -443,7 +543,6 @@ public class Renderer implements IRenderer {
 	@Override
 	public void drawBox(Align a, float x, float y, float w, float h, Vector4f c, float r) {
 		matModelView.pushMatrix();
-		//matModelView.translate(x, y, 0.0f).scale(w, h, 1.0f);
 		
 		matModelView.translate(x, y, 0.0f);
 		matModelView.rotate(-r, 0.0f, 0.0f, 1.0f);
@@ -560,6 +659,66 @@ public class Renderer implements IRenderer {
 		
 		// Draw circle
 		circle.draw(GL_TRIANGLE_FAN, CIRCLE_VERTICES);
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawPointLight(FloatBuffer data, Vector4f c, float attenuationFactor) {
+		matModelView.pushMatrix();
+		
+		pointLightShader.setProjectionMatrix(matProjection);
+		pointLightShader.setModelViewMatrix(matModelView);
+		pointLightShader.setColor(c);
+		pointLightShader.setLightPosition(data.get(0), data.get(1));
+		pointLightShader.setAttenuationFactor(attenuationFactor);
+		pointLightShader.use();
+		
+		// Draw triangle fan
+		polygonVBO.setData(data);
+		polygonVAO.draw(GL_TRIANGLE_FAN, data.remaining() / 2);
+		
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, float coneDirectionX, float coneDirectionY) {
+		matModelView.pushMatrix();
+		
+		spotlightShader.setProjectionMatrix(matProjection);
+		spotlightShader.setModelViewMatrix(matModelView);
+		spotlightShader.setColor(c);
+		spotlightShader.setLightPosition(data.get(0), data.get(1));
+		spotlightShader.setAttenuationFactor(attenuationFactor);
+		spotlightShader.setConeAngleMin(coneAngleMin);
+		spotlightShader.setConeAngleMax(coneAngleMax);
+		spotlightShader.setConeDirection(coneDirectionX, coneDirectionY);
+		spotlightShader.use();
+		
+		// Draw triangle fan
+		polygonVBO.setData(data);
+		polygonVAO.draw(GL_TRIANGLE_FAN, data.remaining() / 2);
+		
+		matModelView.popMatrix();
+	}
+	
+	@Override
+	public void drawTubeLight(float x, float y, float angle, float length, float width, Vector4f c, float attenuationFactor) {
+		matModelView.pushMatrix();
+		
+		matModelView.translate(x, y, 0.0f);
+		matModelView.rotate(-angle, 0.0f, 0.0f, 1.0f);
+		align(Align.BM, -width, -length);
+		matModelView.scale(width, length, 1.0f);
+		
+		tubeLightShader.setProjectionMatrix(matProjection);
+		tubeLightShader.setModelViewMatrix(matModelView);
+		tubeLightShader.setColor(c);
+		tubeLightShader.setAttenuationFactor(attenuationFactor);
+		tubeLightShader.use();
+		
+		// Draw 1x1 box (without UV)
+		box.draw(GL_TRIANGLES, 6);
+		
 		matModelView.popMatrix();
 	}
 	

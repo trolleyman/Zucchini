@@ -2,6 +2,7 @@ package game;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.nio.FloatBuffer;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -347,5 +348,81 @@ public class Util {
 			String name = ze.getName();
 			System.out.println(name);
 		}
+	}
+	
+	/**
+	 * Sorts the float buffer specified
+	 */
+	public static void sortFloatBuffer(FloatBuffer buf) {
+		sortFloatBuffer(buf, 0, buf.limit()-1);
+	}
+	
+	/**
+	 * Sorts the float buffer specified, from index left to index right.
+	 */
+	public static void sortFloatBuffer(FloatBuffer buf, int left, int right) {
+		if (right > left) {
+			int i = left;
+			int j = right;
+			float tmp;
+			
+			// Get pivot
+			float v = buf.get((i + j)/2);
+			
+			// Sort so that x<v is on the left and x>v is on the right
+			do {
+				while (buf.get(i) < v)
+					i++;
+				while (buf.get(j) > v)
+					j--;
+				
+				if (i <= j) {
+					// Swap i and j
+					tmp = buf.get(i);
+					buf.put(i, buf.get(j));
+					buf.put(j, tmp);
+					i++;
+					j--;
+				}
+			} while (i <= j);
+			
+			// Recurse
+			if (left < j) sortFloatBuffer(buf, left, j);
+			if (i < right) sortFloatBuffer(buf, i, right);
+		}
+	}
+	
+	/**
+	 * Reverses a float buffer
+	 */
+	public static void reverseFloatBuffer(FloatBuffer buf) {
+		for (int i = 0, j = buf.limit()-1; i < j; i++, j--) {
+			// Swap element
+			float tmp = buf.get(i);
+			buf.put(i, buf.get(j));
+			buf.put(j, tmp);
+		}
+	}
+	
+	/**
+	 * Removes similar floats from a sorted (ascending) FloatBuffer.
+	 * @param diff If two consecutive floats are < diff apart, the second float is removed
+	 */
+	public static void removeSimilarFloats(FloatBuffer buf, float diff) {
+		int i = 0;
+		int j = 1;
+		while (true) {
+			while (j < buf.limit() && buf.get(j) - buf.get(i) < diff) {
+				j++;
+			}
+			
+			i++;
+			if (j >= buf.limit())
+				break;
+			
+			buf.put(i, buf.get(j));
+			j++;
+		}
+		buf.limit(i);
 	}
 }

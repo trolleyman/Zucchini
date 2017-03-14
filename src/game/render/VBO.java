@@ -43,11 +43,11 @@ public class VBO {
 	public void bind() {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	}
-
+	
 	public void incrementReference() {
 		this.references++;
 	}
-
+	
 	public void decrementReference() {
 		this.references--;
 		if (this.references == 0) {

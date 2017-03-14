@@ -1,12 +1,12 @@
 #version 150 core
 
 uniform sampler2D tex;
-uniform vec4 color;
 
 in vec2 t_uv;
 
 out vec4 out_color;
 
 void main() {
-	out_color = color * texture(tex, t_uv);
+	vec4 tex_col = texture(tex, t_uv);
+	out_color = vec4(tex_col.rgb, tex_col.a);
 }
