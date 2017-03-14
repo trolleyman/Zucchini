@@ -22,11 +22,6 @@ public interface IRenderer {
 	 * @param ih The {@link InputHandler}
 	 */
 	void setInputHandler(InputHandler ih);
-	/**
-	 * Sets whether or not to enable VSync
-	 * @param enable true to enable VSync
-	 */
-	void setVSync(boolean enable);
 	
 	/**
 	 * Returns the width of the renderer. This is the inner width of the window.
@@ -47,6 +42,16 @@ public interface IRenderer {
 	 * Destroys the renderer, freeing any resources it has allocated during runtime.
 	 */
 	void destroy();
+	
+	/**
+	 * Gets the current renderer settings
+	 */
+	RenderSettings getRenderSettings();
+	
+	/**
+	 * Sets the current render settings
+	 */
+	void setRenderSettings(RenderSettings settings);
 	
 	/**
 	 * Returns whether the user has quitted the window.

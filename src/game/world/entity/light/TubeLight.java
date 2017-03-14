@@ -55,13 +55,13 @@ public class TubeLight extends Entity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		r.drawTubeLight(position.x, position.y, angle, length, width, color, attenuationFactor);
+		
 	}
 	
 	@Override
 	public void renderLight(IRenderer r, Map map) {
 		super.renderLight(r, map);
-		this.render(r, map);
+		r.drawTubeLight(position.x, position.y, angle, length, width, color, attenuationFactor);
 	}
 	
 	@Override

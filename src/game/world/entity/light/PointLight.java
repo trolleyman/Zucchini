@@ -68,15 +68,14 @@ public class PointLight extends Entity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		generateLosIfNecessary(map);
 		
-		r.drawPointLight(losBuf, color, attenuationFactor);
 	}
 	
 	@Override
 	public void renderLight(IRenderer r, Map map) {
-		super.renderLight(r, map);
-		this.render(r, map);
+		generateLosIfNecessary(map);
+		
+		r.drawPointLight(losBuf, color, attenuationFactor);
 	}
 	
 	@Override
