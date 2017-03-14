@@ -66,11 +66,29 @@ class UtilTest {
 		ry = 0.0f;
 		rw = 1.0f;
 		rh = 1.0f;
-		assertEquals(true, Util.isPointInRect(x, y, Align.BL, rx, ry, rw, rh));
+		// TR
+		assertEquals(true , Util.isPointInRect(x, y, Align.BL, rx, ry, rw, rh));
 		assertEquals(false, Util.isPointInRect(x, y, Align.TL, rx, ry, rw, rh));
 		assertEquals(false, Util.isPointInRect(x, y, Align.BR, rx, ry, rw, rh));
-		assertEquals(false, Util.isPointInRect(x, y, Align.TL, rx, ry, rw, rh));
+		assertEquals(false, Util.isPointInRect(x, y, Align.TR, rx, ry, rw, rh));
 		
+		// BR
+		assertEquals(false, Util.isPointInRect(x, -y, Align.BL, rx, ry, rw, rh));
+		assertEquals(true , Util.isPointInRect(x, -y, Align.TL, rx, ry, rw, rh));
+		assertEquals(false, Util.isPointInRect(x, -y, Align.BR, rx, ry, rw, rh));
+		assertEquals(false, Util.isPointInRect(x, -y, Align.TR, rx, ry, rw, rh));
+		
+		// TL
+		assertEquals(false, Util.isPointInRect(-x, y, Align.BL, rx, ry, rw, rh));
+		assertEquals(false, Util.isPointInRect(-x, y, Align.TL, rx, ry, rw, rh));
+		assertEquals(true , Util.isPointInRect(-x, y, Align.BR, rx, ry, rw, rh));
+		assertEquals(false, Util.isPointInRect(-x, y, Align.TR, rx, ry, rw, rh));
+		
+		// BL
+		assertEquals(false, Util.isPointInRect(-x, -y, Align.BL, rx, ry, rw, rh));
+		assertEquals(false, Util.isPointInRect(-x, -y, Align.TL, rx, ry, rw, rh));
+		assertEquals(false, Util.isPointInRect(-x, -y, Align.BR, rx, ry, rw, rh));
+		assertEquals(true , Util.isPointInRect(-x, -y, Align.TR, rx, ry, rw, rh));
 	}
 	
 	@Test
