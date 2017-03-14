@@ -213,7 +213,10 @@ public class ClientConnection implements IClientConnection {
 	
 	@Override
 	public void sendAction(Action a) throws ProtocolException {
-		udpConn.sendString(Protocol.sendAction(a));
+		if (a.getType().isTcp())
+			tcpConn.sendString(Protocol.sendAction(a));
+		else
+			udpConn.sendString(Protocol.sendAction(a));
 	}
 	
 	@Override
@@ -287,6 +290,12 @@ public class ClientConnection implements IClientConnection {
 	@Override
 	public void sendStringUdp(String msg) throws ProtocolException {
 		udpConn.sendString(msg);
+	}
+	
+	@Override
+	public void error(ProtocolException e) {
+		System.err.println("[Net]: Error occured: " + e);
+		this.close();
 	}
 	
 	@Override

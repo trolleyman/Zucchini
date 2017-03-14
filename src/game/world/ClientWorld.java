@@ -313,11 +313,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Render map background
 		this.map.renderBackground(r);
 		
-		if (Util.isDebugRenderMode()) {
-			if (p != null) {
-				// Render line of sight (debug)
-				r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-			}
+		if (r.getRenderSettings().debugDrawLineOfSightLines) {
 			drawDebugLines(r, losBuf);
 		}
 		
@@ -377,7 +373,15 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 				try {
 					connection.sendAction(new Action(ActionType.PICKUP));
 				} catch (ProtocolException e) {
-					e.printStackTrace();
+					connection.error(e);
+				}
+				break;
+			case GLFW_KEY_LEFT_SHIFT:
+			case GLFW_KEY_RIGHT_SHIFT:
+				try {
+					connection.sendAction(new Action(ActionType.TOGGLE_LIGHT));
+				} catch (ProtocolException e) {
+					connection.error(e);
 				}
 				break;
 			}
@@ -447,9 +451,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	public void destroy() {
 		try {
-			this.connection.sendLobbyLeaveRequest();
+			connection.sendLobbyLeaveRequest();
 		} catch (ProtocolException e) {
-			// The connection handler takes care of this
+			connection.error(e);
 		}
 	}
 	

@@ -245,6 +245,12 @@ public class Lobby {
 					c.handler.sendStringTcp(Protocol.sendMessageToClient(name, msgToServer));
 				}
 			}
+		} else if (Protocol.isAction(msg)) {
+			// Actions can be sent via TCP
+			Action a = Protocol.parseAction(msg);
+			if (world != null) {
+				world.handleAction(handler.getClientInfo().name, a);
+			}
 		} else {
 			System.err.println("[TCP]: Warning: Unknown message from " + handler.getClientInfo().name + ": " + msg);
 		}
@@ -252,7 +258,7 @@ public class Lobby {
 	
 	public void handleUdpMessage(ClientHandler handler, String msg) throws ProtocolException {
 		if (Protocol.isAction(msg)) {
-			// Actions are only send via UDP
+			// Actions can be sent via UDP
 			Action a = Protocol.parseAction(msg);
 			if (world != null) {
 				world.handleAction(handler.getClientInfo().name, a);

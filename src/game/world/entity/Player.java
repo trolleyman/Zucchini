@@ -16,6 +16,7 @@ import game.world.entity.light.Spotlight;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.HeldItemUpdate;
+import game.world.entity.update.TorchLightUpdate;
 import game.world.entity.weapon.Knife;
 import game.world.map.Map;
 import org.joml.Vector2f;
@@ -42,6 +43,8 @@ public class Player extends MovableEntity {
 	private static final float MAX_SPEED = 4.0f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
+	/** True if the torch is on */
+	private boolean torchOn = true;
 	
 	public static Item getDefaultHeldItem() {
 		return new Knife(new Vector2f(0.0f, 0.0f));
@@ -144,6 +147,10 @@ public class Player extends MovableEntity {
 		return heldItem;
 	}
 	
+	public void setTorchOn(boolean torchOn) {
+		this.torchOn = torchOn;
+	}
+	
 	/**
 	 * Gets the name of the player
 	 */
@@ -198,7 +205,8 @@ public class Player extends MovableEntity {
 		
 		updateChildrenInfo();
 		this.pointLight.update(ua);
-		this.torch.update(ua);
+		if (this.torchOn)
+			this.torch.update(ua);
 		if (this.heldItem != null)
 			this.heldItem.update(ua);
 		
@@ -225,12 +233,19 @@ public class Player extends MovableEntity {
 		
 		updateChildrenInfo();
 		this.pointLight.clientUpdate(ua);
+		if (this.torchOn)
+			this.torch.clientUpdate(ua);
 		if (this.heldItem != null)
 			this.heldItem.clientUpdate(ua);
 	}
 	
 	@Override
 	public void render(IRenderer r, Map map) {
+		this.pointLight = new PointLight(
+				new Vector2f(this.position),
+				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.6f),
+				3.0f, true);
+		
 		updateChildrenInfo();
 		if (this.heldItem != null)
 			this.heldItem.render(r, map);
@@ -246,7 +261,8 @@ public class Player extends MovableEntity {
 		
 		updateChildrenInfo();
 		this.pointLight.renderLight(r, map);
-		this.torch.renderLight(r, map);
+		if (this.torchOn)
+			this.torch.renderLight(r, map);
 		if (this.heldItem != null)
 			this.heldItem.renderLight(r, map);
 	}
@@ -276,14 +292,14 @@ public class Player extends MovableEntity {
 				if (this.heldItem != null)
 					this.heldItem.beginUse();
 			}
+			break;
 		}
-		break;
 		case END_USE: {
 			this.beganUse = false;
 			if (this.heldItem != null)
 				this.heldItem.endUse();
+			break;
 		}
-		break;
 		case PICKUP: {
 			// Get pickups around to the player
 			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.5f);
@@ -309,6 +325,10 @@ public class Player extends MovableEntity {
 			}
 			break;
 		}
+		case TOGGLE_LIGHT:
+			this.torchOn = !this.torchOn;
+			bank.updateEntityCached(new TorchLightUpdate(this.getId(), this.torchOn));
+			break;
 		}
 	}
 	

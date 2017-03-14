@@ -73,6 +73,9 @@ public class Renderer implements IRenderer {
 	
 	/** Render settings */
 	private RenderSettings settings;
+	/** Clone of render settings used to give to the public, to ensure that the settings are not changed outside the
+	 * {@link #setRenderSettings(RenderSettings)} method. */
+	private RenderSettings publicSettings;
 	
 	/** Current window width (in pixels) */
 	private int windowW;
@@ -100,7 +103,9 @@ public class Renderer implements IRenderer {
 	 * @param _fullscreen Should the window be fullscreen?
 	 */
 	public Renderer(InputHandler _ih, boolean _fullscreen) {
-		this.settings = new RenderSettings();
+		settings = new RenderSettings();
+		publicSettings = new RenderSettings();
+		publicSettings.set(settings);
 		
 		// Setup input handler
 		this.ih = _ih;
@@ -399,7 +404,8 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public RenderSettings getRenderSettings() {
-		return settings.clone();
+		publicSettings.set(settings);
+		return publicSettings;
 	}
 	
 	@Override
@@ -407,7 +413,7 @@ public class Renderer implements IRenderer {
 		if (this.settings.vSync != settings.vSync)
 			this.setVSync(settings.vSync); // Update vsync settings
 		
-		this.settings = settings;
+		this.settings.set(settings);
 	}
 	
 	@Override
