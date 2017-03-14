@@ -41,6 +41,11 @@ public class Spotlight extends PointLight {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
+		
+	}
+	
+	@Override
+	public void renderLight(IRenderer r, Map map) {
 		generateLosIfNecessary(map);
 		
 		Vector2f coneDirection = Util.pushTemporaryVector2f().set(Util.getDirX(angle), Util.getDirY(angle));

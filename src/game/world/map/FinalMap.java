@@ -2,20 +2,23 @@ package game.world.map;
 
 import game.world.entity.Pickup;
 import game.world.entity.monster.Zombie;
-import game.world.entity.weapon.LaserGun;
-import game.world.entity.weapon.MachineGun;
-import game.world.entity.weapon.PumpActionShotgun;
-import game.world.entity.weapon.RocketLauncher;
-import game.world.entity.weapon.SilencedPistol;
+import game.world.entity.weapon.*;
 
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by jackm.
  */
 public class FinalMap extends Map {
+
+    // Arraylists of Outer and Inner Pickup Spawn Locations
+    ArrayList<Vector2f> outerPickups = new ArrayList<>();
+    ArrayList<Vector2f> innerPickups = new ArrayList<>();
+
+
 
     public FinalMap() {
         super(new ArrayList<>(), 5.0f);
@@ -135,17 +138,91 @@ public class FinalMap extends Map {
         wall2D(28.05f, 24, 27.95f, 28);
 
 
+        // Outer Pickup Locations
+        outerPickups.add(new Vector2f(1,3));
+        outerPickups.add(new Vector2f(11,1));
+        outerPickups.add(new Vector2f(17,3));
+        outerPickups.add(new Vector2f(27,3));
+        outerPickups.add(new Vector2f(3,9));
+        outerPickups.add(new Vector2f(29,7));
+        outerPickups.add(new Vector2f(1,15));
+        outerPickups.add(new Vector2f(7,15));
+        outerPickups.add(new Vector2f(27,13));
+        outerPickups.add(new Vector2f(21,19));
+        outerPickups.add(new Vector2f(16,23));
+        outerPickups.add(new Vector2f(25,21));
+        outerPickups.add(new Vector2f(7,23));
+        outerPickups.add(new Vector2f(19,27));
+        outerPickups.add(new Vector2f(3,29));
+        outerPickups.add(new Vector2f(29,27));
+
+        // Inner Pickup Locations
+        innerPickups.add(new Vector2f(12,12));
+        innerPickups.add(new Vector2f(18,12));
+        innerPickups.add(new Vector2f(12,18));
+        innerPickups.add(new Vector2f(18,18));
+        innerPickups.add(new Vector2f(14,16));
+        innerPickups.add(new Vector2f(16,14));
+
+        // Random Generator
+        Random r = new Random();
+        int high = 4;
+
+        // Simple Random weapon spawning (no laser guns)
+        // TODO: Potentially add more spawns with chance of nothing spawning
+        // TODO: Add weighted randomness
+        for (int i = 0; i < outerPickups.size(); i++) {
+            int weapon = r.nextInt(high);
+            switch (weapon) {
+                case 0:
+                    initialEntities.add(new Pickup(outerPickups.get(i), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
+                    break;
+                case 1:
+                    initialEntities.add(new Pickup(outerPickups.get(i), new Handgun(new Vector2f(0.0f, 0.0f), 256)));
+                    break;
+                case 2:
+                    initialEntities.add(new Pickup(outerPickups.get(i), new PumpActionShotgun(new Vector2f(0.0f, 0.0f), 256)));
+                    break;
+                case 3:
+                    initialEntities.add(new Pickup(outerPickups.get(i), new RocketLauncher(new Vector2f(0.0f, 0.0f), 256)));
+                    break;
+                case 4:
+                    initialEntities.add(new Pickup(outerPickups.get(i), new SilencedPistol(new Vector2f(0.0f, 0.0f), 256)));
+                    break;
+                default:
+                    // Spawn Nothing
+                    break;
+            }
+        }
+
+        // Center is filled with laser guns
+        for (int i = 0; i < innerPickups.size(); i++) {
+            initialEntities.add(new Pickup(innerPickups.get(i), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
+
+        }
+
+        // Add all types of guns for testing only
         initialEntities.add(new Pickup(new Vector2f(1, 1), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
         initialEntities.add(new Pickup(new Vector2f(2, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f), 16)));
         initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 256)));
         initialEntities.add(new Pickup(new Vector2f(2.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f),14)));
         initialEntities.add(new Pickup(new Vector2f(1.5f,2.5f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f),16)));
-
+        
+        // TODO: Add zombie spawning when pathfinding is fixed
+        //initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
+        //initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
         //initialEntities.add(new Zombie(new Vector2f(9.0f, 2.0f)));
         //initialEntities.add(new Zombie(new Vector2f(10.5f, 6.0f)));
         //initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
     }
-    
+
+    /**
+     * Draw 4 walls in a rectangle based on 2 opposite corners
+     * @param x0 First x pos
+     * @param y0 First y pos
+     * @param x1 Second x pos
+     * @param y1 Second y pos
+     */
     public void wall2D(float x0, float y0, float x1, float y1) {
         walls.add(new Wall(x0, y0, x1, y0));
         walls.add(new Wall(x0, y0, x0, y1));

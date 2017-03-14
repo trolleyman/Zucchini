@@ -71,6 +71,9 @@ public class Renderer implements IRenderer {
 	/** Font bank */
 	private FontBank fb;
 	
+	/** Render settings */
+	private RenderSettings settings;
+	
 	/** Current window width (in pixels) */
 	private int windowW;
 	/** Current window height (in pixels) */
@@ -97,6 +100,8 @@ public class Renderer implements IRenderer {
 	 * @param _fullscreen Should the window be fullscreen?
 	 */
 	public Renderer(InputHandler _ih, boolean _fullscreen) {
+		this.settings = new RenderSettings();
+		
 		// Setup input handler
 		this.ih = _ih;
 		this.fullscreen = _fullscreen;
@@ -223,8 +228,8 @@ public class Renderer implements IRenderer {
 		// Generate meshes
 		generateMeshes();
 		
-		// Enable v-sync
-		this.setVSync(true);
+		// Setup render settings
+		this.setRenderSettings(settings);
 		
 		// Set OpenGL settings
 		glEnable(GL_BLEND);
@@ -322,14 +327,6 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void setVSync(boolean enable) {
-		if (enable)
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
-	}
-	
-	@Override
 	public int getWidth() {
 		return windowW;
 	}
@@ -393,6 +390,26 @@ public class Renderer implements IRenderer {
 		glfwSetErrorCallback(null).free();
 	}
 	
+	private void setVSync(boolean enable) {
+		if (enable)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
+	}
+	
+	@Override
+	public RenderSettings getRenderSettings() {
+		return settings.clone();
+	}
+	
+	@Override
+	public void setRenderSettings(RenderSettings settings) {
+		if (this.settings.vSync != settings.vSync)
+			this.setVSync(settings.vSync); // Update vsync settings
+		
+		this.settings = settings;
+	}
+	
 	@Override
 	public boolean shouldClose() {
 		return glfwWindowShouldClose(window);
@@ -439,6 +456,21 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void endDrawWorld() {
+		if (getRenderSettings().debugDrawLightingFramebuffer) {
+			worldFramebuffer.bind();
+			
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glStencilMask(0xFF);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
+			
+			this.disableStencilDraw();
+			this.disableStencil();
+			matModelView.pushMatrix().identity();
+			drawBox(Align.BL, 0.0f, 0.0f, getWidth(), getHeight(), ColorUtil.WHITE);
+			matModelView.popMatrix();
+		}
+		
 		Framebuffer.bindDefault();
 	}
 	
