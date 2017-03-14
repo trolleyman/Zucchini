@@ -80,20 +80,20 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		
 		// Create connect Button
 		connectButton = new ButtonComponent(
-				this::connect, // TODO: Textures
+				this::connect,
 				Align.BL, 100, 100,
-				textureBank.getTexture("startDefault.png"),
-				textureBank.getTexture("startHover.png"),
-				textureBank.getTexture("startPressed.png")
+				textureBank.getTexture("connectDefault.png"),
+				textureBank.getTexture("connectHover.png"),
+				textureBank.getTexture("connectPressed.png")
 		);
 		
 		// Create auto connect Button
 		autoConnectButton = new ButtonComponent(
 				this::autoConnect,
 				Align.BL, 100, 100,
-				textureBank.getTexture("helpDefault.png"),
-				textureBank.getTexture("helpHover.png"),
-				textureBank.getTexture("helpPressed.png")
+				textureBank.getTexture("autoDefault.png"),
+				textureBank.getTexture("autoHover.png"),
+				textureBank.getTexture("autoPressed.png")
 		);
 		
 		// Create Background Image
