@@ -214,6 +214,10 @@ public abstract class Weapon extends Item {
 		bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
 	}
 	
+	public boolean isReloading() {
+		return reloading;
+	}
+	
 	@Override
 	public void renderUI(IRenderer r) {
 		float x = r.getWidth() - Util.HUD_PADDING;

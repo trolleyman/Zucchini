@@ -333,7 +333,8 @@ public class Player extends MovableEntity {
 		case RELOAD:
 			if (heldItem != null && heldItem instanceof Weapon) {
 				Weapon w = (Weapon) heldItem;
-				w.doReload(bank);
+				if (!w.isReloading())
+					w.doReload(bank);
 			}
 			break;
 		}
