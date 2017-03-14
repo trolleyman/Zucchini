@@ -11,6 +11,11 @@ import game.audio.event.AudioPlayLoopEvent;
 import game.audio.event.AudioStopEvent;
 import game.audio.event.AudioUpdateSourcePosEvent;
 
+/**
+ * This is the clent side's audio manager. It takes in audio events to be processed from the server audio manager.
+ * @author Yean & Callum
+ *
+ */
 public class ClientAudioManager {
 	private AudioManager audio;
 	

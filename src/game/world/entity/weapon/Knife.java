@@ -108,6 +108,8 @@ public class Knife extends Weapon {
 			}
 		}
 		
+		ua.audio.play("slash.wav", 1f, this.position);
+		
 		if (closest != null) {
 			System.out.println("Weapon: Knifed " + closest.getId() + " (" + closest + ")");
 			Damage damage = new Damage(ownerId, ownerTeam, DamageType.BULLET_DAMAGE, 1.0f);

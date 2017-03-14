@@ -363,7 +363,7 @@ public class Renderer implements IRenderer {
 		pointLightShader = new PointLightShader();
 		spotlightShader = new SpotlightShader();
 		tubeLightShader = new TubeLightShader();
-		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.");
+		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.\n");
 	}
 	
 	@Override

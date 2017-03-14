@@ -1,11 +1,15 @@
 package game.audio;
 import java.io.File;
+
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import game.Resources;
 import game.Util;
 import org.joml.Vector2f;
 import org.lwjgl.openal.AL;
@@ -15,6 +19,14 @@ import org.lwjgl.openal.ALC;
 import static org.lwjgl.openal.ALC10.*;
 import org.lwjgl.openal.ALCCapabilities;
 import static org.lwjgl.system.MemoryUtil.NULL;
+
+
+/**
+ * This is the main audio manager class that will contain methods to play sounds, update position of sounds and listeners (players).
+ * The audio manager is capable of simulating a world space of several sound effects playing at once and manages what sounds a player can hear.
+ * @author Yean
+ *
+ */
 public class AudioManager implements IAudioManager{
 	private long device;
     private long context;
@@ -26,6 +38,7 @@ public class AudioManager implements IAudioManager{
     private static Vector2f listenerPos = new Vector2f(0, 0);
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
+	
     /**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
      * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
@@ -39,17 +52,13 @@ public class AudioManager implements IAudioManager{
         
         System.out.println("Loading audio...");
         //place all files into the buffer list
-        File folder = new File( Util.getResourcesDir() + "/audio_assets/" );
-		File[] listOfFiles = folder.listFiles();
+        HashMap<String, byte[]> audioFiles = Resources.getAudioFiles();
 		//create array and hashmaps of all sounds
-		for (File file : listOfFiles) {
-		    if (file.isFile()) {
-		    	placeFileInBuffer(file.getName());
-		    }
+		for (Entry<String, byte[]> e : audioFiles.entrySet()) {
+	        placeFileInBuffer(e.getValue(), e.getKey());
 		}
 		
 		//create the sources for each buffer
-		int j = 0;
 		for (SoundBuffer soundBuffer : soundBufferList){
 			String filename = soundBuffer.getBufferName();
 			List<SoundSource> soundSourcesList = new ArrayList<>();
@@ -63,27 +72,31 @@ public class AudioManager implements IAudioManager{
 				source.setBuffer(soundBuffer.getBufferId());
 				soundSourcesList.add(source);
 				//special cases: explosion sound and gun firing, be more louder and able to hear this far away
-				if(filename.equals("explosion.wav") || filename.equals("handgunshot.wav")){
+				if(filename.equals("explosion.wav")){
 					source.setRolloffFactor(1f);
-					source.setReferenceDistance(1f);
+					source.setReferenceDistance(1.5f);
+				}
+				if( filename.equals("handgunshot.wav")){
+					source.setRolloffFactor(2f);
+					source.setReferenceDistance(1.5f);
+				}
+				if( filename.equals("pump-shotgun-shot.wav")){
+					source.setRolloffFactor(2f);
+					source.setReferenceDistance(1.5f);
 				}
 			}
 			soundSourcesMap.put(soundBufferMap.get(soundBuffer.getBufferId()), soundSourcesList);
-			System.out.println("Loaded audio: " + listOfFiles[j].getName());
-			j++;
+			System.out.println("Loaded audio: " + soundBuffer.getBufferName());
 		}
 		//play bgm
 		SoundSource bgm = new SoundSource(true,true);
 		bgm.setVolume(1.0f);
-		SoundBuffer buffer = new SoundBuffer(Util.getResourcesDir() + "/audio_assets/[bgm]Desolation.wav");
+		String bgmName = "[bgm]Desolation.wav";
+		SoundBuffer buffer = new SoundBuffer(audioFiles.get(bgmName), bgmName);
 		bgm.setBuffer(buffer.getBufferId());
 		bgm.play();
 		
-		
-		
-		
-		System.out.println(listOfFiles.length + " audio file(s) loaded.");
-		
+		System.out.println(audioFiles.size() + " audio file(s) loaded.\n");
     }
     /**
      * Starts OpenAL procedures and creates sources layout
@@ -105,9 +118,9 @@ public class AudioManager implements IAudioManager{
     	//there are a max of 250 sources
         fileSourceMap.put("[bgm]Desolation.wav", 0);
 		fileSourceMap.put("bullet_impact_body.wav", 10);
-		fileSourceMap.put("bullet_impact_wall.wav", 30);
+		fileSourceMap.put("bullet_impact_wall.wav", 20);
 		fileSourceMap.put("bullet_whiz1.wav", 0);
-		fileSourceMap.put("bullet_whizz_silent.wav", 30);
+		fileSourceMap.put("bullet_whizz_silent.wav", 20);
 		fileSourceMap.put("bullet_whizz2.wav", 0);
 		fileSourceMap.put("bullet_whizz3.wav", 0);
 		fileSourceMap.put("explosion.wav", 5);
@@ -117,25 +130,21 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("grunt2.wav", 5);
 		fileSourceMap.put("grunt3.wav", 5);
 		fileSourceMap.put("grunt4.wav", 5);
-		fileSourceMap.put("gun_reload[2sec].wav", 5);
+		fileSourceMap.put("gun_reload[2sec].wav", 3);
 		fileSourceMap.put("handgunshot.wav", 30);
-		fileSourceMap.put("laser_round.wav", 15);
-		fileSourceMap.put("lasergun-fire.wav", 15);
-		fileSourceMap.put("punch.wav", 5);
+		fileSourceMap.put("laser_round.wav", 5);
+		fileSourceMap.put("lasergun-fire.wav", 5);
+		fileSourceMap.put("no-ammo-click.wav", 3);
+		fileSourceMap.put("pump-shotgun-reload[4sec].wav", 3);
+		fileSourceMap.put("pump-shotgun-shot.wav", 5);
+		fileSourceMap.put("punch-hit.wav", 5);
 		fileSourceMap.put("rocket_reload[5sec].wav", 5);
 		fileSourceMap.put("rocket-launcher.wav", 5);
-		fileSourceMap.put("zombie1.wav", 5);
-		fileSourceMap.put("zombie2.wav", 5);
-		fileSourceMap.put("zombie3.wav", 5);
+		fileSourceMap.put("slash.wav", 20);
+		fileSourceMap.put("zombie1.wav", 20);
+		fileSourceMap.put("zombie2.wav", 20);
+		fileSourceMap.put("zombie3.wav", 20);
     }
-    
-//    public void addSoundSources(String name, List<SoundSource> soundSources) {
-//        this.soundSourcesMap.put(name, soundSources);
-//    }
-//
-//    public SoundSource getSoundSource(String name) {
-//        return this.soundSourcesMap.get(name);
-//    }
     
     
     /**
@@ -153,6 +162,11 @@ public class AudioManager implements IAudioManager{
 		return null;
     }
     
+    /**
+     * Finds the id of the next available sound source to be used
+     * @param wavfile
+     * @return id
+     */
     public int findAvailableSoundSourceID(String wavfile){
 		List<SoundSource> sources = this.soundSourcesMap.get(wavfile);
 		for (SoundSource source : sources){
@@ -162,25 +176,35 @@ public class AudioManager implements IAudioManager{
 		}
 		return -1;
     }
-    
-    public void playSoundSource(String name) {
-        SoundSource soundSource = findAvailableSoundSource(name);
-        if (soundSource != null && !soundSource.isPlaying()) {
-            soundSource.play();
-        }
-    }
-//    public void removeSoundSource(String name) {
-//        this.soundSourceMap.remove(name);
-//    }
+
+    /**
+     * Adds a sound buffer
+     * @param soundBuffer
+     */
     public void addSoundBuffer(SoundBuffer soundBuffer) {
         this.soundBufferList.add(soundBuffer);
     }
+    
+    /**
+     * Gets the listener
+     * @return listener
+     */
     public SoundListener getListener() {
         return this.listener;
     }
+    
+    /**
+     * Sets the listener
+     * @param listener
+     */
     public void setListener(SoundListener listener) {
         this.listener = listener;
     }
+    
+    /**
+     * Update where the listener is in the game world
+     * @param pos
+     */
     public void updateListenerPosition(Vector2f pos) {
     	listener.setPosition(pos);
     }
@@ -271,7 +295,6 @@ public class AudioManager implements IAudioManager{
     	if (!source.isPlaying()){
     		source.play();
     	}
-    	//source.setVolume(1f);
     }
     
     /**
@@ -287,9 +310,7 @@ public class AudioManager implements IAudioManager{
 	    }
     	if (source.isPlaying()){
     		source.pause();
-    		//source.setInUse(false);
     	}
-    	//source.setVolume(0f);
     }
     
     /**
@@ -305,7 +326,6 @@ public class AudioManager implements IAudioManager{
 	    }
     	System.out.println("source: "+source);
     	System.out.println("Stopping sourceID: " +source.getSourceId());
-    	source.setInUse(false);
     	source.stop();
 	}
     
@@ -327,14 +347,13 @@ public class AudioManager implements IAudioManager{
     
 	/**
 	 * Place file in resources/audio_assets into a buffer, ready to be played
-	 * @param filename
 	 * @throws Exception
 	 */
-	private void placeFileInBuffer(String filename) throws Exception{
-		SoundBuffer buffer = new SoundBuffer( Util.getResourcesDir() + "/audio_assets/"+filename);
+	private void placeFileInBuffer(byte[] data, String name) throws Exception{
+		SoundBuffer buffer = new SoundBuffer(data, name);
 		//add buffer to list and add name to hash map array for easy referencing
 		this.soundBufferList.add(buffer);
-		this.soundBufferMap.put(buffer.getBufferId(), filename);
+		this.soundBufferMap.put(buffer.getBufferId(), name);
 	}
 	
     public static void main(String args[]) throws Exception{
@@ -360,8 +379,13 @@ public class AudioManager implements IAudioManager{
 		System.out.println("idw7: "+idw7);
 		soundMgr.pauseLoop(idw7);
 		
+		soundMgr.findAvailableSoundSource("pump-shotgun-shot.wav");
+		
         while (c != 'q'){
         	c = (char) System.in.read();
+        	if(c=='.'){
+        		soundMgr.play("pump-shotgun-shot.wav",1.0f, listenerPos);
+        	}
         	if (c=='1'){
         		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw3).isPlaying());
         		if((soundMgr.getSoundSource(idw3).isPlaying())){

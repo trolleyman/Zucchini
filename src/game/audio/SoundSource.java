@@ -5,12 +5,17 @@ import org.lwjgl.openal.AL10;
 
 import static org.lwjgl.openal.AL10.*;
 
+/**
+ * Sound sources represent an object in the game world that produces a sound. A sound source must use a buffer and several
+ * sound sources can use the same buffer.
+ * @author Yean
+ *
+ */
 public class SoundSource {
 	
 	private final float zPos = 1.0f; //fixed z pos since our game will be 2D
     private final int sourceId;
     private float volume;
-    private boolean inUse = false;
 
     /**
      * The object that represents an entity that creates some form of sound
@@ -35,6 +40,7 @@ public class SoundSource {
 
     /**
      * Sets the rolloff factor for a source
+     * (How sound levels will fall off the further the source is, the higher the more drop off)
      * @param value
      */
     public void setRolloffFactor(float value){
@@ -43,27 +49,13 @@ public class SoundSource {
     
     /**
      * Sets the reference distance for a source
+     * The distance where sound has a gain of 1 (i.e no drop off)
      * @param value
      */
     public void setReferenceDistance(float value){
         alSourcef(sourceId, AL_REFERENCE_DISTANCE, value);
     }
-    
-    /**
-     * returns if this source is in use
-     * @return
-     */
-    public boolean inUse(){
-    	return this.inUse;
-    }
-    
-    /**
-     * sets if this source is in use
-     * @param bool
-     */
-    public void setInUse(boolean bool){
-    	this.inUse = bool;
-    }
+
     
     /**
      * Returns a source id
