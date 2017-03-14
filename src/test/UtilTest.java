@@ -74,6 +74,44 @@ class UtilTest {
 	}
 	
 	@Test
+	void getAngle() {
+		float delta = 0.00001f;
+		
+		assertEquals(0.0f, Util.getAngle(0.0f, 1.0f), delta);
+		assertEquals((float)Math.PI/2, Util.getAngle(1.0f, 0.0f), delta);
+		assertEquals((float)Math.PI, Util.getAngle(0.0f, -1.0f), delta);
+		assertEquals((float)Math.PI*3/2, Util.getAngle(-1.0f, 0.0f), delta);
+		assertEquals((float)Math.toRadians(225), Util.getAngle(-1.0f, -1.0f), delta);
+		assertEquals((float)Math.toRadians(45), Util.getAngle(1.0f, 1.0f), delta);
+		
+		assertEquals(0.0f, Util.getAngle(1.0f, 0.0f, 1.0f, 1.0f), delta);
+		assertEquals((float)Math.PI, Util.getAngle(1.0f, 1.0f, 1.0f, 0.0f), delta);
+		assertEquals((float)Math.PI/2, Util.getAngle(0.0f, 1.0f, 1.0f, 1.0f), delta);
+		assertEquals((float)Math.PI*3/2, Util.getAngle(1.0f, 1.0f, 0.0f, 1.0f), delta);
+	}
+	
+	@Test
+	void getAngleDiff() {
+		float delta = 0.00001f;
+		
+		assertEquals((float)Math.PI, Util.getAngleDiff(0.0f, (float)Math.PI), delta);
+		assertEquals((float)Math.PI, Util.getAngleDiff(1.0f, (float)Math.PI+1.0f), delta);
+		assertEquals((float)Math.toRadians(10.0), Util.getAngleDiff((float)Math.toRadians(10.0), (float)Math.toRadians(20.0)), delta);
+		assertEquals((float)Math.toRadians(10.0), Util.getAngleDiff((float)Math.toRadians(20.0), (float)Math.toRadians(10.0)), delta);
+	}
+	
+	@Test
+	void normalizeAngle() {
+		float delta = 0.00001f;
+		
+		assertEquals((float)Math.toRadians(0), Util.normalizeAngle((float)Math.toRadians(0)), delta);
+		assertEquals((float)Math.toRadians(10), Util.normalizeAngle((float)Math.toRadians(10)), delta);
+		assertEquals((float)Math.toRadians(180), Util.normalizeAngle((float)Math.toRadians(180)), delta);
+		assertEquals((float)Math.toRadians(180), Util.normalizeAngle((float)Math.toRadians(360+180)), delta);
+		assertEquals((float)Math.toRadians(180), Util.normalizeAngle((float)Math.toRadians(180-360)), delta);
+	}
+	
+	@Test
 	void isPointInRect() {
 		float rx = 10.0f;
 		float ry = 20.0f;

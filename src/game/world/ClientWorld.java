@@ -394,7 +394,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
 		// Send input to server
-		float angle = (float) Util.getAngle(windowW/2, windowH/2, xpos, ypos);
+		float angle = Util.getAngle(windowW/2, windowH/2, (float)xpos, (float)ypos);
 		actionAim.setAngle(angle);
 		dirtyActionAim = NUM_REPEATS;
 	}
