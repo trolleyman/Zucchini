@@ -264,6 +264,7 @@ public class Util {
 	 * This is the minimum length of a lobby name
 	 */
 	public static final int MIN_LOBBY_NAME_LENGTH = 3;
+	
 	/**
 	 * This is the maximum length of a lobby name
 	 */
@@ -273,8 +274,8 @@ public class Util {
 	 * Returns true if the character entered is valid for a lobby name
 	 */
 	public static boolean isValidLobbyNameChar(char c) {
-		return Character.isAlphabetic(c) || Character.isDigit(c)
-				|| (c >= ' ' && c <= '~');
+		return (Character.isAlphabetic(c) || Character.isDigit(c)
+				|| (c >= ' ' && c <= '~')) && !Character.isUpperCase(c);
 	}
 	
 	/**
@@ -331,24 +332,6 @@ public class Util {
 	public static final int DEFAULT_MAX_PLAYERS = 4;
 	
 	public static float HUD_PADDING = 50.0f;
-	
-	public static void main(String[] args) throws IOException {
-		CodeSource codeSource = Util.class.getProtectionDomain().getCodeSource();
-		
-		if (codeSource == null) {
-			System.out.println("Null!");
-			return;
-		}
-		
-		URL jar = codeSource.getLocation();
-		ZipInputStream zip = new ZipInputStream(jar.openStream());
-		ZipEntry ze = null;
-		
-		while ((ze = zip.getNextEntry()) != null) {
-			String name = ze.getName();
-			System.out.println(name);
-		}
-	}
 	
 	/**
 	 * Sorts the float buffer specified
