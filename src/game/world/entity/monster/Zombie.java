@@ -87,6 +87,11 @@ public class Zombie extends AutonomousEntity {
 	}
 	
 	@Override
+	public String getReadableName() {
+		return "a zombie";
+	}
+	
+	@Override
 	protected float getMaxHealth() {
 		return 10.0f;
 	}

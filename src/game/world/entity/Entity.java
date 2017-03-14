@@ -50,6 +50,11 @@ public abstract class Entity implements Cloneable {
 	private float health;
 	
 	/**
+	 * This holds the last damage that this entity received. Can be null.
+	 */
+	private transient Damage lastDamage;
+	
+	/**
 	 * Clones the specified entity
 	 * @param e The entity
 	 */
@@ -92,7 +97,10 @@ public abstract class Entity implements Cloneable {
 	 * @param ua The UpdateArgs class
 	 */
 	public void death(UpdateArgs ua) {
-		System.out.println("[Game]: *URK*: Death of entity " + id + ". R.I.P.");
+		if (lastDamage != null) {
+			Entity from = ua.bank.getEntity(lastDamage.ownerId);
+			System.out.println("[Game]: " + lastDamage.type.getDescription(from, this));
+		}
 	}
 	
 	/**
@@ -149,6 +157,14 @@ public abstract class Entity implements Cloneable {
 	 */
 	public void addDamage(Damage damage) {
 		this.addHealth(-damage.amount);
+		this.lastDamage = damage;
+	}
+	
+	/**
+	 * Gets the last damage suffered by the entity. Can be null.
+	 */
+	public Damage getLastDamage() {
+		return lastDamage;
 	}
 	
 	/**
@@ -175,6 +191,13 @@ public abstract class Entity implements Cloneable {
 	 */
 	public int getTeam() {
 		return this.team;
+	}
+	
+	/**
+	 * Gets the human-readable name for the entity.
+	 */
+	public String getReadableName() {
+		return toString();
 	}
 	
 	/**

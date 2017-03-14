@@ -2,6 +2,7 @@ package game.ui;
 
 import game.*;
 import game.exception.ProtocolException;
+import game.net.Message;
 import game.net.WorldStart;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
@@ -9,7 +10,6 @@ import game.ui.component.ButtonComponent;
 import game.world.ClientWorld;
 import game.world.EntityBank;
 import org.joml.Vector4f;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
@@ -18,6 +18,9 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private static final float INTERNAL_PADDING = 30.0f;
 	
 	private final String lobbyName;
+	
+	private final Object messageLogLock = new Object();
+	private final ArrayList<Message> messageLog = new ArrayList<>();
 	
 	/** If this is not null, an error has occured */
 	private String error = null;
@@ -44,8 +47,11 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private ButtonComponent toggleReadyButton;
 	private ButtonComponent leaveButton;
 	
-	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
+	private ButtonComponent backButton;
+	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	private ArrayList<InputHandler> errorInputHandlers = new ArrayList<>();
+	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
 	
 	public LobbyWaitUI(UI _ui, String _lobbyName, boolean sendJoinRequest) {
 		super(_ui);
@@ -81,22 +87,17 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("leavePressed.png")
 		);
 		
+		backButton = new ButtonComponent(
+				() -> this.nextUI = new LobbyUI(this),
+				Align.BL, 100, 100,
+				textureBank.getTexture("backDefault.png"),
+				textureBank.getTexture("backHover.png"),
+				textureBank.getTexture("backPressed.png")
+		);
+		
 		this.inputHandlers.add(this.toggleReadyButton);
 		this.inputHandlers.add(this.leaveButton);
-
-		this.inputHandlers.add(new InputHandler() {
-			@Override
-			public void handleKey(int key, int scancode, int action, int mods) {
-				if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_Q) {
-					// Send lobby leave request - this will be button later
-					try {
-						connection.sendLobbyLeaveRequest();
-					} catch (ProtocolException e) {
-						connection.close();
-					}
-				}
-			}
-		});
+		this.errorInputHandlers.add(this.backButton);
 		
 		LobbyWaitUI that = this;
 		connection.setHandler(new IClientConnectionHandler() {
@@ -123,7 +124,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			
 			@Override
 			public void handleWorldStart(WorldStart start) {
-				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, connection);
+				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, connection, messageLog);
 				nextUI = new GameUI(that, world);
 			}
 			
@@ -131,6 +132,13 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			public void handleLobbyLeaveNotify() {
 				// Leave the current lobby - go back to the lobby list screen
 				nextUI = new LobbyUI(that);
+			}
+			
+			@Override
+			public void handleMessage(String name, String msg) {
+				synchronized (messageLogLock) {
+					messageLog.add(new Message(name, msg));
+				}
 			}
 		});
 		
@@ -147,6 +155,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	public ArrayList<InputHandler> getHandlers() {
 		if (accepted && lobbyInfo != null)
 			return inputHandlers;
+		else if (error != null)
+			return errorInputHandlers;
 		else
 			return emptyInputHandlers;
 	}
@@ -158,10 +168,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			System.err.println("Error: Cannot toggle ready status: " + e.toString());
 			e.printStackTrace();
 		}
-	}
-	
-	private boolean passed(double thresh, double old, double nw) {
-		return old > thresh && nw < thresh;
 	}
 	
 	@Override
@@ -196,6 +202,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		
 		this.toggleReadyButton.update(dt);
 		this.leaveButton.update(dt);
+		this.backButton.update(dt);
 	}
 	
 	@Override
@@ -258,8 +265,14 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			
 		} else if (error != null) {
 			// Error has occured
-			String s = "Could not connect to lobby " + lobbyName + ": " + error;
-			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, 1.0f);
+			float scale = 0.5f;
+			String s = "Could not connect to lobby " + lobbyName + ":";
+			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, scale);
+			r.drawText(font, error, Align.MM, true, r.getWidth()/2, r.getHeight()/2 - font.getHeight(scale), scale);
+			
+			backButton.setX(20.0f);
+			backButton.setY(20.0f);
+			backButton.render(r);
 		} else {
 			// Loading
 			float angle = (float)(time * 5.0 % (Math.PI * 2));

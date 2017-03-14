@@ -51,11 +51,28 @@ public class ClientDiscovery {
 		}
 	}
 	
+	/**
+	 * Try infinitely to discover the server.
+	 */
 	public void tryDiscover() throws NameException, ProtocolException {
+		tryDiscover(-1);
+	}
+	
+	/**
+	 * Try to discover the server a specified number of times. If the number of tries is exceeded, throws a ProtocolException
+	 * @param tries
+	 */
+	public void tryDiscover(int tries) throws NameException, ProtocolException {
 		UDPConnection broadcastConn = new UDPConnection();
 		
 		// Wait for a response
 		while (true) {
+			if (tries != -1) {
+				if (tries == 0)
+					throw new ProtocolException("Tries exceeded");
+				tries--;
+			}
+			
 			broadcastDiscoveryPacket(broadcastConn);
 			
 			// Recieve packet on port

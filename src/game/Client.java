@@ -5,6 +5,7 @@ import game.exception.ProtocolException;
 import game.net.client.ClientConnection;
 import game.net.client.IClientConnection;
 import game.render.FontBank;
+import game.ui.ConnectUI;
 import org.lwjgl.Version;
 
 import game.audio.AudioManager;
@@ -35,17 +36,8 @@ class Client implements Runnable, InputPipe {
 	 */
 	private long prevTime;
 	
-	public Client(boolean _fullscreen, String name) {
+	public Client(boolean _fullscreen) {
 		System.out.println("LWJGL " + Version.getVersion() + " loaded.\n");
-		
-		// Initialize connection to server
-		try {
-			connection = new ClientConnection(name);
-		} catch (ProtocolException | NameException e) {
-			System.err.println("Error: Could not connect to server:");
-			e.printStackTrace();
-			System.exit(1); // Currently just exit if we can't connect to the server
-		}
 		
 		// Initialize renderer
 		renderer = new Renderer(this, _fullscreen);
@@ -60,7 +52,7 @@ class Client implements Runnable, InputPipe {
 		}
 		
 		// Initialize UI
-		ui = new StartUI(connection, audio, renderer.getTextureBank(), renderer.getFontBank());
+		ui = new ConnectUI(null, audio, renderer.getTextureBank(), renderer.getFontBank());
 	}
 	
 	@Override
@@ -111,10 +103,7 @@ class Client implements Runnable, InputPipe {
 	}
 	
 	public static void main(String[] args) {
-		String name = "default1";
-		if (args.length >= 1)
-			name = args[0];
-		new Client(false, name).run();
+		new Client(false).run();
 		System.exit(0);
 	}
 }

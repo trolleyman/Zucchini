@@ -20,6 +20,9 @@ public class EntityBank {
 	/** Next sequential team ID to use */
 	private int nextFreeTeam = Team.START_FREE_TEAM;
 	
+	/** The current scoreboard */
+	protected Scoreboard scoreboard;
+	
 	/**
 	 * List of all entities in the world.
 	 * <p>

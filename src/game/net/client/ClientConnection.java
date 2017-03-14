@@ -1,5 +1,7 @@
 package game.net.client;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -8,10 +10,7 @@ import game.action.Action;
 import game.audio.event.AudioEvent;
 import game.exception.NameException;
 import game.exception.ProtocolException;
-import game.net.Protocol;
-import game.net.TCPConnection;
-import game.net.UDPConnection;
-import game.net.WorldStart;
+import game.net.*;
 import game.world.entity.Entity;
 import game.world.entity.update.EntityUpdate;
 import game.world.update.WorldUpdate;
@@ -34,12 +33,44 @@ public class ClientConnection implements IClientConnection {
 	private ArrayList<Consumer<String>> lobbiesErrorCallbacks = new ArrayList<>();
 	
 	public ClientConnection(String _name) throws ProtocolException, NameException {
+		this(_name, -1);
+	}
+	
+	/**
+	 * Autoconnect to the server {@code tries} times. If the number of tries is exceeded, throws a ProtocolException
+	 */
+	public ClientConnection(String _name, int tries) throws ProtocolException, NameException {
 		this.name = _name;
 		
 		ClientDiscovery clientDiscovery = new ClientDiscovery(name);
-		clientDiscovery.tryDiscover();
+		clientDiscovery.tryDiscover(tries);
 		udpConn = clientDiscovery.getUDP();
 		tcpConn = clientDiscovery.getTCP();
+		
+		udpHandler = new Thread(this::runUdpHandler, "ClientConnection UDP Handler");
+		udpHandler.start();
+		
+		tcpHandler = new Thread(this::runTcpHandler, "ClientConnection TCP Handler");
+		tcpHandler.start();
+	}
+	
+	public ClientConnection(String name, InetAddress addr) throws ProtocolException, NameException {
+		this.name = name;
+		
+		udpConn = new UDPConnection();
+		udpConn.connect(new InetSocketAddress(addr, Protocol.UDP_SERVER_PORT));
+		tcpConn = new TCPConnection(addr, Protocol.TCP_SERVER_PORT);
+		
+		// Now to actually connect - send request with local port to connect to.
+		tcpConn.sendConnectionRequest(name, udpConn.getSocket().getLocalPort());
+		
+		// Recieve response
+		try {
+			tcpConn.recvConnectionResponse();
+		} catch (NameException e) {
+			// Name is already in use / name is invalid
+			throw e;
+		}
 		
 		udpHandler = new Thread(this::runUdpHandler, "ClientConnection UDP Handler");
 		udpHandler.start();
@@ -162,6 +193,13 @@ public class ClientConnection implements IClientConnection {
 					synchronized (cchLock) {
 						cch.handleWorldUpdate(update);
 					}
+				} else if (Protocol.isMessageToClient(msg)) {
+					Tuple<String, String> t = Protocol.parseMessageToClient(msg);
+					String name = t.getFirst();
+					String cmsg = t.getSecond();
+					synchronized (cchLock) {
+						cch.handleMessage(name, cmsg);
+					}
 				} else {
 					System.err.println("[TCP]: " + name + ": Warning: Unknown message received: " + msg);
 				}
@@ -239,6 +277,16 @@ public class ClientConnection implements IClientConnection {
 				lobbiesErrorCallbacks.clear();
 			}
 		}
+	}
+	
+	@Override
+	public void sendStringTcp(String msg) throws ProtocolException {
+		tcpConn.sendString(msg);
+	}
+	
+	@Override
+	public void sendStringUdp(String msg) throws ProtocolException {
+		udpConn.sendString(msg);
 	}
 	
 	@Override

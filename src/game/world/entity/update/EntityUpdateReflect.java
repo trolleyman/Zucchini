@@ -160,7 +160,7 @@ public class EntityUpdateReflect<E extends Entity> {
 	public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
 		Entity mgun = new MachineGun(new Vector2f(), 100);
 		Entity hgun = new Handgun(new Vector2f(), 100);
-		Entity player = new Player(Team.START_FREE_TEAM, new Vector2f(), null);
+		Entity player = new Player(Team.START_FREE_TEAM, new Vector2f(), "test", null);
 		
 		EntityUpdateReflect positionUpdate = new EntityUpdateReflect<>(Entity.class, Entity.INVALID_ID);
 		positionUpdate.setProperty("position", new Vector2f(1.0f, 2.0f));

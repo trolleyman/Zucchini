@@ -1,6 +1,7 @@
 package game.world.entity.weapon;
 
 import game.Util;
+import game.net.Protocol;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
@@ -111,8 +112,8 @@ public class Knife extends Weapon {
 		ua.audio.play("slash.wav", 1f, this.position);
 		
 		if (closest != null) {
-			System.out.println("Weapon: Knifed " + closest.getId() + " (" + closest + ")");
-			Damage damage = new Damage(ownerId, ownerTeam, DamageType.BULLET_DAMAGE, 1.0f);
+			System.out.println("[Game]: Weapon: Knifed " + closest.getId() + " (" + closest + ")");
+			Damage damage = new Damage(ownerId, ownerTeam, DamageType.KNIFE_DAMAGE, 2.0f);
 			ua.bank.updateEntityCached(new DamageUpdate(closest.getId(), damage));
 		}
 		this.stabbed = true;
