@@ -12,6 +12,10 @@ import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
@@ -174,6 +178,20 @@ public class TextEntryComponent extends AbstractButtonComponent {
 			} else if (key == GLFW_KEY_ENTER) {
 				out("Submit: '" + getString() + "'");
 				submitFunc.run();
+			} else if (key == GLFW_KEY_V && mods == GLFW_MOD_CONTROL) {
+				// Paste
+				try {
+					String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+					if (s != null) {
+						// Paste string into box
+						for (int i = 0; i < s.length(); i++) {
+							char c = s.charAt(i);
+							handleChar(c);
+						}
+					}
+				} catch (UnsupportedFlavorException | IOException e) {
+					// Ignore
+				}
 			}
 		}
 	}
