@@ -18,8 +18,9 @@ public abstract class AutonomousPlayerEntity extends MovableEntity {
 	/** The max speed of the entity */
 	private transient float maxSpeed;
 	
-	public AutonomousPlayerEntity(int team, Vector2f position) {
-		super(team, position, 1.0f);
+	public AutonomousPlayerEntity(int team, Vector2f position, float momentumScale, float _maxSpeed) {
+		super(team, position, momentumScale);
+		this.maxSpeed = _maxSpeed;
 	}
 	
 	public AutonomousPlayerEntity(AutonomousPlayerEntity ape) {

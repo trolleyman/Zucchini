@@ -1,6 +1,9 @@
 package game.ai;
+
+import game.ai.State;
+
 /**
- * Contains all the possible states and their update methods that our ai can be in
+ * Contains all the possible states and their update methods that our Player ai can be in
  * @author Yean
  */
 public enum AIPlayerStates implements State<AIPlayer>{
@@ -12,7 +15,7 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		@Override
 		public void enter(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			if(aiPlayer.debug()) System.out.println("AI has moved to wander state");
+			if(aiPlayer.debug) System.out.println("AI enters WANDER state");
 		}
 		
 		@Override
@@ -20,17 +23,29 @@ public enum AIPlayerStates implements State<AIPlayer>{
 			//TODO:do wandering things
 			//top priority for all states will be if this entity can see an enemy, then switch states
 			if(aiPlayer.canSeeEnemy()){
+				if(aiPlayer.debug2) System.out.println("While wandering, we see an enemy!");
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
+				return;
+			}
+			if(aiPlayer.isShotAt()){
+				if(aiPlayer.debug2) System.out.println("While wandering, we are getting shot at!");
+				aiPlayer.getStateMachine().changeState(EVADE);
+				return;
+			}
+			if(aiPlayer.canSeePickUp()){
+				if(aiPlayer.debug2) System.out.println("While wandering, we see a valuable pickup!");
+				aiPlayer.getStateMachine().changeState(PICKUP);
+				return;
 			}
 			
 			//wander
-			
+			if(aiPlayer.debug2) System.out.println("AI is wandering");
 		}
 		
 		@Override
 		public void exit(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			
+			if(aiPlayer.debug) System.out.println("AI exit WANDER state");
 		}
 	},
 	
@@ -42,7 +57,7 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		@Override
 		public void enter(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			if(aiPlayer.debug()) System.out.println("AI is looking to move more central");
+			if(aiPlayer.debug) System.out.println("AI enters MOVE_TOWARDS_CENTRE state");
 
 		}
 		
@@ -51,13 +66,16 @@ public enum AIPlayerStates implements State<AIPlayer>{
 			//TODO:make the ai move towards the middle
 			if(aiPlayer.canSeeEnemy()){
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
+				return;
 			}
+
 		}
 		
 		@Override
 		public void exit(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			
+			if(aiPlayer.debug) System.out.println("AI exits MOVE_TOWARDS_CENTRE state");
+
 		}
 	},
 	
@@ -69,14 +87,26 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		@Override
 		public void enter(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			if(aiPlayer.debug()) System.out.println("AI is being shot at!");
+			if(aiPlayer.debug) System.out.println("AI enters EVADE state");
 		}
 		
 		@Override
 		public void update(AIPlayer aiPlayer){
 			//TODO:try to dodge incoming bullets
 			if(aiPlayer.canSeeEnemy()){
+				if(aiPlayer.debug2) System.out.println("While evading, we spot the enemy!");
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
+				return;
+			}
+			if(aiPlayer.isShotAt()){
+				//do evade stuff and try to find enemy
+				if(aiPlayer.debug2) System.out.println("Still evading! Trying to locate enemy...");
+				return;
+			}
+			else{
+				if(aiPlayer.debug2) System.out.println("While evading, we spot the enemy!");
+				aiPlayer.getStateMachine().changeState(WANDER);
+				return;
 			}
 			
 		}
@@ -84,7 +114,7 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		@Override
 		public void exit(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			
+			if(aiPlayer.debug) System.out.println("AI exits EVADE state");
 		}
 	},
 	
@@ -96,7 +126,7 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		@Override
 		public void enter(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			if(aiPlayer.debug()) System.out.println("AI can see cool pickup and is going for it!");
+			if(aiPlayer.debug) System.out.println("AI enters PICKUP state");
 
 		}
 		
@@ -104,15 +134,30 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		public void update(AIPlayer aiPlayer){
 			//TODO:go towards pickup and take it
 			if(aiPlayer.canSeeEnemy()){
+				if(aiPlayer.debug2) System.out.println("Moving Toward pickup, but encounters enemy!");
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
+				return;
 			}
-			
+			if(aiPlayer.isShotAt()){
+				if(aiPlayer.debug2) System.out.println("Moving Toward pickup, but gets shot from somewhere!");
+				aiPlayer.getStateMachine().changeState(EVADE);
+				return;
+			}
+			if(aiPlayer.canSeePickUp()){
+				if(aiPlayer.debug2) System.out.println("Moving Toward pickup");
+			}
+			else{
+				if(aiPlayer.debug2) System.out.println("Pickup is no longer there");
+				aiPlayer.getStateMachine().changeState(WANDER);
+				return;
+			}
 		}
 		
 		@Override
 		public void exit(AIPlayer aiPlayer) {
 			// TODO Auto-generated method stub
-			
+			if(aiPlayer.debug) System.out.println("AI exits PICKUP state");
+
 		}
 	},
 	
@@ -122,20 +167,26 @@ public enum AIPlayerStates implements State<AIPlayer>{
 	SHOOT_ENEMY(){
 		@Override
 		public void enter(AIPlayer aiPlayer) {
-			// TODO Auto-generated method stub
-			if(aiPlayer.debug()) System.out.println("AI has spotted an enemy and is engaging!");
+			if(aiPlayer.debug) System.out.println("AI enters SHOOT_ENEMY state");
 
 		}
 		
 		@Override
 		public void update(AIPlayer aiPlayer){
-			//TODO:shoot at enemy
+			if(aiPlayer.canSeeEnemy()){
+				if(aiPlayer.debug2) System.out.println("Shooting at enemy!");
+				return;
+			}
+			else{
+				if(aiPlayer.debug2) System.out.println("Enemy is no longer there");
+				aiPlayer.getStateMachine().changeState(WANDER);
+				return;
+			}
 		}
 		
 		@Override
 		public void exit(AIPlayer aiPlayer) {
-			// TODO Auto-generated method stub
-			
+			if(aiPlayer.debug) System.out.println("AI exits SHOOT_ENEMY state");
 		}
 	};
 	

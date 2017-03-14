@@ -5,21 +5,26 @@ import org.joml.Vector2f;
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
+import game.world.PhysicsUtil;
+import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousPlayerEntity;
 import game.world.entity.Item;
 import game.world.entity.MovableEntity;
+import game.world.entity.update.PositionUpdate;
 
 /**
  * Represents an AI player, uses a FSM to determine it's actions
  * @author Yean
  */
 public class AIPlayer extends AutonomousPlayerEntity{
-	public boolean debug = true;
+	protected boolean debug = true;    //debug messages for when ai changes states
+	protected boolean debug2 = false;  // debug messages for ai during the states
 	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
 	public Item heldItem;
+	public final float RADIUS = 0.15f;
+	private static final float MAX_SPEED = 1.0f;
 
-	
 	public AIPlayer(AIPlayer ai) {
 		super(ai);
 		this.debug = ai.debug;
@@ -34,7 +39,8 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	 * @param heldItem
 	 */
 	public AIPlayer(int team, Vector2f position, Item heldItem) {
-		super(team, position);
+		//TODO: AI player is currently in monster team... not sure if this is right
+		super(Team.MONSTER_TEAM, position,1.0f,MAX_SPEED);
 		this.heldItem = heldItem;
 		if (this.heldItem != null)
 			this.heldItem.setOwnerTeam(this.getTeam());
@@ -64,6 +70,22 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	
 	@Override
 	public void update(UpdateArgs ua){
+		// Calculate intersection
+		// TODO: Not DRY enough - see Player#update(UpdateArgs)
+		Vector2f intersection = Util.pushTemporaryVector2f();
+		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
+			// Intersection with map - push out
+			Vector2f newPosition = new Vector2f();
+			newPosition.set(position)
+					.sub(intersection)
+					.normalize()
+					.mul(RADIUS + Util.EPSILON)
+					.add(intersection);
+			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
+			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
+		}
+		Util.popTemporaryVector2f();
+
 		super.update(ua);
 		//update stateMachine
 		stateMachine.update(ua);
@@ -81,22 +103,39 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		return false;
 	}
 
-
-	public boolean debug() {
-		return debug;
+	public boolean isShotAt() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	protected float getMaxHealth() {
+		return 10.0f;
 	}
 
 	@Override
-	public MovableEntity clone() {
+	public AIPlayer clone() {
 		return new AIPlayer(this);
+	}
+	
+	@Override
+	public Vector2f intersects(float x0, float y0, float x1, float y1) {
+		return PhysicsUtil.intersectCircleLine(position.x, position.y, RADIUS, x0, y0, x1, y1, null);
 	}
 
 	@Override
 	public void render(IRenderer r) {
+		updateHeldItemInfo();
+		if (this.heldItem != null)
+			this.heldItem.render(r);
+		
 		float x = position.x + 0.25f * (float) Math.sin(angle);
 		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
 		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
-		r.drawCircle(position.x, position.y, 0.15F, ColorUtil.BLUE);		
+		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.BLUE);		
 	}
+
+	
+
 }
