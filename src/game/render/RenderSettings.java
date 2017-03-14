@@ -10,7 +10,7 @@ public class RenderSettings {
 	
 	public RenderSettings() {
 		vSync = true;
-		drawLineOfSightStencil = false;
+		drawLineOfSightStencil = true;
 		debugDrawLightingFramebuffer = false;
 	}
 	
