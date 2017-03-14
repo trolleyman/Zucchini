@@ -207,7 +207,7 @@ public class FinalMap extends Map {
         initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 256)));
         initialEntities.add(new Pickup(new Vector2f(2.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f),14)));
         initialEntities.add(new Pickup(new Vector2f(1.5f,2.5f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f),16)));
-        
+
         // TODO: Add zombie spawning when pathfinding is fixed
         //initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
         //initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
@@ -228,5 +228,21 @@ public class FinalMap extends Map {
         walls.add(new Wall(x0, y0, x0, y1));
         walls.add(new Wall(x1, y0, x1, y1));
         walls.add(new Wall(x0, y1, x1, y1));
+    }
+
+    @Override
+    public Vector2f getSpawnLocation(int team) {
+        switch (team) {
+            case 1:
+                return new Vector2f(1.0f, 1.0f);
+            case 2:
+                return new Vector2f(1.0f, 29.0f);
+            case 3:
+                return new Vector2f(29.0f, 29.0f);
+            case 4:
+                return new Vector2f(29.0f, 1.0f);
+            default:
+                return new Vector2f(2.0f, 2.0f);
+        }
     }
 }

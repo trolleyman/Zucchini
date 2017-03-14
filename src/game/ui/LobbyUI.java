@@ -68,13 +68,13 @@ public class LobbyUI extends UI implements InputPipeMulti
 
 		// Create Create Lobby Button
 		createButton = new ButtonComponent(
-				() -> {
-					this.nextUI = new LobbyCreateUI(this);
-				},
-				Align.BL, 100, 100,
-				textureBank.getTexture("createDefault.png"),
-				textureBank.getTexture("createHover.png"),
-				textureBank.getTexture("createPressed.png")
+			() -> {
+				this.nextUI = new LobbyCreateUI(this);
+			},
+			Align.BL, 100, 100,
+			textureBank.getTexture("createDefault.png"),
+			textureBank.getTexture("createHover.png"),
+			textureBank.getTexture("createPressed.png")
 		);
 
 		// Create Back Button
@@ -88,20 +88,20 @@ public class LobbyUI extends UI implements InputPipeMulti
 
 		// Create Refresh Button
 		refreshButton = new ButtonComponent(
-				() -> connection.getLobbies(this::refresh, (err) -> System.err.println("Error retrieving lobbies: " + err)),
-				Align.BL, 100, 100,
-				textureBank.getTexture("refreshDefault.png"),
-				textureBank.getTexture("refreshHover.png"),
-				textureBank.getTexture("refreshPressed.png")
+			() -> connection.getLobbies(this::refresh, (err) -> System.err.println("Error retrieving lobbies: " + err)),
+			Align.BL, 100, 100,
+			textureBank.getTexture("refreshDefault.png"),
+			textureBank.getTexture("refreshHover.png"),
+			textureBank.getTexture("refreshPressed.png")
 		);
 
 		// Create Next Button
 		nextButton = new ButtonComponent(
-				() -> this.nextPage(),
-				Align.BL, 100, 100,
-				textureBank.getTexture("nextDefault.png"),
-				textureBank.getTexture("nextHover.png"),
-				textureBank.getTexture("nextPressed.png")
+			() -> this.nextPage(),
+			Align.BL, 100, 100,
+			textureBank.getTexture("nextDefault.png"),
+			textureBank.getTexture("nextHover.png"),
+			textureBank.getTexture("nextPressed.png")
 		);
 		
 		// Create Background Image
@@ -114,7 +114,6 @@ public class LobbyUI extends UI implements InputPipeMulti
 
 	/**
 	 * Is called when any of the lobbies are selected
-	 * 
 	 * @param lobby
 	 */
 	private void lobbySelect(int lobby)
@@ -197,7 +196,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 		refreshButton.update(dt);
 		nextButton.update(dt);
 
-		for (int i = 0; i < lobby_buttons.size(); i++)
+		for (int i = lobbiesToRender; i < lobby_buttons.size() && i < (lobbiesToRender+4); i++)
 		{
 			lobby_buttons.get(i).update(dt);
 		}
