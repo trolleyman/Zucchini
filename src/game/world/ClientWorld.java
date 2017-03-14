@@ -258,6 +258,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		if (p != null) {
 			// Render line of sight
 			Vector2f pos = p.position;
+			// losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, losBuf);
 			losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losBuf);
 		} else {
 			// TODO: Display whole screen in line of sight if there is no player
@@ -298,7 +299,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	private void drawLighting(IRenderer r) {
-		r.drawCircle(0.0f, 0.0f, 1.0f, ColorUtil.WHITE);
+//		r.drawCircle(0.0f, 0.0f, 10.0f, ColorUtil.WHITE);
 		
 		for (Entity e : this.bank.entities.values()) {
 			e.renderLight(r, map);

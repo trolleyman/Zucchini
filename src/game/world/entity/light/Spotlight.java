@@ -36,6 +36,7 @@ public class Spotlight extends PointLight {
 	@Override
 	protected void generateLoS(Map map) {
 		losBuf = map.getLineOfSight(position, LightUtil.getDistance(CUTOFF_INTENSITY, attenuationFactor), angle, coneAngleMax*2, losBuf);
+		//losBuf = map.getLineOfSight(position, LightUtil.getDistance(CUTOFF_INTENSITY, attenuationFactor), losBuf);
 	}
 	
 	@Override
