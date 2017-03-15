@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class Player extends MovableEntity {
 	/** The max distance a player can see */
-	public static final float LINE_OF_SIGHT_MAX = 20.0f;
+	public static final float LINE_OF_SIGHT_MAX = 50.0f;
 	/** The angle of which the player can see */
 	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(360.0);
 	
@@ -121,6 +121,7 @@ public class Player extends MovableEntity {
 		this.pointLight.position.set(this.position);
 		this.torch.position.set(this.position);
 		this.torch.angle = this.angle;
+		this.torch.attenuationFactor = 0.005f;
 		
 		if (this.heldItem != null) {
 			this.heldItem.setOwner(this.getId());

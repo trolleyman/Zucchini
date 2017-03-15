@@ -17,6 +17,7 @@ import game.net.client.IClientConnectionHandler;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
+import game.render.RenderSettings;
 import game.world.entity.*;
 import game.world.map.Map;
 import game.world.entity.update.EntityUpdate;
@@ -115,12 +116,39 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		this.updateStep(0.0f);
 	}
 	
+	public boolean isPlayerDead() {
+		for (PlayerScoreboardInfo p : scoreboard.getPlayers()) {
+			if (p.name.equals(connection.getName())) {
+				return p.dead;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	protected void updateStep(double dt) {
 		Player p = getPlayer();
 		if (p != null) {
 			this.cameraPos.lerp(p.position, (float)dt * 20.0f);
 			audio.updateListenerPosition(p.position);
+		} else if (isPlayerDead()) {
+			Vector4f rect = map.getRect();
+			float mx = rect.x;
+			float my = rect.y;
+			float mw = rect.z;
+			float mh = rect.w;
+			
+			// Calculate target zoom and position
+			Vector2f targetPosition = Util.pushTemporaryVector2f();
+			targetPosition.set(mx, my).add(mw/2, mh/2);
+			float targetZoomW = windowW / (mw + 2);
+			float targetZoomH = windowH / (mh + 2);
+			float targetZoom = Math.min(targetZoomW, targetZoomH);
+			
+			// Lerp position and zoom
+			this.cameraZoom += (targetZoom - this.cameraZoom) * (float)dt * 0.5f;
+			this.cameraPos.lerp(targetPosition, (float)dt * 1.0f);
+			Util.popTemporaryVector2f();
 		}
 		
 		// Send server data
@@ -225,13 +253,28 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 */
 	public void render(IRenderer r) {
 		// Set model view matrix
+		{
+			RenderSettings s = r.getRenderSettings();
+			s.debugDrawLineOfSightLines = true;
+			r.setRenderSettings(s);
+		}
+		Player p = getPlayer();
+		if (isPlayerDead()) {
+			RenderSettings s = r.getRenderSettings();
+			s.drawLineOfSightStencil = false;
+			r.setRenderSettings(s);
+		} else {
+			RenderSettings s = r.getRenderSettings();
+			s.drawLineOfSightStencil = true;
+			r.setRenderSettings(s);
+		}
+		
 		r.getModelViewMatrix()
 				.pushMatrix()
 				.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
 				.scale(cameraZoom)
 				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
-		Player p = getPlayer();
 		calculateLineOfSight();
 		
 		r.beginDrawWorld();
@@ -282,7 +325,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 		
 		// Draw mini-map
-		this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
+		if (!isPlayerDead())
+			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
 		
 		// Draw current ammo
 		if (p != null) {

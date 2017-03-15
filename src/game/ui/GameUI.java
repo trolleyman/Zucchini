@@ -25,6 +25,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * @author Abbygayle Wiggins
  */
 public class GameUI extends UI implements InputPipeMulti {
+	private static final Vector4f SCOREBOARD_BACKGROUND_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.5f);
 	
 	/** The world of the game */
 	private ClientWorld world;
@@ -100,7 +101,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	public void render(IRenderer r) {
 		this.world.render(r);
 		if (scoreboardShown) {
-			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), new Vector4f(0.1f, 0.1f, 0.1f, 0.5f));
+			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
 			// Draw scoreboard
 			scoreboardComponent.render(r);
 		}
