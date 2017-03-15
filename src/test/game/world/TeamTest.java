@@ -15,9 +15,9 @@ class TeamTest {
 		assertEquals(false, Team.isHostileTeam(Team.INVALID_TEAM, Team.MONSTER_TEAM));
 		assertEquals(false, Team.isHostileTeam(Team.PASSIVE_TEAM, Team.MONSTER_TEAM));
 		assertEquals(false, Team.isHostileTeam(Team.MONSTER_TEAM, Team.MONSTER_TEAM));
-		assertEquals(true, Team.isHostileTeam(Team.MONSTER_TEAM, Team.START_FREE_TEAM));
-		assertEquals(false, Team.isHostileTeam(Team.START_FREE_TEAM, Team.START_FREE_TEAM));
-		assertEquals(true , Team.isHostileTeam(Team.START_FREE_TEAM+1, Team.START_FREE_TEAM));
-		assertEquals(true , Team.isHostileTeam(Team.START_FREE_TEAM, Team.START_FREE_TEAM+1));
+		assertEquals(true, Team.isHostileTeam(Team.MONSTER_TEAM, Team.FIRST_PLAYER_TEAM));
+		assertEquals(false, Team.isHostileTeam(Team.FIRST_PLAYER_TEAM, Team.FIRST_PLAYER_TEAM));
+		assertEquals(true , Team.isHostileTeam(Team.FIRST_PLAYER_TEAM +1, Team.FIRST_PLAYER_TEAM));
+		assertEquals(true , Team.isHostileTeam(Team.FIRST_PLAYER_TEAM, Team.FIRST_PLAYER_TEAM +1));
 	}
 }

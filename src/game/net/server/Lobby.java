@@ -92,7 +92,7 @@ public class Lobby {
 					try {
 						c.handler.sendStringTcp(Protocol.sendLobbyUpdate(info));
 					} catch (ProtocolException e) {
-						// This is ok, as the ClientHandler will take care if there is an exception
+						c.handler.error(e);
 					}
 				}
 			}
@@ -110,7 +110,7 @@ public class Lobby {
 				else
 					Thread.sleep(500);
 			} catch (InterruptedException e) {
-				// whatever
+				// This is fine as this is expected
 			}
 		}
 	}
@@ -151,7 +151,7 @@ public class Lobby {
 	public int addPlayer(ClientHandler ch) {
 		synchronized (clientsLock) {
 			System.out.println("[Net]: " + ch.getClientInfo().name + " joined " + lobbyName + ".");
-			int team = Team.START_FREE_TEAM + clients.size();
+			int team = Team.FIRST_PLAYER_TEAM + clients.size();
 			LobbyClient c = new LobbyClient(ch, team);
 			this.clients.add(c);
 			return team;
@@ -192,6 +192,18 @@ public class Lobby {
 					System.out.println("[Net]: " + name + " left " + lobbyName + ".");
 					break;
 				}
+			}
+			regenerateTeams();
+		}
+	}
+	
+	/**
+	 * Regenerate the teams so that they are consecutive
+	 */
+	private void regenerateTeams() {
+		synchronized (clientsLock) {
+			for (int i = 0; i < clients.size(); i++) {
+				clients.get(i).team = Team.FIRST_PLAYER_TEAM + i;
 			}
 		}
 	}

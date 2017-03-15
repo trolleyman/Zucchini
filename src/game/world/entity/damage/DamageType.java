@@ -83,9 +83,9 @@ public enum DamageType {
 	}
 	
 	public static void main(String[] args) {
-		Entity a = new Player(Team.START_FREE_TEAM, new Vector2f(), "A", null);
+		Entity a = new Player(Team.FIRST_PLAYER_TEAM, new Vector2f(), "A", null);
 		a.setId(0);
-		Entity b = new Player(Team.START_FREE_TEAM, new Vector2f(), "B", null);
+		Entity b = new Player(Team.FIRST_PLAYER_TEAM, new Vector2f(), "B", null);
 		b.setId(1);
 		for (DamageType dt : DamageType.values()) {
 			for (int i = 0; i < 10; i++)
