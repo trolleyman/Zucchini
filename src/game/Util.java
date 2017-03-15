@@ -97,9 +97,12 @@ public class Util {
 	public static void popTemporaryVector3f() {
 		int stackSize = vector3fStackSize.get();
 		stackSize--;
-		vector3fStackSize.set(stackSize);
-		if (stackSize < 0)
+		if (stackSize < 0) {
+			vector3fStackSize.set(0);
 			throw new IndexOutOfBoundsException();
+		} else {
+			vector3fStackSize.set(stackSize);
+		}
 	}
 	
 	// ======= Vector2f Stack =======
@@ -138,9 +141,12 @@ public class Util {
 	public static void popTemporaryVector2f() {
 		int stackSize = vector2fStackSize.get();
 		stackSize--;
-		vector2fStackSize.set(stackSize);
-		if (stackSize < 0)
+		if (stackSize < 0) {
+			vector2fStackSize.set(0);
 			throw new IndexOutOfBoundsException();
+		} else {
+			vector2fStackSize.set(stackSize);
+		}
 	}
 	
 	/**

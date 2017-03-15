@@ -19,16 +19,15 @@ import game.world.map.Wall;
 import game.world.update.SetStartTimeWorldUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
-class ProtocolTest {
+public class ProtocolTest {
 	@Test
-	void sendTcpConnectionRequest() throws ProtocolException {
+	public void sendTcpConnectionRequest() throws ProtocolException {
 		String msg = Protocol.sendTcpConnectionRequest("test123", 456);
 		assertTrue(Protocol.isTcpConnectionRequest(msg));
 		Tuple<String, Integer> t = Protocol.parseTcpConnectionRequest(msg);
@@ -37,20 +36,20 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendTcpConnectionResponseAccept() throws ProtocolException {
+	public void sendTcpConnectionResponseAccept() throws ProtocolException {
 		String msg = Protocol.sendTcpConnectionResponseAccept();
 		assertTrue(Protocol.isTcpConnectionResponseAccept(msg));
 	}
 	
 	@Test
-	void sendTcpConnectionResponseReject() throws ProtocolException {
+	public void sendTcpConnectionResponseReject() throws ProtocolException {
 		String msg = Protocol.sendTcpConnectionResponseReject("reason");
 		assertTrue(Protocol.isTcpConnectionResponseReject(msg));
 		assertEquals("reason", Protocol.parseTcpConnectionResponseReject(msg));
 	}
 	
 	@Test
-	void sendAction() throws ProtocolException {
+	public void sendAction() throws ProtocolException {
 		AimAction a1 = new AimAction(10.0f);
 		String msg = Protocol.sendAction(a1);
 		assertTrue(Protocol.isAction(msg));
@@ -61,7 +60,7 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendAddEntity() throws ProtocolException {
+	public void sendAddEntity() throws ProtocolException {
 		Player e1 = new Player(1, new Vector2f(2.0f, 3.0f), "test", null);
 		String msg = Protocol.sendAddEntity(e1);
 		assertTrue(Protocol.isAddEntity(msg));
@@ -74,7 +73,7 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendUpdateEntity() throws ProtocolException {
+	public void sendUpdateEntity() throws ProtocolException {
 		HealthUpdate u1 = new HealthUpdate(2, 10.0f);
 		String msg = Protocol.sendUpdateEntity(u1);
 		assertTrue(Protocol.isUpdateEntity(msg));
@@ -82,11 +81,11 @@ class ProtocolTest {
 		assertTrue(u2 instanceof HealthUpdate);
 		HealthUpdate u3 = (HealthUpdate) u2;
 		assertEquals(u1.getId(), u3.getId());
-		assertEquals(u1.getHealth(), u3.getHealth());
+		assertEquals(u1.getHealth(), u3.getHealth(), 0.00001);
 	}
 	
 	@Test
-	void sendRemoveEntity() throws ProtocolException {
+	public void sendRemoveEntity() throws ProtocolException {
 		int id1 = 10;
 		String msg = Protocol.sendRemoveEntity(id1);
 		assertTrue(Protocol.isRemoveEntity(msg));
@@ -95,7 +94,7 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendAudioEvent() throws ProtocolException {
+	public void sendAudioEvent() throws ProtocolException {
 		AudioStopEvent e1 = new AudioStopEvent(10);
 		String msg = Protocol.sendAudioEvent(e1);
 		assertTrue(Protocol.isAudioEvent(msg));
@@ -106,16 +105,16 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendLobbiesRequest() throws ProtocolException {
+	public void sendLobbiesRequest() throws ProtocolException {
 		String msg = Protocol.sendLobbiesRequest();
 		assertTrue(Protocol.isLobbiesRequest(msg));
 	}
 	
-	void assertLobbyInfoEquals(LobbyInfo l1, LobbyInfo l2) {
+	private void assertLobbyInfoEquals(LobbyInfo l1, LobbyInfo l2) {
 		assertEquals(l1.lobbyName, l2.lobbyName);
 		assertEquals(l1.minPlayers, l2.minPlayers);
 		assertEquals(l1.maxPlayers, l2.maxPlayers);
-		assertEquals(l1.countdownTime, l2.countdownTime);
+		assertEquals(l1.countdownTime, l2.countdownTime, 0.00001);
 		
 		if (l1.players == null && l2.players == null)
 			return;
@@ -131,7 +130,7 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendLobbiesResponse() throws ProtocolException {
+	public void sendLobbiesResponse() throws ProtocolException {
 		ArrayList<LobbyInfo> ls1 = new ArrayList<>();
 		ls1.add(new LobbyInfo("test1", 2, 5, 1.0f, new PlayerInfo[]{
 				new PlayerInfo("p1", 1, false),
@@ -154,45 +153,45 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendFullUpdateRequest() throws ProtocolException {
+	public void sendFullUpdateRequest() throws ProtocolException {
 		String msg = Protocol.sendFullUpdateRequest();
 		assertTrue(Protocol.isFullUpdateRequest(msg));
 	}
 	
 	@Test
-	void sendDiscoveryRequest() throws ProtocolException {
+	public void sendDiscoveryRequest() throws ProtocolException {
 		String msg = Protocol.sendDiscoveryRequest();
 		assertTrue(Protocol.isDiscoveryRequest(msg));
 	}
 	
 	@Test
-	void sendDiscoveryResponse() throws ProtocolException {
+	public void sendDiscoveryResponse() throws ProtocolException {
 		String msg = Protocol.sendDiscoveryResponse();
 		assertTrue(Protocol.isDiscoveryResponse(msg));
 	}
 	
 	@Test
-	void sendLobbyJoinRequest() throws ProtocolException {
+	public void sendLobbyJoinRequest() throws ProtocolException {
 		String msg = Protocol.sendLobbyJoinRequest("test12");
 		assertTrue(Protocol.isLobbyJoinRequest(msg));
 		assertEquals("test12", Protocol.parseLobbyJoinRequest(msg));
 	}
 	
 	@Test
-	void sendLobbyJoinAccept() throws ProtocolException {
+	public void sendLobbyJoinAccept() throws ProtocolException {
 		String msg = Protocol.sendLobbyJoinAccept();
 		assertTrue(Protocol.isLobbyJoinAccept(msg));
 	}
 	
 	@Test
-	void sendLobbyJoinReject() throws ProtocolException {
+	public void sendLobbyJoinReject() throws ProtocolException {
 		String msg = Protocol.sendLobbyJoinReject("reason123");
 		assertTrue(Protocol.isLobbyJoinReject(msg));
 		assertEquals("reason123", Protocol.parseLobbyJoinReject(msg));
 	}
 	
 	@Test
-	void sendLobbyUpdate() throws ProtocolException {
+	public void sendLobbyUpdate() throws ProtocolException {
 		LobbyInfo l1 = new LobbyInfo("testtt", 1, 5, 11.0f, new PlayerInfo[]{
 				new PlayerInfo("p10", 10, true),
 				new PlayerInfo("p11", 11, true),
@@ -205,19 +204,19 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendLobbyLeaveRequest() throws ProtocolException {
+	public void sendLobbyLeaveRequest() throws ProtocolException {
 		String msg = Protocol.sendLobbyLeaveRequest();
 		assertTrue(Protocol.isLobbyLeaveRequest(msg));
 	}
 	
 	@Test
-	void sendLobbyLeaveNotify() throws ProtocolException {
+	public void sendLobbyLeaveNotify() throws ProtocolException {
 		String msg = Protocol.sendLobbyLeaveNotify();
 		assertTrue(Protocol.isLobbyLeaveNotify(msg));
 	}
 	
 	@Test
-	void sendLobbyCreateRequest() throws ProtocolException {
+	public void sendLobbyCreateRequest() throws ProtocolException {
 		LobbyInfo l1 = new LobbyInfo("lobby123", 6, 7, 13.0f, null);
 		String msg = Protocol.sendLobbyCreateRequest(l1);
 		assertTrue(Protocol.isLobbyCreateRequest(msg));
@@ -225,26 +224,26 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendLobbyCreateAccept() throws ProtocolException {
+	public void sendLobbyCreateAccept() throws ProtocolException {
 		String msg = Protocol.sendLobbyCreateAccept();
 		assertTrue(Protocol.isLobbyCreateAccept(msg));
 	}
 	
 	@Test
-	void sendLobbyCreateReject() throws ProtocolException {
+	public void sendLobbyCreateReject() throws ProtocolException {
 		String msg = Protocol.sendLobbyCreateReject("reason123");
 		assertTrue(Protocol.isLobbyCreateReject(msg));
 		assertEquals("reason123", Protocol.parseLobbyCreateReject(msg));
 	}
 	
 	@Test
-	void sendReadyToggle() throws ProtocolException {
+	public void sendReadyToggle() throws ProtocolException {
 		String msg = Protocol.sendReadyToggle();
 		assertTrue(Protocol.isReadyToggle(msg));
 	}
 	
 	@Test
-	void sendWorldStart() throws ProtocolException {
+	public void sendWorldStart() throws ProtocolException {
 		ArrayList<Wall> walls = new ArrayList<>();
 		walls.add(new Wall(0.0f, 1.0f, 2.0f, 3.0f));
 		WorldStart ws1 = new WorldStart(new Map(walls, 5.0f), 10);
@@ -264,25 +263,25 @@ class ProtocolTest {
 	}
 	
 	@Test
-	void sendWorldUpdate() throws ProtocolException {
+	public void sendWorldUpdate() throws ProtocolException {
 		SetStartTimeWorldUpdate u1 = new SetStartTimeWorldUpdate(23.0f);
 		String msg = Protocol.sendWorldUpdate(u1);
 		assertTrue(Protocol.isWorldUpdate(msg));
 		WorldUpdate u2 = Protocol.parseWorldUpdate(msg);
 		assertTrue(u2 instanceof SetStartTimeWorldUpdate);
 		SetStartTimeWorldUpdate u3 = (SetStartTimeWorldUpdate) u2;
-		assertEquals(u1.getStartTime(), u3.getStartTime());
+		assertEquals(u1.getStartTime(), u3.getStartTime(), 0.0001);
 	}
 	
 	@Test
-	void sendMessageToServer() throws ProtocolException {
+	public void sendMessageToServer() throws ProtocolException {
 		String msg = Protocol.sendMessageToServer("aaa");
 		assertTrue(Protocol.isMessageToServer(msg));
 		assertEquals("aaa", Protocol.parseMessageToServer(msg));
 	}
 	
 	@Test
-	void sendMessageToClient() throws ProtocolException {
+	public void sendMessageToClient() throws ProtocolException {
 		String msg = Protocol.sendMessageToClient("name", "aaa2");
 		assertTrue(Protocol.isMessageToClient(msg));
 		Tuple<String, String> cmsg = Protocol.parseMessageToClient(msg);

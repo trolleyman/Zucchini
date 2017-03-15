@@ -5,16 +5,15 @@ import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.net.TCPConnection;
 import game.net.Tuple;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.net.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
+import static test.TestUtil.assertThrows;
 
-class TCPConnectionTest {
+public class TCPConnectionTest {
 	private TCPConnection t1;
 	private TCPConnection t2;
 	
@@ -33,8 +32,8 @@ class TCPConnectionTest {
 		}
 	}
 	
-	@BeforeEach
-	void setUp() {
+	@Before
+	public void setUp() {
 		try {
 			ServerSocket ss = new ServerSocket(Protocol.TCP_SERVER_PORT);
 			new Thread(this::setSocket, "setSocket").start();
@@ -50,14 +49,14 @@ class TCPConnectionTest {
 		}
 	}
 	
-	@AfterEach
-	void tearDown() throws InterruptedException {
+	@After
+	public void tearDown() throws InterruptedException {
 		t1.close();
 		t2.close();
 	}
 	
 	@Test
-	void send() throws ProtocolException, NameException {
+	public void send() throws ProtocolException, NameException {
 		// Connection request & response
 		t1.sendConnectionRequest("test1", 123);
 		Tuple<String, InetSocketAddress> t = t2.recvConnectionRequest();
