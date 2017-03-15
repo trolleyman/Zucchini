@@ -1,5 +1,7 @@
 package game.world.map;
 
+import game.ai.AIPlayer;
+import game.world.Team;
 import game.world.entity.Pickup;
 import game.world.entity.monster.Zombie;
 import game.world.entity.weapon.*;
@@ -21,7 +23,7 @@ public class FinalMap extends Map {
 
 
     public FinalMap() {
-        super(new ArrayList<>(), 5.0f);
+        super(new ArrayList<>(), 10.0f);
         // Outer Walls
         wall2D(0, 0, 30, 30);
 
@@ -208,12 +210,24 @@ public class FinalMap extends Map {
         initialEntities.add(new Pickup(new Vector2f(2.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f),14)));
         initialEntities.add(new Pickup(new Vector2f(1.5f,2.5f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f),16)));
 
+
         // TODO: Add zombie spawning when pathfinding is fixed
-        //initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
-        //initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
-        //initialEntities.add(new Zombie(new Vector2f(9.0f, 2.0f)));
-        //initialEntities.add(new Zombie(new Vector2f(10.5f, 6.0f)));
-        //initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
+        initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
+        initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
+        initialEntities.add(new Zombie(new Vector2f(9.0f, 2.0f)));
+        initialEntities.add(new Zombie(new Vector2f(10.5f, 6.0f)));
+        initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
+
+//        initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
+//        initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
+//        initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
+//        initialEntities.add(new Zombie(new Vector2f(1.0f, 2.0f)));
+//        initialEntities.add(new Zombie(new Vector2f(1.5f, 6.0f)));
+//        initialEntities.add(new Zombie(new Vector2f(3.25f, 5.45f)));
+        
+        initialEntities.add(new AIPlayer(3, new Vector2f(1.25f, 1.45f), new MachineGun(new Vector2f(0.0f, 0.0f),256)));
+
+
     }
 
     /**

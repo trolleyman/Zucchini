@@ -11,16 +11,15 @@ import game.world.entity.Entity;
 import game.world.map.Map;
 import game.world.map.PathFindingMap;
 import game.world.entity.update.PositionUpdate;
-
 import java.util.Random;
-
 import org.joml.Vector2f;
-
 public class Zombie extends AutonomousEntity {
 	private static final float MAX_SPEED = 1.0f;
 	private static final float RADIUS = 0.15f;
 	private transient boolean soundSourceInit = false;
 	private transient int zombieSoundID;
+	//dont delete this again pls
+	private int tickCounter = 0;
 	
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED);
@@ -34,16 +33,21 @@ public class Zombie extends AutonomousEntity {
 	public void update(UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
 		
-		// Set node
-		Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-		if (kill == null) {
-			this.setDestination(pfmap, null);
-		} else {
-			this.setDestination(pfmap, kill.position);
+		if (tickCounter > 100){
+			// Set node
+			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
+			if (kill == null) {
+				this.setDestination(pfmap, null);
+			} else {
+				this.setDestination(pfmap, kill.position);
+			}
+			
+			tickCounter = 0;
 		}
-		
-		// Update AI
+		tickCounter ++;
 		super.update(ua);
+		// Update AI
+		
 		
 		// Calculate intersection
 		// TODO: Not DRY enough - see Player#update(UpdateArgs)
@@ -73,7 +77,6 @@ public class Zombie extends AutonomousEntity {
 		// Play zombie sounds
 		ua.audio.continueLoop(this.zombieSoundID,this.position);
 		//ua.audio.continueLoop(this.walkingSoundID,this.position);
-
 		Util.popTemporaryVector2f();
 	}
 	
