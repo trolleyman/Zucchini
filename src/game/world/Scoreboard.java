@@ -17,7 +17,8 @@ public class Scoreboard {
 	
 	public void update(double dt) {
 		for (PlayerScoreboardInfo p : players.values()) {
-			p.survivalTime += dt;
+			if (!p.dead)
+				p.survivalTime += dt;
 		}
 	}
 	

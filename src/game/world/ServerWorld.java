@@ -168,7 +168,6 @@ public class ServerWorld extends World implements Cloneable {
 			ua.map = map;
 			ua.audio = audio;
 			ua.scoreboard = scoreboard;
-			scoreboard.update(dt);
 			
 			// Ensure that no entity updates are left out
 			this.bank.processCache(clients);

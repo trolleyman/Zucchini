@@ -7,11 +7,13 @@ import game.Util;
 import game.net.Message;
 import game.render.Align;
 import game.render.IRenderer;
+import game.ui.component.ScoreboardComponent;
 import game.world.ClientWorld;
 import game.world.entity.Item;
 import game.world.entity.Player;
 import game.world.entity.weapon.Weapon;
 import game.world.map.Map;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 
@@ -33,8 +35,12 @@ public class GameUI extends UI implements InputPipeMulti {
 	private float mapSize;
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	
 	private UI nextUI;
-   
+	
+	private boolean scoreboardShown;
+	private ScoreboardComponent scoreboardComponent;
+	
 	/**
 	 * Constructs a new GameUI
 	 * @param _world The world
@@ -45,6 +51,8 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(world);
 		
 		nextUI = this;
+		
+		scoreboardComponent = new ScoreboardComponent(world.getScoreboard());
 	}
 	
 	@Override
@@ -55,9 +63,13 @@ public class GameUI extends UI implements InputPipeMulti {
 	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
 		InputPipeMulti.super.handleKey(key, scancode, action, mods);
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
-		 	System.out.println("escape pressed");
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+			System.out.println("Escape pressed");
 			this.nextUI = new EscapeUI(this, world);
+		} else if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
+			scoreboardShown = true;
+		} else if (key == GLFW_KEY_TAB && action == GLFW_RELEASE) {
+			scoreboardShown = false;
 		} else if (key == GLFW_KEY_UP && action == GLFW_PRESS){
 			System.out.println("M pressed");
 			this.nextUI = new MiniMap(this, world);
@@ -77,11 +89,21 @@ public class GameUI extends UI implements InputPipeMulti {
 		barHeight = (winHeight/10);
 		mapSize = (winHeight/5);
 		this.world.update(dt);
+		
+		if (this.scoreboardShown) {
+			this.scoreboardComponent.update(dt);
+			scoreboardComponent.setScoreboard(world.getScoreboard());
+		}
 	}
 
 	@Override
 	public void render(IRenderer r) {
 		this.world.render(r);
+		if (scoreboardShown) {
+			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), new Vector4f(0.1f, 0.1f, 0.1f, 0.5f));
+			// Draw scoreboard
+			scoreboardComponent.render(r);
+		}
 	}
 	
 	@Override

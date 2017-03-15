@@ -39,6 +39,10 @@ public abstract class World {
 		this.scoreboard = new Scoreboard();
 	}
 	
+	public Scoreboard getScoreboard() {
+		return scoreboard;
+	}
+	
 	/**
 	 * Updates the world
 	 * @param dt The number of seconds since the last update
@@ -49,6 +53,7 @@ public abstract class World {
 			this.startTime -= Util.DT_PER_UPDATE;
 			if (this.startTime < 0.0f)
 				this.startTime = 0.0f;
+			scoreboard.update(Util.DT_PER_UPDATE);
 			updateStep(Util.DT_PER_UPDATE);
 			dtPool -= Util.DT_PER_UPDATE;
 		}
