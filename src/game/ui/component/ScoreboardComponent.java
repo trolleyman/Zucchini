@@ -53,7 +53,7 @@ public class ScoreboardComponent extends UIComponent {
 		
 		y -= f.getHeight(headingScale);
 		y -= 40.0f;
-		for (PlayerScoreboardInfo p : scoreboard.players.values()) {
+		for (PlayerScoreboardInfo p : scoreboard.getPlayers()) {
 			Vector4f color = p.dead ? ColorUtil.RED : ColorUtil.GREEN;
 			r.drawText(f, p.name, Align.TL, false, x1, y, entryScale, color);
 			r.drawText(f, "" + p.playerKills, Align.TM, false, x2, y, entryScale, color);
