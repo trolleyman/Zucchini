@@ -253,11 +253,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 */
 	public void render(IRenderer r) {
 		// Set model view matrix
-		{
-			RenderSettings s = r.getRenderSettings();
-			s.debugDrawLineOfSightLines = true;
-			r.setRenderSettings(s);
-		}
 		Player p = getPlayer();
 		if (isPlayerDead()) {
 			RenderSettings s = r.getRenderSettings();
