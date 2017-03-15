@@ -353,7 +353,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Render map background
 		this.map.renderBackground(r);
 		
-		if (r.getRenderSettings().debugDrawLineOfSightLines) {
+		if (p != null && r.getRenderSettings().debugDrawLineOfSightLines) {
 			drawDebugLines(r, losBuf);
 		}
 		
