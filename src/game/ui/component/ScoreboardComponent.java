@@ -32,11 +32,11 @@ public class ScoreboardComponent extends UIComponent {
 		float titleScale = 1.5f;
 		float headingScale = 1.0f;
 		float entryScale = 1.0f;
-		float scoreboardWidth = 1100.0f;
+		float scoreboardWidth = r.getWidth() - 2*Util.HUD_PADDING;
 		// First x stop
 		float x1 = r.getWidth()/2 - scoreboardWidth/2;
 		// Fourth x stop
-		float x4 = r.getWidth()/2 + scoreboardWidth/2 - f.getWidth("Time", headingScale);
+		float x4 = r.getWidth()/2 + scoreboardWidth/2 - f.getWidth("Time  ", headingScale);
 		// Third x stop
 		float x3 = x4 - 90.0f;
 		// Second x stop
@@ -56,7 +56,7 @@ public class ScoreboardComponent extends UIComponent {
 			r.drawText(f, p.name, Align.TL, false, x1, y, entryScale);
 			r.drawText(f, "" + p.playerKills, Align.TM, false, x2, y, entryScale);
 			r.drawText(f, "" + p.monsterKills, Align.TM, false, x3, y, entryScale);
-			r.drawText(f, String.format("%.1f", p.survivalTime), Align.TL, false, x4, y, entryScale);
+			r.drawText(f, String.format("%.2f", p.survivalTime), Align.TL, false, x4, y, entryScale);
 			
 			y -= f.getHeight(entryScale);
 			y -= 30.0f;
