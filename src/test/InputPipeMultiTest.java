@@ -2,20 +2,20 @@ package test;
 
 import game.InputHandler;
 import game.InputPipeMulti;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
-class InputPipeMultiTest {
+public class InputPipeMultiTest {
 	private InputPipeMulti input;
 	private int num;
 	
-	@BeforeEach
-	void setUp() {
+	@Before
+	public void setUp() {
 		InputHandler output = new InputHandler() {
 			@Override
 			public void handleKey(int key, int scancode, int action, int mods) {
@@ -55,38 +55,38 @@ class InputPipeMultiTest {
 		input = () -> ihs;
 	}
 	
-	@AfterEach
-	void tearDown() {
+	@After
+	public void tearDown() {
 		assertEquals(3, num);
 	}
 	
 	@Test
-	void handleKey() {
+	public void handleKey() {
 		input.handleKey(1, 2, 3, 4);
 	}
 	
 	@Test
-	void handleChar() {
+	public void handleChar() {
 		input.handleChar('x');
 	}
 	
 	@Test
-	void handleCursorPos() {
+	public void handleCursorPos() {
 		input.handleCursorPos(1.0, 2.0);
 	}
 	
 	@Test
-	void handleMouseButton() {
+	public void handleMouseButton() {
 		input.handleMouseButton(5, 6, 7);
 	}
 	
 	@Test
-	void handleScroll() {
+	public void handleScroll() {
 		input.handleScroll(3.0, 4.0);
 	}
 	
 	@Test
-	void handleResize() {
+	public void handleResize() {
 		input.handleResize(100, 200);
 	}
 }
