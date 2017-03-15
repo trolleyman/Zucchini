@@ -34,7 +34,6 @@ public class AudioManager implements IAudioManager{
     private List<SoundBuffer> soundBufferList= new ArrayList<>();
     private Map<Integer,String> soundBufferMap= new HashMap<>();
     private Map<String, List<SoundSource>> soundSourcesMap = new HashMap<>();
-    //private final int numberOfSourcesPerFile = 16; //this is the amount of sources each wav file will have available for them
     private static Vector2f listenerPos = new Vector2f(0, 0);
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
@@ -123,27 +122,28 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("bullet_whizz_silent.wav", 20);
 		fileSourceMap.put("bullet_whizz2.wav", 0);
 		fileSourceMap.put("bullet_whizz3.wav", 0);
-		fileSourceMap.put("explosion.wav", 5);
+		fileSourceMap.put("explosion.wav", 3);
 		fileSourceMap.put("footsteps_running.wav", 20);
 		fileSourceMap.put("footsteps_walking.wav", 0);
-		fileSourceMap.put("grunt1.wav", 5);
-		fileSourceMap.put("grunt2.wav", 5);
-		fileSourceMap.put("grunt3.wav", 5);
-		fileSourceMap.put("grunt4.wav", 5);
-		fileSourceMap.put("gun_reload[2sec].wav", 3);
-		fileSourceMap.put("handgunshot.wav", 20);
-		fileSourceMap.put("laser_round.wav", 5);
-		fileSourceMap.put("lasergun-fire.wav", 20);
+		fileSourceMap.put("grunt1.wav", 3);
+		fileSourceMap.put("grunt2.wav", 3);
+		fileSourceMap.put("grunt3.wav", 3);
+		fileSourceMap.put("grunt4.wav", 3);
+		fileSourceMap.put("gun_reload[2sec].wav", 4);
+		fileSourceMap.put("handgunshot.wav", 30);
+		fileSourceMap.put("laser_round.wav", 2);
+		fileSourceMap.put("lasergun-fire.wav", 30);
 		fileSourceMap.put("no-ammo-click.wav", 3);
 		fileSourceMap.put("pump-shotgun-reload[4sec].wav", 3);
 		fileSourceMap.put("pump-shotgun-shot.wav", 5);
-		fileSourceMap.put("punch-hit.wav", 5);
-		fileSourceMap.put("rocket_reload[5sec].wav", 5);
-		fileSourceMap.put("rocket-launcher.wav", 5);
-		fileSourceMap.put("slash.wav", 20);
-		fileSourceMap.put("zombie1.wav", 20);
-		fileSourceMap.put("zombie2.wav", 20);
-		fileSourceMap.put("zombie3.wav", 20);
+		fileSourceMap.put("punch-hit.wav", 0);
+		fileSourceMap.put("rocket_reload[5sec].wav", 2);
+		fileSourceMap.put("rocket-launcher.wav", 3);
+		fileSourceMap.put("slash.wav", 5);
+		fileSourceMap.put("vaporized.wav", 5);
+		fileSourceMap.put("zombie1.wav", 10);
+		fileSourceMap.put("zombie2.wav", 10);
+		fileSourceMap.put("zombie3.wav", 10);
     }
     
     
