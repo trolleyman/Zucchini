@@ -1,6 +1,7 @@
 package game.world;
 
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * Keeps track of the current scores for each of the teams, and each of the players
@@ -52,6 +53,6 @@ public class Scoreboard {
 	
 	@Override
 	public String toString() {
-		return "[" + String.join(", ", players.values().stream().map((p) -> p.toString()).iterator()) + "]";
+		return "[" + String.join(", ", players.values().stream().map(Object::toString).collect(Collectors.toList())) + "]";
 	}
 }

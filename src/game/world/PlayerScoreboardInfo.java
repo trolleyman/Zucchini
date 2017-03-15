@@ -20,4 +20,16 @@ public class PlayerScoreboardInfo {
 		this.playerKills = 0;
 		this.monsterKills = 0;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append(name);
+		if (dead)
+			b.append(" (dead)");
+		b.append(": PK=").append(playerKills);
+		b.append(" : MK=").append(monsterKills);
+		b.append(" : time=").append(String.format("%.2f", survivalTime));
+		return b.toString();
+	}
 }
