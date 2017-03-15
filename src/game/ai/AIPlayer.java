@@ -9,13 +9,15 @@ import game.world.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousPlayerEntity;
+import game.world.entity.Entity;
 import game.world.entity.Item;
 import game.world.entity.MovableEntity;
 import game.world.entity.update.PositionUpdate;
+import game.world.map.PathFindingMap;
 
 /**
  * Represents an AI player, uses a FSM to determine it's actions
- * @author Yean
+ * @author George and Yean
  */
 public class AIPlayer extends AutonomousPlayerEntity{
 	protected boolean debug = true;    //debug messages for when ai changes states
@@ -24,7 +26,12 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	public Item heldItem;
 	public final float RADIUS = 0.15f;
 	private static final float MAX_SPEED = 1.0f;
-
+	//for statemachine
+	private boolean canSeeEnemyVar = false;
+	private PathFindingMap pfmap;
+	//for lag
+	private int tickCounter = 0;
+	
 	public AIPlayer(AIPlayer ai) {
 		super(ai);
 		this.debug = ai.debug;
@@ -40,12 +47,14 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	 */
 	public AIPlayer(int team, Vector2f position, Item heldItem) {
 		//TODO: AI player is currently in monster team... not sure if this is right
-		super(Team.MONSTER_TEAM, position,1.0f,MAX_SPEED);
+		super(team, position,1.0f,MAX_SPEED);
 		this.heldItem = heldItem;
 		if (this.heldItem != null)
 			this.heldItem.setOwnerTeam(this.getTeam());
 		updateHeldItemInfo();
-		stateMachine = new StateMachine<AIPlayer, AIPlayerStates>(this, AIPlayerStates.WANDER);
+		
+		stateMachine = new StateMachine<AIPlayer, AIPlayerStates>(this, AIPlayerStates.MOVE_TOWARDS_CENTRE);
+		
 	}
 	
 	private void updateHeldItemInfo() {
@@ -62,14 +71,28 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		}
 	}
 	
-	
-	
 	public IStateMachine<AIPlayer, AIPlayerStates> getStateMachine(){
 		return stateMachine;
 	}
+	public PathFindingMap getPFMap(){
+		return this.pfmap;
+	}
 	
+
 	@Override
 	public void update(UpdateArgs ua){
+		
+		pfmap =  ua.map.getPathFindingMap();
+		if (tickCounter > 100){
+			changeCanISeeEnemy(ua);
+			stateMachine.update(ua);
+			tickCounter = 0;
+		}
+		tickCounter++;
+		
+		
+		
+		
 		// Calculate intersection
 		// TODO: Not DRY enough - see Player#update(UpdateArgs)
 		Vector2f intersection = Util.pushTemporaryVector2f();
@@ -87,16 +110,24 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		Util.popTemporaryVector2f();
 
 		super.update(ua);
-		//update stateMachine
-		stateMachine.update(ua);
+	
 		
 	}
 	
 	public boolean canSeeEnemy(){
 		//TODO: make function that tells us if this entity can see an enemy
-		return false;
+		return canSeeEnemyVar;
 	}
-	
+	private void changeCanISeeEnemy(UpdateArgs ua){
+		Entity closest = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
+		if (closest != null){
+			if (closest.position.distance(this.position) < 4.0f){
+				canSeeEnemyVar = true;
+			}else{
+				canSeeEnemyVar = false;
+			}
+		}
+	}
 	public boolean canSeePickUp(){
 		//TODO: make function that can tell us if this entity can see a pickup
 		//and also if it's worth picking up

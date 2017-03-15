@@ -17,6 +17,8 @@ public class Zombie extends AutonomousEntity {
 	private static final float RADIUS = 0.15f;
 	private transient boolean soundSourceInit = false;
 	private transient int zombieSoundID;
+	//dont delete this again pls
+	private int tickCounter = 0;
 	
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED);
@@ -30,14 +32,17 @@ public class Zombie extends AutonomousEntity {
 	public void update(UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
 		
-		// Set node
-		Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-		if (kill == null) {
-			this.setDestination(pfmap, null);
-		} else {
-			this.setDestination(pfmap, kill.position);
+		if (tickCounter > 100){
+			// Set node
+			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
+			if (kill == null) {
+				this.setDestination(pfmap, null);
+			} else {
+				this.setDestination(pfmap, kill.position);
+			}
+			tickCounter = 0;
 		}
-		
+		tickCounter ++;
 		// Update AI
 		super.update(ua);
 		

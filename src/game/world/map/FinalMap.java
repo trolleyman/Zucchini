@@ -1,6 +1,7 @@
 package game.world.map;
 
 import game.ai.AIPlayer;
+import game.world.Team;
 import game.world.entity.Pickup;
 import game.world.entity.monster.Zombie;
 import game.world.entity.weapon.LaserGun;
@@ -147,8 +148,9 @@ public class FinalMap extends Map {
 //        initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
 //        initialEntities.add(new Zombie(new Vector2f(1.0f, 2.0f)));
 //        initialEntities.add(new Zombie(new Vector2f(1.5f, 6.0f)));
-        //initialEntities.add(new Zombie(new Vector2f(3.25f, 5.45f)));
-        initialEntities.add(new AIPlayer(0, new Vector2f(1.25f, 1.45f), new MachineGun(new Vector2f(0.0f, 0.0f),256)));
+//        initialEntities.add(new Zombie(new Vector2f(3.25f, 5.45f)));
+        
+        initialEntities.add(new AIPlayer(3, new Vector2f(1.25f, 1.45f), new MachineGun(new Vector2f(0.0f, 0.0f),256)));
 
     }
     

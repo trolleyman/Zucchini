@@ -23,11 +23,15 @@ public abstract class AutonomousPlayerEntity extends MovableEntity {
 		this.maxSpeed = _maxSpeed;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public AutonomousPlayerEntity(AutonomousPlayerEntity ape) {
 		super(ape);
+		
+		if (this.destination != null)
+			this.destination = new Vector2f(ape.destination);
+		
+		this.route = (ArrayList<Node>) ape.route.clone();
 		this.maxSpeed = ape.maxSpeed;
-		this.destination = ape.destination;
-		this.route = ape.route;
 	}
 
 	@Override

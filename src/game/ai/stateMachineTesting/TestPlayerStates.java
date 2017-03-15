@@ -1,6 +1,7 @@
 package game.ai.stateMachineTesting;
 
 import game.ai.State;
+import game.world.UpdateArgs;
 
 /**
  * Contains all the possible states and their update methods that our test ai can be in
@@ -19,7 +20,7 @@ public enum TestPlayerStates implements State<TestPlayer>{
 		}
 		
 		@Override
-		public void update(TestPlayer aiPlayer){
+		public void update(TestPlayer aiPlayer,UpdateArgs ua){
 			//TODO:do wandering things
 			//top priority for all states will be if this entity can see an enemy, then switch states
 			if(aiPlayer.canSeeEnemy()){
