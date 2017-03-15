@@ -93,7 +93,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private ClientAudioManager clientAudio;
 	
 	/** Client UpdateArgs structure */
-	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, new PacketCache());
+	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, new PacketCache(), null);
 	
 	/**
 	 * Constructs a client world
@@ -164,6 +164,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			clientUpdateArgs.bank = this.bank;
 			clientUpdateArgs.map = this.map;
 			clientUpdateArgs.audio = this.audio;
+			clientUpdateArgs.scoreboard = null;
 			
 			for (Entity e : this.bank.entities.values())
 				e.clientUpdate(clientUpdateArgs);

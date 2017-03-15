@@ -367,6 +367,14 @@ public class Player extends MovableEntity {
 		Entity from = ua.bank.getEntity(d.ownerId);
 		String s = d.type.getDescription(from, this);
 		ua.packetCache.sendStringTcp(Protocol.sendMessageToClient("", s));
+		ua.scoreboard.killPlayer(name);
+		if (from != null && from instanceof Player) {
+			Player p = (Player) from;
+			if (name.equals(p.getName()))
+				ua.scoreboard.addPlayerSuicide(p.getName());
+			else
+				ua.scoreboard.addPlayerKill(p.getName());
+		}
 	}
 	
 	@Override

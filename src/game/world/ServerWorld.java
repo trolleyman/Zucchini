@@ -16,6 +16,7 @@ import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
+import game.world.update.ScoreboardWorldUpdate;
 import game.world.update.SetStartTimeWorldUpdate;
 import org.joml.Vector2f;
 
@@ -29,7 +30,7 @@ public class ServerWorld extends World implements Cloneable {
 	private static final float START_TIME_UPDATE_DT = 0.5f;
 	
 	/** Cached UpdateArgs object */
-	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null, new PacketCache());
+	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null, new PacketCache(), null);
 	
 	/** Server Audio Manager */
 	private ServerAudioManager audio;
@@ -78,6 +79,7 @@ public class ServerWorld extends World implements Cloneable {
 		Player player = new Player(c.team, map.getSpawnLocation(c.team), c.handler.getClientInfo().name, Player.getDefaultHeldItem());
 		this.bank.addEntity(player);
 		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
+		this.scoreboard.addPlayer(c.handler.getClientInfo().name);
 		try {
 			c.handler.sendStringTcp(Protocol.sendWorldStart(new WorldStart(map, player.getId())));
 		} catch (ProtocolException e) {
@@ -124,6 +126,7 @@ public class ServerWorld extends World implements Cloneable {
 			if (swc.handler.getClientInfo().name.equals(name)) {
 				clients.remove(i);
 				bank.removeEntityCached(swc.playerId);
+				scoreboard.removePlayer(name);
 				break;
 			}
 		}
@@ -147,11 +150,25 @@ public class ServerWorld extends World implements Cloneable {
 			}
 		}
 		
+		// If scoreboard is dirty, send update
+		if (scoreboard.dirty) {
+			for (ServerWorldClient swc : clients) {
+				try {
+					swc.handler.getClientInfo().tcpConn.sendString(Protocol.sendWorldUpdate(new ScoreboardWorldUpdate(scoreboard)));
+				} catch (ProtocolException e) {
+					swc.handler.error(e);
+				}
+			}
+			scoreboard.dirty = false;
+		}
+		
 		if (!this.isPaused()) {
 			ua.dt = dt;
 			ua.bank = bank;
 			ua.map = map;
 			ua.audio = audio;
+			ua.scoreboard = scoreboard;
+			scoreboard.update(dt);
 			
 			// Ensure that no entity updates are left out
 			this.bank.processCache(clients);
@@ -171,7 +188,7 @@ public class ServerWorld extends World implements Cloneable {
 					try {
 						c.handler.getClientInfo().tcpConn.sendString(Protocol.sendAudioEvent(ae));
 					} catch (ProtocolException ex) {
-						// This is ok as ClientHandler takes care of this
+						c.handler.error(ex);
 					}
 				}
 			}

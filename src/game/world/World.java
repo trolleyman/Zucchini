@@ -21,6 +21,9 @@ public abstract class World {
 	/** Time until the world starts updating */
 	protected float startTime;
 	
+	/** The current scoreboard */
+	protected Scoreboard scoreboard;
+	
 	/**
 	 * Constructs the world
 	 * @param _map The map
@@ -32,6 +35,8 @@ public abstract class World {
 		this.bank = _bank;
 		
 		this.startTime = Util.GAME_START_WAIT_SECS;
+		
+		this.scoreboard = new Scoreboard();
 	}
 	
 	/**
@@ -61,6 +66,10 @@ public abstract class World {
 	
 	public boolean isPaused() {
 		return this.startTime != 0.0f;
+	}
+	
+	public void setScoreboard(Scoreboard scoreboard) {
+		this.scoreboard = scoreboard;
 	}
 }
 

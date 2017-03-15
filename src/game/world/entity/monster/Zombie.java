@@ -8,6 +8,8 @@ import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
+import game.world.entity.Player;
+import game.world.entity.damage.Damage;
 import game.world.map.Map;
 import game.world.map.PathFindingMap;
 import game.world.entity.update.PositionUpdate;
@@ -99,6 +101,17 @@ public class Zombie extends AutonomousEntity {
 	@Override
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
 		return PhysicsUtil.intersectCircleLine(position.x, position.y, RADIUS, x0, y0, x1, y1, null);
+	}
+	
+	@Override
+	public void death(UpdateArgs ua) {
+		super.death(ua);
+		Damage d = getLastDamage();
+		Entity e = ua.bank.getEntity(d.ownerId);
+		if (e != null && e instanceof Player) {
+			Player p = (Player) e;
+			ua.scoreboard.addMonsterKill(p.getName());
+		}
 	}
 	
 	@Override
