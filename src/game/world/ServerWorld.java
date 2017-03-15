@@ -124,9 +124,12 @@ public class ServerWorld extends World implements Cloneable {
 			ServerWorldClient swc = clients.get(i);
 			
 			if (swc.handler.getClientInfo().name.equals(name)) {
+				String msg = scoreboard.getPlayer(name).dead ? name + " ragequit." : name + " left.";
+				ua.packetCache.sendStringTcp(Protocol.sendMessageToClient("", msg));
 				clients.remove(i);
 				bank.removeEntityCached(swc.playerId);
-				scoreboard.removePlayer(name);
+				// Don't remove from scoreboard
+				// scoreboard.removePlayer(name);
 				break;
 			}
 		}

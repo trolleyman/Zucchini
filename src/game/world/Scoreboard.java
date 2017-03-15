@@ -59,10 +59,10 @@ public class Scoreboard {
 		toSort = true;
 	}
 	
-	private PlayerScoreboardInfo getPlayer(String name) {
-		for (int i = 0; i < players.size(); i++) {
-			if (players.get(i).name.equals(name)) {
-				return players.get(i);
+	public PlayerScoreboardInfo getPlayer(String name) {
+		for (PlayerScoreboardInfo p : players) {
+			if (p.name.equals(name)) {
+				return p;
 			}
 		}
 		PlayerScoreboardInfo info = new PlayerScoreboardInfo(name);
