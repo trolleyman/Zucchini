@@ -81,6 +81,7 @@ public class LaserGun extends Weapon {
 					if (e.getId() != this.ownerId || prevWall != null) {
 						Damage damage = new Damage(ownerId, ownerTeam, DamageType.LASER_DAMAGE, 10.0f);
 						ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
+						ua.audio.play("vaporized.wav", 1.0f, e.position);
 					}
 				}
 			}

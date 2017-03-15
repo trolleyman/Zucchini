@@ -1,13 +1,13 @@
-package test.game.world;
+package test.world;
 
 import game.world.Team;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
-class TeamTest {
+public class TeamTest {
 	@Test
-	void isHostileTeam() {
+	public void isHostileTeam() {
 		assertEquals(false, Team.isHostileTeam(Team.PASSIVE_TEAM, Team.PASSIVE_TEAM));
 		assertEquals(false, Team.isHostileTeam(Team.PASSIVE_TEAM, Team.INVALID_TEAM));
 		assertEquals(false, Team.isHostileTeam(Team.INVALID_TEAM, Team.PASSIVE_TEAM));
