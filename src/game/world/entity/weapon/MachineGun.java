@@ -57,24 +57,16 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
-	public void clientUpdate(UpdateArgs ua) {
-		super.clientUpdate(ua);
+	public void render(IRenderer r, Map map) {
+		if (lineOfSightIntersecton == null)
+			lineOfSightIntersecton = new Vector2f();
 		
 		float x = position.x + Player.LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
 		float y = position.y + Player.LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
 		
-		if (ua.map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
+		if (map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
-	}
-	
-	@Override
-	public void render(IRenderer r, Map map) {
-		if (lineOfSightIntersecton == null) {
-			lineOfSightIntersecton = new Vector2f();
-			float x = position.x + Player.LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
-			float y = position.y + Player.LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
-			lineOfSightIntersecton.set(x, y);
-		}
+		
 		// Draw laser sight
 		Vector2f muzzlePos = Util.pushTemporaryVector2f();
 		getMuzzlePos(muzzlePos);
