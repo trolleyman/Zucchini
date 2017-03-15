@@ -8,6 +8,7 @@ import game.render.FontBank;
 import game.render.IRenderer;
 import game.world.PlayerScoreboardInfo;
 import game.world.Scoreboard;
+import org.joml.Vector4f;
 
 public class ScoreboardComponent extends UIComponent {
 	private Scoreboard scoreboard;
@@ -53,10 +54,11 @@ public class ScoreboardComponent extends UIComponent {
 		y -= f.getHeight(headingScale);
 		y -= 40.0f;
 		for (PlayerScoreboardInfo p : scoreboard.players.values()) {
-			r.drawText(f, p.name, Align.TL, false, x1, y, entryScale);
-			r.drawText(f, "" + p.playerKills, Align.TM, false, x2, y, entryScale);
-			r.drawText(f, "" + p.monsterKills, Align.TM, false, x3, y, entryScale);
-			r.drawText(f, String.format("%.2f", p.survivalTime), Align.TL, false, x4, y, entryScale);
+			Vector4f color = p.dead ? ColorUtil.RED : ColorUtil.GREEN;
+			r.drawText(f, p.name, Align.TL, false, x1, y, entryScale, color);
+			r.drawText(f, "" + p.playerKills, Align.TM, false, x2, y, entryScale, color);
+			r.drawText(f, "" + p.monsterKills, Align.TM, false, x3, y, entryScale, color);
+			r.drawText(f, String.format("%.2f", p.survivalTime), Align.TL, false, x4, y, entryScale, color);
 			
 			y -= f.getHeight(entryScale);
 			y -= 30.0f;
