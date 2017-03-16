@@ -154,6 +154,8 @@ public class AudioManager implements IAudioManager{
      */
     public void mute(){
         alListenerf(AL_GAIN, 0f);
+        if (!this.mute)
+	        System.out.println("[Audio]: Muted");
         this.mute = true;
     }
     
@@ -162,6 +164,8 @@ public class AudioManager implements IAudioManager{
      */
     public void unMute(){
     	alListenerf(AL_GAIN, currentVolume);
+    	if (this.mute)
+		    System.out.println("[Audio]: Unmuted");
     	this.mute = false;
     }
 	
@@ -177,8 +181,12 @@ public class AudioManager implements IAudioManager{
      * @param volume
      */
     public void setVolume(float volume) {
-    	this.unMute();
-    	if (volume >1f || volume<0f){
+    	if (volume == 0.0f) {
+		    this.mute();
+	    } else {
+		    this.unMute();
+	    }
+	    if (volume >1f || volume<0f){
     		System.err.println("Invalid volume, only accepts a float between 0-1");
     		return;
     	}

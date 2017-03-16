@@ -10,12 +10,18 @@ import game.render.*;
 import game.ui.component.ButtonComponent;
 import game.ui.component.ImageComponent;
 import game.ui.component.MuteComponent;
+import game.ui.component.VolumeComponent;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
  * @author Jack
  */
 public class StartUI extends UI implements InputPipeMulti {
+	private static final float VOLUME_W = 35.0f;
+	private static final float VOLUME_H = 180.0f;
+	
 	/** The current window width */
 	private int windowW;
 	/** The current window height */
@@ -31,6 +37,8 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ButtonComponent exitButton;
 	/** The mute toggle button */
 	private MuteComponent muteComponent;
+	/** The volume slider */
+	private VolumeComponent volumeComponent;
 	
 	/** The next UI to return */
 	private UI nextUI = this;
@@ -72,6 +80,9 @@ public class StartUI extends UI implements InputPipeMulti {
 		// Create Mute Button
 		muteComponent = new MuteComponent(Align.BL, 100, 100, audio);
 		
+		// Create Volume Slider
+		volumeComponent = new VolumeComponent(20.0f, 20.0f, VOLUME_W, VOLUME_H, audio);
+		
 		// Create Background Image
 		backgroundImage = new ImageComponent(
 				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
@@ -82,6 +93,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(helpButton);
 		this.inputHandlers.add(exitButton);
 		this.inputHandlers.add(muteComponent);
+		this.inputHandlers.add(volumeComponent);
 	}
 	
 	@Override
@@ -102,6 +114,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		helpButton.update(dt);
 		exitButton.update(dt);
 		muteComponent.update(dt);
+		volumeComponent.update(dt);
 	}
 	
 	@Override
@@ -116,14 +129,17 @@ public class StartUI extends UI implements InputPipeMulti {
 		helpButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0 - 150));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
-		muteComponent.setX(10.0f);
-		muteComponent.setY(10.0f);
-
+		muteComponent.setX(20.0f);
+		muteComponent.setY(windowH - muteComponent.getHeight() - 20.0f);
+		volumeComponent.setX(muteComponent.getX() + muteComponent.getWidth()/2 - VOLUME_W/2);
+		volumeComponent.setY(muteComponent.getY() - VOLUME_H - 20.0f);
+		
 		// Render the buttons
 		startButton.render(r);
 		helpButton.render(r);
 		exitButton.render(r);
 		muteComponent.render(r);
+		volumeComponent.render(r);
 	}
 	
 	@Override

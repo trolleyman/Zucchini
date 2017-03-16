@@ -19,6 +19,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_TAB;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
+
 /**
  * ConnectUI is responsible for the connection of the user to the server.
  */
@@ -115,6 +119,19 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
 		return this.inputHandlers;
+	}
+	
+	@Override
+	public void handleKey(int key, int scancode, int action, int mods) {
+		if (key == GLFW_KEY_TAB && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+			if (ipEntry.isEnabled()) {
+				ipEntry.setEnabled(false);
+				nameEntry.setEnabled(true);
+			} else {
+				ipEntry.setEnabled(true);
+				nameEntry.setEnabled(false);
+			}
+		}
 	}
 	
 	@Override

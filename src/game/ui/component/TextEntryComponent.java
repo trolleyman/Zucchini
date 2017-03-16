@@ -341,12 +341,12 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	}
 	
 	@Override
-	protected float getWidth() {
+	public float getWidth() {
 		return w;
 	}
 	
 	@Override
-	protected float getHeight() {
+	public float getHeight() {
 		return h;
 	}
 	

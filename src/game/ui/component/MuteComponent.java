@@ -9,18 +9,16 @@ import org.joml.Vector4f;
 
 public class MuteComponent extends AbstractButtonComponent {
 	private static final float BORDER_WIDTH = 5.0f;
+	private static final Vector4f MUTE_PRESSED_COLOR = new Vector4f(0.8f, 0.8f, 0.8f, 1.0f);
 	private AudioManager audio;
 	
 	private Texture currentTex;
-	private boolean showMute;
-	private boolean justClicked = false;
 	private boolean hover = false;
 	private boolean pressed = false;
 	
 	public MuteComponent(Align a, float x, float y, AudioManager audio) {
 		super(a, x, y);
 		this.audio = audio;
-		showMute = audio.isMuted();
 	}
 	
 	@Override
@@ -30,7 +28,7 @@ public class MuteComponent extends AbstractButtonComponent {
 	
 	@Override
 	public void render(IRenderer r) {
-		if (showMute)
+		if (audio.isMuted())
 			currentTex = r.getTextureBank().getTexture("Volume-Mute.png");
 		else if (audio.getVolume() < 0.3f)
 			currentTex = r.getTextureBank().getTexture("Volume-Low.png");
@@ -47,14 +45,13 @@ public class MuteComponent extends AbstractButtonComponent {
 			ty -= 3.0f;
 		}
 		if (hover || pressed)
-			r.drawTexture(currentTex, a, tx, ty, new Vector4f(0.8f, 0.8f, 0.8f, 1.0f));
+			r.drawTexture(currentTex, a, tx, ty, MUTE_PRESSED_COLOR);
 		else
 			r.drawTexture(currentTex, a, tx, ty);
 	}
 	
 	@Override
 	protected void onDefault() {
-		showMute = audio.isMuted();
 		hover = false;
 		pressed = false;
 	}
@@ -74,23 +71,19 @@ public class MuteComponent extends AbstractButtonComponent {
 	@Override
 	protected void onClicked() {
 		// Toggle mute
-		if (audio.isMuted()) {
-			System.out.println("[Audio]: Unmuted");
+		if (audio.isMuted())
 			audio.unMute();
-		} else {
-			System.out.println("[Audio]: Muted");
+		else
 			audio.mute();
-		}
-		showMute = audio.isMuted();
 	}
 	
 	@Override
-	protected float getWidth() {
+	public float getWidth() {
 		return (currentTex == null ? 0 : currentTex.getWidth()) + BORDER_WIDTH*2;
 	}
 	
 	@Override
-	protected float getHeight() {
+	public float getHeight() {
 		return (currentTex == null ? 0 : currentTex.getHeight()) + BORDER_WIDTH*2;
 	}
 }
