@@ -38,14 +38,6 @@ public class StartUI extends UI implements InputPipeMulti {
 		setup();
 	}
 	
-	/**
-	 * Constructs a new StartUI
-	 */
-	public StartUI(IClientConnection _conn, AudioManager _audio, TextureBank _tb, FontBank _fb) {
-		super(_conn, _audio, _tb, _fb);
-		setup();
-	}
-	
 	private void setup() {
 		// Create Start Button
 		startButton = new ButtonComponent(
@@ -126,11 +118,6 @@ public class StartUI extends UI implements InputPipeMulti {
 	@Override
 	public UI next() {
 		return nextUI;
-	}
-
-	@Override
-	public String toString() {
-		return "StartUI";
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import game.net.client.IClientConnectionHandler;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
+import game.render.RenderSettings;
 import game.world.entity.*;
 import game.world.map.Map;
 import game.world.entity.update.EntityUpdate;
@@ -93,7 +94,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private ClientAudioManager clientAudio;
 	
 	/** Client UpdateArgs structure */
-	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, new PacketCache());
+	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, new PacketCache(), null);
 	
 	/**
 	 * Constructs a client world
@@ -115,12 +116,35 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		this.updateStep(0.0f);
 	}
 	
+	public boolean isPlayerDead() {
+		PlayerScoreboardInfo p = scoreboard.getPlayer(connection.getName());
+		return p != null && p.dead;
+	}
+	
 	@Override
 	protected void updateStep(double dt) {
 		Player p = getPlayer();
 		if (p != null) {
 			this.cameraPos.lerp(p.position, (float)dt * 20.0f);
 			audio.updateListenerPosition(p.position);
+		} else if (isPlayerDead()) {
+			Vector4f rect = map.getRect();
+			float mx = rect.x;
+			float my = rect.y;
+			float mw = rect.z;
+			float mh = rect.w;
+			
+			// Calculate target zoom and position
+			Vector2f targetPosition = Util.pushTemporaryVector2f();
+			targetPosition.set(mx, my).add(mw/2, mh/2);
+			float targetZoomW = windowW / (mw + 2);
+			float targetZoomH = windowH / (mh + 2);
+			float targetZoom = Math.min(targetZoomW, targetZoomH);
+			
+			// Lerp position and zoom
+			this.cameraZoom += (targetZoom - this.cameraZoom) * (float)dt * 0.5f;
+			this.cameraPos.lerp(targetPosition, (float)dt * 1.0f);
+			Util.popTemporaryVector2f();
 		}
 		
 		// Send server data
@@ -164,6 +188,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			clientUpdateArgs.bank = this.bank;
 			clientUpdateArgs.map = this.map;
 			clientUpdateArgs.audio = this.audio;
+			clientUpdateArgs.scoreboard = null;
 			
 			for (Entity e : this.bank.entities.values())
 				e.clientUpdate(clientUpdateArgs);
@@ -224,13 +249,23 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 */
 	public void render(IRenderer r) {
 		// Set model view matrix
+		Player p = getPlayer();
+		if (isPlayerDead()) {
+			RenderSettings s = r.getRenderSettings();
+			s.drawLineOfSightStencil = false;
+			r.setRenderSettings(s);
+		} else {
+			RenderSettings s = r.getRenderSettings();
+			s.drawLineOfSightStencil = true;
+			r.setRenderSettings(s);
+		}
+		
 		r.getModelViewMatrix()
 				.pushMatrix()
 				.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
 				.scale(cameraZoom)
 				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
-		Player p = getPlayer();
 		calculateLineOfSight();
 		
 		r.beginDrawWorld();
@@ -281,7 +316,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 		
 		// Draw mini-map
-		this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
+		if (!isPlayerDead())
+			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
 		
 		// Draw current ammo
 		if (p != null) {
@@ -313,11 +349,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Render map background
 		this.map.renderBackground(r);
 		
-		if (Util.isDebugRenderMode()) {
-			if (p != null) {
-				// Render line of sight (debug)
-				r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-			}
+		if (p != null && r.getRenderSettings().debugDrawLineOfSightLines) {
 			drawDebugLines(r, losBuf);
 		}
 		
@@ -377,7 +409,22 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 				try {
 					connection.sendAction(new Action(ActionType.PICKUP));
 				} catch (ProtocolException e) {
-					e.printStackTrace();
+					connection.error(e);
+				}
+				break;
+			case GLFW_KEY_LEFT_SHIFT:
+			case GLFW_KEY_RIGHT_SHIFT:
+				try {
+					connection.sendAction(new Action(ActionType.TOGGLE_LIGHT));
+				} catch (ProtocolException e) {
+					connection.error(e);
+				}
+				break;
+			case GLFW_KEY_R:
+				try {
+					connection.sendAction(new Action(ActionType.RELOAD));
+				} catch (ProtocolException e) {
+					connection.error(e);
 				}
 				break;
 			}
@@ -394,7 +441,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleCursorPos(double xpos, double ypos) {
 		// Send input to server
-		float angle = (float) Util.getAngle(windowW/2, windowH/2, xpos, ypos);
+		float angle = Util.getAngle(windowW/2, windowH/2, (float)xpos, (float)ypos);
 		actionAim.setAngle(angle);
 		dirtyActionAim = NUM_REPEATS;
 	}
@@ -447,9 +494,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	public void destroy() {
 		try {
-			this.connection.sendLobbyLeaveRequest();
+			connection.sendLobbyLeaveRequest();
 		} catch (ProtocolException e) {
-			// The connection handler takes care of this
+			connection.error(e);
 		}
 	}
 	

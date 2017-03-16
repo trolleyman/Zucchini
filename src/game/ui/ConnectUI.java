@@ -75,6 +75,7 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		nameEntry = new TextEntryComponent(font,
 				1.0f, Util::isValidNameChar, this::connect, Util.MAX_NAME_LENGTH,
 				() -> { ipEntry.setEnabled(false); nameEntry.setEnabled(true); },
+				Character::toLowerCase,
 				0.0f, 0.0f, 0.0f);
 		nameEntry.setEnabled(false);
 		
@@ -244,11 +245,6 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	@Override
 	public UI next() {
 		return nextUI;
-	}
-	
-	@Override
-	public String toString() {
-		return "StartUI";
 	}
 	
 	@Override

@@ -62,7 +62,7 @@ public class LaserBulletSegment extends Entity {
 	public void update(UpdateArgs ua) {
 		this.time += ua.dt;
 		
-		if (this.time > TTL) {
+		if (this.time >= TTL) {
 			this.time = TTL;
 			ua.bank.removeEntityCached(this.getId());
 		}

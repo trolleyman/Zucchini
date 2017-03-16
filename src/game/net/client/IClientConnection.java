@@ -81,6 +81,11 @@ public interface IClientConnection {
 	void sendStringUdp(String msg) throws ProtocolException;
 	
 	/**
+	 * Should be called when an error happens while receiving/sending. Closes the connection.
+	 */
+	void error(ProtocolException e);
+	
+	/**
 	 * Called when the connection to the server should be closed
 	 */
 	void close();

@@ -35,6 +35,16 @@ public class ImageComponent extends UIComponent {
 	public void render(IRenderer r) {	
 		r.drawTexture(texture, a, x, y, r.getWidth(), r.getHeight(), rot);
 	}
+	
+	/**
+	 * @param r
+	 * @param sw The shrink factor
+	 */
+	public void render2(IRenderer r, float sf){
+		float w = r.getWidth()/sf;
+		float h = r.getHeight()/sf;
+		r.drawTexture(texture, a, x, y, w, h, rot);
+	}
 
 	@Override
 	public void update(double dt) {

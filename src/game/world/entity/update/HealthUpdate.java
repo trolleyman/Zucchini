@@ -15,6 +15,10 @@ public class HealthUpdate extends EntityUpdate {
 		this.health = hu.health;
 	}
 	
+	public float getHealth() {
+		return health;
+	}
+	
 	@Override
 	public void updateEntity(Entity e) {
 		e.addHealth(health);
