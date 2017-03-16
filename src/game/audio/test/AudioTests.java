@@ -60,6 +60,12 @@ public class AudioTests {
         	if (c=='r'){ //plays an explosion sound, but much further away from you
         		soundMgr.play("explosion.wav",1f,new Vector2f(0f,15f));
         	}
+        	if (c=='t'){ //plays an explosion sound, but very far away from you, shouldn't be able to hear this
+        		int id = soundMgr.play("explosion.wav",1f,new Vector2f(1500f,1500f));
+        		if(id!=-1 && soundMgr.getSoundSource(id).isPlaying()){
+        			System.out.println("Sound source id: " + id + " is playing very far away...");
+        		}
+        	}
         }
         soundMgr.cleanup();
     }
