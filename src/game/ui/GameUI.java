@@ -88,8 +88,8 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void update(double dt) {
-		barWidth = (winWidth/3);
-		barHeight = (winHeight/10);
+		barWidth = (winWidth/5);
+		barHeight = (winHeight/20);
 		mapSize = (winHeight/5);
 		this.world.update(dt);
 	}
@@ -109,8 +109,11 @@ public class GameUI extends UI implements InputPipeMulti {
 			playerHealth = world.getPlayer().getHealth();
 		}
 		
-		r.drawBox(Align.TR, (float) winWidth - 20, (float) winHeight - 20, (float) 30 * maxHealth, (float) 20, ColorUtil.GREEN);//max health
-		r.drawBox(Align.TR, winWidth - 20, winHeight - 20, 30 * (maxHealth - playerHealth), 20, ColorUtil.RED);
+		float segments = barWidth / maxHealth;
+		
+		
+		r.drawBox(Align.TR, (float) winWidth - 20, (float) winHeight - 20, barWidth, barHeight, ColorUtil.GREEN);//max health
+		r.drawBox(Align.TR, winWidth - 20, winHeight - 20, segments * (maxHealth - playerHealth), barHeight, ColorUtil.RED);
 	}
 	
 	@Override
