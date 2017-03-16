@@ -117,12 +117,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	public boolean isPlayerDead() {
-		for (PlayerScoreboardInfo p : scoreboard.getPlayers()) {
-			if (p.name.equals(connection.getName())) {
-				return p.dead;
-			}
-		}
-		return false;
+		PlayerScoreboardInfo p = scoreboard.getPlayer(connection.getName());
+		return p != null && p.dead;
 	}
 	
 	@Override

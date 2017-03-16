@@ -65,10 +65,17 @@ public class Scoreboard {
 				return p;
 			}
 		}
-		PlayerScoreboardInfo info = new PlayerScoreboardInfo(name);
-		players.add(info);
+		return null;
+	}
+	
+	private PlayerScoreboardInfo getPlayerOrDefault(String name) {
+		PlayerScoreboardInfo p = getPlayer(name);
+		if (p != null)
+			return p;
+		p = new PlayerScoreboardInfo(name);
+		players.add(p);
 		toSort = true;
-		return info;
+		return p;
 	}
 	
 	public void addPlayer(String name) {
@@ -87,25 +94,25 @@ public class Scoreboard {
 	}
 	
 	public void killPlayer(String name) {
-		getPlayer(name).dead = true;
+		getPlayerOrDefault(name).dead = true;
 		toSort = true;
 		dirty = true;
 	}
 	
 	public void addMonsterKill(String name) {
-		getPlayer(name).monsterKills++;
+		getPlayerOrDefault(name).monsterKills++;
 		toSort = true;
 		dirty = true;
 	}
 	
 	public void addPlayerKill(String name) {
-		getPlayer(name).playerKills++;
+		getPlayerOrDefault(name).playerKills++;
 		toSort = true;
 		dirty = true;
 	}
 	
 	public void addPlayerSuicide(String name) {
-		getPlayer(name).playerKills--;
+		getPlayerOrDefault(name).playerKills--;
 		toSort = true;
 		dirty = true;
 	}

@@ -9,16 +9,12 @@ import game.exception.ProtocolException;
 import game.net.PacketCache;
 import game.net.Protocol;
 import game.net.WorldStart;
-import game.net.server.ClientHandler;
-import game.net.server.ClientInfo;
 import game.net.server.LobbyClient;
 import game.world.entity.Entity;
 import game.world.entity.Player;
-import game.world.entity.weapon.Handgun;
 import game.world.map.Map;
 import game.world.update.ScoreboardWorldUpdate;
 import game.world.update.SetStartTimeWorldUpdate;
-import org.joml.Vector2f;
 
 /**
  * The world located on the server
