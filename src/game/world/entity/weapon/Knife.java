@@ -113,7 +113,7 @@ public class Knife extends Weapon {
 		
 		if (closest != null) {
 			System.out.println("[Game]: Weapon: Knifed " + closest.getId() + " (" + closest + ")");
-			Damage damage = new Damage(ownerId, ownerTeam, DamageType.KNIFE_DAMAGE, 2.0f);
+			Damage damage = new Damage(ownerId, ownerTeam, DamageType.KNIFE_DAMAGE, 5.0f);
 			ua.bank.updateEntityCached(new DamageUpdate(closest.getId(), damage));
 		}
 		this.stabbed = true;
