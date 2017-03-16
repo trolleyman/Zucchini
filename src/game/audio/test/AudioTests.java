@@ -1,5 +1,7 @@
 package game.audio.test;
 
+import java.util.Scanner;
+
 import org.joml.Vector2f;
 
 import game.audio.AudioManager;
@@ -13,6 +15,8 @@ import game.audio.AudioManager;
  * 	Looping function
  * 	Directional sounds
  *  Positional sounds
+ *  Mute and unmute
+ *  Volume settings
  * @author Yean
  */
 public class AudioTests {
@@ -72,17 +76,12 @@ public class AudioTests {
         	if (c =='u'){
         		soundMgr.unMute();
         	}
-        	//TODO: finish vloume tests
         	if (c == 'v'){
     			System.out.println("Type in a float between 0-1");
-				Float v = 10f;
-    			while (v>1f || v<0f ){
-    				v = (float) System.in.read();
-        			System.out.println("v: " +v );
-        			if ( v<1f && v>0f){
-        				soundMgr.setVolume(v);
-        			}
-    			}
+				Scanner scanner = new Scanner(System.in);
+				Float v = scanner.nextFloat();
+				System.out.println("v: " +v );
+        		soundMgr.setVolume(v);
         	}
         }
         soundMgr.cleanup();

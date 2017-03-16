@@ -166,7 +166,7 @@ public class AudioManager implements IAudioManager{
      * @param volume
      */
     public void setVolume(float volume){
-    	if (volume >1f || volume<0){
+    	if (volume >1f || volume<0f){
     		System.err.println("Invalid volume, only accepts a float between 0-1");
     		return;
     	}
