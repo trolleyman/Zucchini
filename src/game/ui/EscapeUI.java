@@ -158,11 +158,6 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	}
 	
 	@Override
-	public String toString() {
-		return "EscapeUI";
-	}
-	
-	@Override
 	public void destroy() {
 		if (destroy)
 			this.world.destroy();
