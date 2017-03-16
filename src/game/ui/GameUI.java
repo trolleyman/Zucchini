@@ -134,11 +134,6 @@ public class GameUI extends UI implements InputPipeMulti {
 	public UI next() {
 		return nextUI;
 	}
-	
-	@Override
-	public String toString() {
-		return "GameUI";
-	}
 
 	@Override
 	public void destroy() {
