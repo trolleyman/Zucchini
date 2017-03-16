@@ -18,13 +18,13 @@ public class HelpUI extends UI implements InputPipeMulti{
 	private UI nextUI;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private TextureBank bank;
-	private ButtonComponent backBtn, nextBtn;
+	private ButtonComponent backBtn, nextBtn, exitBtn;
 
 	private float winWidth;
 	private float winHeight;
 	private ImageComponent backgroundImage;
 	private ImageComponent logInScreen, lobbyScreen, lobbyWaitScreen, gameScreen, escapeScreen;
-	private String[] strLIS, strLS, strLWS, strGS, strES;
+	private String[] strLIS, strLS, strLWS, strGS, strES, strWS;
 	private int imageCount;
 	private Font font;
 	
@@ -39,11 +39,11 @@ public class HelpUI extends UI implements InputPipeMulti{
 	
 	private void start(){
 		backBtn = new ButtonComponent(
-				() -> System.out.println("Clicked back button"),
+				() -> imageCount--,
 				Align.TL, 0, 0,
-				textureBank.getTexture("temparrow.png"),
-				textureBank.getTexture("temparrow.png"),
-				textureBank.getTexture("temparrow.png")
+				textureBank.getTexture("backDefault.png"),
+				textureBank.getTexture("backHover.png"),
+				textureBank.getTexture("backPressed.png")
 		);
 		
 		nextBtn = new ButtonComponent(
@@ -52,8 +52,15 @@ public class HelpUI extends UI implements InputPipeMulti{
 				textureBank.getTexture("nextDefault.png"),
 				textureBank.getTexture("nextHover.png"),
 				textureBank.getTexture("nextPressed.png")
-			);
+		);
 			
+		exitBtn = new ButtonComponent(
+				() -> this.nextUI = new StartUI(this),
+				Align.BL, 100, 100,
+				textureBank.getTexture("exitButtonDefault.png"),
+				textureBank.getTexture("exitButtonHover.png"),
+				textureBank.getTexture("exitButtonPressed.png")
+		);
 		
 		backgroundImage = new ImageComponent(
 				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
@@ -83,6 +90,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		
 		this.inputHandlers.add(backBtn);
 		this.inputHandlers.add(nextBtn);
+		this.inputHandlers.add(exitBtn);
 	}
 	
 	private void setUpText(){
@@ -117,7 +125,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		strLWS[7] = "begin. You can leave the lobby before";
 		strLWS[8] = "the game starts by clicking on 'LEAVE'."; 
 		
-		strGS = new String[15];
+		strGS = new String[30];
 		strGS[1] = "This is the screen during game play.";
 		strGS[2] = "You are the icon at the centre";
 		strGS[3] = "of the screen.In the top right of the";
@@ -132,7 +140,51 @@ public class HelpUI extends UI implements InputPipeMulti{
 		strGS[12] = "";
 		strGS[13] = "In the top left is your minimap. This shows";
 		strGS[14] = "the layout of the maze in your area.";
-	}
+		strGS[15] = "To move your player around the area, use:";
+		strGS[16] = "The W key to move North,";
+		strGS[17] = "The A key to move West,";
+		strGS[18] = "The S key to move South,";
+		strGS[19] = "The D key to move East.";
+		strGS[20] = "";
+		strGS[21] = "Use your mouse or touchpad to control the";
+		strGS[22] = "direction and aim of your player.";
+		strGS[23] = "Click your mouse to fire or use your weapon.";
+		strGS[24] = "";
+		strGS[25] = "To pick up other items, press the E key.";
+		strGS[26] = "This will also cause you to drop the item";
+		strGS[27] = "you are currently holding.";
+		strGS[28] = "";
+		strGS[29] = "Press the ESCAPE key to see the menu.";
+
+		strES = new String[14];
+		strES[1] = "This is the escape menu, which you can";
+		strES[2] = "access at any time during the game.";
+		strES[3] = "The game is still live during your time";
+		strES[4] = "viewing the menu. By pressing CONTINUE,";
+		strES[5] = "you will go back into the same game.";
+		strES[6] = "";
+		strES[7] = "From here, you can QUIT the game back to";
+		strES[8] = "the start screen. If you need to look at";
+		strES[9] = "this HELP menu again by pressing the";
+		strES[10] = "button, you will automatically quit";
+		strES[11] = "the game.";
+		strES[12] = "";
+		strES[13] = "Click AUDIO to change any sound features.";
+
+		strWS = new String[13];
+		strWS[1] = "The aim of the game is to be the";
+		strWS[2] = "last one alive!";
+		strWS[3] = "The arena is a maze with a central area";
+		strWS[4] = "throughout which are weapons for you to";
+		strWS[5] = "pick up.";
+		strWS[6] = "";
+		strWS[7] = "As time in the game goes on, the maze";
+		strWS[8] = "will fill with flesh-eating zombies!";
+		strWS[9] = "Nowhere is safe...except the centre.";
+		strWS[10] = "Do what you can to keep yourself alive";
+		strWS[11] = "from the zombies and other players who";
+		strWS[12] = "are out to get you. Good luck!";
+		}
 	
 	public ArrayList<InputHandler> getHandlers() {
 		return this.inputHandlers;
@@ -149,7 +201,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 	public void update(double dt) {
 		backBtn.update(dt);
 		nextBtn.update(dt);
-		
+		exitBtn.update(dt);
 	}
 
 	
@@ -158,9 +210,12 @@ public class HelpUI extends UI implements InputPipeMulti{
 	@Override
 	public void render(IRenderer r) {
 		backgroundImage.render(r);
-		
-		nextBtn.setX((int) winWidth - 100);
+		backBtn.setX(50);
+		backBtn.setY((int) 200);
+		nextBtn.setX((int) winWidth - 150);
 		nextBtn.setY((int) 100);
+		exitBtn.setX((int) winWidth - 150);
+		exitBtn.setY((int) winHeight - 150);
 		
 		if(imageCount<3){
 			r.drawText(font, "HOW TO SET UP A GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
@@ -172,7 +227,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			logInScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLIS.length; i++){
-				r.drawText(font, strLIS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
+				r.drawText(font, strLIS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
 			}
 		}else if(imageCount==1){
 			lobbyScreen.setX(winWidth/15);
@@ -180,7 +235,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			lobbyScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLS.length; i++){
-				r.drawText(font, strLS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
+				r.drawText(font, strLS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
 			}
 		}else if(imageCount==2){
 			lobbyWaitScreen.setX(winWidth/15);
@@ -188,11 +243,11 @@ public class HelpUI extends UI implements InputPipeMulti{
 			lobbyWaitScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLWS.length; i++){
-				r.drawText(font, strLWS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
+				r.drawText(font, strLWS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
 			}
 		}
 		
-		if(imageCount>2){
+		if(imageCount>2 && imageCount<6){
 			r.drawText(font, "HOW TO PLAY THE GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
 		}
 		
@@ -201,17 +256,44 @@ public class HelpUI extends UI implements InputPipeMulti{
 			gameScreen.setY(winHeight/3);
 			gameScreen.render2(r, 1.8f);
 			
-			for(int i = 1; i < strGS.length; i++){
-				r.drawText(font, strGS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
+			for(int i = 1; i < 15; i++){
+				r.drawText(font, strGS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*(i)), 0.4f);
+			}
+		}else if(imageCount==4){
+			gameScreen.setX(winWidth/15);
+			gameScreen.setY(winHeight/3);
+			gameScreen.render2(r, 1.8f);
+			
+			for(int i = 15; i < strGS.length; i++){
+				r.drawText(font, strGS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*(i-15)), 0.4f);
+			}
+		}else if(imageCount==5){
+			escapeScreen.setX(winWidth/15);
+			escapeScreen.setY(winHeight/3);
+			escapeScreen.render2(r, 1.8f);
+			
+			for(int i = 1; i < strES.length; i++){
+				r.drawText(font, strES[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
 			}
 		}
 		
+		if(imageCount>5){
+			r.drawText(font, "HOW TO WIN THE GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
+		}
 		
+		if(imageCount==6){
+			for(int i = 1; i < strWS.length; i++){
+				r.drawText(font, strWS[i], Align.BL, false, 300, winHeight - 150 - (50*i), 0.8f);
+			}
+		}
 		
+		if(imageCount==7){
+			this.nextUI = new StartUI(this);
+		}
+		
+		exitBtn.render(r);
 		nextBtn.render(r);
-	//	backBtn.setX(0);
-	//	backBtn.setY((int) winHeight - 200);
-	//	backBtn.render(r);
+		backBtn.render2(r, 350.0f, 100.0f);
 	}
 
 	@Override

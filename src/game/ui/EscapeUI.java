@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
 import game.ui.component.ButtonComponent;
+import game.ui.component.TextButtonComponent;
 import game.world.ClientWorld;
 import org.joml.Vector4f;
 
@@ -35,7 +37,10 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	private float winWidth;
 	private float winHeight;
 	
+	private Boolean help;
+	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	private Font font;
 	
 	public EscapeUI(UI _ui, ClientWorld _world) {
 		super(_ui);
@@ -44,7 +49,9 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		this.world = _world;
 		buttonHeight = 200;
 		buttonWidth = 200;
-		
+		help = false;
+		font = fontBank.getFont("emulogic.ttf");
+
 		start(); //java convention to keep constructor under 10 lines
 	}
 	
@@ -56,7 +63,8 @@ public class EscapeUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("fileclicked.png")
 		);
 		
-		helpBtn = new ButtonComponent(null,
+		helpBtn = new ButtonComponent(
+				() -> this.nextUI = new HelpUI(this),
 				Align.BL, 0, 0,
 				textureBank.getTexture("helpbtn.png"),
 				textureBank.getTexture("helpclicked.png"),
@@ -150,7 +158,43 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		audioBtn.render(r);
 		quitBtn.render(r);
 		continueBtn.render(r);
+		
+	/*	if(help){
+			r.drawText(font, "This will cause you to quit your game.", Align.BL, false, winWidth/3, winHeight-100, 0.6f);
+			r.drawText(font, "Do you wish to continue?", Align.TL, false, winWidth/3, winHeight - 200, 0.6f);
+			
+			ButtonComponent leaveBtn = new ButtonComponent(
+					() -> {
+						this.destroy = true;
+						this.nextUI = new HelpUI(this);
+					},
+					Align.BL, winWidth/3, winHeight/2,
+					textureBank.getTexture("quitbtn.png"),
+					textureBank.getTexture("quitclicked.png"),
+					textureBank.getTexture("quitclicked.png")
+			);
+			
+			leaveBtn.render(r);
+			
+			ButtonComponent backBtn = new ButtonComponent(
+					() -> this.nextUI = new GameUI(this, world),
+					Align.TL, winWidth/3 + 500, winHeight/2,
+					textureBank.getTexture("backDefault.png"),
+					textureBank.getTexture("backHover.png"),
+					textureBank.getTexture("backPressed.png")
+			);
+			
+			backBtn.render(r);
+			
+			this.inputHandlers.add(leaveBtn);
+			this.inputHandlers.add(backBtn);
+			
+			
+		}*/
+		
 	}
+	
+
 	
 	@Override
 	public UI next() {

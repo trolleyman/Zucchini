@@ -82,4 +82,10 @@ public class ButtonComponent extends AbstractButtonComponent {
 	public float getHeight() {
 		return currentTexture.getHeight();
 	}
+
+	public void render2(IRenderer r, float w, float h) {
+		r.drawTexture(currentTexture, a, x, y, w, h);
+
+		
+	}
 }
