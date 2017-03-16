@@ -248,12 +248,6 @@ public class LobbyUI extends UI implements InputPipeMulti
 	}
 
 	@Override
-	public String toString()
-	{
-		return "LobbyUI";
-	}
-
-	@Override
 	public void destroy()
 	{
 		// Nothing to destroy

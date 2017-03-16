@@ -248,11 +248,6 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	}
 	
 	@Override
-	public String toString() {
-		return "StartUI";
-	}
-	
-	@Override
 	public void destroy() {
 		// Nothing to destroy
 	}

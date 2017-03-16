@@ -57,8 +57,4 @@ public abstract class UI implements InputHandler {
 	 * Called when the UI is destroyed so that it will not be used again.
 	 */
 	public abstract void destroy();
-	
-	/** Inheriting classes must implement {@link java.lang.Object#toString toString()} */
-	@Override
-	public abstract String toString();
 }
