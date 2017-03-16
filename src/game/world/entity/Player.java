@@ -376,6 +376,7 @@ public class Player extends MovableEntity {
 			else
 				ua.scoreboard.addPlayerKill(p.getName());
 		}
+		ua.audio.play("dying.wav", 1.0f, this.position);
 	}
 	
 	@Override
