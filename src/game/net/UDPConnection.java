@@ -164,7 +164,8 @@ public class UDPConnection {
 	
 	public void close() {
 		try {
-			this.sendString(Protocol.UDP_EXIT);
+			if (!udpSocket.isClosed() && udpSocket.isConnected())
+				this.sendString(Protocol.UDP_EXIT);
 		} catch (ProtocolException e) {
 			// We don't care about this
 		}

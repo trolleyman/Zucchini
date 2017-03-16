@@ -97,7 +97,12 @@ public class Util {
 	public static void popTemporaryVector3f() {
 		int stackSize = vector3fStackSize.get();
 		stackSize--;
-		vector3fStackSize.set(stackSize);
+		if (stackSize < 0) {
+			vector3fStackSize.set(0);
+			throw new IndexOutOfBoundsException();
+		} else {
+			vector3fStackSize.set(stackSize);
+		}
 	}
 	
 	// ======= Vector2f Stack =======
@@ -136,7 +141,12 @@ public class Util {
 	public static void popTemporaryVector2f() {
 		int stackSize = vector2fStackSize.get();
 		stackSize--;
-		vector2fStackSize.set(stackSize);
+		if (stackSize < 0) {
+			vector2fStackSize.set(0);
+			throw new IndexOutOfBoundsException();
+		} else {
+			vector2fStackSize.set(stackSize);
+		}
 	}
 	
 	/**
@@ -147,19 +157,8 @@ public class Util {
 	 * @param y1 y-coordinate of the second point
 	 */
 	public static float getAngle(float x0, float y0, float x1, float y1) {
-		return (float) Util.getAngle((double)x0, (double)y0, (double)x1, (double)y1);
-	}
-	
-	/**
-	 * Gets the angle between two points, relative clockwise to the up vector.
-	 * @param x0 x-coordinate of the first point
-	 * @param y0 y-coordinate of the first point
-	 * @param x1 x-coordinate of the second point
-	 * @param y1 y-coordinate of the second point
-	 */
-	public static double getAngle(double x0, double y0, double x1, double y1) {
-		double x = x1-x0;
-		double y = y1-y0;
+		float x = x1-x0;
+		float y = y1-y0;
 		return Util.getAngle(x, y);
 	}
 	
@@ -169,26 +168,17 @@ public class Util {
 	 * @param y The y-coordinate
 	 */
 	public static float getAngle(float x, float y) {
-		return (float) Util.getAngle((double) x, (double) y);
-	}
-	
-	/**
-	 * Gets the angle between 0,0 and the point specified, relative clockwise to the up vector.
-	 * @param x The x-coordinate
-	 * @param y The y-coordinate
-	 */
-	public static double getAngle(double x, double y) {
-		double angle = Math.atan(x/y);
-		if (!Double.isFinite(angle)) { // Check for NaNs, infinities etc.
+		float angle = (float)Math.atan(x/y);
+		if (!Float.isFinite(angle)) { // Check for NaNs, infinities etc.
 			angle = 0.0f;
 		} else if (y < 0.0f) {
-			angle = Math.PI + angle;
+			angle = (float)Math.PI + angle;
 		}
 		return normalizeAngle(angle);
 	}
 	
 	/**
-	 * Gets the acute/obtuse angle between two angles
+	 * Gets the non-reflex angle between two angles
 	 */
 	public static float getAngleDiff(float x, float y) {
 		float diff = Math.abs(x - y);
@@ -206,14 +196,6 @@ public class Util {
 	}
 	
 	public static float normalizeAngle(float angle) {
-		angle %= Math.PI * 2;
-		if (angle < 0.0f) {
-			angle += Math.PI * 2;
-		}
-		return angle;
-	}
-	
-	public static double normalizeAngle(double angle) {
 		angle %= Math.PI * 2;
 		if (angle < 0.0f) {
 			angle += Math.PI * 2;
@@ -264,6 +246,7 @@ public class Util {
 	 * This is the minimum length of a lobby name
 	 */
 	public static final int MIN_LOBBY_NAME_LENGTH = 3;
+	
 	/**
 	 * This is the maximum length of a lobby name
 	 */
@@ -273,8 +256,8 @@ public class Util {
 	 * Returns true if the character entered is valid for a lobby name
 	 */
 	public static boolean isValidLobbyNameChar(char c) {
-		return Character.isAlphabetic(c) || Character.isDigit(c)
-				|| (c >= ' ' && c <= '~');
+		return (Character.isAlphabetic(c) || Character.isDigit(c)
+				|| (c >= ' ' && c <= '~')) && !Character.isUpperCase(c);
 	}
 	
 	/**
@@ -331,24 +314,6 @@ public class Util {
 	public static final int DEFAULT_MAX_PLAYERS = 4;
 	
 	public static float HUD_PADDING = 50.0f;
-	
-	public static void main(String[] args) throws IOException {
-		CodeSource codeSource = Util.class.getProtectionDomain().getCodeSource();
-		
-		if (codeSource == null) {
-			System.out.println("Null!");
-			return;
-		}
-		
-		URL jar = codeSource.getLocation();
-		ZipInputStream zip = new ZipInputStream(jar.openStream());
-		ZipEntry ze = null;
-		
-		while ((ze = zip.getNextEntry()) != null) {
-			String name = ze.getName();
-			System.out.println(name);
-		}
-	}
 	
 	/**
 	 * Sorts the float buffer specified

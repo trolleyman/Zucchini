@@ -25,11 +25,15 @@ class Client implements Runnable, InputPipe {
 	 */
 	private UI ui;
 	
+	/**
+	 * The renderer
+	 */
 	private Renderer renderer;
 	
+	/**
+	 * The audio manager
+	 */
 	private AudioManager audio;
-	
-	private IClientConnection connection;
 	
 	/**
 	 * Previous time in nanoseconds of update.
@@ -62,7 +66,7 @@ class Client implements Runnable, InputPipe {
 	
 	@Override
 	public void run() {
-		System.out.println("==== UI Start State: " + ui.toString() + " ====");
+		System.out.println("==== UI Start State: " + ui.getClass().getSimpleName() + " ====");
 		renderer.show();
 		
 		loop();
@@ -88,7 +92,7 @@ class Client implements Runnable, InputPipe {
 		ui.update(dtNanos / (double) Util.NANOS_PER_SECOND);
 		UI next = ui.next();
 		if (next != ui && next != null) {
-			System.out.println("==== UI State Change: " + ui.toString() + " => " + next.toString() + " ====");
+			System.out.println("==== UI State Change: " + ui.getClass().getSimpleName() + " => " + next.getClass().getSimpleName() + " ====");
 			next.handleResize(renderer.getWidth(), renderer.getHeight());
 			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
 			ui.destroy();

@@ -28,7 +28,7 @@ public class LaserGun extends Weapon {
 	}
 	
 	public LaserGun(Vector2f position, int ammo) {
-		super(position, ammo, false, 0.04f, 60, 2.0f,
+		super(position, ammo, false, 0.2f, 60, 2.0f,
 				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
 	}
 	
@@ -79,8 +79,9 @@ public class LaserGun extends Weapon {
 				for (Entity e : es) {
 					// Only damage if the id is not who shot the laser, unless it is after the first shot
 					if (e.getId() != this.ownerId || prevWall != null) {
-						Damage damage = new Damage(ownerId, ownerTeam, DamageType.LASER_DAMAGE, 10.0f);
+						Damage damage = new Damage(ownerId, ownerTeam, DamageType.LASER_DAMAGE, 3.5f);
 						ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
+						ua.audio.play("vaporized.wav", 1.0f, e.position);
 					}
 				}
 			}

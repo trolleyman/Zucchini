@@ -13,6 +13,10 @@ public class SetStartTimeWorldUpdate extends WorldUpdate {
 		this.startTime = startTime;
 	}
 	
+	public float getStartTime() {
+		return startTime;
+	}
+	
 	@Override
 	public void updateWorld(World w) {
 		w.setStartTime(startTime);

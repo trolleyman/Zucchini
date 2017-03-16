@@ -22,8 +22,7 @@ public class ColorUtil {
 	public static final Vector4f YELLOW = new Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
 	public static final Vector4f PINK   = new Vector4f(1.0f, 0.0f, 1.0f, 1.0f);
 	public static final Vector4f CYAN   = new Vector4f(0.0f, 1.0f, 1.0f, 1.0f);
-
-
+	
 	public static final Vector4f LIGHT_GREY = new Vector4f(0.8f, 0.8f, 0.8f, 1.0f);
 	public static final Vector4f DARK_GREY = new Vector4f(0.2f, 0.2f, 0.2f, 1.0f);
 }

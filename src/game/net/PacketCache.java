@@ -27,7 +27,7 @@ public class PacketCache {
 				conn.sendStringUdp(msg);
 			}
 		} catch (ProtocolException e) {
-			conn.close();
+			conn.error(e);
 			throw e;
 		} finally {
 			tcpCache.clear();
