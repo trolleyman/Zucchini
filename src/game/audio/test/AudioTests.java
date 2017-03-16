@@ -66,6 +66,24 @@ public class AudioTests {
         			System.out.println("Sound source id: " + id + " is playing very far away...");
         		}
         	}
+        	if (c =='m'){
+        		soundMgr.mute();
+        	}
+        	if (c =='u'){
+        		soundMgr.unMute();
+        	}
+        	//TODO: finish vloume tests
+        	if (c == 'v'){
+    			System.out.println("Type in a float between 0-1");
+				Float v = 10f;
+    			while (v>1f || v<0f ){
+    				v = (float) System.in.read();
+        			System.out.println("v: " +v );
+        			if ( v<1f && v>0f){
+        				soundMgr.setVolume(v);
+        			}
+    			}
+        	}
         }
         soundMgr.cleanup();
     }

@@ -37,7 +37,7 @@ public class AudioManager implements IAudioManager{
     private static Vector2f listenerPos = new Vector2f(0, 0);
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
-	
+	public float currentVolume = 1f;
     /**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
      * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
@@ -46,7 +46,7 @@ public class AudioManager implements IAudioManager{
     public AudioManager() throws Exception {
     	init();
     	setListener(new SoundListener(listenerPos));
-    	 
+        alListenerf(AL_GAIN, currentVolume); //sets volume
     	alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
         
     	
@@ -147,9 +147,31 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("zombie3.wav", 10);
     }
     
-    
+    /**
+     * Mutes all audio
+     */
     public void mute(){
         alListenerf(AL_GAIN, 0f);
+    }
+    
+    /**
+     * Unmutes audio, reseting to volume before mute
+     */
+    public void unMute(){
+    	alListenerf(AL_GAIN, currentVolume);
+    }
+    
+    /**
+     * Sets the volume, only takes in a float between 0-1
+     * @param volume
+     */
+    public void setVolume(float volume){
+    	if (volume >1f || volume<0){
+    		System.err.println("Invalid volume, only accepts a float between 0-1");
+    		return;
+    	}
+    	this.currentVolume = volume;
+    	alListenerf(AL_GAIN, currentVolume);
     }
     
     /**
