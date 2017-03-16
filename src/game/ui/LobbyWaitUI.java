@@ -289,9 +289,4 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	public void destroy() {
 		// Nothing to destroy
 	}
-	
-	@Override
-	public String toString() {
-		return "LobbyWaitUI";
-	}
 }
