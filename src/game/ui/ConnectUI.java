@@ -8,7 +8,6 @@ import game.audio.AudioManager;
 import game.exception.NameException;
 import game.exception.ProtocolException;
 import game.net.client.ClientConnection;
-import game.net.client.ClientDiscovery;
 import game.net.client.IClientConnection;
 import game.render.*;
 import game.ui.component.ButtonComponent;
@@ -34,9 +33,9 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
 	/** Connection address entry */
-	private TextEntryComponent ipEntry;
-	/** Name entry */
 	private TextEntryComponent nameEntry;
+	/** Name entry */
+	private TextEntryComponent ipEntry;
 	/** The connect button */
 	private ButtonComponent connectButton;
 	/** The auto connect button */
@@ -72,16 +71,16 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		font = fontBank.getFont("emulogic.ttf");
 		
 		// Create IP entry
-		ipEntry = new TextEntryComponent(font,
-				1.0f, (c) -> !Character.isWhitespace(c), this::connect, 20,
-				() -> { ipEntry.setEnabled(true); nameEntry.setEnabled(false); },
-				0.0f, 0.0f, 0.0f);
 		nameEntry = new TextEntryComponent(font,
 				1.0f, Util::isValidNameChar, this::connect, Util.MAX_NAME_LENGTH,
-				() -> { ipEntry.setEnabled(false); nameEntry.setEnabled(true); },
+				() -> { nameEntry.setEnabled(true); ipEntry.setEnabled(false); },
 				Character::toLowerCase,
 				0.0f, 0.0f, 0.0f);
-		nameEntry.setEnabled(false);
+		ipEntry = new TextEntryComponent(font,
+				1.0f, (c) -> !Character.isWhitespace(c), this::connect, 20,
+				() -> { nameEntry.setEnabled(false); ipEntry.setEnabled(true); },
+				0.0f, 0.0f, 0.0f);
+		ipEntry.setEnabled(false);
 		
 		// Create connect Button
 		connectButton = new ButtonComponent(
@@ -110,8 +109,8 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		this.loadingTex = textureBank.getTexture("loading.png");
 		
 		// Add buttons to input handlers
-		this.inputHandlers.add(ipEntry);
 		this.inputHandlers.add(nameEntry);
+		this.inputHandlers.add(ipEntry);
 		this.inputHandlers.add(connectButton);
 		this.inputHandlers.add(autoConnectButton);
 	}
@@ -124,30 +123,31 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
 		if (key == GLFW_KEY_TAB && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-			if (ipEntry.isEnabled()) {
-				ipEntry.setEnabled(false);
-				nameEntry.setEnabled(true);
-			} else {
-				ipEntry.setEnabled(true);
+			if (nameEntry.isEnabled()) {
 				nameEntry.setEnabled(false);
+				ipEntry.setEnabled(true);
+			} else {
+				nameEntry.setEnabled(true);
+				ipEntry.setEnabled(false);
 			}
 		}
+		InputPipeMulti.super.handleKey(key, scancode, action, mods);
 	}
 	
 	@Override
 	public void update(double dt) {
 		time += dt;
 		
-		ipEntry.update(dt);
 		nameEntry.update(dt);
+		ipEntry.update(dt);
 		connectButton.update(dt);
 		autoConnectButton.update(dt);
 		
 		if (connecting) {
-			ipEntry.setEnabled(false);
 			nameEntry.setEnabled(false);
-		} else if (!ipEntry.isEnabled() && !nameEntry.isEnabled()) {
-			ipEntry.setEnabled(true);
+			ipEntry.setEnabled(false);
+		} else if (!nameEntry.isEnabled() && !ipEntry.isEnabled()) {
+			nameEntry.setEnabled(true);
 		}
 	}
 	
@@ -172,9 +172,9 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		
 		// Render the buttons
 		r.drawText(font, "Address", Align.TL, false, padding, r.getHeight() - padding, 1.0f);
-		ipEntry.render(r);
-		r.drawText(font, "Name", Align.TL, false, padding, ipEntry.getY() - padding, 1.0f);
 		nameEntry.render(r);
+		r.drawText(font, "Name", Align.TL, false, padding, ipEntry.getY() - padding, 1.0f);
+		ipEntry.render(r);
 		connectButton.render(r);
 		autoConnectButton.render(r);
 		if (connecting) {
