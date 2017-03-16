@@ -4,30 +4,13 @@ import game.ColorUtil;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
-
-import game.audio.AudioManager;
-import game.net.client.IClientConnection;
-
-import game.net.Message;
-
 import game.render.Align;
 import game.render.Font;
-import game.render.FontBank;
 import game.render.IRenderer;
 import game.ui.component.ScoreboardComponent;
-import game.render.TextureBank;
 import game.world.ClientWorld;
 import game.world.PlayerScoreboardInfo;
-
-import game.world.World;
-import game.world.entity.Player;
-import org.joml.Vector4f;
-
-import game.world.entity.Item;
-import game.world.entity.Player;
 import game.world.entity.damage.Damage;
-import game.world.entity.weapon.Weapon;
-import game.world.map.Map;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;

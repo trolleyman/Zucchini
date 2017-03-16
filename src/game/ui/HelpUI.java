@@ -16,7 +16,6 @@ import game.world.ClientWorld;
 public class HelpUI extends UI implements InputPipeMulti{
 	private UI nextUI;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
-	private TextureBank bank;
 	private ButtonComponent backBtn;
 	private float winWidth;
 	private float winHeight;
@@ -24,18 +23,14 @@ public class HelpUI extends UI implements InputPipeMulti{
 	
 	public HelpUI(UI ui){
 		super(ui);
-		start();
-	}
-	
-	public HelpUI(IClientConnection _conn, AudioManager audio, TextureBank _bank, FontBank _fb) {
-		super(_conn, audio, _bank, _fb);
-	//	this.bank = _bank;
 		nextUI = this;
 		start();
 	}
 	
 	private void start(){
-		backBtn = new ButtonComponent(null, Align.TL, 0, 0,
+		backBtn = new ButtonComponent(
+				() -> System.out.println("Clicked back button"),
+				Align.TL, 0, 0,
 				textureBank.getTexture("temparrow.png"),
 				textureBank.getTexture("temparrow.png"),
 				textureBank.getTexture("temparrow.png")
