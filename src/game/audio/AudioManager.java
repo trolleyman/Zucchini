@@ -50,6 +50,7 @@ public class AudioManager implements IAudioManager{
     	 
     	alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
         
+    	
         System.out.println("Loading audio...");
         //place all files into the buffer list
         HashMap<String, byte[]> audioFiles = Resources.getAudioFiles();
@@ -146,6 +147,10 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("zombie3.wav", 20);
     }
     
+    
+    public void mute(){
+        alListenerf(AL_GAIN, 0f);
+    }
     
     /**
      * Iterate available sound sources for a buffer and return it
