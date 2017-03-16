@@ -94,7 +94,9 @@ public class GameUI extends UI implements InputPipeMulti {
 		mapSize = (winHeight/5);
 		this.world.update(dt);
 		
-		if (this.scoreboardShown || world.isPlayerDead()) {
+		if (world.isPlayerDead())
+			scoreboardShown = true;
+		if (this.scoreboardShown) {
 			this.scoreboardComponent.update(dt);
 			scoreboardComponent.setScoreboard(world.getScoreboard());
 		}
@@ -106,7 +108,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 		float titleScale = 2.0f;
 		Font f = r.getFontBank().getFont("emulogic.ttf");
-		if (scoreboardShown || world.isPlayerDead()) {
+		if (scoreboardShown) {
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
 		}
 		float y = 0.0f;
@@ -124,7 +126,7 @@ public class GameUI extends UI implements InputPipeMulti {
 			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale) - 80.0f;
 		}
 		
-		if (scoreboardShown || world.isPlayerDead()) {
+		if (scoreboardShown) {
 			scoreboardComponent.setStartY(y);
 			scoreboardComponent.render(r);
 		}
