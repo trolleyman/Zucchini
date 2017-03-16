@@ -39,6 +39,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private float mapSize;
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	private ArrayList<InputHandler> scoreboardInputHandlers = new ArrayList<>();
 	
 	private UI nextUI;
 	
@@ -53,15 +54,21 @@ public class GameUI extends UI implements InputPipeMulti {
 		super(_ui);
 		this.world = _world;
 		this.inputHandlers.add(world);
+		this.scoreboardInputHandlers.add(world);
 		
 		nextUI = this;
 		
 		scoreboardComponent = new ScoreboardComponent(world.getScoreboard(), 0.0f);
+		this.scoreboardInputHandlers.add(scoreboardComponent);
 	}
 	
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
-		return this.inputHandlers;
+		if (scoreboardShown) {
+			return scoreboardInputHandlers;
+		} else {
+			return inputHandlers;
+		}
 	}
 	
 	@Override

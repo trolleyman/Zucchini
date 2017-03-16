@@ -9,6 +9,7 @@ import game.net.client.IClientConnection;
 import game.render.*;
 import game.ui.component.ButtonComponent;
 import game.ui.component.ImageComponent;
+import game.ui.component.MuteComponent;
 
 /**
  * The StartUI is the UI responsible for rendering the starting UI of the program
@@ -28,9 +29,11 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ButtonComponent helpButton;
 	/** The exit button */
 	private ButtonComponent exitButton;
+	/** The mute toggle button */
+	private MuteComponent muteComponent;
+	
 	/** The next UI to return */
 	private UI nextUI = this;
-	
 	private ImageComponent backgroundImage;
 	
 	public StartUI(UI ui) {
@@ -66,6 +69,9 @@ public class StartUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("exitButtonPressed.png")
 		);
 		
+		// Create Mute Button
+		muteComponent = new MuteComponent(Align.BL, 100, 100, audio);
+		
 		// Create Background Image
 		backgroundImage = new ImageComponent(
 				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
@@ -75,6 +81,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(startButton);
 		this.inputHandlers.add(helpButton);
 		this.inputHandlers.add(exitButton);
+		this.inputHandlers.add(muteComponent);
 	}
 	
 	@Override
@@ -94,6 +101,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		startButton.update(dt);
 		helpButton.update(dt);
 		exitButton.update(dt);
+		muteComponent.update(dt);
 	}
 	
 	@Override
@@ -108,11 +116,14 @@ public class StartUI extends UI implements InputPipeMulti {
 		helpButton.setY((int) (windowH/2.0 - startButton.getHeight()/2.0 - 150));
 		exitButton.setX((int) (windowW - (exitButton.getWidth()) - 20.0));
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
+		muteComponent.setX(10.0f);
+		muteComponent.setY(10.0f);
 
 		// Render the buttons
 		startButton.render(r);
 		helpButton.render(r);
 		exitButton.render(r);
+		muteComponent.render(r);
 	}
 	
 	@Override

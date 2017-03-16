@@ -598,7 +598,7 @@ public class Renderer implements IRenderer {
 	}
 	
 	@Override
-	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r) {
+	public void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r, Vector4f c) {
 		matModelView.pushMatrix();
 		//matModelView.translate(x, y, 0.0f).translate(0.0f, h, 0.0f).scale(w, -h, 1.0f);
 		
@@ -609,7 +609,7 @@ public class Renderer implements IRenderer {
 		
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);
-		textureShader.setColor(ColorUtil.WHITE);
+		textureShader.setColor(c);
 		textureShader.bindTexture(tex);
 		textureShader.use();
 		

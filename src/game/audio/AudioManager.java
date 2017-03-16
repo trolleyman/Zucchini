@@ -38,7 +38,9 @@ public class AudioManager implements IAudioManager{
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
 	public float currentVolume = 1f;
-    /**
+	private boolean mute = false;
+	
+	/**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
      * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
      * @throws Exception
@@ -152,6 +154,7 @@ public class AudioManager implements IAudioManager{
      */
     public void mute(){
         alListenerf(AL_GAIN, 0f);
+        this.mute = true;
     }
     
     /**
@@ -159,13 +162,22 @@ public class AudioManager implements IAudioManager{
      */
     public void unMute(){
     	alListenerf(AL_GAIN, currentVolume);
+    	this.mute = false;
     }
-    
-    /**
+	
+	/**
+	 * Returns true if the audio is currently muted
+	 */
+	public boolean isMuted() {
+		return mute;
+	}
+	
+	/**
      * Sets the volume, only takes in a float between 0-1
      * @param volume
      */
-    public void setVolume(float volume){
+    public void setVolume(float volume) {
+    	this.unMute();
     	if (volume >1f || volume<0f){
     		System.err.println("Invalid volume, only accepts a float between 0-1");
     		return;
@@ -173,8 +185,15 @@ public class AudioManager implements IAudioManager{
     	this.currentVolume = volume;
     	alListenerf(AL_GAIN, currentVolume);
     }
-    
-    /**
+	
+	/**
+	 * Gets the current volume.
+	 */
+	public float getVolume() {
+		return currentVolume;
+	}
+	
+	/**
      * Iterate available sound sources for a buffer and return it
      * returns null if no sources are available
      * @param wavfile
