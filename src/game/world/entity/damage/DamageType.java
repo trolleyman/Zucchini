@@ -11,20 +11,25 @@ import org.joml.Vector2f;
 public enum DamageType {
 	UNKNOWN_DAMAGE(
 			"%1 killed %2 somehow",
-			new String[] {"%1 committed suicide", "%1 somehow managed to kill themselves"}),
+			new String[] {"%1 committed suicide", "%1 somehow managed to kill themselves"},
+			"Unknown"),
 	BULLET_DAMAGE(
 			new String[] {"%1 murdered %2 in cold blood", "%1 executed %2", "%1 killed %2", "%1 assasinated %2", "%2 was dispatched by %1",
 				"%1 ensured %2 will never see their family again"},
-			"%1 blew their brains out"),
+			"%1 blew their brains out",
+			"Bang!"),
 	LASER_DAMAGE(
 			new String[] {"%1 reduced %2 to ashes", "%1 exterminated %2", "%2 was erased by %1", "%1 evicerated %2"},
-			new String[] {"%1 shot their laser in the wrong direction", "%1 snuffed themselves out"}),
+			new String[] {"%1 shot their laser in the wrong direction", "%1 snuffed themselves out"},
+			"Pew pew!"),
 	EXPLOSION_DAMAGE(
 			"%1 blew %2 up",
-			"%1 blew themselves to smithereens"),
+			"%1 blew themselves to smithereens",
+			"Boom!"),
 	KNIFE_DAMAGE(
 			new String[] {"%1 knifed %2", "%1 stabbed %2"},
-			"%1 slit their own throats");
+			"%1 slit their own throats",
+			"Schwing!");
 	
 	/**
 	 * The description formats used when one entity has killed another
@@ -34,22 +39,27 @@ public enum DamageType {
 	 * The description formats used when an entity had killed itself
 	 */
 	private String[] suicideDescs;
+	/**
+	 * The adjective for the "Cause: " on the death screen
+	 */
+	private String deathAdjective;
 	
-	DamageType(String desc, String suicideDesc) {
-		this(new String[] {desc}, new String[] {suicideDesc});
+	DamageType(String desc, String suicideDesc, String deathAdjective) {
+		this(new String[] {desc}, new String[] {suicideDesc}, deathAdjective);
 	}
 	
-	DamageType(String[] descs, String suicideDesc) {
-		this(descs, new String[] {suicideDesc});
+	DamageType(String[] descs, String suicideDesc, String deathAdjective) {
+		this(descs, new String[] {suicideDesc}, deathAdjective);
 	}
 	
-	DamageType(String desc, String[] suicideDescs) {
-		this(new String[] {desc}, suicideDescs);
+	DamageType(String desc, String[] suicideDescs, String deathAdjective) {
+		this(new String[] {desc}, suicideDescs, deathAdjective);
 	}
 	
-	DamageType(String[] descs, String[] suicideDescs) {
+	DamageType(String[] descs, String[] suicideDescs, String deathAdjective) {
 		this.descs = descs;
 		this.suicideDescs = suicideDescs;
+		this.deathAdjective = deathAdjective;
 	}
 	
 	private String getRandomDesc() {
@@ -80,6 +90,10 @@ public enum DamageType {
 		}
 		// Ensure that the first character is a capital letter
 		return ret;
+	}
+	
+	public String getDeathAdjective() {
+		return deathAdjective;
 	}
 	
 	public static void main(String[] args) {

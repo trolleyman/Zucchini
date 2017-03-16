@@ -1,5 +1,7 @@
 package game.world;
 
+import game.world.entity.damage.Damage;
+
 public class PlayerScoreboardInfo {
 	/** The name of the player */
 	public String name;
@@ -12,6 +14,8 @@ public class PlayerScoreboardInfo {
 	public int playerKills;
 	/** How many monster kills this player has. */
 	public int monsterKills;
+	/** What the last damage the player took was (only valid if player is dead). Can be null. */
+	public Damage lastDamage;
 	
 	public PlayerScoreboardInfo(String name) {
 		this.name = name;
@@ -19,6 +23,7 @@ public class PlayerScoreboardInfo {
 		this.survivalTime = 0.0;
 		this.playerKills = 0;
 		this.monsterKills = 0;
+		this.lastDamage = null;
 	}
 	
 	@Override

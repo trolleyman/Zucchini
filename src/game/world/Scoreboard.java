@@ -1,5 +1,8 @@
 package game.world;
 
+import game.world.entity.damage.Damage;
+import game.world.update.ScoreboardWorldUpdate;
+
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -93,8 +96,10 @@ public class Scoreboard {
 		}
 	}
 	
-	public void killPlayer(String name) {
-		getPlayerOrDefault(name).dead = true;
+	public void killPlayer(String name, Damage lastDamage) {
+		PlayerScoreboardInfo p = getPlayerOrDefault(name);
+		p.dead = true;
+		p.lastDamage = lastDamage;
 		toSort = true;
 		dirty = true;
 	}

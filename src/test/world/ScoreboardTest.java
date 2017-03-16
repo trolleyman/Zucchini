@@ -47,12 +47,12 @@ public class ScoreboardTest {
 		sb.addPlayer("10");
 		
 		// Setup deaths (5,6,7,8,9)
-		sb.killPlayer("5");
-		sb.killPlayer("6");
-		sb.killPlayer("7");
-		sb.killPlayer("8");
-		sb.killPlayer("9");
-		sb.killPlayer("10");
+		sb.killPlayer("5", null);
+		sb.killPlayer("6", null);
+		sb.killPlayer("7", null);
+		sb.killPlayer("8", null);
+		sb.killPlayer("9", null);
+		sb.killPlayer("10", null);
 		
 		// Setup player kills (1:1, 2:1, 5:2, 6:2, 10:2)
 		sb.addPlayerKill("1");

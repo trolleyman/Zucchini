@@ -4,7 +4,6 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.Font;
-import game.render.FontBank;
 import game.render.IRenderer;
 import game.world.PlayerScoreboardInfo;
 import game.world.Scoreboard;
@@ -12,15 +11,20 @@ import org.joml.Vector4f;
 
 public class ScoreboardComponent extends UIComponent {
 	private Scoreboard scoreboard;
+	private float startY;
 	
-	public ScoreboardComponent(Scoreboard scoreboard) {
+	public ScoreboardComponent(Scoreboard scoreboard, float startY) {
 		setScoreboard(scoreboard);
+		setStartY(startY);
 	}
 	
 	public void setScoreboard(Scoreboard scoreboard) {
 		this.scoreboard = scoreboard;
 	}
 	
+	public void setStartY(float startY) {
+		this.startY = startY;
+	}
 	
 	@Override
 	public void update(double dt) {
@@ -43,8 +47,7 @@ public class ScoreboardComponent extends UIComponent {
 		// Second x stop
 		float x2 = x3 - 140.0f;
 		
-		r.drawText(f, "Scoreboard", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.YELLOW);
-		float y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale) - 80.0f;
+		float y = startY;
 		
 		r.drawText(f, "Name", Align.TL, false, x1, y, headingScale, ColorUtil.YELLOW);
 		r.drawText(f, "PK", Align.TM, false, x2, y, headingScale, ColorUtil.YELLOW);
@@ -54,7 +57,7 @@ public class ScoreboardComponent extends UIComponent {
 		y -= f.getHeight(headingScale);
 		y -= 40.0f;
 		for (PlayerScoreboardInfo p : scoreboard.getPlayers()) {
-			Vector4f color = p.dead ? ColorUtil.RED : ColorUtil.GREEN;
+			Vector4f color = p.dead ? ColorUtil.RED : ColorUtil.WHITE;
 			r.drawText(f, p.name, Align.TL, false, x1, y, entryScale, color);
 			r.drawText(f, "" + p.playerKills, Align.TM, false, x2, y, entryScale, color);
 			r.drawText(f, "" + p.monsterKills, Align.TM, false, x3, y, entryScale, color);

@@ -6,11 +6,14 @@ import game.InputPipeMulti;
 import game.Util;
 import game.net.Message;
 import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
 import game.ui.component.ScoreboardComponent;
 import game.world.ClientWorld;
+import game.world.PlayerScoreboardInfo;
 import game.world.entity.Item;
 import game.world.entity.Player;
+import game.world.entity.damage.Damage;
 import game.world.entity.weapon.Weapon;
 import game.world.map.Map;
 import org.joml.Vector4f;
@@ -53,7 +56,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 		nextUI = this;
 		
-		scoreboardComponent = new ScoreboardComponent(world.getScoreboard());
+		scoreboardComponent = new ScoreboardComponent(world.getScoreboard(), 0.0f);
 	}
 	
 	@Override
@@ -91,7 +94,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		mapSize = (winHeight/5);
 		this.world.update(dt);
 		
-		if (this.scoreboardShown) {
+		if (this.scoreboardShown || world.isPlayerDead()) {
 			this.scoreboardComponent.update(dt);
 			scoreboardComponent.setScoreboard(world.getScoreboard());
 		}
@@ -100,9 +103,29 @@ public class GameUI extends UI implements InputPipeMulti {
 	@Override
 	public void render(IRenderer r) {
 		this.world.render(r);
-		if (scoreboardShown) {
+		
+		float titleScale = 2.0f;
+		Font f = r.getFontBank().getFont("emulogic.ttf");
+		if (scoreboardShown || world.isPlayerDead()) {
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
+		}
+		float y = 0.0f;
+		if (world.isPlayerDead()) {
+			r.drawText(f, "You are dead.", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.RED);
+			PlayerScoreboardInfo p = world.getScoreboard().getPlayer(connection.getName());
+			Damage d = p == null ? null : p.lastDamage;
+			String s = d == null ? "Unknown" : d.type.getDeathAdjective();
+			r.drawText(f, "Cause: " + s, Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING - 50.0f - f.getHeight(titleScale), 1.0f, ColorUtil.RED);
+			
+			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale)*2 - 55.0f;
+		} else if (scoreboardShown) {
 			// Draw scoreboard
+			r.drawText(f, "Scoreboard", Align.TM, false, r.getWidth() / 2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.YELLOW);
+			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale) - 80.0f;
+		}
+		
+		if (scoreboardShown || world.isPlayerDead()) {
+			scoreboardComponent.setStartY(y);
 			scoreboardComponent.render(r);
 		}
 	}
