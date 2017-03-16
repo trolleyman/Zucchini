@@ -65,4 +65,5 @@ public class ServerAudioManager implements IAudioManager {
 	public void updateSourcePos(int sourceID, Vector2f position) {
 		events.add(new AudioUpdateSourcePosEvent(sourceID, position));
 	}
+
 }
