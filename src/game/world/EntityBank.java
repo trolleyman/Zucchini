@@ -18,7 +18,7 @@ public class EntityBank {
 	private int nextEntityId = 0;
 	
 	/** Next sequential team ID to use */
-	private int nextFreeTeam = Team.START_FREE_TEAM;
+	private int nextFreeTeam = Team.FIRST_PLAYER_TEAM;
 	
 	/** The current scoreboard */
 	protected Scoreboard scoreboard;

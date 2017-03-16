@@ -55,14 +55,14 @@ public class Map {
 	/**
 	 * Construct a map with the specified walls
 	 */
-	protected Map(ArrayList<Wall> _walls, float _pathfindingScale) {
+	public Map(ArrayList<Wall> _walls, float _pathfindingScale) {
 		this(_walls, new ArrayList<>(), _pathfindingScale);
 	}
 	
 	/**
 	 * Construct a map with the specified walls and initial entities
 	 */
-	protected Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale) {
+	public Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale) {
 		this.walls = _walls;
 		this.initialEntities = _initialEntities;
 		this.pathFindingScale = _pathFindingScale;

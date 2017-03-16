@@ -73,7 +73,7 @@ public class TCPConnection {
 		} finally {
 			try {
 				tcpSocket.close();
-			} catch (IOException e1) {
+			} catch (IOException e) {
 				// We don't care about this
 			}
 		}

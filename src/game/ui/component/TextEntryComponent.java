@@ -12,6 +12,10 @@ import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
@@ -24,6 +28,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	private final Predicate<Character> isValidChar;
 	private final Runnable submitFunc;
 	private final Runnable onFocus;
+	private final CharacterConverter characterConverter;
 	
 	public float w;
 	public float h;
@@ -38,6 +43,12 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	private double time = 0.0;
 	private boolean enabled = true;
 	
+	/**
+	 * Constructs a new TextEntryComponent
+	 * @param f The font to be used
+	 * @param isValidChar Function returning true if the character given is valid.
+	 * @param submitFunc Function that is called when the user presses the ENTER key.
+	 */
 	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, float x, float y, float w) {
 		this(f, scale, isValidChar, submitFunc, maxLength, () -> {}, x, y, w);
 	}
@@ -50,12 +61,25 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	 * @param onFocus Function that is called when the user clicks on the entry.
 	 */
 	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, Runnable onFocus, float x, float y, float w) {
+		this(f, scale, isValidChar, submitFunc, maxLength, onFocus, (c) -> c, x, y, w);
+	}
+	
+	/**
+	 * Constructs a new TextEntryComponent
+	 * @param f The font to be used
+	 * @param isValidChar Function returning true if the character given is valid.
+	 * @param submitFunc Function that is called when the user presses the ENTER key.
+	 * @param onFocus Function that is called when the user clicks on the entry.
+	 * @param characterConverter Function that is called to convert a character whenever a character is entered.
+	 */
+	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, Runnable onFocus, CharacterConverter characterConverter, float x, float y, float w) {
 		super(Align.BL, x, y);
 		this.f = f;
 		this.scale = scale;
 		this.isValidChar = isValidChar;
 		this.submitFunc = submitFunc;
 		this.onFocus = onFocus;
+		this.characterConverter = characterConverter;
 		
 		this.currentString = new ArrayList<>(maxLength);
 		this.maxLength = maxLength;
@@ -120,6 +144,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 		if (!enabled) {
 			return;
 		}
+		c = characterConverter.convert(c);
 		
 		if (!this.isValidChar.test(c)) {
 			out("'" + c + "' is not a valid char.");
@@ -174,6 +199,20 @@ public class TextEntryComponent extends AbstractButtonComponent {
 			} else if (key == GLFW_KEY_ENTER) {
 				out("Submit: '" + getString() + "'");
 				submitFunc.run();
+			} else if (key == GLFW_KEY_V && mods == GLFW_MOD_CONTROL) {
+				// Paste
+				try {
+					String s = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+					if (s != null) {
+						// Paste string into box
+						for (int i = 0; i < s.length(); i++) {
+							char c = s.charAt(i);
+							handleChar(c);
+						}
+					}
+				} catch (HeadlessException | UnsupportedFlavorException | IOException e) {
+					// Ignore
+				}
 			}
 		}
 	}

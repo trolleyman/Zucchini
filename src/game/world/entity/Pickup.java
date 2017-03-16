@@ -39,12 +39,17 @@ public class Pickup extends Entity {
 	}
 	
 	@Override
-	public void update(UpdateArgs ua) {}
+	public void update(UpdateArgs ua) {
+		setParams();
+		this.item.update(ua);
+	}
 	
 	@Override
 	public void clientUpdate(UpdateArgs ua) {
 		super.clientUpdate(ua);
 		this.time += ua.dt;
+		setParams();
+		this.item.clientUpdate(ua);
 	}
 	
 	@Override

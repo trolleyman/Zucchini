@@ -34,7 +34,6 @@ public class AudioManager implements IAudioManager{
     private List<SoundBuffer> soundBufferList= new ArrayList<>();
     private Map<Integer,String> soundBufferMap= new HashMap<>();
     private Map<String, List<SoundSource>> soundSourcesMap = new HashMap<>();
-    //private final int numberOfSourcesPerFile = 16; //this is the amount of sources each wav file will have available for them
     private static Vector2f listenerPos = new Vector2f(0, 0);
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
@@ -123,27 +122,28 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("bullet_whizz_silent.wav", 20);
 		fileSourceMap.put("bullet_whizz2.wav", 0);
 		fileSourceMap.put("bullet_whizz3.wav", 0);
-		fileSourceMap.put("explosion.wav", 5);
-		fileSourceMap.put("footsteps_running.wav", 30);
+		fileSourceMap.put("explosion.wav", 3);
+		fileSourceMap.put("footsteps_running.wav", 20);
 		fileSourceMap.put("footsteps_walking.wav", 0);
-		fileSourceMap.put("grunt1.wav", 5);
-		fileSourceMap.put("grunt2.wav", 5);
-		fileSourceMap.put("grunt3.wav", 5);
-		fileSourceMap.put("grunt4.wav", 5);
-		fileSourceMap.put("gun_reload[2sec].wav", 3);
+		fileSourceMap.put("grunt1.wav", 3);
+		fileSourceMap.put("grunt2.wav", 3);
+		fileSourceMap.put("grunt3.wav", 3);
+		fileSourceMap.put("grunt4.wav", 3);
+		fileSourceMap.put("gun_reload[2sec].wav", 4);
 		fileSourceMap.put("handgunshot.wav", 30);
-		fileSourceMap.put("laser_round.wav", 5);
-		fileSourceMap.put("lasergun-fire.wav", 5);
+		fileSourceMap.put("laser_round.wav", 2);
+		fileSourceMap.put("lasergun-fire.wav", 30);
 		fileSourceMap.put("no-ammo-click.wav", 3);
 		fileSourceMap.put("pump-shotgun-reload[4sec].wav", 3);
 		fileSourceMap.put("pump-shotgun-shot.wav", 5);
-		fileSourceMap.put("punch-hit.wav", 5);
-		fileSourceMap.put("rocket_reload[5sec].wav", 5);
-		fileSourceMap.put("rocket-launcher.wav", 5);
-		fileSourceMap.put("slash.wav", 20);
-		fileSourceMap.put("zombie1.wav", 20);
-		fileSourceMap.put("zombie2.wav", 20);
-		fileSourceMap.put("zombie3.wav", 20);
+		fileSourceMap.put("punch-hit.wav", 0);
+		fileSourceMap.put("rocket_reload[5sec].wav", 2);
+		fileSourceMap.put("rocket-launcher.wav", 3);
+		fileSourceMap.put("slash.wav", 5);
+		fileSourceMap.put("vaporized.wav", 5);
+		fileSourceMap.put("zombie1.wav", 10);
+		fileSourceMap.put("zombie2.wav", 10);
+		fileSourceMap.put("zombie3.wav", 10);
     }
     
     
@@ -356,124 +356,7 @@ public class AudioManager implements IAudioManager{
 		this.soundBufferMap.put(buffer.getBufferId(), name);
 	}
 	
-    public static void main(String args[]) throws Exception{
-    	AudioManager soundMgr = new AudioManager();
-    	char c =' ' ;
-        int idb = 0;
-        int idw = 0;
-        int idw2 = 0;
-        
-		int idw3 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
-		System.out.println("idw3: "+idw3);
-		soundMgr.pauseLoop(idw3);
-		int idw4 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
-		System.out.println("idw4: "+idw4);
-		soundMgr.pauseLoop(idw4);
-		int idw5 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
-		System.out.println("idw5: "+idw5);
-		soundMgr.pauseLoop(idw5);
-		int idw6 = soundMgr.playLoop("footsteps_running.wav",0.6f,listenerPos);
-		System.out.println("idw6: "+idw6);
-		soundMgr.pauseLoop(idw6);
-		int idw7 = soundMgr.playLoop("footsteps_running.wav",0f,listenerPos);
-		System.out.println("idw7: "+idw7);
-		soundMgr.pauseLoop(idw7);
-		
-		soundMgr.findAvailableSoundSource("pump-shotgun-shot.wav");
-		
-        while (c != 'q'){
-        	c = (char) System.in.read();
-        	if(c=='.'){
-        		soundMgr.play("pump-shotgun-shot.wav",1.0f, listenerPos);
-        	}
-        	if (c=='1'){
-        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw3).isPlaying());
-        		if((soundMgr.getSoundSource(idw3).isPlaying())){
-        			soundMgr.pauseLoop(idw3);
-        			System.out.println("should pause idw3");
-        		}else{
-        			soundMgr.continueLoop(idw3, listenerPos);
-        		}
-        	}
-        	if (c=='2'){
-        		System.out.println("is idw4 playing?: "+ soundMgr.getSoundSource(idw4).isPlaying());
-        		if((soundMgr.getSoundSource(idw4).isPlaying())){
-        			soundMgr.pauseLoop(idw4);
-        			System.out.println("should pause idw4");
-        		}else{
-        			soundMgr.continueLoop(idw4, listenerPos);
-        		}
-        	}
-        	if (c=='3'){
-        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw5).isPlaying());
-        		if((soundMgr.getSoundSource(idw5).isPlaying())){
-        			soundMgr.pauseLoop(idw5);
-        			System.out.println("should pause idw3");
-        		}else{
-        			soundMgr.continueLoop(idw5, listenerPos);
-        		}
-        	}
-        	if (c=='4'){
-        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw6).isPlaying());
-        		if((soundMgr.getSoundSource(idw6).isPlaying())){
-        			soundMgr.pauseLoop(idw6);
-        			System.out.println("should pause idw3");
-        		}else{
-        			soundMgr.continueLoop(idw6, listenerPos);
-        		}
-        	}
-        	if (c=='5'){
-        		System.out.println("is idw3 playing?: "+ soundMgr.getSoundSource(idw7).isPlaying());
-        		if((soundMgr.getSoundSource(idw7).isPlaying())){
-        			soundMgr.pauseLoop(idw7);
-        			System.out.println("should pause idw3");
-        		}else{
-        			soundMgr.continueLoop(idw7, listenerPos);
-        		}
-        	}
-        	if (c=='b'){
-        		idb = soundMgr.playLoop("[bgm]Desolation.wav",0.8f,listenerPos);
-        	}
-        	if (c=='n'){
-        		soundMgr.pauseLoop(idb);
-        	}
-        	if (c=='m'){
-        		soundMgr.continueLoop(idb,listenerPos);
-        	}
-        	if (c=='e'){
-        		soundMgr.play("handgunshot.wav",1f,listenerPos);
-        	}
-        	if (c=='p'){
-        		soundMgr.play("punch.wav",1f,listenerPos);
-        	}
-        	if (c=='w'){
-        		idw = soundMgr.playLoop("footsteps_walking.wav",0.6f,listenerPos);
-        	}
-        	if (c=='s'){
-        		soundMgr.pauseLoop(idw);
-        	}
-        	if (c=='t'){
-        		soundMgr.continueLoop(idw,listenerPos);
-        	}
-        	if (c=='r'){
-        		idw2 = soundMgr.playLoop("footsteps_walking.wav",0.6f,listenerPos);
-        		System.out.println("idw2: "+idw2);
-        	}
-        	if (c=='f'){
-        		soundMgr.pauseLoop(idw2);
-        	}
-        	if (c=='b'){
-        		soundMgr.stopLoop(idw2);
-        	}
-        	if (c=='v'){
-        		soundMgr.continueLoop(idw2,listenerPos);
-        	}
-        	if (c=='l'){
-        		System.out.println(soundMgr.findAvailableSoundSourceID("footsteps_walking.wav"));
-        	}
-        }
-        soundMgr.cleanup();
-    }
+    
 	
 	
 }
