@@ -141,7 +141,6 @@ public class GameUI extends UI implements InputPipeMulti {
 		
 		float segments = barWidth / maxHealth;
 		
-		
 		r.drawBox(Align.TR, (float) winWidth - 20, (float) winHeight - 20, barWidth, barHeight, ColorUtil.GREEN);//max health
 		r.drawBox(Align.TR, winWidth - 20, winHeight - 20, segments * (maxHealth - playerHealth), barHeight, ColorUtil.RED);
 	}

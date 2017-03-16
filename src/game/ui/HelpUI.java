@@ -23,9 +23,8 @@ public class HelpUI extends UI implements InputPipeMulti{
 	private float winWidth;
 	private float winHeight;
 	private ImageComponent backgroundImage;
-	private ImageComponent logInScreen, lobbyScreen, lobbyWaitScreen;
-	private Boolean boolLIS, boolLS, boolLWS;
-	private String[] strLIS, strLS, strLWS;
+	private ImageComponent logInScreen, lobbyScreen, lobbyWaitScreen, gameScreen, escapeScreen;
+	private String[] strLIS, strLS, strLWS, strGS, strES;
 	private int imageCount;
 	private Font font;
 	
@@ -34,9 +33,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		nextUI = this;
 		font = fontBank.getFont("emulogic.ttf");
 		imageCount = 0;
-		boolLIS = true;
-		boolLS = false;
-		boolLWS = false;
+	
 		start();
 	}
 	
@@ -50,7 +47,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		);
 		
 		nextBtn = new ButtonComponent(
-				() -> this.nextPicture(),
+				() -> this.imageCount++,
 				Align.BL, 100, 100,
 				textureBank.getTexture("nextDefault.png"),
 				textureBank.getTexture("nextHover.png"),
@@ -74,6 +71,13 @@ public class HelpUI extends UI implements InputPipeMulti{
 				Align.BL, 100, 100, textureBank.getTexture("LobbyWaitScreen.png"), 0.0f
 		);
 		
+		gameScreen = new ImageComponent(
+				Align.BL, 100, 100, textureBank.getTexture("GameScreen.png"), 0.0f
+		);
+		
+		escapeScreen = new ImageComponent(
+				Align.BL, 100, 100, textureBank.getTexture("EscapeScreen.png"), 0.0f
+		);
 		setUpText();
 		
 		
@@ -112,6 +116,22 @@ public class HelpUI extends UI implements InputPipeMulti{
 		strLWS[6] = "countdown will start and the game will";
 		strLWS[7] = "begin. You can leave the lobby before";
 		strLWS[8] = "the game starts by clicking on 'LEAVE'."; 
+		
+		strGS = new String[15];
+		strGS[1] = "This is the screen during game play.";
+		strGS[2] = "You are the icon at the centre";
+		strGS[3] = "of the screen.In the top right of the";
+		strGS[4] = "screen is your health bar. Green represents";
+		strGS[5] = "how much life you have left. Red shows";
+		strGS[6] = "what you have lost.";
+		strGS[7] = "";
+		strGS[8] = "In the bottom right of the screen shows the";
+		strGS[9] = "item you are curently holding. If you are";
+		strGS[10] = "holding a gun it will show how much";
+		strGS[11] = "ammo you have.";
+		strGS[12] = "";
+		strGS[13] = "In the top left is your minimap. This shows";
+		strGS[14] = "the layout of the maze in your area.";
 	}
 	
 	public ArrayList<InputHandler> getHandlers() {
@@ -133,18 +153,6 @@ public class HelpUI extends UI implements InputPipeMulti{
 	}
 
 	
-	public void nextPicture(){
-		imageCount++;
-		if(imageCount == 1){
-			boolLIS = false;
-			boolLS = true;
-		}else if(imageCount == 2){
-			boolLS = false;
-			boolLWS = true;
-		}else if(imageCount == 3){
-			boolLWS = false;
-		}
-	}
 	
 	
 	@Override
@@ -154,33 +162,51 @@ public class HelpUI extends UI implements InputPipeMulti{
 		nextBtn.setX((int) winWidth - 100);
 		nextBtn.setY((int) 100);
 		
-		r.drawText(font, "HOW TO SET UP A GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
+		if(imageCount<3){
+			r.drawText(font, "HOW TO SET UP A GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
+		}
 		
-		if(boolLIS){
-			logInScreen.setX(winWidth/9);
+		if(imageCount==0){
+			logInScreen.setX(winWidth/15);
 			logInScreen.setY(winHeight/3);
 			logInScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLIS.length; i++){
-				r.drawText(font, strLIS[i], Align.BL, false, winWidth - 700, winHeight - 300 - (50*i), 0.4f);
+				r.drawText(font, strLIS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
 			}
-		}else if(boolLS){
-			lobbyScreen.setX(winWidth/9);
+		}else if(imageCount==1){
+			lobbyScreen.setX(winWidth/15);
 			lobbyScreen.setY(winHeight/3);
 			lobbyScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLS.length; i++){
-				r.drawText(font, strLS[i], Align.BL, false, winWidth - 700, winHeight - 300 - (50*i), 0.4f);
+				r.drawText(font, strLS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
 			}
-		}else if(boolLWS){
-			lobbyWaitScreen.setX(winWidth/9);
+		}else if(imageCount==2){
+			lobbyWaitScreen.setX(winWidth/15);
 			lobbyWaitScreen.setY(winHeight/3);
 			lobbyWaitScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLWS.length; i++){
-				r.drawText(font, strLWS[i], Align.BL, false, winWidth - 700, winHeight - 300 - (50*i), 0.4f);
+				r.drawText(font, strLWS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
 			}
 		}
+		
+		if(imageCount>2){
+			r.drawText(font, "HOW TO PLAY THE GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
+		}
+		
+		if(imageCount==3){
+			gameScreen.setX(winWidth/15);
+			gameScreen.setY(winHeight/3);
+			gameScreen.render2(r, 1.8f);
+			
+			for(int i = 1; i < strGS.length; i++){
+				r.drawText(font, strGS[i], Align.BL, false, winWidth - 900, winHeight - 300 - (50*i), 0.4f);
+			}
+		}
+		
+		
 		
 		nextBtn.render(r);
 	//	backBtn.setX(0);
