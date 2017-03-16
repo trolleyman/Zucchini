@@ -2,9 +2,9 @@ package game.world.map;
 
 import game.ColorUtil;
 import game.Util;
-import game.exception.ProtocolException;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.PhysicsUtil;
 import game.world.entity.Entity;
 import org.joml.Vector2f;
@@ -22,6 +22,11 @@ import java.util.function.Predicate;
  * @author Callum
  */
 public class Map {
+	/** Small number that is the max fidelity of the line of sight algorithm */
+	private static final float LOS_ANGLE_MAX_FIDELITY = (float)Math.toRadians(0.1f);
+	/** Small number added and subtracted from critical points to get either side of the critical point */
+	private static final float LOS_DIFF_EPSILON = (float) Math.toRadians(0.1f);
+	
 	/** Holds the extents of the map. [x, y, w, h] format */
 	private Vector4f rect;
 	
@@ -29,13 +34,11 @@ public class Map {
 //		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 //		return new MazeMap(maze, 1.5f);
 		
-		//return new TestMap();
+//		return new TestMap();
 		return new FinalMap();
 		
 //		return new SimpleMap();
 	}
-	
-	private static final float LINE_OF_SIGHT_EPSILON = 0.00001f;
 	
 	/** The "walls" of the map that entities can collide with */
 	public ArrayList<Wall> walls;
@@ -45,6 +48,9 @@ public class Map {
 	private float pathFindingScale;
 	/** The cached pathfinding map */
 	private transient PathFindingMap pathFindingMap = null;
+	
+	private transient FloatBuffer tempLosAngleBuf = null;
+	private transient ArrayList<Vector3f> tempLosPointsBuf = null;
 	
 	/**
 	 * Construct a map with the specified walls
@@ -210,7 +216,88 @@ public class Map {
 		}
 	}
 	
-	private void projectLine(ArrayList<Vector3f> points, Vector2f pos, float max, float angle, Vector3f dest) {
+	/**
+	 * Puts the float into the buffer, resizing if necessary
+	 * @return the (potentially) new buffer
+	 */
+	private FloatBuffer putFloat(FloatBuffer buf, float f) {
+		if (buf.position() == buf.capacity()) {
+			buf = MemoryUtil.memRealloc(buf, buf.capacity() * 2);
+		}
+		buf.put(f);
+		return buf;
+	}
+	
+	/**
+	 * Calculates the critical angles for the line of sight algorithm, and stores them in {@link #tempLosAngleBuf}
+	 */
+	public void calculateCriticalAngles(Vector2f pos) {
+		if (tempLosAngleBuf == null)
+			tempLosAngleBuf = MemoryUtil.memAllocFloat(32);
+		tempLosAngleBuf.clear();
+		
+		// Put all wall points in the buffer (if they are in the field of view)
+		for (Wall w : walls) {
+			float a0 = Util.getAngle(pos.x, pos.y, w.p0.x, w.p0.y);
+			tempLosAngleBuf = putFloat(tempLosAngleBuf, a0);
+			float a1 = Util.getAngle(pos.x, pos.y, w.p1.x, w.p1.y);
+			tempLosAngleBuf = putFloat(tempLosAngleBuf, a1);
+		}
+		
+		// Flip buffer
+		tempLosAngleBuf.flip();
+		
+		// Sort buffer
+		Util.sortFloatBuffer(tempLosAngleBuf);
+		
+		// Get rid of close angles
+		Util.removeSimilarFloats(tempLosAngleBuf, LOS_ANGLE_MAX_FIDELITY);
+		
+		// Reverse angles
+		Util.reverseFloatBuffer(tempLosAngleBuf);
+	}
+	
+	/**
+	 * Calculates the critical angles for the line of sight algorithm, and stores them in {@link #tempLosAngleBuf}
+	 */
+	public void calculateCriticalAngles(Vector2f pos, float aimAngle, float fov) {
+		if (tempLosAngleBuf == null)
+			tempLosAngleBuf = MemoryUtil.memAllocFloat(32);
+		tempLosAngleBuf.clear();
+		
+		// Put all wall points in the buffer (if they are in the field of view)
+		for (Wall w : walls) {
+			float a0 = Util.getAngle(pos.x, pos.y, w.p0.x, w.p0.y);
+			if (Util.getAngleDiff(a0, aimAngle) < (fov / 2))
+				tempLosAngleBuf = putFloat(tempLosAngleBuf, a0);
+			float a1 = Util.getAngle(pos.x, pos.y, w.p1.x, w.p1.y);
+			if (Util.getAngleDiff(a1, aimAngle) < (fov / 2))
+				tempLosAngleBuf = putFloat(tempLosAngleBuf, a1);
+		}
+		
+		// Add edge of FOV
+		float langle = Util.normalizeAngle(aimAngle - fov/2);
+		float rangle = Util.normalizeAngle(aimAngle + fov/2);
+		tempLosAngleBuf = putFloat(tempLosAngleBuf, langle);
+		tempLosAngleBuf = putFloat(tempLosAngleBuf, rangle);
+		
+		// Flip buffer
+		tempLosAngleBuf.flip();
+		
+		// Sort buffer
+		Util.sortFloatBuffer(tempLosAngleBuf);
+		
+		// Get rid of close angles
+		Util.removeSimilarFloats(tempLosAngleBuf, LOS_ANGLE_MAX_FIDELITY);
+		
+		// Reverse angles
+		Util.reverseFloatBuffer(tempLosAngleBuf);
+	}
+	
+	/**
+	 * Projects a line from pos with the angle specified, stores the result in dest.
+	 */
+	private void projectLine(Vector2f pos, float max, float angle, Vector3f dest) {
 		float x = pos.x + max * Util.getDirX(angle);
 		float y = pos.y + max * Util.getDirY(angle);
 		Vector2f temp = Util.pushTemporaryVector2f();
@@ -224,19 +311,31 @@ public class Map {
 		}
 		dest.z = angle;
 		Util.popTemporaryVector2f();
-		points.add(dest);
 	}
 	
-	private FloatBuffer putFloat(FloatBuffer buf, float f) {
-		if (buf.position() == buf.capacity()) {
-			buf = MemoryUtil.memRealloc(buf, buf.capacity() * 2);
+	/**
+	 * Calculates the points that intersect with the map based on the angles in {@link #tempLosAngleBuf}
+	 * and stores the result in {@link #tempLosPointsBuf}.
+	 */
+	public void calculatePoints(Vector2f pos, float max) {
+		if (tempLosPointsBuf == null)
+			tempLosPointsBuf = new ArrayList<>();
+		for (int i = 0; i < tempLosPointsBuf.size(); i++) {
+			Util.popTemporaryVector3f();
 		}
-		buf.put(f);
-		return buf;
-	}
-	
-	private boolean inFov(float angle, float aimAngle, float fov) {
-		return Util.getAngleDiff(angle, aimAngle) < (fov / 2);
+		tempLosPointsBuf.clear();
+		
+		for (int i = 0; i < tempLosAngleBuf.limit(); i++) {
+			Vector3f t0 = Util.pushTemporaryVector3f();
+			Vector3f t1 = Util.pushTemporaryVector3f();
+			float angle = tempLosAngleBuf.get(i);
+			projectLine(pos, max, angle - LOS_DIFF_EPSILON, t0);
+			projectLine(pos, max, angle + LOS_DIFF_EPSILON, t1);
+			tempLosPointsBuf.add(t0);
+			tempLosPointsBuf.add(t1);
+		}
+		
+		tempLosPointsBuf.sort((l, r) -> -Float.compare(l.z, r.z));
 	}
 	
 	/**
@@ -245,109 +344,70 @@ public class Map {
 	 * @param max The maximum length of the line of sight
 	 * @param aimAngle The current angle of the player
 	 * @param fov The field of view of the player
-	 * @param buf Where to store the buffer. This <b>**MUST**</b> be allocated using MemoryUtils.memAllocFloat()
-	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
+	 * @param buf Where to store the buffer. This <b>**MUST**</b> be allocated using MemoryUtil.memAllocFloat()
+	 * @return A list of points in triangle fan format [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
 	 */
 	public FloatBuffer getLineOfSight(Vector2f pos, float max, float aimAngle, float fov, FloatBuffer buf) {
-		// Calculate points
-		ArrayList<Vector3f> points = new ArrayList<>();
+		if (buf == null)
+			buf = MemoryUtil.memAllocFloat(64);
+		if (tempLosAngleBuf == null)
+			tempLosAngleBuf = MemoryUtil.memAllocFloat(64);
 		
-		// First the walls, making sure to void the points that are outside the fov.
-		for (Wall w : walls) {
-			float angle;
-			angle = Util.getAngle(pos.x, pos.y, w.p0.x, w.p0.y);
-			if (inFov(angle, aimAngle, fov)) {
-				Vector3f t1 = Util.pushTemporaryVector3f();
-				Vector3f t2 = Util.pushTemporaryVector3f();
-				projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, t1);
-				projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, t2);
-			}
-			
-			angle = Util.getAngle(pos.x, pos.y, w.p1.x, w.p1.y);
-			if (inFov(angle, aimAngle, fov)) {
-				Vector3f t1 = Util.pushTemporaryVector3f();
-				Vector3f t2 = Util.pushTemporaryVector3f();
-				projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, t1);
-				projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, t2);
-			}
-		}
+		// Calculate critical angles
+		calculateCriticalAngles(pos, aimAngle, fov);
 		
-		// And also project lines on the edge of the fov.
-		float langle = Util.normalizeAngle(aimAngle - fov/2);
-		float rangle = Util.normalizeAngle(aimAngle + fov/2);
-		Vector3f ltemp = Util.pushTemporaryVector3f();
-		Vector3f rtemp = Util.pushTemporaryVector3f();
-		projectLine(points, pos, max, langle, ltemp);
-		projectLine(points, pos, max, rangle, rtemp);
+		// Calculate points from the critical angles
+		calculatePoints(pos, max);
 		
-		// Sort points in order of angle, lowest first
-		points.sort((l, r) -> -Float.compare(l.z, r.z));
-		
-		// Put into buffer
-		buf.clear();
-		buf = putFloat(buf, pos.x);
-		buf = putFloat(buf, pos.y);
-		
-		float firstX = points.size() == 0 ? pos.x : points.get(0).x;
-		float firstY = points.size() == 0 ? pos.y : points.get(0).y;
-		for (Vector3f p : points) {
-			buf = putFloat(buf, p.x);
-			buf = putFloat(buf, p.y);
-			Util.popTemporaryVector3f();
-		}
-		
-		buf = putFloat(buf, firstX);
-		buf = putFloat(buf, firstY);
-		
-		buf.flip();
-		return buf;
+		// Put points into buffer as a triangle fan
+		return calculateTriangleFan(pos, buf);
 	}
 	
 	/**
 	 * Gets the line of sight data for the position given.
 	 * @param pos The position of the camera in the world
 	 * @param max The maximum length of the line of sight
-	 * @param buf Where to store the buffer. This **MUST** be allocated using MemoryUtils.memAllocFloat()
-	 * @return A list of points, [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
+	 * @param buf Where to store the buffer. This **MUST** be allocated using MemoryUtils.memAllocFloat(), or be null.
+	 * @return A list of points in triangle fan format [pos.x, pos.y, x0, y0, x1, y1, ..., xn, yn, x0, y0]
 	 */
 	public FloatBuffer getLineOfSight(Vector2f pos, float max, FloatBuffer buf) {
-		// Calculate points
-		ArrayList<Vector3f> points = new ArrayList<>();
-		for (Wall w : walls) {
-			Vector3f temp0 = Util.pushTemporaryVector3f();
-			Vector3f temp1 = Util.pushTemporaryVector3f();
-			Vector3f temp2 = Util.pushTemporaryVector3f();
-			Vector3f temp3 = Util.pushTemporaryVector3f();
-			
-			float angle;
-			angle = Util.getAngle(pos.x, pos.y, w.p0.x, w.p0.y);
-			projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, temp0);
-			projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, temp1);
-			
-			angle = Util.getAngle(pos.x, pos.y, w.p1.x, w.p1.y);
-			projectLine(points, pos, max, angle - LINE_OF_SIGHT_EPSILON, temp2);
-			projectLine(points, pos, max, angle + LINE_OF_SIGHT_EPSILON, temp3);
-		}
+		if (buf == null)
+			buf = MemoryUtil.memAllocFloat(64);
+		if (tempLosAngleBuf == null)
+			tempLosAngleBuf = MemoryUtil.memAllocFloat(64);
 		
-		// Sort points in order of angle, lowest first
-		points.sort((l, r) -> -Float.compare(l.z, r.z));
+		// Calculate critical angles
+		calculateCriticalAngles(pos);
 		
-		// Put into buffer
+		// Calculate points from the critical angles
+		calculatePoints(pos, max);
+		
+		// Put points into buffer as a triangle fan
+		return calculateTriangleFan(pos, buf);
+	}
+	
+	/**
+	 * Converts {@link #tempLosPointsBuf} into a triangle fan and stores the result in buf. Returns the new buffer holding
+	 * the result.
+	 */
+	private FloatBuffer calculateTriangleFan(Vector2f pos, FloatBuffer buf) {
 		buf.clear();
 		buf = putFloat(buf, pos.x);
 		buf = putFloat(buf, pos.y);
 		
-		float firstX = points.size() == 0 ? pos.x : points.get(0).x;
-		float firstY = points.size() == 0 ? pos.y : points.get(0).y;
-		for (Vector3f p : points) {
+		float firstX = tempLosPointsBuf.size() == 0 ? pos.x : tempLosPointsBuf.get(0).x;
+		float firstY = tempLosPointsBuf.size() == 0 ? pos.y : tempLosPointsBuf.get(0).y;
+		for (Vector3f p : tempLosPointsBuf) {
 			buf = putFloat(buf, p.x);
 			buf = putFloat(buf, p.y);
 			Util.popTemporaryVector3f();
 		}
+		tempLosPointsBuf.clear();
 		
 		buf = putFloat(buf, firstX);
 		buf = putFloat(buf, firstY);
 		
+		// Flip buffer for reading
 		buf.flip();
 		return buf;
 	}
@@ -370,6 +430,8 @@ public class Map {
 	public void renderBackground(IRenderer r) {
 		Vector4f rect = getRect();
 		r.drawBox(Align.BL, rect.x, rect.y, rect.z, rect.w, ColorUtil.BLACK);
+		Texture background = r.getTextureBank().getTexture("map_background.png");
+		r.drawTexture(background, Align.BL, -1.0f, -1.0f, 32.0f, 32.0f);
 	}
 	
 	/**
@@ -382,7 +444,7 @@ public class Map {
 			float x1 = wall.p1.x;
 			float y1 = wall.p1.y;
 			
-			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
+			r.drawLine(x0, y0, x1, y1, ColorUtil.TRANSPARENT, 1.0f);
 		}
 	}
 	

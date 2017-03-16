@@ -1,6 +1,7 @@
 package game.world.entity.weapon;
 
 import game.Util;
+import game.net.Protocol;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
@@ -10,8 +11,8 @@ import game.world.entity.Entity;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.DamageUpdate;
-import game.world.entity.update.HealthUpdate;
 import game.world.entity.update.HeldItemUpdate;
+import game.world.map.Map;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class Knife extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		float mag = 0.0f;
 		if (this.stabbed) {
 			mag = STAB_ANIMATION_LENGTH * (float)Math.sin((this.stabTime / STAB_ANIMATION_TIME) * Math.PI);
@@ -108,9 +109,11 @@ public class Knife extends Weapon {
 			}
 		}
 		
+		ua.audio.play("slash.wav", 1f, this.position);
+		
 		if (closest != null) {
-			System.out.println("Weapon: Knifed " + closest.getId() + " (" + closest + ")");
-			Damage damage = new Damage(ownerId, ownerTeam, DamageType.BULLET_DAMAGE, 1.0f);
+			System.out.println("[Game]: Weapon: Knifed " + closest.getId() + " (" + closest + ")");
+			Damage damage = new Damage(ownerId, ownerTeam, DamageType.KNIFE_DAMAGE, 2.0f);
 			ua.bank.updateEntityCached(new DamageUpdate(closest.getId(), damage));
 		}
 		this.stabbed = true;

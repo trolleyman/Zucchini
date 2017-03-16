@@ -10,9 +10,12 @@ import game.audio.AudioManager;
 import game.audio.ClientAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
+import game.net.Message;
+import game.net.PacketCache;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.Align;
+import game.render.Font;
 import game.render.IRenderer;
 import game.world.entity.*;
 import game.world.map.Map;
@@ -20,9 +23,11 @@ import game.world.entity.update.EntityUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -38,6 +43,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private int playerID;
 	/** The connection to the server */
 	private IClientConnection connection;
+	
+	private final Object messageLogLock = new Object();
+	private final ArrayList<Message> messageLog;
+	
+	/** Temporary variable to store message log color */
+	private final Vector4f messageLogColor = new Vector4f();
 	
 	/**
 	 * The position of the camera.
@@ -73,10 +84,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private AimAction actionAim = new AimAction(0.0f);
 	private Action actionUse    = new Action(ActionType.END_USE);
 	
-	/** This is the min line of sight buffer. */
-	private FloatBuffer losMinBuf = MemoryUtil.memAllocFloat(32);
-	/** This is the max line of sight buffer. */
-	private FloatBuffer losMaxBuf = MemoryUtil.memAllocFloat(32);
+	/** This is the line of sight buffer. */
+	private FloatBuffer losBuf = null;
 	
 	/** Audio Manager */
 	private AudioManager audio;
@@ -84,7 +93,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private ClientAudioManager clientAudio;
 	
 	/** Client UpdateArgs structure */
-	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null);
+	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, new PacketCache());
 	
 	/**
 	 * Constructs a client world
@@ -94,12 +103,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param _connection The connection to the server
 	 * @param _audio The audio manager
 	 */
-	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection) {
+	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection, ArrayList<Message> _messageLog) {
 		super(map, bank);
 		this.playerID = _playerID;
 		this.audio = _audio;
 		this.clientAudio = new ClientAudioManager(audio);
 		this.connection = _connection;
+		this.messageLog = _messageLog;
 		connection.setHandler(this);
 		
 		this.updateStep(0.0f);
@@ -157,10 +167,19 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			
 			for (Entity e : this.bank.entities.values())
 				e.clientUpdate(clientUpdateArgs);
+			
+			try {
+				clientUpdateArgs.packetCache.processCache(connection);
+			} catch (ProtocolException e) {
+				// This is ok. This will be handled when the UI loops
+			}
 		}
 	}
 	
 	private void drawDebugLines(IRenderer r, FloatBuffer buf) {
+		if (buf == null)
+			return;
+		
 		float x = buf.limit() <= 1 ? 0.0f : buf.get(0);
 		float y = buf.limit() <= 1 ? 0.0f : buf.get(1);
 		for (int i = 2; i < buf.limit() - 3; i += 2) {
@@ -206,53 +225,28 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	public void render(IRenderer r) {
 		// Set model view matrix
 		r.getModelViewMatrix()
-			.pushMatrix()
-			.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
-			.scale(cameraZoom)
-			.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+				.pushMatrix()
+				.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
+				.scale(cameraZoom)
+				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
-		// Get player
 		Player p = getPlayer();
+		calculateLineOfSight();
 		
-		// Render map background
-		this.map.renderBackground(r);
-		
-		if (p != null) {
-			// Render line of sight
-			Vector2f pos = p.position;
-			losMinBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MIN, losMinBuf);
-			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-			losMaxBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losMaxBuf);
-			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+		r.beginDrawWorld();
+		drawWorld(r);
+		r.endDrawWorld();
+		r.beginDrawLighting();
+		if (p != null && r.getRenderSettings().drawLineOfSightStencil) {
+			drawLineOfSightStencil(r);
 		}
-		
-		if (Util.isDebugRenderMode()) {
-			//drawDebugLines(r, losMinBuf);
-			drawDebugLines(r, losMaxBuf);
-		}
-		
-		// Render map foreground
-		this.map.renderForeground(r);
-		
-		if (p != null && !Util.isDebugRenderMode()) {
-			// Draw stencil
-			r.enableStencilDraw(1);
-			//r.drawTriangleFan(losMinBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-			r.drawTriangleFan(losMaxBuf, 0, 0, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-			
-			// Disable stencil draw
-			r.disableStencilDraw();
-			r.enableStencil(1);
-		}
-		
-		// Render entities
-		for (Entity e : this.bank.entities.values()) {
-			e.render(r);
-		}
-		
+		drawLighting(r);
 		r.disableStencil();
+		r.endDrawLighting();
 		
 		r.getModelViewMatrix().popMatrix();
+		
+		r.drawWorldWithLighting();
 		
 		// Render start time
 		if (this.startTime != 0.0f) {
@@ -262,9 +256,32 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
 		}
 		
-		// Render UI
+		// === Render UI ===
+		// Draw messages
+		synchronized (messageLogLock) {
+			Font font = r.getFontBank().getFont("emulogic.ttf");
+			float scale = 0.5f;
+			float mh = font.getHeight(scale);
+			float width = 1000.0f;
+			float y = Util.HUD_PADDING + mh;
+			for (int i = messageLog.size()-1; i >= 0; i--) {
+				Message m = messageLog.get(i);
+				double dt = (System.nanoTime() - m.timeReceived) / (double)Util.NANOS_PER_SECOND;
+				float alpha = (float) (4.0 - dt);
+				alpha = Math.min(1.0f, alpha);
+				if (alpha <= 0.0f)
+					break;
+				
+				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha * 0.7f);
+				r.drawBox(Align.BL, Util.HUD_PADDING, y, width, mh, messageLogColor);
+				messageLogColor.set(1.0f, 1.0f, 1.0f, alpha);
+				r.drawText(font, m.toString(), Align.ML, false, Util.HUD_PADDING + 5.0f, y+mh/2, scale, messageLogColor);
+				y += mh;
+			}
+		}
+		
 		// Draw mini-map
-		this.renderMiniMap(r, Util.HUD_PADDING, Util.HUD_PADDING, 300.0f, 300.0f, 30.0f);
+		this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
 		
 		// Draw current ammo
 		if (p != null) {
@@ -272,6 +289,61 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			if (i != null) {
 				i.renderUI(r);
 			}
+		}
+	}
+	
+	private void calculateLineOfSight() {
+		// Get player
+		Player p = getPlayer();
+		
+		if (p != null) {
+			// Render line of sight
+			Vector2f pos = p.position;
+			// losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, losBuf);
+			losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losBuf);
+		} else {
+			// TODO: Display whole screen in line of sight if there is no player
+		}
+	}
+	
+	private void drawWorld(IRenderer r) {
+		// Get player
+		Player p = getPlayer();
+		
+		// Render map background
+		this.map.renderBackground(r);
+		
+		if (Util.isDebugRenderMode()) {
+			if (p != null) {
+				// Render line of sight (debug)
+				r.drawTriangleFan(losBuf, 0, 0, new Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+			}
+			drawDebugLines(r, losBuf);
+		}
+		
+		// Render map foreground
+		this.map.renderForeground(r);
+		
+		// Render entities
+		for (Entity e : this.bank.entities.values()) {
+			e.render(r, map);
+		}
+	}
+	
+	private void drawLineOfSightStencil(IRenderer r) {
+		r.enableStencilDraw(1);
+		
+		r.drawTriangleFan(losBuf, 0, 0, ColorUtil.WHITE);
+		
+		r.disableStencilDraw();
+		r.enableStencil(1);
+	}
+	
+	private void drawLighting(IRenderer r) {
+//		r.drawCircle(0.0f, 0.0f, 10.0f, ColorUtil.WHITE);
+		
+		for (Entity e : this.bank.entities.values()) {
+			e.renderLight(r, map);
 		}
 	}
 	
@@ -340,7 +412,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 		}
 	}
-
+	
 	@Override
 	public void addEntity(Entity e) {
 		this.bank.addEntityCached(e);
@@ -364,6 +436,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleWorldUpdate(WorldUpdate update) {
 		update.updateWorld(this);
+	}
+	
+	@Override
+	public void handleMessage(String name, String msg) {
+		synchronized (messageLogLock) {
+			messageLog.add(new Message(name, msg));
+		}
 	}
 	
 	public void destroy() {
@@ -391,7 +470,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		// Render entities
 		for (Entity e : this.bank.entities.values()) {
-			e.render(r);
+			e.render(r, map);
 		}
 		
 		r.getModelViewMatrix().popMatrix();

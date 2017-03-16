@@ -78,12 +78,12 @@ public abstract class Projectile extends MovableEntity {
 			// Hit nothing
 		} else if (closest == mi) {
 			// Hit map
-			this.hitMap(ua, mi);
+			this.hitMap(ua, mi, velocity);
 			// Remove bullet from the world
 			ua.bank.removeEntityCached(this.getId());
 		} else if (closest == temp2) {
 			// Hit entity
-			this.hitEntity(ua, ei);
+			this.hitEntity(ua, ei, velocity);
 			// Remove projectile from the world
 			ua.bank.removeEntityCached(this.getId());
 		}
@@ -97,14 +97,13 @@ public abstract class Projectile extends MovableEntity {
 		} else {
 			ua.audio.continueLoop(whizzSoundID, this.position);
 		}
-				
 		
 		Util.popTemporaryVector2f();
 		Util.popTemporaryVector2f();
 	}
 	
-	protected abstract void hitMap(UpdateArgs ua, Vector2f mi);
-	protected abstract void hitEntity(UpdateArgs ua, EntityIntersection ei);
+	protected abstract void hitMap(UpdateArgs ua, Vector2f mi, Vector2f velocity);
+	protected abstract void hitEntity(UpdateArgs ua, EntityIntersection ei, Vector2f velocity);
 	
 	protected abstract float getLength();
 

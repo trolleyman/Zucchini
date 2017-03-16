@@ -4,8 +4,12 @@ import game.ColorUtil;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
+
 import game.audio.AudioManager;
 import game.net.client.IClientConnection;
+
+import game.net.Message;
+
 import game.render.Align;
 import game.render.FontBank;
 import game.render.IRenderer;
@@ -39,6 +43,9 @@ public class GameUI extends UI implements InputPipeMulti {
 	private float barWidth;
 	private float barHeight;
 	private float mapSize;
+	private float playerHealth;
+	private float maxHealth;
+	
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private UI nextUI;
@@ -51,6 +58,9 @@ public class GameUI extends UI implements InputPipeMulti {
 		super(_ui);
 		this.world = _world;
 		this.inputHandlers.add(world);
+		
+		
+		
 		
 		nextUI = this;
 	}
@@ -86,6 +96,21 @@ public class GameUI extends UI implements InputPipeMulti {
 	@Override
 	public void render(IRenderer r) {
 		this.world.render(r);
+		createHealthBar(r);
+
+	}
+	
+	public void createHealthBar(IRenderer r){
+		if(world.getPlayer() == null){
+			maxHealth = 10.0f;
+			playerHealth = 10.0f;
+		}else{
+			maxHealth = world.getPlayer().getMaxHealth();
+			playerHealth = world.getPlayer().getHealth();
+		}
+		
+		r.drawBox(Align.TR, (float) winWidth - 20, (float) winHeight - 20, (float) 30 * maxHealth, (float) 20, ColorUtil.GREEN);//max health
+		r.drawBox(Align.TR, winWidth - 20, winHeight - 20, 30 * (maxHealth - playerHealth), 20, ColorUtil.RED);
 	}
 	
 	@Override

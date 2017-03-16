@@ -142,8 +142,8 @@ public abstract class Weapon extends Item {
 	public void update(UpdateArgs ua) {
 		boolean updated = false;
 		if (this.fire && this.ammo == 0 && this.currentShots == 0) {
-			// TODO: Running out of ammo sound
-			System.out.println("[Game]: [Weapon]: *Click*: Out of ammo");
+			//System.out.println("[Game]: [Weapon]: *Click*: Out of ammo");
+			ua.audio.play("no-ammo-click.wav", 1.0f, this.position);
 			this.fire = false;
 		} else if (this.fire && this.currentCooldown <= 0.0f) {
 			updated = true;
@@ -158,11 +158,11 @@ public abstract class Weapon extends Item {
 			// Decrement shots left
 			this.currentShots--;
 			if (this.currentShots == 0) {
-				// Reload
-				this.startReload(ua);
-				
+				// Reload				
 				this.currentCooldown = this.reloadingTime;
-				this.reloading = true;
+				if(this.ammo!=0){
+					this.reloading = true;
+				}
 				if (this.ammo != -1 && this.ammo < this.shots)
 					this.currentShots = this.ammo;
 				else
@@ -175,6 +175,11 @@ public abstract class Weapon extends Item {
 				this.currentCooldown = this.cooldown;
 			}
 		}
+		
+		if(reloading) {
+			this.startReload(ua);
+		}
+		
 		if (this.semiAuto)
 			this.fire = false;
 		

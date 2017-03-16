@@ -6,6 +6,7 @@ import game.action.Action;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
+import game.net.PacketCache;
 import game.net.Protocol;
 import game.net.WorldStart;
 import game.net.server.ClientHandler;
@@ -28,7 +29,7 @@ public class ServerWorld extends World implements Cloneable {
 	private static final float START_TIME_UPDATE_DT = 0.5f;
 	
 	/** Cached UpdateArgs object */
-	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null);
+	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null, new PacketCache());
 	
 	/** Server Audio Manager */
 	private ServerAudioManager audio;
@@ -74,7 +75,7 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param c The client
 	 */
 	public synchronized void addClient(LobbyClient c) {
-		Player player = new Player(c.team, map.getSpawnLocation(c.team), Player.getDefaultHeldItem());
+		Player player = new Player(c.team, map.getSpawnLocation(c.team), c.handler.getClientInfo().name, Player.getDefaultHeldItem());
 		this.bank.addEntity(player);
 		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
 		try {
@@ -154,6 +155,7 @@ public class ServerWorld extends World implements Cloneable {
 			
 			// Ensure that no entity updates are left out
 			this.bank.processCache(clients);
+			ua.packetCache.processCache(clients);
 			
 			// Update entities
 			for (Entity e : this.bank.entities.values()) {

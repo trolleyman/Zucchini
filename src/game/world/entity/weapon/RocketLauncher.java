@@ -4,8 +4,8 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
-import game.render.Texture;
 import game.world.UpdateArgs;
+import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -23,7 +23,7 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		r.drawBox(a, position.x, position.y, 0.1f, getHeight(), COLOR, this.angle);
 	}
@@ -32,7 +32,7 @@ public class RocketLauncher extends Weapon {
 	protected void fire(UpdateArgs ua, float angle) {
 		Vector2f muzzlePos = new Vector2f().set(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);;
 		
-		System.out.println("Whoosh! Rocket fired!");
+		// System.out.println("[Game]: Whoosh! Rocket fired!");
 		ua.audio.play("rocket-launcher.wav", 0.5f, this.position);
 		ua.bank.addEntityCached(new Rocket(muzzlePos, this.ownerId, this.ownerTeam, angle));
 	}
@@ -40,15 +40,16 @@ public class RocketLauncher extends Weapon {
 	@Override
 	public void update(UpdateArgs ua) {
 		super.update(ua);
-		
-		if (this.reloadSoundID != -1)
-			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
 	}
 	
 	@Override
 	protected void startReload(UpdateArgs ua) {
-		System.out.println("Reloading rocket launcher...");
-		this.reloadSoundID = ua.audio.play("rocket_reload[5sec].wav", 1.0f, this.position);
+		if (this.reloadSoundID == -1) {
+			System.out.println("Reloading rocket launcher...");
+			this.reloadSoundID = ua.audio.play("rocket_reload[5sec].wav", 1.0f, this.position);
+		}else{
+			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
+		}
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
+import game.world.map.Map;
 import game.world.map.PathFindingMap;
 import game.world.entity.update.PositionUpdate;
 
@@ -77,7 +78,7 @@ public class Zombie extends AutonomousEntity {
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		float x = position.x + 0.25f * (float) Math.sin(angle);
 		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
@@ -86,7 +87,16 @@ public class Zombie extends AutonomousEntity {
 	}
 	
 	@Override
+<<<<<<< HEAD
 	public float getMaxHealth() {
+=======
+	public String getReadableName() {
+		return "a zombie";
+	}
+	
+	@Override
+	protected float getMaxHealth() {
+>>>>>>> 7cda5f4bebd4685f7f45fbc9fe86de7f588e899a
 		return 10.0f;
 	}
 	

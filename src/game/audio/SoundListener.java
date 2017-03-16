@@ -5,7 +5,11 @@ import org.lwjgl.openal.AL10;
 
 import static org.lwjgl.openal.AL10.*;
 
-
+/**
+ * Sound listeners represent an entity in the world space that can hear sounds. These will be the players in our game.
+ * @author Yean
+ *
+ */
 public class SoundListener {
 	public static final float zPos = 0.0f;
 	public Vector2f playerPos;
@@ -25,27 +29,37 @@ public class SoundListener {
         this.playerPos = position;
     }
     
+    /**
+     * Sets the speed of the listener
+     * @param speed
+     */
     public void setSpeed(Vector3f speed) {
         alListener3f(AL_VELOCITY, speed.x, speed.y, speed.z);
     }
 
+    /**
+     * Sets the position of the listener
+     * @param position
+     */
     public void setPosition(Vector2f position) {
         alListener3f(AL_POSITION, position.x, position.y, zPos  );
         this.playerPos = position;
     }
     
+    /**
+     * Gets the position of the listener
+     * @return pos
+     */
     public Vector2f getPos(){
     	return this.playerPos;
     }
-    /*
-     * OpenAL will not update their position for you. 
-     * It will use the relative velocity to calculate the 
-     * Doppler effect, but the positions won’t be modified.
-     * So, if you want to simulate a moving source or listener 
-     * you must take care of updating their positions in the game
-     * loop.
-     */
 
+    /**
+     * Can be used to set the orientation of a player
+     * @param at
+     * @param up
+     */
+    //most likely won't be used as we are making a 2d game with a set camera orientation, but this can remain to test out if we want to
     public void setOrientation(Vector3f at, Vector3f up) {
         float[] data = new float[6];
         data[0] = at.x;

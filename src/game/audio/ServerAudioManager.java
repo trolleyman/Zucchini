@@ -13,6 +13,11 @@ import game.audio.event.AudioPlayLoopEvent;
 import game.audio.event.AudioStopEvent;
 import game.audio.event.AudioUpdateSourcePosEvent;
 
+/**
+ * Server side audio management. Will make audio events when they happen and feed them to the client side audio manager running on each client.
+ * @author Yean & Callum
+ *
+ */
 public class ServerAudioManager implements IAudioManager {
 	private int nextAudioID = 0;
 	

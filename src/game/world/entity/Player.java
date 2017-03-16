@@ -3,17 +3,23 @@ package game.world.entity;
 import game.Util;
 import game.action.Action;
 import game.action.AimAction;
+import game.net.Protocol;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
+import game.world.entity.damage.Damage;
+import game.world.entity.light.PointLight;
+import game.world.entity.light.Spotlight;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.entity.weapon.Knife;
+import game.world.map.Map;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -24,15 +30,16 @@ import java.util.Optional;
  * @author Callum
  */
 public class Player extends MovableEntity {
-	/** The min distance a player can see */
-	public static final float LINE_OF_SIGHT_MIN = 1.0f;
 	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 20.0f;
 	/** The angle of which the player can see */
-	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(160.0);
+	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(360.0);
+	
+	private static final Vector4f SPOT_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
+	private static final Vector4f TORCH_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
 	
 	/** The speed of the player in m/s */
-	private static final float MAX_SPEED = 3.0f;
+	private static final float MAX_SPEED = 4.0f;
 	/** The radius of the player in m */
 	private static final float RADIUS = 0.2f;
 	
@@ -49,8 +56,15 @@ public class Player extends MovableEntity {
 	/** If the player is moving west */
 	private transient boolean moveWest  = false;
 	
-	/**The currently held item. Not necessarily a weapon */
+	/** The name of the player */
+	private String name;
+	
+	/** The currently held item. Not necessarily a weapon */
 	private Item heldItem;
+	
+	private PointLight pointLight;
+	/** The torch of the player */
+	private Spotlight torch;
 	
 	/** Has the player been assigned a footstep sound source? */
 	private transient int walkingSoundID = -1; // sound source id associated with player movement
@@ -60,12 +74,22 @@ public class Player extends MovableEntity {
 	/**
 	 * Constructs a new player at the specified position holding a weapon
 	 * @param position The position
+	 * @param _name The name of the player
 	 * @param _heldItem The currently held item
 	 */
-	public Player(int team, Vector2f position, Item _heldItem) {
+	public Player(int team, Vector2f position, String _name, Item _heldItem) {
 		super(team, position, 1.0f);
+		this.name = _name;
 		this.heldItem = _heldItem;
-		updateHeldItemInfo();
+		this.pointLight = new PointLight(
+				new Vector2f(this.position),
+				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.8f),
+				1.0f, true);
+		this.torch = new Spotlight(
+				new Vector2f(position),
+				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 1.0f),
+				0.01f, true, (float) Math.toRadians(30.0f), (float) Math.toRadians(60.0f));
+		updateChildrenInfo();
 	}
 	
 	/**
@@ -80,12 +104,20 @@ public class Player extends MovableEntity {
 		this.moveEast = p.moveEast;
 		this.moveWest = p.moveWest;
 		
+		this.name = p.name;
 		this.heldItem = p.heldItem.clone();
 		
 		this.beganUse = p.beganUse;
+		
+		this.pointLight = p.pointLight.clone();
+		this.torch = p.torch.clone();
 	}
 	
-	private void updateHeldItemInfo() {
+	private void updateChildrenInfo() {
+		this.pointLight.position.set(this.position);
+		this.torch.position.set(this.position);
+		this.torch.angle = this.angle;
+		
 		if (this.heldItem != null) {
 			this.heldItem.setOwner(this.getId());
 			this.heldItem.setOwnerTeam(this.getTeam());
@@ -110,6 +142,18 @@ public class Player extends MovableEntity {
 	
 	public Item getHeldItem() {
 		return heldItem;
+	}
+	
+	/**
+	 * Gets the name of the player
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public String getReadableName() {
+		return getName();
 	}
 	
 	@Override
@@ -152,7 +196,9 @@ public class Player extends MovableEntity {
 		}
 		Util.popTemporaryVector2f();
 		
-		updateHeldItemInfo();
+		updateChildrenInfo();
+		this.pointLight.update(ua);
+		this.torch.update(ua);
 		if (this.heldItem != null)
 			this.heldItem.update(ua);
 		
@@ -177,20 +223,32 @@ public class Player extends MovableEntity {
 	public void clientUpdate(UpdateArgs ua) {
 		super.clientUpdate(ua);
 		
-		updateHeldItemInfo();
+		updateChildrenInfo();
+		this.pointLight.clientUpdate(ua);
 		if (this.heldItem != null)
 			this.heldItem.clientUpdate(ua);
 	}
 	
 	@Override
-	public void render(IRenderer r) {
-		updateHeldItemInfo();
+	public void render(IRenderer r, Map map) {
+		updateChildrenInfo();
 		if (this.heldItem != null)
-			this.heldItem.render(r);
+			this.heldItem.render(r, map);
 		
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
 		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
+	}
+	
+	@Override
+	public void renderLight(IRenderer r, Map map) {
+		super.renderLight(r, map);
+		
+		updateChildrenInfo();
+		this.pointLight.renderLight(r, map);
+		this.torch.renderLight(r, map);
+		if (this.heldItem != null)
+			this.heldItem.renderLight(r, map);
 	}
 	
 	/**
@@ -272,6 +330,15 @@ public class Player extends MovableEntity {
 	@Override
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
 		return PhysicsUtil.intersectCircleLine(this.position.x, this.position.y, RADIUS, x0, y0, x1, y1, null);
+	}
+	
+	@Override
+	public void death(UpdateArgs ua) {
+		super.death(ua);
+		Damage d = getLastDamage();
+		Entity from = ua.bank.getEntity(d.ownerId);
+		String s = d.type.getDescription(from, this);
+		ua.packetCache.sendStringTcp(Protocol.sendMessageToClient("", s));
 	}
 	
 	@Override

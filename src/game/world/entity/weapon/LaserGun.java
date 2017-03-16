@@ -4,7 +4,7 @@ import game.world.entity.Entity;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.DamageUpdate;
-import game.world.entity.update.HealthUpdate;
+import game.world.map.Map;
 import game.world.map.Wall;
 import org.joml.Vector2f;
 
@@ -28,20 +28,21 @@ public class LaserGun extends Weapon {
 	}
 	
 	public LaserGun(Vector2f position, int ammo) {
-		super(position, ammo, true, 0.5f, 1, 0.5f);
+		super(position, ammo, false, 0.04f, 60, 2.0f,
+				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
 	}
 	
 	@Override
-	public void render(IRenderer r) {
+	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		r.drawBox(a, position.x, position.y, 0.15f, getHeight(), ColorUtil.RED, this.angle);
 	}
 	
 	@Override
 	protected float renderBullet(IRenderer r, float x, float y, float p) {
-		r.drawBox(Align.BR, x, y, 20.0f, 40.0f * p, ColorUtil.RED);
-		x -= 20.0f;
+		r.drawBox(Align.BR, x, y, 10.0f, 80.0f * p, ColorUtil.RED);
 		x -= 10.0f;
+		//x -= 10.0f;
 		return x;
 	}
 	
@@ -64,8 +65,12 @@ public class LaserGun extends Weapon {
 			Vector2f intersection = ua.map.intersectsLine(curPos.x, curPos.y, newPos.x, newPos.y, newPos, wall,
 					(w) -> prevWall == null || !w.p0.equals(prevWall.p0) && !w.p1.equals(prevWall.p1));
 			
+			float newLengthLeft = lengthLeft - curPos.distance(newPos);
+			
 			// Spawn new segment
-			ua.bank.addEntityCached(new LaserBulletSegment(this.ownerTeam, curPos, newPos));
+			ua.bank.addEntityCached(new LaserBulletSegment(this.ownerTeam,
+					curPos, lengthLeft/MAX_LASER_LENGTH,
+					newPos, newLengthLeft/MAX_LASER_LENGTH));
 			
 			// Damage entities that contact with laser
 			// TODO: Fix so that entities can collide with outer extents of laser
@@ -97,7 +102,7 @@ public class LaserGun extends Weapon {
 			Util.popTemporaryVector2f();
 			
 			// Update loop variables for next segment
-			lengthLeft -= curPos.distance(newPos);
+			lengthLeft = newLengthLeft;
 			curPos = newPos;
 			if (prevWall == null)
 				prevWall = new Wall(0.0f, 0.0f, 0.0f, 0.0f);

@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class Font {
@@ -40,11 +42,15 @@ public class Font {
 	
 	private final int pixelHeight;
 	
-	public Font(String path) {
-		this(path, 64);
+	public Font(byte[] data) {
+		this(data, 64);
 	}
 	
-	public Font(String path, int _pixelHeight) {
+	public Font(byte[] data, int _pixelHeight) {
+		ByteBuffer ttf = MemoryUtil.memAlloc(data.length);
+		ttf.put(data);
+		ttf.flip();
+		
 		this.pixelHeight = _pixelHeight;
 		
 		charToIndex = new HashMap<>();
@@ -56,40 +62,30 @@ public class Font {
 		fontInfo = STBTTFontinfo.malloc();
 		cdata = STBTTBakedChar.malloc(NUM_CHARS);
 		
-		try {
-			RandomAccessFile file = new RandomAccessFile(path, "r");
-			FileChannel channel = file.getChannel();
-			ByteBuffer ttf = ByteBuffer.allocateDirect((int)channel.size());
-			channel.read(ttf);
-			file.close();
-			ttf.rewind();
-			
-			stbtt_InitFont(fontInfo, ttf);
-			ByteBuffer bitmap = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H);
-			stbtt_BakeFontBitmap(ttf, pixelHeight, bitmap, BITMAP_W, BITMAP_H, FIRST_CHAR, cdata);
-			
-			bitmap.rewind();
-			
-			ByteBuffer rgba = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H * 4);
-			
-			for (int i = 0; i < BITMAP_W*BITMAP_H; i++) {
-				rgba.put((byte) -1);
-				rgba.put((byte) -1);
-				rgba.put((byte) -1);
-				rgba.put(bitmap.get());
-			}
-			rgba.rewind();
-			
-			text = new Texture(rgba, BITMAP_W, BITMAP_H, GL_RGBA);
-			
-			MemoryUtil.memFree(rgba);
-			MemoryUtil.memFree(bitmap);
-			
-			stbtt_GetFontVMetrics(fontInfo, ascent, descent, lineGap);
-
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		stbtt_InitFont(fontInfo, ttf);
+		ByteBuffer bitmap = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H);
+		stbtt_BakeFontBitmap(ttf, pixelHeight, bitmap, BITMAP_W, BITMAP_H, FIRST_CHAR, cdata);
+		
+		bitmap.rewind();
+		
+		ByteBuffer rgba = MemoryUtil.memAlloc(BITMAP_W * BITMAP_H * 4);
+		
+		for (int i = 0; i < BITMAP_W*BITMAP_H; i++) {
+			rgba.put((byte) -1);
+			rgba.put((byte) -1);
+			rgba.put((byte) -1);
+			rgba.put(bitmap.get());
 		}
+		rgba.rewind();
+		
+		text = new Texture(rgba, BITMAP_W, BITMAP_H, GL_RGBA);
+		
+		MemoryUtil.memFree(rgba);
+		MemoryUtil.memFree(bitmap);
+		ttf.rewind();
+		MemoryUtil.memFree(ttf);
+		
+		stbtt_GetFontVMetrics(fontInfo, ascent, descent, lineGap);
 	}
 
 	public Texture getTexture() {

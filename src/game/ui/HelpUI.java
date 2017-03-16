@@ -10,6 +10,7 @@ import game.render.FontBank;
 import game.render.IRenderer;
 import game.render.TextureBank;
 import game.ui.component.ButtonComponent;
+import game.ui.component.ImageComponent;
 import game.world.ClientWorld;
 
 public class HelpUI extends UI implements InputPipeMulti{
@@ -19,10 +20,11 @@ public class HelpUI extends UI implements InputPipeMulti{
 	private ButtonComponent backBtn;
 	private float winWidth;
 	private float winHeight;
-	
+	private ImageComponent backgroundImage;
 	
 	public HelpUI(UI ui){
 		super(ui);
+		start();
 	}
 	
 	public HelpUI(IClientConnection _conn, AudioManager audio, TextureBank _bank, FontBank _fb) {
@@ -32,11 +34,15 @@ public class HelpUI extends UI implements InputPipeMulti{
 		start();
 	}
 	
-	public void start(){
+	private void start(){
 		backBtn = new ButtonComponent(null, Align.TL, 0, 0,
 				textureBank.getTexture("temparrow.png"),
 				textureBank.getTexture("temparrow.png"),
 				textureBank.getTexture("temparrow.png")
+		);
+		
+		backgroundImage = new ImageComponent(
+				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
 		
 		this.inputHandlers.add(backBtn);
@@ -60,6 +66,8 @@ public class HelpUI extends UI implements InputPipeMulti{
 
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
+		
 		backBtn.setX(0);
 		backBtn.setY((int) winHeight - 200);
 		backBtn.render(r);
@@ -72,8 +80,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
+		//Nothing to destroy
 	}
 
 	@Override
