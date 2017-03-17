@@ -310,7 +310,7 @@ public class Server implements Runnable
 				handler.sendStringTcp(Protocol.sendLobbiesResponse(lobbyInfos));
 			} catch (ProtocolException e)
 			{
-				// This is fine as the handler takes care of exceptions
+				handler.error(e);
 			}
 			return;
 		} else if (Protocol.isLobbyCreateRequest(msg)) {
