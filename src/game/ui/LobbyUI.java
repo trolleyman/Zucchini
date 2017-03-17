@@ -275,9 +275,14 @@ public class LobbyUI extends UI implements InputPipeMulti
 			r.drawText(font, error, Align.TM, false,
 					r.getWidth()/2,
 					backButton.getY() - backButton.getHeight() - 150.0f - font.getHeight(0.5f), 0.5f, ColorUtil.RED);
+		} else if (lobby_buttons.size() == 0) {
+			Font font = r.getFontBank().getFont("emulogic.ttf");
+			r.drawText(font, "No lobbies exist.", Align.TM, false,
+					r.getWidth()/2,
+					backButton.getY() - backButton.getHeight(), 0.5f);
 		}
 	}
-
+	
 	@Override
 	public UI next()
 	{
