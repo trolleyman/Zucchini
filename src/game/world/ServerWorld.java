@@ -79,7 +79,7 @@ public class ServerWorld extends World implements Cloneable {
 		try {
 			c.handler.sendStringTcp(Protocol.sendWorldStart(new WorldStart(map, player.getId())));
 		} catch (ProtocolException e) {
-			// This is ok as the handler will take care of it
+			c.handler.error(e);
 		}
 	}
 	
@@ -143,7 +143,7 @@ public class ServerWorld extends World implements Cloneable {
 					try {
 						c.handler.sendStringTcp(s);
 					} catch (ProtocolException e) {
-						// This is fine as the handler takes care of it
+						c.handler.error(e);
 					}
 				}
 			}
@@ -213,7 +213,7 @@ public class ServerWorld extends World implements Cloneable {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
-					// This is ok as ClientHandler takes care of this
+					swc.handler.error(ex);
 					break;
 				}
 			}
