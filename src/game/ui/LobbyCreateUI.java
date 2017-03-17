@@ -6,10 +6,7 @@ import game.net.client.IClientConnectionHandler;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
-import game.ui.component.ButtonComponent;
-import game.ui.component.TextButtonComponent;
-import game.ui.component.TextEntryComponent;
-import game.ui.component.UIComponent;
+import game.ui.component.*;
 
 import java.util.ArrayList;
 
@@ -23,6 +20,8 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 	private final TextEntryComponent entry;
 	private final ButtonComponent submitButton;
 	private final ButtonComponent backButton;
+	
+	private final ImageComponent backgroundImage;
 	
 	private ArrayList<UIComponent> components;
 	
@@ -63,6 +62,11 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 		components.add(entry);
 		components.add(submitButton);
 		components.add(backButton);
+		
+		// Create Background Image
+		backgroundImage = new ImageComponent(
+				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
+		);
 		
 		UI that = this;
 		connection.setHandler(new IClientConnectionHandler() {
@@ -111,6 +115,8 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
+		
 		Font f = fontBank.getFont("emulogic.ttf");
 		r.drawText(f, "Create Lobby:", Align.TL, false, PADDING, r.getHeight() - PADDING, 1.0f);
 		
