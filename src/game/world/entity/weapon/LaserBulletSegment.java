@@ -88,15 +88,10 @@ public class LaserBulletSegment extends Entity {
 		color.w = 1 - (float)(time / TTL);
 		Texture t = r.getTextureBank().getTexture("laserBullet.png");
 		r.drawTextureUV(t, Align.BM, position.x, position.y, WIDTH, length, angle,  0.0f, endGrad, 1.0f, startGrad, color);
-		
-		updateLightParams();
-		light.render(r, map);
 	}
 	
 	@Override
 	public void renderLight(IRenderer r, Map map) {
-		super.renderLight(r, map);
-		
 		updateLightParams();
 		light.renderLight(r, map);
 	}

@@ -15,5 +15,5 @@ void main() {
 	float dist = abs(0.5f - t_posx);
 	float attenuation = 1 / (1 + attenuationFactor * dist * dist);
 	float a = attenuation * color.a;
-	out_color = vec4(color.rgb * a, a);
+	out_color = vec4(color.rgb, a);
 }

@@ -87,8 +87,8 @@ public class Player extends MovableEntity {
 		this.heldItem = _heldItem;
 		this.pointLight = new PointLight(
 				new Vector2f(this.position),
-				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.8f),
-				1.0f, true);
+				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.6f),
+				3.0f, true);
 		this.torch = new Spotlight(
 				new Vector2f(position),
 				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 1.0f),
@@ -243,11 +243,6 @@ public class Player extends MovableEntity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		this.pointLight = new PointLight(
-				new Vector2f(this.position),
-				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.6f),
-				3.0f, true);
-		
 		updateChildrenInfo();
 		if (this.heldItem != null)
 			this.heldItem.render(r, map);
