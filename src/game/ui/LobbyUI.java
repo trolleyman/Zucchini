@@ -1,14 +1,12 @@
 package game.ui;
 
 import game.*;
-import game.render.Align;
-import game.render.IRenderer;
+import game.render.*;
+import game.render.Font;
 import game.ui.component.ButtonComponent;
 import game.ui.component.ImageComponent;
 import game.ui.component.TextButtonComponent;
 
-import java.awt.*;
-import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_C;
@@ -49,7 +47,11 @@ public class LobbyUI extends UI implements InputPipeMulti
 	private LobbyInfo currentLobby = null;
 
 	private ArrayList<TextButtonComponent> lobby_buttons = new ArrayList<>();
-
+	
+	private double time = 0.0;
+	private boolean loading = false;
+	private String error;
+	
 	public LobbyUI(UI _ui)
 	{
 		super(_ui);
@@ -88,7 +90,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 
 		// Create Refresh Button
 		refreshButton = new ButtonComponent(
-			() -> connection.getLobbies(this::refresh, (err) -> System.err.println("Error retrieving lobbies: " + err)),
+			this::getLobbies,
 			Align.BL, 100, 100,
 			textureBank.getTexture("refreshDefault.png"),
 			textureBank.getTexture("refreshHover.png"),
@@ -109,9 +111,18 @@ public class LobbyUI extends UI implements InputPipeMulti
 			Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
 
-		connection.getLobbies(this::refresh, (err) -> System.err.println("Error retrieving lobbies: " + err));
+		this.getLobbies();
 	}
-
+	
+	private void getLobbies() {
+		synchronized (this) {
+			refresh(new ArrayList<>());
+			loading = true;
+			error = null;
+			connection.getLobbies(this::refresh, this::refreshErr);
+		}
+	}
+	
 	/**
 	 * Is called when any of the lobbies are selected
 	 * @param lobby
@@ -125,9 +136,12 @@ public class LobbyUI extends UI implements InputPipeMulti
 		lobby_buttons.get(lobby).setSelected(true);
 		currentLobby = lobbies.get(lobby);
 	}
-
+	
 	private void refresh(ArrayList<LobbyInfo> lobs) {
 		synchronized (this) {
+			loading = false;
+			error = null;
+			lobbiesToRender = 0;
 			lobbies = lobs;
 			lobby_buttons.clear();
 			this.inputHandlers.clear();
@@ -143,6 +157,13 @@ public class LobbyUI extends UI implements InputPipeMulti
 			this.inputHandlers.add(backButton);
 			this.inputHandlers.add(refreshButton);
 			this.inputHandlers.add(nextButton);
+		}
+	}
+	
+	private void refreshErr(String msg) {
+		synchronized (this) {
+			loading = false;
+			error = msg;
 		}
 	}
 
@@ -189,6 +210,8 @@ public class LobbyUI extends UI implements InputPipeMulti
 	@Override
 	public void update(double dt)
 	{
+		this.time += dt;
+		
 		// Run the update method for all of the buttons
 		joinButton.update(dt);
 		createButton.update(dt);
@@ -220,8 +243,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 
 		nextButton.setX((int) (windowW / 2.0 + backButton.getWidth() / 2.0) + 160);
 		nextButton.setY((int) (windowH / 2.0 - nextButton.getHeight() / 2.0) - 280);
-
-
+		
 		// Render these and the background image
 		backgroundImage.render(r);
 		joinButton.render(r);
@@ -229,8 +251,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 		backButton.render(r);
 		refreshButton.render(r);
 		nextButton.render(r);
-
-
+		
 		int n = 0;
 		// Set location of and render each of the lobby buttons
 		for (int i = lobbiesToRender; i < lobby_buttons.size() && i < (lobbiesToRender+4); i++) {
@@ -238,6 +259,22 @@ public class LobbyUI extends UI implements InputPipeMulti
 			lobby_buttons.get(i).setY((int) (windowH / 2.0 - lobby_buttons.get(i).getHeight() / 2.0) - 60 - (n + 1) * lobby_spacing);
 			lobby_buttons.get(i).render(r);
 			n++;
+		}
+		
+		// Render loading/error
+		if (loading) {
+			float angle = (float)(time * 5.0 % (Math.PI * 2));
+			r.drawTexture(r.getTextureBank().getTexture("loading.png"), Align.MM,
+					r.getWidth()/2,
+					backButton.getY() - backButton.getHeight() - 60.0f, angle);
+		} else if (error != null) {
+			Font font = r.getFontBank().getFont("emulogic.ttf");
+			r.drawText(font, "Error", Align.TM, false,
+					r.getWidth()/2,
+					backButton.getY() - backButton.getHeight() - 150.0f, 0.5f, ColorUtil.RED);
+			r.drawText(font, error, Align.TM, false,
+					r.getWidth()/2,
+					backButton.getY() - backButton.getHeight() - 150.0f - font.getHeight(0.5f), 0.5f, ColorUtil.RED);
 		}
 	}
 
