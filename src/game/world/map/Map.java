@@ -430,7 +430,7 @@ public class Map {
 	public void renderBackground(IRenderer r) {
 		Vector4f rect = getRect();
 		r.drawBox(Align.BL, rect.x, rect.y, rect.z, rect.w, ColorUtil.BLACK);
-		Texture background = r.getTextureBank().getTexture("map_background.png");
+		Texture background = r.getTextureBank().getTexture("map_background3.png");
 		r.drawTexture(background, Align.BL, -1.0f, -1.0f, 32.0f, 32.0f);
 	}
 	
