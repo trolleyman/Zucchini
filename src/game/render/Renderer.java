@@ -484,7 +484,7 @@ public class Renderer implements IRenderer {
 	public void beginDrawLighting() {
 		lightFramebuffer.bind();
 		
-		glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ZERO, GL_ONE);
 		glStencilMask(0xFF);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
@@ -506,7 +506,6 @@ public class Renderer implements IRenderer {
 		lightingPassShader.setWorldFramebuffer(worldFramebuffer);
 		lightingPassShader.setLightFramebuffer(lightFramebuffer);
 		lightingPassShader.draw();
-		Shader.useNullProgram();
 	}
 	
 	@Override
