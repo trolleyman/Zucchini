@@ -142,7 +142,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			float targetZoom = Math.min(targetZoomW, targetZoomH);
 			
 			// Lerp position and zoom
-			this.cameraZoom += (targetZoom - this.cameraZoom) * (float)dt * 0.5f;
+			this.cameraZoom += (targetZoom - this.cameraZoom) * (float)dt * 0.8f;
 			this.cameraPos.lerp(targetPosition, (float)dt * 1.0f);
 			Util.popTemporaryVector2f();
 		}

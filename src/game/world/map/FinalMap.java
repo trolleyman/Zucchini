@@ -214,7 +214,18 @@ public class FinalMap extends Map {
         //initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
         
         // Add torches
-        initialEntities.add(new Torch(new Vector2f(1.0f, 1.0f)));
+        // West Entrance
+        initialEntities.add(new Torch(new Vector2f(10.21f, 16.22f)));
+        initialEntities.add(new Torch(new Vector2f(10.21f, 13.82f)));
+        // South Entrance
+        initialEntities.add(new Torch(new Vector2f(13.81f, 10.21f)));
+        initialEntities.add(new Torch(new Vector2f(16.22f, 10.21f)));
+        // East Entrace
+        initialEntities.add(new Torch(new Vector2f(19.79f, 13.84f)));
+        initialEntities.add(new Torch(new Vector2f(19.79f, 16.26f)));
+        // North Entrace
+        initialEntities.add(new Torch(new Vector2f(16.24f, 19.79f)));
+        initialEntities.add(new Torch(new Vector2f(13.78f, 19.79f)));
     }
 
     /**

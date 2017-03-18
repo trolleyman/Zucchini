@@ -87,7 +87,7 @@ public class Player extends MovableEntity {
 		this.heldItem = _heldItem;
 		this.pointLight = new PointLight(
 				new Vector2f(this.position),
-				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.6f),
+				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.4f),
 				3.0f, true);
 		this.torch = new Spotlight(
 				new Vector2f(position),
