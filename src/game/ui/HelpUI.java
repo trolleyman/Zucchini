@@ -64,7 +64,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 				textureBank.getTexture("nextHover.png"),
 				textureBank.getTexture("nextPressed.png")
 		);
-			
+		
 		exitBtn = new ButtonComponent(
 				() -> this.nextUI = afterUI.get(),
 				Align.BL, 100, 100,
@@ -213,6 +213,12 @@ public class HelpUI extends UI implements InputPipeMulti{
 	
 	@Override
 	public void update(double dt) {
+		if (imageCount < 0) {
+			nextUI = afterUI.get();
+		} else if (imageCount >= 7) {
+			nextUI = afterUI.get();
+		}
+		
 		backBtn.update(dt);
 		nextBtn.update(dt);
 		exitBtn.update(dt);
@@ -296,10 +302,6 @@ public class HelpUI extends UI implements InputPipeMulti{
 			for(int i = 1; i < strWS.length; i++){
 				r.drawText(font, strWS[i], Align.BL, false, 300, winHeight - 150 - (50*i), 0.8f);
 			}
-		}
-		
-		if(imageCount==7){
-			this.nextUI = afterUI.get();
 		}
 		
 		exitBtn.render(r);
