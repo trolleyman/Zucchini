@@ -14,10 +14,8 @@ import game.net.Message;
 import game.net.PacketCache;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
-import game.render.Align;
+import game.render.*;
 import game.render.Font;
-import game.render.IRenderer;
-import game.render.RenderSettings;
 import game.world.entity.*;
 import game.world.map.Map;
 import game.world.entity.update.EntityUpdate;
@@ -94,6 +92,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	/** Client UpdateArgs structure */
 	private transient UpdateArgs clientUpdateArgs = new UpdateArgs(0.0, null, null, null, new PacketCache(), null);
+	
+	/** Whether the key 'c' is pressed */
+	private boolean cPressed = false;
+	
+	/** What the next debug framebuffer should be */
+	private DebugFramebuffer nextDebugFramebuffer = null;
 	
 	/**
 	 * Constructs a client world
@@ -218,6 +222,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void renderMiniMap(IRenderer r, float x, float y, float w, float h, float zoom) {
+		RenderSettings s = r.getRenderSettings();
+		boolean drawGlitchEffectPrev = s.drawGlitchEffect;
+		s.drawGlitchEffect = false;
+		r.setRenderSettings(s);
+		
 		// Draw border
 		float mmBorder = 10.0f;
 		r.drawBox(Align.BL, x, y, w, h, ColorUtil.WHITE);
@@ -228,8 +237,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		glScissor((int)(x+mmBorder), (int)(y+mmBorder), (int)(w-mmBorder*2), (int)(h-mmBorder*2));
 		
 		this.render(r, x+w/2, y+h/2, zoom, true);
-		
 		glDisable(GL_SCISSOR_TEST);
+		
+		s = r.getRenderSettings();
+		s.drawGlitchEffect = drawGlitchEffectPrev;
+		r.setRenderSettings(s);
 	}
 	
 	/**
@@ -246,19 +258,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param x The window x-coordinate of the origin
 	 * @param y The window y-coordinate of the origin
 	 * @param zoom The zoom of the camera
+	 * @param minimapMode true if this world is being drawn as a minimap
 	 */
-	public void render(IRenderer r, float x, float y, float zoom, boolean drawWalls) {
+	public void render(IRenderer r, float x, float y, float zoom, boolean minimapMode) {
+		if (nextDebugFramebuffer != null) {
+			RenderSettings s = r.getRenderSettings();
+			s.debugDrawFramebuffer = nextDebugFramebuffer;
+			r.setRenderSettings(s);
+			nextDebugFramebuffer = null;
+		}
+		
 		// Set model view matrix
 		Player p = getPlayer();
-		if (isPlayerDead()) {
-			RenderSettings s = r.getRenderSettings();
-			s.drawLineOfSightStencil = false;
-			r.setRenderSettings(s);
-		} else {
-			RenderSettings s = r.getRenderSettings();
-			s.drawLineOfSightStencil = true;
-			r.setRenderSettings(s);
-		}
 		
 		r.getModelViewMatrix()
 				.pushMatrix()
@@ -268,26 +279,76 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		calculateLineOfSight();
 		
-		r.beginDrawWorld();
+		// === Draw World ===
+		// Get a new framebuffer for rendering the world to
+		Framebuffer worldFramebuffer = r.getFreeFramebuffer();
+		worldFramebuffer.bind();
+		
+		// Render the world
 		drawWorld(r);
-		r.endDrawWorld();
-		r.beginDrawLighting();
-		if (p != null && r.getRenderSettings().drawLineOfSightStencil) {
+		
+		// === Draw Lighting ===
+		// Get another new framebuffer for rendering the lighting to
+		Framebuffer lightFramebuffer = r.getFreeFramebuffer();
+		lightFramebuffer.bind();
+		
+		// Setup the blending function
+		r.setLightingBlend();
+		// Draw the lighting
+		drawLighting(r);
+		
+		// === Draw world with lighting ===
+		Framebuffer wwlFramebuffer = r.getFreeFramebuffer();
+		wwlFramebuffer.bind();
+		r.drawWorldWithLighting(worldFramebuffer, lightFramebuffer);
+		
+		// === Draw glitch effect source ===
+		Framebuffer glitchFramebuffer = r.getFreeFramebuffer();
+		glitchFramebuffer.bind();
+		if (r.getRenderSettings().drawGlitchEffect) {
+			for (Entity e : bank.entities.values()) {
+				e.renderGlitch(r, map);
+			}
+		}
+		
+		// === Draw glitch effect ===
+		Framebuffer.bindDefault();
+		r.setDefaultBlend();
+		if (p != null && !isPlayerDead() && r.getRenderSettings().drawLineOfSightStencil) {
+			// Render the line of sight stencil
 			drawLineOfSightStencil(r);
 		}
-		drawLighting(r);
+		float intensity = 80.0f;
+		r.drawGlitchEffect(wwlFramebuffer, glitchFramebuffer,
+				new Vector2f(-intensity, 0.0f), new Vector2f(0.0f, 0.0f), new Vector2f(intensity, 0.0f));
 		r.disableStencil();
-		r.endDrawLighting();
-		
-		r.getModelViewMatrix().pushMatrix().identity();
-		r.drawWorldWithLighting();
-		r.getModelViewMatrix().popMatrix();
 		
 		// Render map walls
-		if (drawWalls)
+		if (minimapMode)
 			this.map.renderWalls(r);
 		
 		r.getModelViewMatrix().popMatrix();
+		
+		if (!minimapMode) {
+			float dx = -0.75f;
+			float dy = -0.75f;
+			float dw = 0.5f;
+			float dh = 0.5f;
+			switch (r.getRenderSettings().debugDrawFramebuffer) {
+				case WORLD:
+					r.drawFramebuffer(worldFramebuffer, dx, dy, dw, dh);
+					break;
+				case LIGHTING:
+					r.drawFramebuffer(lightFramebuffer, dx, dy, dw, dh);
+					break;
+				case GLITCH:
+					r.drawFramebuffer(glitchFramebuffer, dx, dy, dw, dh);
+					break;
+				case NONE:
+				default:
+					break;
+			}
+		}
 	}
 	
 	private void calculateLineOfSight() {
@@ -300,7 +361,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			// losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, losBuf);
 			losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losBuf);
 		} else {
-			// TODO: Display whole screen in line of sight if there is no player
+			// Display whole screen if there is no player
 		}
 	}
 	
@@ -331,8 +392,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	private void drawLighting(IRenderer r) {
-//		r.drawCircle(0.0f, 0.0f, 10.0f, ColorUtil.WHITE);
-		
 		for (Entity e : this.bank.entities.values()) {
 			e.renderLight(r, map);
 		}
@@ -370,10 +429,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 		}
 		
-		// Draw mini-map
-		if (!isPlayerDead())
-			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
-		
 		Player p = getPlayer();
 		if (p != null) {
 			// Draw current ammo
@@ -389,10 +444,14 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
 			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
 		}
+		
+		// Draw mini-map
+		if (!isPlayerDead())
+			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
 	}
 	
 	/**
-	 * Returns the Playey object. NB: This may return null in some cases
+	 * Returns the Player object. NB: This may return null in some cases
 	 */
 	public Player getPlayer() {
 		Entity e = this.bank.getEntity(playerID);
@@ -411,45 +470,95 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
 		// Send input to server
-		if (action == GLFW_PRESS) { // Begin move
-			switch (key) {
-			case GLFW_KEY_W: actionNorth.setType(ActionType.BEGIN_MOVE_NORTH); dirtyActionNorth = NUM_REPEATS; break;
-			case GLFW_KEY_S: actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH); dirtyActionSouth = NUM_REPEATS; break;
-			case GLFW_KEY_D: actionEast .setType(ActionType.BEGIN_MOVE_EAST ); dirtyActionEast  = NUM_REPEATS; break;
-			case GLFW_KEY_A: actionWest .setType(ActionType.BEGIN_MOVE_WEST ); dirtyActionWest  = NUM_REPEATS; break;
-			case GLFW_KEY_E:
-				try {
-					connection.sendAction(new Action(ActionType.PICKUP));
-				} catch (ProtocolException e) {
-					connection.error(e);
+		if (key == GLFW_KEY_C) {
+			if (action == GLFW_PRESS)
+				cPressed = true;
+			else if (action == GLFW_RELEASE)
+				cPressed = false;
+		}
+		
+		if ((mods & GLFW_MOD_CONTROL) == 0) {
+			if (action == GLFW_PRESS) { // Begin move
+				switch (key) {
+					case GLFW_KEY_W:
+						actionNorth.setType(ActionType.BEGIN_MOVE_NORTH);
+						dirtyActionNorth = NUM_REPEATS;
+						break;
+					case GLFW_KEY_S:
+						actionSouth.setType(ActionType.BEGIN_MOVE_SOUTH);
+						dirtyActionSouth = NUM_REPEATS;
+						break;
+					case GLFW_KEY_D:
+						actionEast.setType(ActionType.BEGIN_MOVE_EAST);
+						dirtyActionEast = NUM_REPEATS;
+						break;
+					case GLFW_KEY_A:
+						actionWest.setType(ActionType.BEGIN_MOVE_WEST);
+						dirtyActionWest = NUM_REPEATS;
+						break;
+					case GLFW_KEY_E:
+						try {
+							connection.sendAction(new Action(ActionType.PICKUP));
+						} catch (ProtocolException e) {
+							connection.error(e);
+						}
+						break;
+					case GLFW_KEY_LEFT_SHIFT:
+					case GLFW_KEY_RIGHT_SHIFT:
+						try {
+							connection.sendAction(new Action(ActionType.TOGGLE_LIGHT));
+						} catch (ProtocolException e) {
+							connection.error(e);
+						}
+						break;
+					case GLFW_KEY_R:
+						try {
+							connection.sendAction(new Action(ActionType.RELOAD));
+						} catch (ProtocolException e) {
+							connection.error(e);
+						}
+						break;
+					case GLFW_KEY_ENTER:
+						Player p = getPlayer();
+						System.out.println("Player: " + (p == null ? "null" : p.position));
+						break;
 				}
-				break;
-			case GLFW_KEY_LEFT_SHIFT:
-			case GLFW_KEY_RIGHT_SHIFT:
-				try {
-					connection.sendAction(new Action(ActionType.TOGGLE_LIGHT));
-				} catch (ProtocolException e) {
-					connection.error(e);
+			} else if (action == GLFW_RELEASE) { // End move
+				switch (key) {
+					case GLFW_KEY_W:
+						actionNorth.setType(ActionType.END_MOVE_NORTH);
+						dirtyActionNorth = NUM_REPEATS;
+						break;
+					case GLFW_KEY_S:
+						actionSouth.setType(ActionType.END_MOVE_SOUTH);
+						dirtyActionSouth = NUM_REPEATS;
+						break;
+					case GLFW_KEY_D:
+						actionEast.setType(ActionType.END_MOVE_EAST);
+						dirtyActionEast = NUM_REPEATS;
+						break;
+					case GLFW_KEY_A:
+						actionWest.setType(ActionType.END_MOVE_WEST);
+						dirtyActionWest = NUM_REPEATS;
+						break;
 				}
-				break;
-			case GLFW_KEY_R:
-				try {
-					connection.sendAction(new Action(ActionType.RELOAD));
-				} catch (ProtocolException e) {
-					connection.error(e);
-				}
-				break;
-			case GLFW_KEY_ENTER:
-				Player p = getPlayer();
-				System.out.println("Player: " + (p == null ? "null" : p.position));
-				break;
 			}
-		} else if (action == GLFW_RELEASE) { // End move
-			switch (key) {
-			case GLFW_KEY_W: actionNorth.setType(ActionType.END_MOVE_NORTH); dirtyActionNorth = NUM_REPEATS; break;
-			case GLFW_KEY_S: actionSouth.setType(ActionType.END_MOVE_SOUTH); dirtyActionSouth = NUM_REPEATS; break;
-			case GLFW_KEY_D: actionEast .setType(ActionType.END_MOVE_EAST ); dirtyActionEast  = NUM_REPEATS; break;
-			case GLFW_KEY_A: actionWest .setType(ActionType.END_MOVE_WEST ); dirtyActionWest  = NUM_REPEATS; break;
+		} else {
+			if (action == GLFW_PRESS && cPressed) {
+				switch (key) {
+					case GLFW_KEY_1:
+						nextDebugFramebuffer = DebugFramebuffer.NONE;
+						break;
+					case GLFW_KEY_2:
+						nextDebugFramebuffer = DebugFramebuffer.WORLD;
+						break;
+					case GLFW_KEY_3:
+						nextDebugFramebuffer = DebugFramebuffer.LIGHTING;
+						break;
+					case GLFW_KEY_4:
+						nextDebugFramebuffer = DebugFramebuffer.GLITCH;
+						break;
+				}
 			}
 		}
 	}

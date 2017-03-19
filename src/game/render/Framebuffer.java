@@ -11,13 +11,11 @@ import static org.lwjgl.opengl.GL30.*;
  * Represents an OpenGL Framebuffer object
  */
 public class Framebuffer {
-	
 	/** Framebuffer ID */
 	private int fbId;
 	
 	/** Color Texture ID */
 	private int colorTexId;
-	
 	/** Depth & stencil Renderbuffer ID */
 	private int depthStencilTexId;
 	
@@ -27,8 +25,8 @@ public class Framebuffer {
 		
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		
 		this.resizeColorTex(width, height);
 		
@@ -39,8 +37,8 @@ public class Framebuffer {
 		glBindTexture(GL_TEXTURE_2D, depthStencilTexId);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		this.resizeDepthStencilTex(width, height);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		
