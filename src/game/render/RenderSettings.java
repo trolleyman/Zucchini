@@ -9,12 +9,15 @@ public class RenderSettings {
 	public boolean debugDrawLightingFramebuffer;
 	/** Draw the debug lines of the line of sight */
 	public boolean debugDrawLineOfSightLines;
+	/** Whether or not the font is drawn debug style */
+	public boolean debugDrawFont;
 	
 	public RenderSettings() {
 		vSync = true;
 		drawLineOfSightStencil = true;
 		debugDrawLightingFramebuffer = false;
 		debugDrawLineOfSightLines = false;
+		debugDrawFont = false;
 	}
 	
 	public RenderSettings(RenderSettings s) {
@@ -29,10 +32,11 @@ public class RenderSettings {
 		drawLineOfSightStencil = s.drawLineOfSightStencil;
 		debugDrawLightingFramebuffer = s.debugDrawLightingFramebuffer;
 		debugDrawLineOfSightLines = s.debugDrawLineOfSightLines;
+		debugDrawFont = s.debugDrawFont;
 	}
 	
 	@Override
-	protected RenderSettings clone() {
+	public RenderSettings clone() {
 		return new RenderSettings(this);
 	}
 }

@@ -132,7 +132,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			
 			@Override
 			public void handleWorldStart(WorldStart start) {
-				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, connection, messageLog);
+				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, connection, lobbyName, messageLog);
 				nextUI = new GameUI(that, world);
 			}
 			

@@ -40,10 +40,12 @@ public class Lobby {
 		
 		this.map = map;
 		
-		this.world = null;
-		
-		lobbyHandler = new Thread(this::runLobbyHandler, "Lobby Handler: " + lobbyName);
+		lobbyHandler = new Thread(this::run, "Lobby Handler: " + lobbyName);
 		lobbyHandler.start();
+	}
+	
+	private void lobbyOut(String msg) {
+		System.out.println("[Lobby]: [" + lobbyName + "]: " + msg);
 	}
 	
 	private boolean shouldCountdown() {
@@ -57,9 +59,24 @@ public class Lobby {
 		}
 	}
 	
-	private void runLobbyHandler() {
+	private void run() {
 		this.running = true;
-		
+		while (true) {
+			if (!running) break;
+			runLobbyHandler();
+			if (!running) break;
+			runWorld();
+		}
+		lobbyOut("Finished running lobby.");
+	}
+	
+	private void runLobbyHandler() {
+		lobbyOut("Started running lobby handler.");
+		synchronized (clientsLock) {
+			for (LobbyClient c : clients) {
+				c.ready = false; // Reset for when lobby starts again
+			}
+		}
 		long prevTime = System.nanoTime();
 		while (running) {
 			synchronized (clientsLock) {
@@ -97,10 +114,9 @@ public class Lobby {
 				}
 			}
 			
-			// If countdown is up, then run the world and return.
+			// If countdown is up, then run the world.
 			if (this.countingDown && this.countdownTime <= 0.0f) {
-				this.runWorld();
-				running = false;
+				lobbyOut("Finished running the lobby handler.");
 				return;
 			}
 			
@@ -116,7 +132,15 @@ public class Lobby {
 	}
 	
 	private void runWorld() {
-		this.running = true;
+		lobbyOut("Started running the world.");
+		if (world != null) {
+			// Destroy previous world
+			synchronized (clientsLock) {
+				for (LobbyClient c : clients) {
+					world.removeClient(c.handler.getClientInfo().name);
+				}
+			}
+		}
 		
 		world = new ServerWorld(map, new EntityBank());
 		synchronized (clientsLock) {
@@ -134,6 +158,11 @@ public class Lobby {
 			
 			world.update(dt);
 			
+			if (world.isFinished()) {
+				lobbyOut("Finished running the world.");
+				return;
+			}
+			
 			try {
 				Thread.sleep(5);
 			} catch (InterruptedException e) {
@@ -150,27 +179,11 @@ public class Lobby {
 	 */
 	public int addPlayer(ClientHandler ch) {
 		synchronized (clientsLock) {
-			System.out.println("[Net]: " + ch.getClientInfo().name + " joined " + lobbyName + ".");
+			lobbyOut(ch.getClientInfo().name + " joined.");
 			int team = Team.FIRST_PLAYER_TEAM + clients.size();
 			LobbyClient c = new LobbyClient(ch, team);
 			this.clients.add(c);
 			return team;
-		}
-	}
-	
-	/**
-	 * Sets whether a player is ready or not
-	 * @param name The name of the player
-	 * @param ready If the player is ready
-	 */
-	public void setPlayerReady(String name, boolean ready) {
-		synchronized (clientsLock) {
-			for (LobbyClient c : clients) {
-				if (c.handler.getClientInfo().name.equals(name)) {
-					c.ready = ready;
-					break;
-				}
-			}
 		}
 	}
 	
@@ -189,7 +202,7 @@ public class Lobby {
 					
 					// Remove from list
 					clients.remove(i);
-					System.out.println("[Net]: " + name + " left " + lobbyName + ".");
+					lobbyOut(name + " left.");
 					break;
 				}
 			}
@@ -244,6 +257,8 @@ public class Lobby {
 				for (LobbyClient c : clients) {
 					if (c.handler.getClientInfo().name.equals(handler.getClientInfo().name)) {
 						c.ready = !c.ready;
+						if (c.ready) lobbyOut(handler.getClientInfo().name + " readyed.");
+						else lobbyOut(handler.getClientInfo().name + " unreadyed.");
 					}
 				}
 			}

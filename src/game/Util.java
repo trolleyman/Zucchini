@@ -55,10 +55,13 @@ public class Util {
 	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SNAPSHOT_UPDATE} */
 	public static final double DT_PER_SNAPSHOT_UPDATE = NANOS_PER_SNAPSHOT_UPDATE / (double) NANOS_PER_SECOND;
 	
-	// These values will be different for release
+	/** Number of seconds to wait before the lobby enters the game */
 	public static final int LOBBY_WAIT_SECS = 3;
+	/** Number of seconds to wait before the game starts upon entering the game */
 	public static final int GAME_START_WAIT_SECS = 3;
-
+	/** Number of seconds to wait before the game goes back to the lobby screen upon the game ending */
+	public static final float GAME_END_WAIT_SECS = 10.0f;
+	
 	private static final int STACK_SIZE_WARNING_LEN = 2048;
 
 	// ======= Vector3f Stack =======
@@ -201,10 +204,6 @@ public class Util {
 			angle += Math.PI * 2;
 		}
 		return angle;
-	}
-	
-	public static boolean isDebugRenderMode() {
-		return false;
 	}
 	
 	/**

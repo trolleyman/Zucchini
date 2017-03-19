@@ -4,18 +4,13 @@ import game.ColorUtil;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.Util;
-import game.net.Message;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
 import game.ui.component.ScoreboardComponent;
 import game.world.ClientWorld;
 import game.world.PlayerScoreboardInfo;
-import game.world.entity.Item;
-import game.world.entity.Player;
 import game.world.entity.damage.Damage;
-import game.world.entity.weapon.Weapon;
-import game.world.map.Map;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
@@ -41,6 +36,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> scoreboardInputHandlers = new ArrayList<>();
 	
+	private boolean destroy = false;
 	private UI nextUI;
 	
 	private boolean scoreboardShown;
@@ -101,7 +97,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		mapSize = (winHeight/5);
 		this.world.update(dt);
 		
-		if (world.isPlayerDead())
+		if (world.isPlayerDead() || world.hasPlayerWon())
 			scoreboardShown = true;
 		if (this.scoreboardShown) {
 			this.scoreboardComponent.update(dt);
@@ -119,7 +115,11 @@ public class GameUI extends UI implements InputPipeMulti {
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
 		}
 		float y = 0.0f;
-		if (world.isPlayerDead()) {
+		if (world.hasPlayerWon()) {
+			r.drawText(f, "Victory!", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.GREEN);
+			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale) - 55.0f;
+			
+		} else if (world.isPlayerDead()) {
 			r.drawText(f, "You are dead.", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.RED);
 			PlayerScoreboardInfo p = world.getScoreboard().getPlayer(connection.getName());
 			Damage d = p == null ? null : p.lastDamage;
@@ -137,6 +137,11 @@ public class GameUI extends UI implements InputPipeMulti {
 			scoreboardComponent.setStartY(y);
 			scoreboardComponent.render(r);
 		}
+		
+		if (world.isFinished()) {
+			destroy = true;
+			nextUI = new LobbyWaitUI(this, world.getLobbyName(), false);
+		}
 	}
 	
 	@Override
@@ -146,6 +151,7 @@ public class GameUI extends UI implements InputPipeMulti {
 
 	@Override
 	public void destroy() {
-		// Do nothing
+		if (destroy)
+			this.world.destroy();
 	}
 }

@@ -21,6 +21,12 @@ public abstract class World {
 	/** Time until the world starts updating */
 	protected float startTime;
 	
+	/** Time until the game goes back to the LobbyUI screen */
+	protected float endTime;
+	
+	/** Is the game finishing? */
+	private boolean finishing;
+	
 	/** The current scoreboard */
 	protected Scoreboard scoreboard;
 	
@@ -35,6 +41,7 @@ public abstract class World {
 		this.bank = _bank;
 		
 		this.startTime = Util.GAME_START_WAIT_SECS;
+		this.endTime = 0.0f;
 		
 		this.scoreboard = new Scoreboard();
 	}
@@ -53,10 +60,32 @@ public abstract class World {
 			this.startTime -= Util.DT_PER_UPDATE;
 			if (this.startTime < 0.0f)
 				this.startTime = 0.0f;
-			scoreboard.update(Util.DT_PER_UPDATE);
+			if (isFinishing())
+				this.endTime += Util.DT_PER_UPDATE;
+			if (isFinished())
+				break;
+			
+			if (!isStarting() && !isFinishing())
+				scoreboard.update(Util.DT_PER_UPDATE);
 			updateStep(Util.DT_PER_UPDATE);
 			dtPool -= Util.DT_PER_UPDATE;
 		}
+	}
+	
+	public void startFinishing() {
+		this.finishing = true;
+	}
+	
+	public boolean isFinishing() {
+		return finishing;
+	}
+	
+	public boolean isFinished() {
+		return endTime >= Util.GAME_END_WAIT_SECS;
+	}
+	
+	public boolean isStarting() {
+		return startTime > 0.0f;
 	}
 	
 	/**
@@ -67,6 +96,10 @@ public abstract class World {
 	
 	public void setStartTime(float startTime) {
 		this.startTime = startTime;
+	}
+	
+	public void setEndTime(float endTime) {
+		this.endTime = endTime;
 	}
 	
 	public boolean isPaused() {

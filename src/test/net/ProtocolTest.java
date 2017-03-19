@@ -16,7 +16,7 @@ import game.world.entity.update.EntityUpdate;
 import game.world.entity.update.HealthUpdate;
 import game.world.map.Map;
 import game.world.map.Wall;
-import game.world.update.SetStartTimeWorldUpdate;
+import game.world.update.StartTimeWorldUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.junit.Test;
@@ -264,12 +264,12 @@ public class ProtocolTest {
 	
 	@Test
 	public void sendWorldUpdate() throws ProtocolException {
-		SetStartTimeWorldUpdate u1 = new SetStartTimeWorldUpdate(23.0f);
+		StartTimeWorldUpdate u1 = new StartTimeWorldUpdate(23.0f);
 		String msg = Protocol.sendWorldUpdate(u1);
 		assertTrue(Protocol.isWorldUpdate(msg));
 		WorldUpdate u2 = Protocol.parseWorldUpdate(msg);
-		assertTrue(u2 instanceof SetStartTimeWorldUpdate);
-		SetStartTimeWorldUpdate u3 = (SetStartTimeWorldUpdate) u2;
+		assertTrue(u2 instanceof StartTimeWorldUpdate);
+		StartTimeWorldUpdate u3 = (StartTimeWorldUpdate) u2;
 		assertEquals(u1.getStartTime(), u3.getStartTime(), 0.0001);
 	}
 	

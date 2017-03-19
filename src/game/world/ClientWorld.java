@@ -24,8 +24,6 @@ import game.world.entity.update.EntityUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -44,6 +42,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private int playerID;
 	/** The connection to the server */
 	private IClientConnection connection;
+	
+	/** The name of the lobby that this world is hosted on */
+	private final String lobbyName;
 	
 	private final Object messageLogLock = new Object();
 	private final ArrayList<Message> messageLog;
@@ -104,21 +105,35 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param _connection The connection to the server
 	 * @param _audio The audio manager
 	 */
-	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection, ArrayList<Message> _messageLog) {
+	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection, String _lobbyName, ArrayList<Message> _messageLog) {
 		super(map, bank);
 		this.playerID = _playerID;
 		this.audio = _audio;
 		this.clientAudio = new ClientAudioManager(audio);
 		this.connection = _connection;
+		this.lobbyName = _lobbyName;
 		this.messageLog = _messageLog;
 		connection.setHandler(this);
 		
 		this.updateStep(0.0f);
 	}
 	
+	public String getLobbyName() {
+		return lobbyName;
+	}
+	
 	public boolean isPlayerDead() {
 		PlayerScoreboardInfo p = scoreboard.getPlayer(connection.getName());
 		return p != null && p.dead;
+	}
+	
+	public boolean hasPlayerWon() {
+		ArrayList<PlayerScoreboardInfo> ps = scoreboard.getPlayers();
+		if (isFinishing() && ps.size() >= 1) {
+			PlayerScoreboardInfo p = ps.get(0);
+			return p.name.equals(connection.getName());
+		}
+		return false;
 	}
 	
 	@Override
@@ -283,14 +298,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		r.drawWorldWithLighting();
 		
-		// Render start time
-		if (this.startTime != 0.0f) {
-			int i = (int)Math.floor(this.startTime + 1);
-			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
-			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
-					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
-		}
-		
 		// === Render UI ===
 		// Draw messages
 		synchronized (messageLogLock) {
@@ -325,6 +332,20 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			if (i != null) {
 				i.renderUI(r);
 			}
+		}
+		
+		// Render start time
+		if (this.startTime != 0.0f) {
+			int i = (int)Math.floor(this.startTime + 1);
+			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
+			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
+					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
+		}
+		
+		// Render end time
+		if (isFinishing() || isFinished()) {
+			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
+					String.format("%.3f", endTime), Align.BM, false, r.getWidth()/2, Util.HUD_PADDING, 1.0f, ColorUtil.GREEN);
 		}
 	}
 	
@@ -497,17 +518,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	public void destroy() {
-		try {
-			connection.sendLobbyLeaveRequest();
-		} catch (ProtocolException e) {
-			connection.error(e);
-		}
+		// Do nothing
 	}
 	
-	/** 
+	/**
 	 * render2 - renders the client world but does not zoom in
 	 * @param r The renderer
-	 * 
+	 *
 	 * @author Abby Wiggins
 	 */
 	public void render2(IRenderer r) {

@@ -63,7 +63,7 @@ public class Rocket extends Projectile {
 	}
 	
 	private void hit(UpdateArgs ua, Vector2f pos, Vector2f vel) {
-		System.out.println("[Game]: BOOM! Explosion at " + pos.x + ", " + pos.y + " with vel " + vel.x + ", " + vel.y);
+		//System.out.println("[Game]: BOOM! Explosion at " + pos.x + ", " + pos.y + " with vel " + vel.x + ", " + vel.y);
 		ua.audio.play("explosion.wav", 1.0f, pos);
 		
 		Vector2f nvel = Util.pushTemporaryVector2f().set(vel).normalize().mul(0.05f);
