@@ -47,7 +47,7 @@ public class LaserMuzzleFlash extends Entity {
 	public void renderGlitch(IRenderer r, Map map) {
 		float p = 1-(float)(time/TTL);
 		light.color.w = p;
-		light.attenuationFactor = 20.0f;
+		light.attenuationFactor = 15.0f;
 		light.render(r, map);
 	}
 	
