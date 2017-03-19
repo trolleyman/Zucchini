@@ -391,4 +391,15 @@ public class Util {
 		}
 		buf.limit(i);
 	}
+	
+	/**
+	 * Gets the last message in a throwable chain
+	 * @param t The throwable
+	 */
+	public static String getLastMessage(Throwable t) {
+		while (t.getCause() != null) {
+			t = t.getCause();
+		}
+		return t.getMessage();
+	}
 }
