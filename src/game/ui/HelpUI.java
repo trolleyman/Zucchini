@@ -30,6 +30,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 	
 	/**
 	 * Constructs a new HelpUI
+	 * @param ui The UI superclass
 	 * @param afterUI The UI that will be the next UI after this one
 	 */
 	public HelpUI(UI ui, UI afterUI){
@@ -41,7 +42,10 @@ public class HelpUI extends UI implements InputPipeMulti{
 	
 		start();
 	}
-	
+
+	/**
+	 * The helper function for the constructor
+	 */
 	private void start(){
 		backBtn = new ButtonComponent(
 				() -> imageCount--,
@@ -97,7 +101,10 @@ public class HelpUI extends UI implements InputPipeMulti{
 		this.inputHandlers.add(nextBtn);
 		this.inputHandlers.add(exitBtn);
 	}
-	
+
+	/**
+	 * Prepare all of the text to be displayed on the help presentation
+	 */
 	private void setUpText(){
 		strLIS = new String[10];
 		strLIS[1] = "When logging into the game,";

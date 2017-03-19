@@ -28,7 +28,11 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 	private double time = 0.0;
 	private boolean loading = false;
 	private String error = null;
-	
+
+	/**
+	 * Constructs a LobbyCreateUI
+	 * @param _ui The UI superclass
+	 */
 	public LobbyCreateUI(UI _ui) {
 		super(_ui);
 		
@@ -87,7 +91,10 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 			}
 		});
 	}
-	
+
+	/**
+	 * Submit the current lobby if the name is valid
+	 */
 	private void submit() {
 		String s = entry.getString();
 		if (!Util.isValidLobbyName(s)) {

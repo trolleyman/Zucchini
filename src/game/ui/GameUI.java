@@ -40,6 +40,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	/**
 	 * Constructs a new GameUI
+	 * @param _ui The UI superclass
 	 * @param _world The world
 	 */
 	public GameUI(UI _ui, ClientWorld _world) {
