@@ -29,17 +29,31 @@ public class VolumeComponent extends UIComponent {
 	
 	private double mx;
 	private double my;
-	
+
+	/**
+	 * Constructs a volume component
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 * @param audio The audio manager
+	 */
 	public VolumeComponent(float x, float y, AudioManager audio) {
 		this.x = x;
 		this.y = y;
 		this.audio = audio;
 	}
-	
+
+	/**
+	 * Sets the x coordinate of the volume component
+	 * @param x The x coordinate
+	 */
 	public void setX(float x) {
 		this.x = x;
 	}
-	
+
+	/**
+	 * Sets the y coordinate of the volume component
+	 * @param y The y coordinate
+	 */
 	public void setY(float y) {
 		this.y = y;
 	}

@@ -35,6 +35,15 @@ public class TextButtonComponent extends AbstractButtonComponent {
 	/** the status of the button - Selected or not */
 	private boolean selected = false;
 
+	/**
+	 * Constructs a TextButtonComponent
+	 * @param _callback The callback
+	 * @param _x The x coordinate
+	 * @param _y The y coordinate
+	 * @param _f The font
+	 * @param scale The scale of the font
+	 * @param lobbyInfo The lobby info to be displayed
+	 */
 	public TextButtonComponent(Runnable _callback, float _x, float _y, Font _f, float scale, LobbyInfo lobbyInfo) {
 		super(Align.BL, _x, _y);
 		this.callback = _callback;

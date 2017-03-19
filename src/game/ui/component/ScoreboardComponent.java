@@ -12,16 +12,29 @@ import org.joml.Vector4f;
 public class ScoreboardComponent extends UIComponent {
 	private Scoreboard scoreboard;
 	private float startY;
-	
+
+	/**
+	 * Construct a ScoreboardComponent
+	 * @param scoreboard The scoreboard to be displayed
+	 * @param startY The start y coordinate
+	 */
 	public ScoreboardComponent(Scoreboard scoreboard, float startY) {
 		setScoreboard(scoreboard);
 		setStartY(startY);
 	}
-	
+
+	/**
+	 * Sets the current scoreboard
+	 * @param scoreboard The scoreboard
+	 */
 	public void setScoreboard(Scoreboard scoreboard) {
 		this.scoreboard = scoreboard;
 	}
-	
+
+	/**
+	 * Sets the start y coordinate
+	 * @param startY The start y coordinate
+	 */
 	public void setStartY(float startY) {
 		this.startY = startY;
 	}
