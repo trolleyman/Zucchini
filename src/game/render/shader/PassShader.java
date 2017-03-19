@@ -43,15 +43,6 @@ public abstract class PassShader extends Shader {
 				-1.0f,  1.0f, // TL
 				 1.0f, -1.0f, // BR
 				 1.0f,  1.0f, // TR
-				// .: CW :.
-				// t0
-				-1.0f, -1.0f, // BL
-				-1.0f,  1.0f, // TL
-				 1.0f, -1.0f, // BR
-				// t1
-				-1.0f,  1.0f, // TL
-				 1.0f,  1.0f, // TR
-				 1.0f, -1.0f, // BR
 		};
 		float[] vertexUVs = {
 				// .: CCW :.
@@ -63,15 +54,6 @@ public abstract class PassShader extends Shader {
 				0.0f, 1.0f, // TL
 				1.0f, 0.0f, // BR
 				1.0f, 1.0f, // TR
-				// .: CW :.
-				// t0
-				0.0f, 0.0f, // BL
-				0.0f, 1.0f, // TL
-				1.0f, 0.0f, // BR
-				// t1
-				0.0f, 1.0f, // TL
-				1.0f, 1.0f, // TR
-				1.0f, 0.0f, // BR
 		};
 		
 		VBO positions = new VBO(vertexPositions, AccessFrequency.STATIC);
