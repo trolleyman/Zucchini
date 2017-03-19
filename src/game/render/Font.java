@@ -41,11 +41,20 @@ public class Font {
 	private int[] lineGap = new int[1];
 	
 	private final int pixelHeight;
-	
+
+	/**
+	 * Constructs a font using the given data (default pixel height of 64)
+	 * @param data The data
+	 */
 	public Font(byte[] data) {
 		this(data, 64);
 	}
-	
+
+	/**
+	 * Constructs a font using the given data and a pixel height
+	 * @param data The data
+	 * @param _pixelHeight The pixel height
+	 */
 	public Font(byte[] data, int _pixelHeight) {
 		ByteBuffer ttf = MemoryUtil.memAlloc(data.length);
 		ttf.put(data);
@@ -88,18 +97,38 @@ public class Font {
 		stbtt_GetFontVMetrics(fontInfo, ascent, descent, lineGap);
 	}
 
+	/**
+	 * Gets the texture produced
+	 * @return The texture
+	 */
 	public Texture getTexture() {
 		return this.text;
 	}
-	
+
+	/**
+	 * Returns whether the char is cached
+	 * @param c The char
+	 * @return Is the char cached
+	 */
 	private boolean isCharCached(int c) {
 		return charToIndex.containsKey(c);
 	}
-	
+
+	/**
+	 * Get the index of a given char
+	 * @param c The character
+	 * @return The index
+	 */
 	private int getCharIndex(int c) {
 		return charToIndex.getOrDefault(c, -1);
 	}
-	
+
+	/**
+	 * Get the width of a string given a string and a scale
+	 * @param s The string
+	 * @param scale The scale
+	 * @return The length (float)
+	 */
 	public float getWidth(String s, float scale) {
 		FontAdvancer fa = getAdvancer(0, 0, scale);
 		
@@ -115,17 +144,39 @@ public class Font {
 		fa.free();
 		return w;
 	}
-	
+
+	/**
+	 * Gets the height of the font given the scale
+	 * @param scale The scale
+	 * @return The height
+	 */
 	public float getHeight(float scale) {
 //		return 0.0f;
 		return pixelHeight * scale;
 //		return (ascent.get(0) - descent.get(0)) * scale;
 	}
-	
+
+	/**
+	 * Gets the font advancer given all of the font information
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 * @param scale The scale
+	 * @return The font advancer
+	 */
 	public FontAdvancer getAdvancer(float x, float y, float scale) {
 		return new FontAdvancer(scale, this::isCharCached, this::getCharIndex, cdata, x, y, BITMAP_W, BITMAP_H);
 	}
-	
+
+	/**
+	 * Render a given string
+	 * @param r The renderer
+	 * @param s The string
+	 * @param fromBaseline The baseline
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 * @param scale The scale
+	 * @param color The colour of the text
+	 */
 	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale, Vector4f color) {
 		if (Util.isDebugRenderMode())
 			r.drawBox(Align.BL, x, y, getWidth(s, scale), getHeight(scale), ColorUtil.GREEN);
