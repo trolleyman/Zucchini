@@ -10,7 +10,6 @@ import game.render.IRenderer;
 import game.ui.component.ScoreboardComponent;
 import game.world.ClientWorld;
 import game.world.PlayerScoreboardInfo;
-import game.world.entity.Player;
 import game.world.entity.damage.Damage;
 import org.joml.Vector4f;
 
@@ -99,6 +98,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	@Override
 	public void render(IRenderer r) {
 		this.world.render(r);
+		this.world.renderHUD(r);
 		
 		// === Render UI ===
 		float titleScale = 2.0f;
@@ -124,20 +124,6 @@ public class GameUI extends UI implements InputPipeMulti {
 		if (scoreboardShown) {
 			scoreboardComponent.setStartY(y);
 			scoreboardComponent.render(r);
-		} else {
-			renderHealthBar(r);
-		}
-	}
-	
-	private void renderHealthBar(IRenderer r){
-		Player p = world.getPlayer();
-		
-		if (p != null) {
-			float barWidth = 200.0f;
-			float barHeight = 100.0f;
-			float segments = barWidth / p.getMaxHealth();
-			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
-			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
 		}
 	}
 	

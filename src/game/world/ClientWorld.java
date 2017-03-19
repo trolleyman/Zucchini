@@ -282,50 +282,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.getModelViewMatrix().popMatrix();
 		
 		r.drawWorldWithLighting();
-		
-		// Render start time
-		if (this.startTime != 0.0f) {
-			int i = (int)Math.floor(this.startTime + 1);
-			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
-			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
-					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
-		}
-		
-		// === Render UI ===
-		// Draw messages
-		synchronized (messageLogLock) {
-			Font font = r.getFontBank().getFont("emulogic.ttf");
-			float scale = 0.5f;
-			float mh = font.getHeight(scale);
-			float width = 1000.0f;
-			float y = Util.HUD_PADDING + mh;
-			for (int i = messageLog.size()-1; i >= 0; i--) {
-				Message m = messageLog.get(i);
-				double dt = (System.nanoTime() - m.timeReceived) / (double)Util.NANOS_PER_SECOND;
-				float alpha = (float) (4.0 - dt);
-				alpha = Math.min(1.0f, alpha);
-				if (alpha <= 0.0f)
-					break;
-				
-				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha * 0.7f);
-				r.drawBox(Align.BL, Util.HUD_PADDING, y, width, mh, messageLogColor);
-				messageLogColor.set(1.0f, 1.0f, 1.0f, alpha);
-				r.drawText(font, m.toString(), Align.ML, false, Util.HUD_PADDING + 5.0f, y+mh/2, scale, messageLogColor);
-				y += mh;
-			}
-		}
-		
-		// Draw mini-map
-		if (!isPlayerDead())
-			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
-		
-		// Draw current ammo
-		if (p != null) {
-			Item i = p.getHeldItem();
-			if (i != null) {
-				i.renderUI(r);
-			}
-		}
 	}
 	
 	private void calculateLineOfSight() {
@@ -525,5 +481,58 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 		
 		r.getModelViewMatrix().popMatrix();
+	}
+	
+	public void renderHUD(IRenderer r) {
+		// Render start time
+		if (this.startTime != 0.0f) {
+			int i = (int)Math.floor(this.startTime + 1);
+			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
+			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
+					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
+		}
+		
+		// Draw messages
+		synchronized (messageLogLock) {
+			Font font = r.getFontBank().getFont("emulogic.ttf");
+			float scale = 0.5f;
+			float mh = font.getHeight(scale);
+			float width = 1000.0f;
+			float y = Util.HUD_PADDING + mh;
+			for (int i = messageLog.size()-1; i >= 0; i--) {
+				Message m = messageLog.get(i);
+				double dt = (System.nanoTime() - m.timeReceived) / (double)Util.NANOS_PER_SECOND;
+				float alpha = (float) (4.0 - dt);
+				alpha = Math.min(1.0f, alpha);
+				if (alpha <= 0.0f)
+					break;
+				
+				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha * 0.7f);
+				r.drawBox(Align.BL, Util.HUD_PADDING, y, width, mh, messageLogColor);
+				messageLogColor.set(1.0f, 1.0f, 1.0f, alpha);
+				r.drawText(font, m.toString(), Align.ML, false, Util.HUD_PADDING + 5.0f, y+mh/2, scale, messageLogColor);
+				y += mh;
+			}
+		}
+		
+		// Draw mini-map
+		if (!isPlayerDead())
+			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
+		
+		Player p = getPlayer();
+		if (p != null) {
+			// Draw current ammo
+			Item i = p.getHeldItem();
+			if (i != null) {
+				i.renderUI(r);
+			}
+			
+			// Render health
+			float barWidth = 300.0f;
+			float barHeight = 80.0f;
+			float segments = barWidth / p.getMaxHealth();
+			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
+			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
+		}
 	}
 }
