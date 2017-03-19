@@ -5,6 +5,7 @@ import game.InputHandler;
 import game.Util;
 import game.render.shader.*;
 import org.joml.MatrixStackf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -565,10 +566,10 @@ public class Renderer implements IRenderer {
 		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		
+		simpleShader.use();
 		simpleShader.setProjectionMatrix(matProjection);
 		simpleShader.setModelViewMatrix(matModelView);
 		simpleShader.setColor(c);
-		simpleShader.use();
 		
 		// Draw 1x1 box (without UV)
 		box.draw(GL_TRIANGLES, 6);
@@ -585,11 +586,11 @@ public class Renderer implements IRenderer {
 		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		
+		textureShader.use();
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);
 		textureShader.setColor(c);
 		textureShader.bindTexture(tex);
-		textureShader.use();
 		
 		// Draw 1x1 box (with UV)
 		boxUV.draw(GL_TRIANGLES, 6);
@@ -607,11 +608,11 @@ public class Renderer implements IRenderer {
 		align(a, -w, -h);
 		matModelView.scale(w, h, 1.0f);
 		
+		textureShader.use();
 		textureShader.setProjectionMatrix(matProjection);
 		textureShader.setModelViewMatrix(matModelView);
 		textureShader.bindTexture(tex);
 		textureShader.setColor(color);
-		textureShader.use();
 		
 		// Upload UV data
 		// t0
@@ -635,10 +636,10 @@ public class Renderer implements IRenderer {
 		matModelView.pushMatrix();
 		matModelView.translate(x, y, 0.0f);
 		
+		simpleShader.use();
 		simpleShader.setProjectionMatrix(matProjection);
 		simpleShader.setModelViewMatrix(matModelView);
 		simpleShader.setColor(c);
-		simpleShader.use();
 		
 		polygonVBO.setData(data);
 		polygonVAO.draw(GL_TRIANGLE_FAN, data.length / 2);
@@ -651,10 +652,10 @@ public class Renderer implements IRenderer {
 		matModelView.pushMatrix();
 		matModelView.translate(x, y, 0.0f);
 		
+		simpleShader.use();
 		simpleShader.setProjectionMatrix(matProjection);
 		simpleShader.setModelViewMatrix(matModelView);
 		simpleShader.setColor(c);
-		simpleShader.use();
 		
 		polygonVBO.setData(data);
 		polygonVAO.draw(GL_TRIANGLE_FAN, data.remaining() / 2);
@@ -668,10 +669,10 @@ public class Renderer implements IRenderer {
 		matModelView.translate(x, y, 0.0f);
 		matModelView.scale(radius, radius, 1.0f);
 		
+		simpleShader.use();
 		simpleShader.setProjectionMatrix(matProjection);
 		simpleShader.setModelViewMatrix(matModelView);
 		simpleShader.setColor(c);
-		simpleShader.use();
 		
 		// Draw circle
 		circle.draw(GL_TRIANGLE_FAN, CIRCLE_VERTICES);
@@ -682,12 +683,12 @@ public class Renderer implements IRenderer {
 	public void drawPointLight(FloatBuffer data, Vector4f c, float attenuationFactor) {
 		matModelView.pushMatrix();
 		
+		pointLightShader.use();
 		pointLightShader.setProjectionMatrix(matProjection);
 		pointLightShader.setModelViewMatrix(matModelView);
 		pointLightShader.setColor(c);
 		pointLightShader.setLightPosition(data.get(0), data.get(1));
 		pointLightShader.setAttenuationFactor(attenuationFactor);
-		pointLightShader.use();
 		
 		// Draw triangle fan
 		polygonVBO.setData(data);
@@ -700,6 +701,7 @@ public class Renderer implements IRenderer {
 	public void drawSpotlight(FloatBuffer data, Vector4f c, float attenuationFactor, float coneAngleMin, float coneAngleMax, float coneDirectionX, float coneDirectionY) {
 		matModelView.pushMatrix();
 		
+		spotlightShader.use();
 		spotlightShader.setProjectionMatrix(matProjection);
 		spotlightShader.setModelViewMatrix(matModelView);
 		spotlightShader.setColor(c);
@@ -708,7 +710,6 @@ public class Renderer implements IRenderer {
 		spotlightShader.setConeAngleMin(coneAngleMin);
 		spotlightShader.setConeAngleMax(coneAngleMax);
 		spotlightShader.setConeDirection(coneDirectionX, coneDirectionY);
-		spotlightShader.use();
 		
 		// Draw triangle fan
 		polygonVBO.setData(data);
@@ -726,11 +727,11 @@ public class Renderer implements IRenderer {
 		align(Align.BM, -width, -length);
 		matModelView.scale(width, length, 1.0f);
 		
+		tubeLightShader.use();
 		tubeLightShader.setProjectionMatrix(matProjection);
 		tubeLightShader.setModelViewMatrix(matModelView);
 		tubeLightShader.setColor(c);
 		tubeLightShader.setAttenuationFactor(attenuationFactor);
-		tubeLightShader.use();
 		
 		// Draw 1x1 box (without UV)
 		box.draw(GL_TRIANGLES, 6);
@@ -793,18 +794,24 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void drawWorldWithLighting(Framebuffer world, Framebuffer light) {
+		lightingPassShader.use();
 		lightingPassShader.setWorldFramebuffer(world);
 		lightingPassShader.setLightFramebuffer(light);
-		lightingPassShader.use();
 		lightingPassShader.draw();
 	}
 	
 	@Override
 	public void drawFramebuffer(Framebuffer framebuffer) {
-		passthroughShader.setFramebuffer(framebuffer);
 		passthroughShader.use();
+		passthroughShader.setFramebuffer(framebuffer);
 		passthroughShader.draw();
 	}
+	
+//	@Override
+//	public void drawGlitchEffect(Framebuffer input, Framebuffer effect, Vector2f rDir, Vector2f gDir, Vector2f bDir) {
+//		glitchPassShader.use();
+//		glitchPassShader
+//	}
 	
 	@Override
 	public void setDefaultBlend() {

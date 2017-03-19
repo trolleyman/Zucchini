@@ -9,7 +9,6 @@ import static org.lwjgl.opengl.GL20.*;
  */
 public class TubeLightShader extends SimpleShader {
 	private int attenuationFactorUniform;
-	private float attenuationFactor = 1.0f;
 	
 	/**
 	 * Constructs the shader with a default name
@@ -21,20 +20,6 @@ public class TubeLightShader extends SimpleShader {
 	}
 	
 	public void setAttenuationFactor(float attenuationFactor) {
-		this.attenuationFactor = attenuationFactor;
-		
-		if (Shader.getCurrentShader() == this)
-			uploadAttenuationFactor();
-	}
-	
-	private void uploadAttenuationFactor() {
 		glUniform1f(attenuationFactorUniform, attenuationFactor);
-	}
-	
-	@Override
-	public void use() {
-		super.use();
-		
-		uploadAttenuationFactor();
 	}
 }

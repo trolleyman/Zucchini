@@ -17,9 +17,6 @@ public class PassthroughShader extends PassShader {
 	/** Texture uniform location */
 	private int texUniform;
 	
-	/** Current texture ID */
-	private int tex;
-	
 	/**
 	 * Constructs the passthrough shader
 	 */
@@ -34,25 +31,9 @@ public class PassthroughShader extends PassShader {
 	 * @param fb The framebuffer
 	 */
 	public void setFramebuffer(Framebuffer fb) {
-		this.tex = fb.getColorTexId();
-		
-		if (getCurrentShader() == this)
-			uploadTexture();
-	}
-	
-	/**
-	 * Uploads the texture to the shader
-	 */
-	private void uploadTexture() {
+		int tex = fb.getColorTexId();
 		glUniform1i(texUniform, 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex);
-	}
-	
-	@Override
-	public void use() {
-		super.use();
-		
-		uploadTexture();
 	}
 }

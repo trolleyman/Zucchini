@@ -8,6 +8,7 @@ import game.ColorUtil;
 
 /**
  * Represents an OpenGL shader that has a transformation and color uniform.
+ * By default the shader uploads a white color
  * 
  * @author Callum
  */
@@ -56,7 +57,6 @@ public class SimpleShader extends TransformationShader {
 	@Override
 	public void use() {
 		super.use();
-		
 		uploadColor();
 	}
 }

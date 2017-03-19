@@ -80,7 +80,6 @@ public abstract class PassShader extends Shader {
 	@Override
 	public void use() {
 		super.use();
-		
 		uploadMatrix();
 	}
 }

@@ -44,22 +44,24 @@ public class TransformationShader extends Shader {
 	
 	/**
 	 * Sets the current projection matrix
-	 * @param _matProjection The projection matrix
+	 * @param matrix The projection matrix
 	 */
-	public void setProjectionMatrix(Matrix4f _matProjection) {
-		this.matProjection = _matProjection;
-		if (getCurrentShader() == this)
-			regenMVP();
+	public void setProjectionMatrix(Matrix4f matrix) {
+		if (this.matProjection.equals(matrix))
+			return;
+		this.matProjection.set(matrix);
+		regenMVP();
 	}
 	
 	/**
 	 * Sets the current modelview matrix
-	 * @param _matModelView The modelview matrix
+	 * @param matrix The modelview matrix
 	 */
-	public void setModelViewMatrix(Matrix4f _matModelView) {
-		this.matModelView = _matModelView;
-		if (getCurrentShader() == this)
-			regenMVP();
+	public void setModelViewMatrix(Matrix4f matrix) {
+		if (this.matModelView.equals(matrix))
+			return;
+		this.matModelView.set(matrix);
+		regenMVP();
 	}
 	
 	/**
@@ -73,12 +75,5 @@ public class TransformationShader extends Shader {
 		buffer.clear();
 		matMVP.get(buffer).rewind();
 		glUniformMatrix4fv(mvpUniform, false, buffer);
-	}
-	
-	@Override
-	public void use() {
-		super.use();
-		
-		regenMVP();
 	}
 }
