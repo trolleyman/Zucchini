@@ -15,7 +15,7 @@ public class PointLight extends Entity {
 	/** The intensity multiplier below at which the intensity is assumed to be 0. */
 	protected static final float CUTOFF_INTENSITY = 0.01f;
 	
-	public Vector4f color;
+	public final Vector4f color = new Vector4f();
 	public float attenuationFactor;
 	private boolean dynamic;
 	
@@ -25,7 +25,7 @@ public class PointLight extends Entity {
 	public PointLight(PointLight l) {
 		super(l);
 		
-		this.color = l.color;
+		this.color.set(l.color);
 		this.attenuationFactor = l.attenuationFactor;
 		this.dynamic = l.dynamic;
 	}
@@ -40,7 +40,7 @@ public class PointLight extends Entity {
 	public PointLight(Vector2f position, Vector4f color, float attenuationFactor, boolean dynamic) {
 		super(Team.PASSIVE_TEAM, position);
 		
-		this.color = color;
+		this.color.set(color);
 		this.attenuationFactor = attenuationFactor;
 		this.dynamic = dynamic;
 	}
@@ -68,14 +68,13 @@ public class PointLight extends Entity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		
+		generateLosIfNecessary(map);
+		r.drawPointLight(losBuf, color, attenuationFactor);
 	}
 	
 	@Override
 	public void renderLight(IRenderer r, Map map) {
-		generateLosIfNecessary(map);
-		
-		r.drawPointLight(losBuf, color, attenuationFactor);
+		render(r, map);
 	}
 	
 	@Override

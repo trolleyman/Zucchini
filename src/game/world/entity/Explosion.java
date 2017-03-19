@@ -86,7 +86,7 @@ public class Explosion extends Entity {
 	private void setLightParams() {
 		float p = (1 - getHealth() / getMaxHealth());
 		this.light.attenuationFactor = p * (startAttenuationFactor - endAttenuationFactor) + startAttenuationFactor;
-		this.light.color.w = (1-p) * 1.2f;
+		this.light.color.w = (1-p) * 2.0f - 1.0f;
 	}
 	
 	@Override

@@ -2,6 +2,7 @@ package game.world.entity.monster;
 
 import game.ColorUtil;
 import game.Util;
+import game.render.Align;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
 import game.world.Team;
@@ -85,7 +86,8 @@ public class Zombie extends AutonomousEntity {
 		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
 		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
-		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
+		r.drawTexture(r.getTextureBank().getTexture("zombie_v1.png"), Align.MM, position.x, position.y, angle);
 	}
 	
 	@Override

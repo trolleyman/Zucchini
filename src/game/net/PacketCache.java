@@ -45,7 +45,7 @@ public class PacketCache {
 					swc.handler.sendStringUdp(msg);
 				}
 			} catch (ProtocolException e) {
-				// The handler handles this
+				swc.handler.error(e);
 			}
 		}
 		tcpCache.clear();

@@ -12,13 +12,10 @@ import org.joml.Vector4f;
 import java.nio.FloatBuffer;
 
 public class TubeLight extends Entity {
-	/** The intensity multiplier below at which the intensity is assumed to be 0. */
-	private static final float CUTOFF_INTENSITY = 0.01f;
-	
 	public float length;
 	public float width;
 	
-	public Vector4f color;
+	public final Vector4f color = new Vector4f();
 	public float attenuationFactor;
 	
 	public TubeLight(TubeLight l) {
@@ -27,7 +24,7 @@ public class TubeLight extends Entity {
 		this.length = l.length;
 		this.width = l.width;
 		
-		this.color = l.color;
+		this.color.set(l.color);
 		this.attenuationFactor = l.attenuationFactor;
 	}
 	
@@ -46,7 +43,7 @@ public class TubeLight extends Entity {
 		this.length = length;
 		this.width = width;
 		
-		this.color = color;
+		this.color.set(color);
 		this.attenuationFactor = attenuationFactor;
 	}
 	
@@ -55,13 +52,12 @@ public class TubeLight extends Entity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		
+		r.drawTubeLight(position.x, position.y, angle, length, width, color, attenuationFactor);
 	}
 	
 	@Override
 	public void renderLight(IRenderer r, Map map) {
-		super.renderLight(r, map);
-		r.drawTubeLight(position.x, position.y, angle, length, width, color, attenuationFactor);
+		render(r, map);
 	}
 	
 	@Override

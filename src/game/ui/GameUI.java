@@ -37,6 +37,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	private ArrayList<InputHandler> scoreboardInputHandlers = new ArrayList<>();
 	
 	private UI nextUI;
 	
@@ -51,15 +52,21 @@ public class GameUI extends UI implements InputPipeMulti {
 		super(_ui);
 		this.world = _world;
 		this.inputHandlers.add(world);
+		this.scoreboardInputHandlers.add(world);
 		
 		nextUI = this;
 		
 		scoreboardComponent = new ScoreboardComponent(world.getScoreboard(), 0.0f);
+		this.scoreboardInputHandlers.add(scoreboardComponent);
 	}
 	
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
-		return this.inputHandlers;
+		if (scoreboardShown) {
+			return scoreboardInputHandlers;
+		} else {
+			return inputHandlers;
+		}
 	}
 	
 	@Override
@@ -89,7 +96,9 @@ public class GameUI extends UI implements InputPipeMulti {
 		mapSize = (winHeight/5);
 		this.world.update(dt);
 		
-		if (this.scoreboardShown || world.isPlayerDead()) {
+		if (world.isPlayerDead())
+			scoreboardShown = true;
+		if (this.scoreboardShown) {
 			this.scoreboardComponent.update(dt);
 			scoreboardComponent.setScoreboard(world.getScoreboard());
 		}
@@ -106,7 +115,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private void renderScoreboard(IRenderer r) {
 		float titleScale = 2.0f;
 		Font f = r.getFontBank().getFont("emulogic.ttf");
-		if (scoreboardShown || world.isPlayerDead()) {
+		if (scoreboardShown) {
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
 		}
 		float y = 0.0f;
@@ -124,7 +133,7 @@ public class GameUI extends UI implements InputPipeMulti {
 			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale) - 80.0f;
 		}
 		
-		if (scoreboardShown || world.isPlayerDead()) {
+		if (scoreboardShown) {
 			scoreboardComponent.setStartY(y);
 			scoreboardComponent.render(r);
 		}

@@ -99,7 +99,7 @@ public class EntityBank {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
-					// This is ok, as the ClientHandler will handle this
+					swc.handler.error(ex);
 				}
 			}
 		}
@@ -123,7 +123,7 @@ public class EntityBank {
 						swc.handler.sendStringUdp(euStr);
 					
 				} catch (ProtocolException ex) {
-					// This is ok, as the ClientHandler will handle this
+					swc.handler.error(ex);
 				}
 			}
 		}
@@ -139,7 +139,7 @@ public class EntityBank {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendRemoveEntity(id));
 				} catch (ProtocolException ex) {
-					// This is ok, as the ClientHandler will handle this
+					swc.handler.error(ex);
 				}
 			}
 		}

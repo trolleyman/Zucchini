@@ -1,5 +1,7 @@
 package game.audio.test;
 
+import java.util.Scanner;
+
 import org.joml.Vector2f;
 
 import game.audio.AudioManager;
@@ -13,6 +15,8 @@ import game.audio.AudioManager;
  * 	Looping function
  * 	Directional sounds
  *  Positional sounds
+ *  Mute and unmute
+ *  Volume settings
  * @author Yean
  */
 public class AudioTests {
@@ -59,6 +63,25 @@ public class AudioTests {
         	}
         	if (c=='r'){ //plays an explosion sound, but much further away from you
         		soundMgr.play("explosion.wav",1f,new Vector2f(0f,15f));
+        	}
+        	if (c=='t'){ //plays an explosion sound, but very far away from you, shouldn't be able to hear this
+        		int id = soundMgr.play("explosion.wav",1f,new Vector2f(1500f,1500f));
+        		if(id!=-1 && soundMgr.getSoundSource(id).isPlaying()){
+        			System.out.println("Sound source id: " + id + " is playing very far away...");
+        		}
+        	}
+        	if (c =='m'){
+        		soundMgr.mute();
+        	}
+        	if (c =='u'){
+        		soundMgr.unMute();
+        	}
+        	if (c == 'v'){
+    			System.out.println("Type in a float between 0-1");
+				Scanner scanner = new Scanner(System.in);
+				Float v = scanner.nextFloat();
+				System.out.println("v: " +v );
+        		soundMgr.setVolume(v);
         	}
         }
         soundMgr.cleanup();
