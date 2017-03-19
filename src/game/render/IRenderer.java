@@ -363,6 +363,12 @@ public interface IRenderer {
 	void drawFramebuffer(Framebuffer framebuffer);
 	
 	/**
+	 * Draws a framebuffer to the currently bound framebuffer with a specified position and size.
+	 * The position and size are in Normalized Device Coordinates. (i.e. from -1.0f to 1.0f in both axes)
+	 */
+	void drawFramebuffer(Framebuffer framebuffer, float x, float y, float w, float h);
+	
+	/**
 	 * Draws the glitch effect to the current framebuffer. Each red, green and blue pixel is transformed to
 	 * a place equal to the respective color's component in the effect framebuffer multiplied by the red, green
 	 * and blue directions respectively.

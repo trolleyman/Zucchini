@@ -861,9 +861,21 @@ public class Renderer implements IRenderer {
 	
 	@Override
 	public void drawFramebuffer(Framebuffer framebuffer) {
+		this.drawFramebuffer(framebuffer, -1.0f, -1.0f, 1.0f, 1.0f);
+	}
+	
+	@Override
+	public void drawFramebuffer(Framebuffer framebuffer, float x, float y, float w, float h) {
+		matModelView.pushMatrix()
+				.identity()
+				.translate(x, y, 0.0f)
+				.scale(w, h, 1.0f);
+		
 		passthroughShader.use();
 		passthroughShader.setFramebuffer(framebuffer);
-		passthroughShader.draw();
+		passthroughShader.draw(matModelView);
+		
+		matModelView.popMatrix();
 	}
 	
 	@Override

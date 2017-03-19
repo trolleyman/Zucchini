@@ -7,17 +7,17 @@ public class RenderSettings {
 	public boolean drawLineOfSightStencil;
 	/** Should the glitch effect be drawn? */
 	public boolean drawGlitchEffect;
-	/** Only draw the lighting framebuffer */
-	public boolean debugDrawLightingFramebuffer;
 	/** Draw the debug lines of the line of sight */
 	public boolean debugDrawLineOfSightLines;
+	/** Draw the specified framebuffer on the screen in a snall box on the screen */
+	public DebugFramebuffer debugDrawFramebuffer;
 	
 	public RenderSettings() {
 		vSync = true;
 		drawLineOfSightStencil = true;
-		drawGlitchEffect = true;
-		debugDrawLightingFramebuffer = false;
+		drawGlitchEffect = false;
 		debugDrawLineOfSightLines = false;
+		debugDrawFramebuffer = DebugFramebuffer.NONE;
 	}
 	
 	public RenderSettings(RenderSettings s) {
@@ -31,8 +31,8 @@ public class RenderSettings {
 		vSync = s.vSync;
 		drawLineOfSightStencil = s.drawLineOfSightStencil;
 		drawGlitchEffect = s.drawGlitchEffect;
-		debugDrawLightingFramebuffer = s.debugDrawLightingFramebuffer;
 		debugDrawLineOfSightLines = s.debugDrawLineOfSightLines;
+		debugDrawFramebuffer = s.debugDrawFramebuffer;
 	}
 	
 	@Override
