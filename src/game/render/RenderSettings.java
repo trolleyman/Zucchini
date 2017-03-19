@@ -3,8 +3,10 @@ package game.render;
 public class RenderSettings {
 	/** Is vsync enabled? */
 	public boolean vSync;
-	/** Whether to draw the line of sight stencil so that only the player can see in front of them */
+	/** Should the line of sight stencil be drawn? */
 	public boolean drawLineOfSightStencil;
+	/** Should the glitch effect be drawn? */
+	public boolean drawGlitchEffect;
 	/** Only draw the lighting framebuffer */
 	public boolean debugDrawLightingFramebuffer;
 	/** Draw the debug lines of the line of sight */
@@ -13,6 +15,7 @@ public class RenderSettings {
 	public RenderSettings() {
 		vSync = true;
 		drawLineOfSightStencil = true;
+		drawGlitchEffect = true;
 		debugDrawLightingFramebuffer = false;
 		debugDrawLineOfSightLines = false;
 	}
@@ -27,6 +30,7 @@ public class RenderSettings {
 	public void set(RenderSettings s) {
 		vSync = s.vSync;
 		drawLineOfSightStencil = s.drawLineOfSightStencil;
+		drawGlitchEffect = s.drawGlitchEffect;
 		debugDrawLightingFramebuffer = s.debugDrawLightingFramebuffer;
 		debugDrawLineOfSightLines = s.debugDrawLineOfSightLines;
 	}

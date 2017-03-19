@@ -218,6 +218,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void renderMiniMap(IRenderer r, float x, float y, float w, float h, float zoom) {
+		RenderSettings s = r.getRenderSettings();
+		boolean drawGlitchEffectPrev = s.drawGlitchEffect;
+		s.drawGlitchEffect = false;
+		r.setRenderSettings(s);
+		
 		// Draw border
 		float mmBorder = 10.0f;
 		r.drawBox(Align.BL, x, y, w, h, ColorUtil.WHITE);
@@ -229,6 +234,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		this.render(r, x+w/2, y+h/2, zoom, true);
 		glDisable(GL_SCISSOR_TEST);
+		
+		s = r.getRenderSettings();
+		s.drawGlitchEffect = drawGlitchEffectPrev;
+		r.setRenderSettings(s);
 	}
 	
 	/**
@@ -245,6 +254,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param x The window x-coordinate of the origin
 	 * @param y The window y-coordinate of the origin
 	 * @param zoom The zoom of the camera
+	 * @param drawWalls Should the walls be drawn
 	 */
 	public void render(IRenderer r, float x, float y, float zoom, boolean drawWalls) {
 		// Set model view matrix
@@ -299,9 +309,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// === Draw glitch effect source ===
 		Framebuffer glitchFramebuffer = r.getFreeFramebuffer();
 		glitchFramebuffer.bind();
-		r.drawTubeLight(2.0f, 2.0f, 0.0f, 10.0f, 2.0f, ColorUtil.WHITE, 10.0f);
-		for (Entity e : bank.entities.values()) {
-			e.renderGlitch(r, map);
+		if (r.getRenderSettings().drawGlitchEffect) {
+			for (Entity e : bank.entities.values()) {
+				e.renderGlitch(r, map);
+			}
 		}
 		
 		// === Draw glitch effect ===
