@@ -227,7 +227,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)(x+mmBorder), (int)(y+mmBorder), (int)(w-mmBorder*2), (int)(h-mmBorder*2));
 		
-		this.render(r, x+w/2, y+h/2, zoom);
+		this.render(r, x+w/2, y+h/2, zoom, true);
 		
 		glDisable(GL_SCISSOR_TEST);
 	}
@@ -237,7 +237,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
-		this.render(r, r.getWidth()/2, r.getHeight()/2, cameraZoom);
+		this.render(r, r.getWidth()/2, r.getHeight()/2, cameraZoom, false);
 	}
 	
 	/**
@@ -247,7 +247,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param y The window y-coordinate of the origin
 	 * @param zoom The zoom of the camera
 	 */
-	public void render(IRenderer r, float x, float y, float zoom) {
+	public void render(IRenderer r, float x, float y, float zoom, boolean drawWalls) {
 		// Set model view matrix
 		Player p = getPlayer();
 		if (isPlayerDead()) {
@@ -279,9 +279,15 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.disableStencil();
 		r.endDrawLighting();
 		
+		r.getModelViewMatrix().pushMatrix().identity();
+		r.drawWorldWithLighting();
 		r.getModelViewMatrix().popMatrix();
 		
-		r.drawWorldWithLighting();
+		// Render map walls
+		if (drawWalls)
+			this.map.renderWalls(r);
+		
+		r.getModelViewMatrix().popMatrix();
 	}
 	
 	private void calculateLineOfSight() {
@@ -303,14 +309,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		Player p = getPlayer();
 		
 		// Render map background
-		this.map.renderBackground(r);
+		this.map.renderFloor(r);
 		
 		if (p != null && r.getRenderSettings().debugDrawLineOfSightLines) {
 			drawDebugLines(r, losBuf);
 		}
-		
-		// Render map foreground
-		this.map.renderForeground(r);
 		
 		// Render entities
 		for (Entity e : this.bank.entities.values()) {
