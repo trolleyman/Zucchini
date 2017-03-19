@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.Util;
 import game.audio.AudioManager;
 import game.net.client.IClientConnection;
 import game.render.*;
@@ -19,9 +20,6 @@ import static org.lwjgl.glfw.GLFW.*;
  * @author Jack
  */
 public class StartUI extends UI implements InputPipeMulti {
-	private static final float VOLUME_W = 35.0f;
-	private static final float VOLUME_H = 180.0f;
-	
 	/** The current window width */
 	private int windowW;
 	/** The current window height */
@@ -61,7 +59,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		
 		// Create Help Button
 		helpButton = new ButtonComponent(
-				() -> this.nextUI = new HelpUI(this),
+				() -> this.nextUI = new HelpUI(this, this),
 				Align.BL, 100, 100,
 				textureBank.getTexture("helpDefault.png"),
 				textureBank.getTexture("helpHover.png"),
@@ -78,10 +76,10 @@ public class StartUI extends UI implements InputPipeMulti {
 		);
 		
 		// Create Mute Button
-		muteComponent = new MuteComponent(Align.BL, 100, 100, audio);
+		muteComponent = new MuteComponent(Align.BL, 100, 100, audio, textureBank);
 		
 		// Create Volume Slider
-		volumeComponent = new VolumeComponent(20.0f, 20.0f, VOLUME_W, VOLUME_H, audio);
+		volumeComponent = new VolumeComponent(20.0f, 20.0f, audio);
 		
 		// Create Background Image
 		backgroundImage = new ImageComponent(
@@ -131,8 +129,8 @@ public class StartUI extends UI implements InputPipeMulti {
 		exitButton.setY((int) (windowH - (exitButton.getHeight()) - 20.0));
 		muteComponent.setX(20.0f);
 		muteComponent.setY(windowH - muteComponent.getHeight() - 20.0f);
-		volumeComponent.setX(muteComponent.getX() + muteComponent.getWidth()/2 - VOLUME_W/2);
-		volumeComponent.setY(muteComponent.getY() - VOLUME_H - 20.0f);
+		volumeComponent.setX(muteComponent.getX() + muteComponent.getWidth()/2 - VolumeComponent.WIDTH/2);
+		volumeComponent.setY(muteComponent.getY() - VolumeComponent.HEIGHT - 20.0f);
 		
 		// Render the buttons
 		startButton.render(r);

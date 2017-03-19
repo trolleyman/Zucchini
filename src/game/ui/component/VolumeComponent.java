@@ -11,13 +11,16 @@ import org.joml.Vector4f;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class VolumeComponent extends UIComponent {
+	/** Width in pixels of volume component */
+	public static final float WIDTH = 35.0f;
+	/** Height in pixels of volume component */
+	public static final float HEIGHT = 180.0f;
+	
 	private static final float BORDER_WIDTH = 5.0f;
 	private static final float BAR_HEIGHT = 10.0f;
 	
 	private float x;
 	private float y;
-	private float w;
-	private float h;
 	
 	private AudioManager audio;
 	
@@ -27,11 +30,9 @@ public class VolumeComponent extends UIComponent {
 	private double mx;
 	private double my;
 	
-	public VolumeComponent(float x, float y, float w, float h, AudioManager audio) {
+	public VolumeComponent(float x, float y, AudioManager audio) {
 		this.x = x;
 		this.y = y;
-		this.w = w;
-		this.h = h;
 		this.audio = audio;
 	}
 	
@@ -54,7 +55,7 @@ public class VolumeComponent extends UIComponent {
 		if (button == GLFW_MOUSE_BUTTON_1) {
 			if (action == GLFW_PRESS) {
 				// Check if mouse is in rect
-				if (Util.isPointInRect((float)mx, (float)my, Align.BL, x, y, w, h))
+				if (Util.isPointInRect((float)mx, (float)my, Align.BL, x, y, WIDTH, HEIGHT))
 					this.grabbed = true;
 			} else if (action == GLFW_RELEASE) {
 				this.grabbed = false;
@@ -64,14 +65,14 @@ public class VolumeComponent extends UIComponent {
 	
 	@Override
 	public void update(double dt) {
-		if (Util.isPointInRect((float)mx, (float)my, Align.BL, x, y, w, h)) {
+		if (Util.isPointInRect((float)mx, (float)my, Align.BL, x, y, WIDTH, HEIGHT)) {
 			hover = true;
 		} else {
 			hover = false;
 		}
 		
 		if (grabbed) {
-			float logicalHeight = h - 2 * BORDER_WIDTH - BAR_HEIGHT;
+			float logicalHeight = HEIGHT - 2 * BORDER_WIDTH - BAR_HEIGHT;
 			float logicalY = y + BORDER_WIDTH + BAR_HEIGHT / 2;
 			float p = ((float) my - logicalY) / logicalHeight;
 			p = Math.min(1.0f, Math.max(0.0f, p));
@@ -98,21 +99,13 @@ public class VolumeComponent extends UIComponent {
 		}
 		
 		// Draw background box
-		r.drawBox(Align.BL, x, y, w, h, ColorUtil.WHITE);
-		r.drawBox(Align.BL, x+BORDER_WIDTH, y+BORDER_WIDTH, w-BORDER_WIDTH*2, h-BORDER_WIDTH*2, ColorUtil.BLACK);
+		r.drawBox(Align.BL, x, y, WIDTH, HEIGHT, ColorUtil.WHITE);
+		r.drawBox(Align.BL, x+BORDER_WIDTH, y+BORDER_WIDTH, WIDTH-BORDER_WIDTH*2, HEIGHT-BORDER_WIDTH*2, ColorUtil.BLACK);
 		
 		// Draw current volume bar
-		float volumeBarH = h - 2*BORDER_WIDTH - BAR_HEIGHT;
+		float volumeBarH = HEIGHT - 2*BORDER_WIDTH - BAR_HEIGHT;
 		float volumeY = y + BORDER_WIDTH + BAR_HEIGHT/2 + (audio.getVolume() * volumeBarH);
-		r.drawBox(Align.BL, x+BORDER_WIDTH, y+BORDER_WIDTH, w-BORDER_WIDTH*2, audio.getVolume() * (h-BORDER_WIDTH*2), innerBarColor);
-		r.drawBox(Align.ML, x+BORDER_WIDTH, volumeY, w-BORDER_WIDTH*2, BAR_HEIGHT, currentVolumeBarColor);
-	}
-	
-	public float getWidth() {
-		return w;
-	}
-	
-	public float getHeight() {
-		return h;
+		r.drawBox(Align.BL, x+BORDER_WIDTH, y+BORDER_WIDTH, WIDTH-BORDER_WIDTH*2, audio.getVolume() * (HEIGHT-BORDER_WIDTH*2), innerBarColor);
+		r.drawBox(Align.ML, x+BORDER_WIDTH, volumeY, WIDTH-BORDER_WIDTH*2, BAR_HEIGHT, currentVolumeBarColor);
 	}
 }
