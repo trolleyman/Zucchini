@@ -1,6 +1,8 @@
 package game.ui;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
+
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.audio.AudioManager;
@@ -16,7 +18,7 @@ import game.world.ClientWorld;
 
 public class HelpUI extends UI implements InputPipeMulti{
 	private UI nextUI;
-	private final UI afterUI;
+	private final Supplier<UI> afterUI;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private ButtonComponent backBtn, nextBtn, exitBtn;
 
@@ -31,9 +33,9 @@ public class HelpUI extends UI implements InputPipeMulti{
 	/**
 	 * Constructs a new HelpUI
 	 * @param ui The UI superclass
-	 * @param afterUI The UI that will be the next UI after this one
+	 * @param afterUI The callback that will be called to return the UI that will be the next UI after this one
 	 */
-	public HelpUI(UI ui, UI afterUI){
+	public HelpUI(UI ui, Supplier<UI> afterUI){
 		super(ui);
 		nextUI = this;
 		this.afterUI = afterUI;
@@ -64,7 +66,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		);
 			
 		exitBtn = new ButtonComponent(
-				() -> this.nextUI = afterUI,
+				() -> this.nextUI = afterUI.get(),
 				Align.BL, 100, 100,
 				textureBank.getTexture("exitButtonDefault.png"),
 				textureBank.getTexture("exitButtonHover.png"),
@@ -297,7 +299,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		}
 		
 		if(imageCount==7){
-			this.nextUI = afterUI;
+			this.nextUI = afterUI.get();
 		}
 		
 		exitBtn.render(r);

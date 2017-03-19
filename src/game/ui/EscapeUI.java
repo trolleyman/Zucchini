@@ -74,7 +74,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		);
 		
 		helpBtn = new ButtonComponent(
-				() -> this.nextUI = new HelpUI(this, this),
+				() -> this.nextUI = new HelpUI(this, () -> new EscapeUI(this, world)),
 				Align.BL, 0, 0,
 				textureBank.getTexture("helpbtn.png"),
 				textureBank.getTexture("helpclicked.png"),
