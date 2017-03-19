@@ -1,5 +1,6 @@
 package game.render.shader;
 
+import game.exception.ShaderCompilationException;
 import game.render.Framebuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -16,7 +17,7 @@ public class LightingPassShader extends PassShader {
 	/**
 	 * Constructs the lighting shader
 	 */
-	public LightingPassShader() {
+	public LightingPassShader() throws ShaderCompilationException {
 		super("pass_lighting");
 		
 		worldUniform = getUniformLocation("world");

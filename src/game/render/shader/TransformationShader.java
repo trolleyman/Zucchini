@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 import java.nio.FloatBuffer;
 
+import game.exception.ShaderCompilationException;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
@@ -31,7 +32,7 @@ public class TransformationShader extends Shader {
 	 * Constructs a transformation shader with the specified name
 	 * @param name The shader name
 	 */
-	public TransformationShader(String name) {
+	public TransformationShader(String name) throws ShaderCompilationException {
 		super(name);
 		
 		this.mvpUniform = getUniformLocation("mvp");

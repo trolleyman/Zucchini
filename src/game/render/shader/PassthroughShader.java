@@ -1,5 +1,6 @@
 package game.render.shader;
 
+import game.exception.ShaderCompilationException;
 import game.render.Framebuffer;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
@@ -20,7 +21,7 @@ public class PassthroughShader extends PassShader {
 	/**
 	 * Constructs the passthrough shader
 	 */
-	public PassthroughShader() {
+	public PassthroughShader() throws ShaderCompilationException {
 		super("pass_passthrough");
 		
 		texUniform = getUniformLocation("tex");

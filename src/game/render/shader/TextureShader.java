@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.*;
 
+import game.exception.ShaderCompilationException;
 import game.render.Texture;
 
 /**
@@ -18,7 +19,7 @@ public class TextureShader extends SimpleShader {
 	/**
 	 * Constructs a texture shader with the default name
 	 */
-	public TextureShader() {
+	public TextureShader() throws ShaderCompilationException {
 		super("texture");
 		
 		texUniform = getUniformLocation("tex");

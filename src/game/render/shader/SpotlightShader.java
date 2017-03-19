@@ -1,6 +1,7 @@
 package game.render.shader;
 
 import game.Util;
+import game.exception.ShaderCompilationException;
 import org.joml.Vector2f;
 
 import static org.lwjgl.opengl.GL20.*;
@@ -15,7 +16,7 @@ public class SpotlightShader extends PointLightShader {
 	private int coneAngleMaxUniform;
 	private int coneDirectionUniform;
 	
-	public SpotlightShader() {
+	public SpotlightShader() throws ShaderCompilationException {
 		super("spotlight");
 		
 		coneAngleMinUniform = getUniformLocation("coneAngleMin");

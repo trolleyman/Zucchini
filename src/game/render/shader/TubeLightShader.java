@@ -1,5 +1,7 @@
 package game.render.shader;
 
+import game.exception.ShaderCompilationException;
+
 import static org.lwjgl.opengl.GL20.*;
 
 /**
@@ -13,7 +15,7 @@ public class TubeLightShader extends SimpleShader {
 	/**
 	 * Constructs the shader with a default name
 	 */
-	public TubeLightShader() {
+	public TubeLightShader() throws ShaderCompilationException {
 		super("tubelight");
 		
 		attenuationFactorUniform = getUniformLocation("attenuationFactor");

@@ -363,6 +363,18 @@ public interface IRenderer {
 	void drawFramebuffer(Framebuffer framebuffer);
 	
 	/**
+	 * Draws the glitch effect to the current framebuffer. Each red, green and blue pixel is transformed to
+	 * a place equal to the respective color's component in the effect framebuffer multiplied by the red, green
+	 * and blue directions respectively.
+	 * @param input The input framebuffer
+	 * @param effect The effect framebuffer. All black = no effect
+	 * @param rDir The red direction of the effect
+	 * @param gDir The green direction of the effect
+	 * @param bDir The blue direction of the effect
+	 */
+	void drawGlitchEffect(Framebuffer input, Framebuffer effect, Vector2f rDir, Vector2f gDir, Vector2f bDir);
+	
+	/**
 	 * Sets the default blend equation
 	 */
 	void setDefaultBlend();

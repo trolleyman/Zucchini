@@ -1,8 +1,8 @@
 package game.render;
 
-import game.ColorUtil;
 import game.InputHandler;
 import game.Util;
+import game.exception.ShaderCompilationException;
 import game.render.shader.*;
 import org.joml.MatrixStackf;
 import org.joml.Vector2f;
@@ -42,6 +42,7 @@ public class Renderer implements IRenderer {
 	// Framebuffer shaders
 	private PassthroughShader passthroughShader;
 	private LightingPassShader lightingPassShader;
+	private GlitchPassShader glitchPassShader;
 	
 	// Meshes
 	/** Box VAO */
@@ -225,7 +226,12 @@ public class Renderer implements IRenderer {
 		System.out.println("DPI Scale: " + screenToPixelCoordinates(1));
 		
 		// Load shaders
-		loadShaders();
+		try {
+			loadShaders();
+		} catch (ShaderCompilationException e) {
+			System.err.println(e);
+			System.exit(1);
+		}
 		
 		// Load framebuffers
 		framebuffers = new ArrayList<>();
@@ -354,20 +360,57 @@ public class Renderer implements IRenderer {
 		this.ih.handleResize(windowW, windowH);
 	}
 	
-	private void destroyShaders() {
-		simpleShader.destroy();
-		textureShader.destroy();
-		
-		pointLightShader.destroy();
-		spotlightShader.destroy();
-		tubeLightShader.destroy();
-		
-		passthroughShader.destroy();
-		lightingPassShader.destroy();
+	/**
+	 * An interface to allow for a ShaderCompilationException to be thrown
+	 * @param <T> The shader type
+	 */
+	private interface IShaderSupplier<T extends Shader> {
+		T newShader() throws ShaderCompilationException;
+	}
+	/**
+	 * Helper function that returns prevShader if the supplier fails to give a shader (i.e. throws a ShaderCompilationException)
+	 * @param prevShader The previous shader
+	 * @param load The shader supplier
+	 * @param <T> The type of shader
+	 * @return The new/previous shader
+	 */
+	private <T extends Shader> T reloadShaderHelper(T prevShader, IShaderSupplier<T> load) {
+		try {
+			T newShader = load.newShader();
+			if (prevShader != null)
+				prevShader.destroy();
+			return newShader;
+		} catch (ShaderCompilationException e) {
+			System.err.println("Error on loading shader: " + e);
+			return prevShader;
+		}
 	}
 	
-	private void loadShaders() {
+	/**
+	 * Reloads all of the current shaders
+	 */
+	private void reloadShaders() {
+		System.out.println("Reloading shaders...");
+		simpleShader = reloadShaderHelper(simpleShader, SimpleShader::new);
+		textureShader = reloadShaderHelper(textureShader, TextureShader::new);
+		
+		pointLightShader = reloadShaderHelper(pointLightShader, PointLightShader::new);
+		spotlightShader = reloadShaderHelper(spotlightShader, SpotlightShader::new);
+		tubeLightShader = reloadShaderHelper(tubeLightShader, TubeLightShader::new);
+		
+		passthroughShader = reloadShaderHelper(passthroughShader, PassthroughShader::new);
+		lightingPassShader = reloadShaderHelper(lightingPassShader, LightingPassShader::new);
+		glitchPassShader = reloadShaderHelper(glitchPassShader, GlitchPassShader::new);
+		System.out.println(Shader.getShadersLoaded() + " shader(s) reloaded.\n");
+	}
+	
+	/**
+	 * Loads al of the current shaders
+	 * @throws ShaderCompilationException on error
+	 */
+	private void loadShaders() throws ShaderCompilationException {
 		System.out.println("Loading shaders...");
+		simpleShader = new SimpleShader();
 		simpleShader = new SimpleShader();
 		textureShader = new TextureShader();
 		
@@ -377,6 +420,7 @@ public class Renderer implements IRenderer {
 		
 		passthroughShader = new PassthroughShader();
 		lightingPassShader = new LightingPassShader();
+		glitchPassShader = new GlitchPassShader();
 		System.out.println(Shader.getShadersLoaded() + " shader(s) loaded.\n");
 	}
 	
@@ -410,6 +454,22 @@ public class Renderer implements IRenderer {
 		glfwSetErrorCallback(null).free();
 	}
 	
+	/**
+	 * Destroys all of the shaders
+	 */
+	private void destroyShaders() {
+		simpleShader.destroy();
+		textureShader.destroy();
+		
+		pointLightShader.destroy();
+		spotlightShader.destroy();
+		tubeLightShader.destroy();
+		
+		passthroughShader.destroy();
+		lightingPassShader.destroy();
+		glitchPassShader.destroy();
+	}
+	
 	private void setVSync(boolean enable) {
 		if (enable)
 			glfwSwapInterval(1);
@@ -439,8 +499,7 @@ public class Renderer implements IRenderer {
 	@Override
 	public void beginFrame() {
 		if (regenShaders) {
-			destroyShaders();
-			loadShaders();
+			reloadShaders();
 			regenShaders = false;
 		}
 		
@@ -807,11 +866,16 @@ public class Renderer implements IRenderer {
 		passthroughShader.draw();
 	}
 	
-//	@Override
-//	public void drawGlitchEffect(Framebuffer input, Framebuffer effect, Vector2f rDir, Vector2f gDir, Vector2f bDir) {
-//		glitchPassShader.use();
-//		glitchPassShader
-//	}
+	@Override
+	public void drawGlitchEffect(Framebuffer input, Framebuffer effect, Vector2f rDir, Vector2f gDir, Vector2f bDir) {
+		glitchPassShader.use();
+		glitchPassShader.setInputFramebuffer(input);
+		glitchPassShader.setEffectFramebuffer(effect);
+		glitchPassShader.setRedDir  (rDir, getWidth(), getHeight());
+		glitchPassShader.setGreenDir(gDir, getWidth(), getHeight());
+		glitchPassShader.setBlueDir (bDir, getWidth(), getHeight());
+		glitchPassShader.draw();
+	}
 	
 	@Override
 	public void setDefaultBlend() {

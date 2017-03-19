@@ -2,6 +2,7 @@ package game.render.shader;
 
 import static org.lwjgl.opengl.GL20.*;
 
+import game.exception.ShaderCompilationException;
 import org.joml.Vector4f;
 
 import game.ColorUtil;
@@ -22,7 +23,7 @@ public class SimpleShader extends TransformationShader {
 	/**
 	 * Constructs a simple shader with the default name
 	 */
-	public SimpleShader() {
+	public SimpleShader() throws ShaderCompilationException {
 		this("simple");
 	}
 	
@@ -30,7 +31,7 @@ public class SimpleShader extends TransformationShader {
 	 * Constructs the simple shader with the specified name
 	 * @param name The shader's name
 	 */
-	public SimpleShader(String name) {
+	public SimpleShader(String name) throws ShaderCompilationException {
 		super(name);
 		
 		colorUniform = getUniformLocation("color");

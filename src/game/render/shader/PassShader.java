@@ -1,5 +1,6 @@
 package game.render.shader;
 
+import game.exception.ShaderCompilationException;
 import game.render.AccessFrequency;
 import game.render.VAO;
 import game.render.VBO;
@@ -24,7 +25,7 @@ public abstract class PassShader extends Shader {
 	/** Temp buffer used to upload the transformation matrix to the shader */
 	private FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
 	
-	public PassShader(String name) {
+	public PassShader(String name) throws ShaderCompilationException {
 		super(name);
 		
 		transUniform = getUniformLocation("trans");

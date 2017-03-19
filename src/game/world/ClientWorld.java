@@ -15,6 +15,7 @@ import game.net.PacketCache;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
+import game.render.Font;
 import game.world.entity.*;
 import game.world.map.Map;
 import game.world.entity.update.EntityUpdate;
@@ -22,6 +23,7 @@ import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import java.awt.*;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
@@ -291,13 +293,25 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.disableStencil();
 		
 		// === Draw world with lighting ===
-		Framebuffer.bindDefault();
-		r.setDefaultBlend();
+		Framebuffer wwlFramebuffer = r.getFreeFramebuffer();
+		wwlFramebuffer.bind();
 		if (r.getRenderSettings().debugDrawLightingFramebuffer) {
 			r.drawFramebuffer(lightFramebuffer);
 		} else {
 			r.drawWorldWithLighting(worldFramebuffer, lightFramebuffer);
 		}
+		
+		// === Draw glitch effect ===
+		Framebuffer glitchFramebuffer = r.getFreeFramebuffer();
+		glitchFramebuffer.bind();
+		r.drawCircle(2.0f, 2.0f, 1.0f, ColorUtil.WHITE); // Debug
+		for (Entity e : bank.entities.values()) {
+			e.renderGlitch(r, map);
+		}
+		
+		Framebuffer.bindDefault();
+		r.setDefaultBlend();
+		r.drawGlitchEffect(wwlFramebuffer, glitchFramebuffer, new Vector2f(-1.0f, 0.0f), new Vector2f(0.0f, 0.0f), new Vector2f(1.0f, 0.0f));
 		
 		// Render map walls
 		if (drawWalls)
