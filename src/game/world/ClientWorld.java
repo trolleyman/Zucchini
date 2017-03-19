@@ -14,10 +14,7 @@ import game.net.Message;
 import game.net.PacketCache;
 import game.net.client.IClientConnection;
 import game.net.client.IClientConnectionHandler;
-import game.render.Align;
-import game.render.Font;
-import game.render.IRenderer;
-import game.render.RenderSettings;
+import game.render.*;
 import game.world.entity.*;
 import game.world.map.Map;
 import game.world.entity.update.EntityUpdate;
@@ -30,6 +27,7 @@ import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 /**
  * The world located on the client
@@ -228,7 +226,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		glScissor((int)(x+mmBorder), (int)(y+mmBorder), (int)(w-mmBorder*2), (int)(h-mmBorder*2));
 		
 		this.render(r, x+w/2, y+h/2, zoom, true);
-		
 		glDisable(GL_SCISSOR_TEST);
 	}
 	
@@ -268,20 +265,39 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		calculateLineOfSight();
 		
-		r.beginDrawWorld();
-		drawWorld(r);
-		r.endDrawWorld();
-		r.beginDrawLighting();
+		// === Draw World ===
+		// Get a new framebuffer for rendering the world to
+		Framebuffer worldFramebuffer = r.getFreeFramebuffer();
+		worldFramebuffer.bind();
+		
+		if (!r.getRenderSettings().debugDrawLightingFramebuffer) {
+			// Render the world
+			drawWorld(r);
+		}
+		
+		// === Draw Lighting ===
+		// Get another new framebuffer for rendering the lighting to
+		Framebuffer lightFramebuffer = r.getFreeFramebuffer();
+		lightFramebuffer.bind();
+		
+		// Setup the blending function
+		r.setLightingBlend();
 		if (p != null && r.getRenderSettings().drawLineOfSightStencil) {
+			// Render the line of sight stencil
 			drawLineOfSightStencil(r);
 		}
+		// Draw the lighting
 		drawLighting(r);
 		r.disableStencil();
-		r.endDrawLighting();
 		
-		r.getModelViewMatrix().pushMatrix().identity();
-		r.drawWorldWithLighting();
-		r.getModelViewMatrix().popMatrix();
+		// === Draw world with lighting ===
+		Framebuffer.bindDefault();
+		r.setDefaultBlend();
+		if (r.getRenderSettings().debugDrawLightingFramebuffer) {
+			r.drawFramebuffer(lightFramebuffer);
+		} else {
+			r.drawWorldWithLighting(worldFramebuffer, lightFramebuffer);
+		}
 		
 		// Render map walls
 		if (drawWalls)
@@ -300,7 +316,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			// losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, losBuf);
 			losBuf = map.getLineOfSight(pos, Player.LINE_OF_SIGHT_MAX, p.angle, Player.LINE_OF_SIGHT_FOV, losBuf);
 		} else {
-			// TODO: Display whole screen in line of sight if there is no player
+			// Display whole screen if there is no player
 		}
 	}
 	
@@ -331,8 +347,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	private void drawLighting(IRenderer r) {
-//		r.drawCircle(0.0f, 0.0f, 10.0f, ColorUtil.WHITE);
-		
 		for (Entity e : this.bank.entities.values()) {
 			e.renderLight(r, map);
 		}
@@ -370,10 +384,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 		}
 		
-		// Draw mini-map
-		if (!isPlayerDead())
-			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
-		
 		Player p = getPlayer();
 		if (p != null) {
 			// Draw current ammo
@@ -389,6 +399,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
 			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
 		}
+		
+		// Draw mini-map
+		if (!isPlayerDead())
+			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
 	}
 	
 	/**

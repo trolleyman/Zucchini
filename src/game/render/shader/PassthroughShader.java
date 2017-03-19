@@ -13,30 +13,20 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 
-public class FramebufferShader extends PassShader {
+public class PassthroughShader extends PassShader {
 	/** Texture uniform location */
 	private int texUniform;
 	
 	/** Current texture ID */
 	private int tex;
 	
-	/** Transformation uniform location */
-	private int transUniform;
-	
-	/** Temp buffer used to upload the transformation matrix to the shader */
-	private FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-	
 	/**
-	 * Constructs a framebuffer shader with the specified name
+	 * Constructs the passthrough shader
 	 */
-	public FramebufferShader(String name) {
-		super(name);
+	public PassthroughShader() {
+		super("pass_passthrough");
 		
 		texUniform = getUniformLocation("tex");
-		transUniform = getUniformLocation("trans");
-		
-		buffer.clear();
-		new Matrix4f().setOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f).get(buffer).rewind();
 	}
 	
 	/**
@@ -59,19 +49,10 @@ public class FramebufferShader extends PassShader {
 		glBindTexture(GL_TEXTURE_2D, tex);
 	}
 	
-	/**
-	 * Uploads the transformation matrix to the shader
-	 */
-	private void uploadMatrix() {
-		buffer.rewind();
-		glUniformMatrix4fv(transUniform, false, buffer);
-	}
-	
 	@Override
 	public void use() {
 		super.use();
 		
 		uploadTexture();
-		uploadMatrix();
 	}
 }

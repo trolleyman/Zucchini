@@ -65,8 +65,6 @@ public abstract class PassShader extends Shader {
 	 * Processes the current inputs and draws the result to the current framebuffer
 	 */
 	public void draw() {
-		this.use();
-		
 		boxUV.bind();
 		boxUV.draw(GL_TRIANGLES, 6);
 	}

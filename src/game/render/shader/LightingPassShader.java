@@ -23,7 +23,7 @@ public class LightingPassShader extends PassShader {
 	 * Constructs the lighting shader
 	 */
 	public LightingPassShader() {
-		super("lightingPass");
+		super("pass_lighting");
 		
 		worldUniform = getUniformLocation("world");
 		lightUniform = getUniformLocation("light");

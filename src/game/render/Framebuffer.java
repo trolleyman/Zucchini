@@ -11,13 +11,11 @@ import static org.lwjgl.opengl.GL30.*;
  * Represents an OpenGL Framebuffer object
  */
 public class Framebuffer {
-	
 	/** Framebuffer ID */
 	private int fbId;
 	
 	/** Color Texture ID */
 	private int colorTexId;
-	
 	/** Depth & stencil Renderbuffer ID */
 	private int depthStencilTexId;
 	
