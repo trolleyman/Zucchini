@@ -284,13 +284,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		// Setup the blending function
 		r.setLightingBlend();
-		if (p != null && r.getRenderSettings().drawLineOfSightStencil) {
-			// Render the line of sight stencil
-			drawLineOfSightStencil(r);
-		}
 		// Draw the lighting
 		drawLighting(r);
-		r.disableStencil();
 		
 		// === Draw world with lighting ===
 		Framebuffer wwlFramebuffer = r.getFreeFramebuffer();
@@ -301,17 +296,25 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			r.drawWorldWithLighting(worldFramebuffer, lightFramebuffer);
 		}
 		
-		// === Draw glitch effect ===
+		// === Draw glitch effect source ===
 		Framebuffer glitchFramebuffer = r.getFreeFramebuffer();
 		glitchFramebuffer.bind();
-		r.drawCircle(2.0f, 2.0f, 1.0f, ColorUtil.WHITE); // Debug
+		r.drawTubeLight(2.0f, 2.0f, 0.0f, 10.0f, 2.0f, ColorUtil.WHITE, 10.0f);
 		for (Entity e : bank.entities.values()) {
 			e.renderGlitch(r, map);
 		}
 		
+		// === Draw glitch effect ===
 		Framebuffer.bindDefault();
 		r.setDefaultBlend();
-		r.drawGlitchEffect(wwlFramebuffer, glitchFramebuffer, new Vector2f(-1.0f, 0.0f), new Vector2f(0.0f, 0.0f), new Vector2f(1.0f, 0.0f));
+		if (p != null && r.getRenderSettings().drawLineOfSightStencil) {
+			// Render the line of sight stencil
+			drawLineOfSightStencil(r);
+		}
+		float intensity = 80.0f;
+		r.drawGlitchEffect(wwlFramebuffer, glitchFramebuffer,
+				new Vector2f(-intensity, 0.0f), new Vector2f(0.0f, 0.0f), new Vector2f(intensity, 0.0f));
+		r.disableStencil();
 		
 		// Render map walls
 		if (drawWalls)
