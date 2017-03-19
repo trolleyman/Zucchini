@@ -24,13 +24,12 @@ import game.world.entity.update.EntityUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * The world located on the client
@@ -225,22 +224,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.drawBox(Align.BL, x+mmBorder, y+mmBorder, w-mmBorder*2, h-mmBorder*2, ColorUtil.BLACK);
 		
 		// Draw minimap
-		r.enableStencilDraw(2);
-		r.drawBox(Align.BL, x+mmBorder, y+mmBorder, w-mmBorder*2, h-mmBorder*2, ColorUtil.WHITE);
-		r.disableStencilDraw();
-		r.enableStencil(2);
+		glEnable(GL_SCISSOR_TEST);
+		glScissor((int)(x+mmBorder), (int)(y+mmBorder), (int)(w-mmBorder*2), (int)(h-mmBorder*2));
 		
-		r.getModelViewMatrix()
-				.pushMatrix()
-				.translate(x, y, 0.0f)
-				.translate(w/2, h/2, 0.0f)
-				.scale(zoom)
-				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
+		this.render(r, x+w/2, y+h/2, zoom);
 		
-		map.render(r);
-		
-		r.getModelViewMatrix().popMatrix();
-		r.disableStencil();
+		glDisable(GL_SCISSOR_TEST);
 	}
 	
 	/**
@@ -248,6 +237,17 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
+		this.render(r, r.getWidth()/2, r.getHeight()/2, cameraZoom);
+	}
+	
+	/**
+	 * Renders the world with a specified origin and zoom
+	 * @param r The renderer
+	 * @param x The window x-coordinate of the origin
+	 * @param y The window y-coordinate of the origin
+	 * @param zoom The zoom of the camera
+	 */
+	public void render(IRenderer r, float x, float y, float zoom) {
 		// Set model view matrix
 		Player p = getPlayer();
 		if (isPlayerDead()) {
@@ -262,8 +262,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		r.getModelViewMatrix()
 				.pushMatrix()
-				.translate(r.getWidth()/2, r.getHeight()/2, 0.0f)
-				.scale(cameraZoom)
+				.translate(x, y, 0.0f)
+				.scale(zoom)
 				.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		
 		calculateLineOfSight();
@@ -332,6 +332,59 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		for (Entity e : this.bank.entities.values()) {
 			e.renderLight(r, map);
+		}
+	}
+	
+	public void renderHUD(IRenderer r) {
+		// Render start time
+		if (this.startTime != 0.0f) {
+			int i = (int)Math.floor(this.startTime + 1);
+			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
+			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
+					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
+		}
+		
+		// Draw messages
+		synchronized (messageLogLock) {
+			Font font = r.getFontBank().getFont("emulogic.ttf");
+			float scale = 0.5f;
+			float mh = font.getHeight(scale);
+			float width = 1000.0f;
+			float y = Util.HUD_PADDING + mh;
+			for (int i = messageLog.size()-1; i >= 0; i--) {
+				Message m = messageLog.get(i);
+				double dt = (System.nanoTime() - m.timeReceived) / (double)Util.NANOS_PER_SECOND;
+				float alpha = (float) (4.0 - dt);
+				alpha = Math.min(1.0f, alpha);
+				if (alpha <= 0.0f)
+					break;
+				
+				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha * 0.7f);
+				r.drawBox(Align.BL, Util.HUD_PADDING, y, width, mh, messageLogColor);
+				messageLogColor.set(1.0f, 1.0f, 1.0f, alpha);
+				r.drawText(font, m.toString(), Align.ML, false, Util.HUD_PADDING + 5.0f, y+mh/2, scale, messageLogColor);
+				y += mh;
+			}
+		}
+		
+		// Draw mini-map
+		if (!isPlayerDead())
+			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
+		
+		Player p = getPlayer();
+		if (p != null) {
+			// Draw current ammo
+			Item i = p.getHeldItem();
+			if (i != null) {
+				i.renderUI(r);
+			}
+			
+			// Render health
+			float barWidth = 300.0f;
+			float barHeight = 80.0f;
+			float segments = barWidth / p.getMaxHealth();
+			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
+			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
 		}
 	}
 	
@@ -457,82 +510,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			connection.sendLobbyLeaveRequest();
 		} catch (ProtocolException e) {
 			connection.error(e);
-		}
-	}
-	
-	/** 
-	 * render2 - renders the client world but does not zoom in
-	 * @param r The renderer
-	 * 
-	 * @author Abby Wiggins
-	 */
-	public void render2(IRenderer r) {
-		// Set model view matrix
-		r.getModelViewMatrix()
-			.pushMatrix()
-			.translate(150, 150, 0.0f)
-			.scale(50);
-			//.translate(-cameraPos.x, -cameraPos.y, 0.0f);
-		this.map.render(r);
-		
-		// Render entities
-		for (Entity e : this.bank.entities.values()) {
-			e.render(r, map);
-		}
-		
-		r.getModelViewMatrix().popMatrix();
-	}
-	
-	public void renderHUD(IRenderer r) {
-		// Render start time
-		if (this.startTime != 0.0f) {
-			int i = (int)Math.floor(this.startTime + 1);
-			float scale = 1.0f + 2.0f * (this.startTime - (float)Math.floor(this.startTime));
-			r.drawText(r.getFontBank().getFont("emulogic.ttf"),
-					"" + i, Align.MM, false, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
-		}
-		
-		// Draw messages
-		synchronized (messageLogLock) {
-			Font font = r.getFontBank().getFont("emulogic.ttf");
-			float scale = 0.5f;
-			float mh = font.getHeight(scale);
-			float width = 1000.0f;
-			float y = Util.HUD_PADDING + mh;
-			for (int i = messageLog.size()-1; i >= 0; i--) {
-				Message m = messageLog.get(i);
-				double dt = (System.nanoTime() - m.timeReceived) / (double)Util.NANOS_PER_SECOND;
-				float alpha = (float) (4.0 - dt);
-				alpha = Math.min(1.0f, alpha);
-				if (alpha <= 0.0f)
-					break;
-				
-				messageLogColor.set(0.1f, 0.1f, 0.1f, alpha * 0.7f);
-				r.drawBox(Align.BL, Util.HUD_PADDING, y, width, mh, messageLogColor);
-				messageLogColor.set(1.0f, 1.0f, 1.0f, alpha);
-				r.drawText(font, m.toString(), Align.ML, false, Util.HUD_PADDING + 5.0f, y+mh/2, scale, messageLogColor);
-				y += mh;
-			}
-		}
-		
-		// Draw mini-map
-		if (!isPlayerDead())
-			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
-		
-		Player p = getPlayer();
-		if (p != null) {
-			// Draw current ammo
-			Item i = p.getHeldItem();
-			if (i != null) {
-				i.renderUI(r);
-			}
-			
-			// Render health
-			float barWidth = 300.0f;
-			float barHeight = 80.0f;
-			float segments = barWidth / p.getMaxHealth();
-			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
-			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
 		}
 	}
 }
