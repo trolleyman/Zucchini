@@ -142,7 +142,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			float targetZoom = Math.min(targetZoomW, targetZoomH);
 			
 			// Lerp position and zoom
-			this.cameraZoom += (targetZoom - this.cameraZoom) * (float)dt * 0.5f;
+			this.cameraZoom += (targetZoom - this.cameraZoom) * (float)dt * 0.8f;
 			this.cameraPos.lerp(targetPosition, (float)dt * 1.0f);
 			Util.popTemporaryVector2f();
 		}
@@ -426,6 +426,10 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 				} catch (ProtocolException e) {
 					connection.error(e);
 				}
+				break;
+			case GLFW_KEY_ENTER:
+				Player p = getPlayer();
+				System.out.println("Player: " + (p == null ? "null" : p.position));
 				break;
 			}
 		} else if (action == GLFW_RELEASE) { // End move

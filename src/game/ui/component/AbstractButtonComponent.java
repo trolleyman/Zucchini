@@ -39,8 +39,8 @@ public abstract class AbstractButtonComponent extends UIComponent {
 	/** Called when the button is clicked (i.e. pressed + released on the button) */
 	protected abstract void onClicked();
 	
-	protected abstract float getWidth();
-	protected abstract float getHeight();
+	public abstract float getWidth();
+	public abstract float getHeight();
 	
 	protected float getMouseX() {
 		return mx;
@@ -83,7 +83,8 @@ public abstract class AbstractButtonComponent extends UIComponent {
 	@Override
 	public void handleMouseButton(int button, int action, int mods) {
 		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
-			this.pressed = true;
+			if (isMouseOnButton())
+				this.pressed = true;
 		}
 		
 		if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_1) {
@@ -98,10 +99,11 @@ public abstract class AbstractButtonComponent extends UIComponent {
 	@Override
 	public void update(double dt) {
 		if (this.released) {
+			if (this.pressed && isMouseOnButton())
+				this.onClicked();
+			
 			this.pressed = false;
 			this.released = false;
-			if (isMouseOnButton())
-				this.onClicked();
 		}
 		
 		if (!isMouseOnButton()) {

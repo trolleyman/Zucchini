@@ -115,8 +115,7 @@ public interface IRenderer {
 	void drawLine(float x0, float y0, float x1, float y1, Vector4f c, float thickness);
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the
-	 * bottom left of the screen and alignment a).
+	 * Draws the texture specified to the screen
 	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
@@ -127,8 +126,19 @@ public interface IRenderer {
 	}
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the
-	 * bottom left of the screen and alignment a) with a specified rotation r.
+	 * Draws the texture specified to the screen
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
+	 * @param a The alignment. See {@link Align}
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param c The color of the texture
+	 */
+	default void drawTexture(Texture tex, Align a, float x, float y, Vector4f c) {
+		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight(), 0.0f, c);
+	}
+	
+	/**
+	 * Draws the texture specified to the screen
 	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
@@ -140,9 +150,20 @@ public interface IRenderer {
 	}
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the
-	 * bottom left of the screen and alignment a) with a specified
-	 * width, height and rotation.
+	 * Draws the texture specified to the screen
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
+	 * @param a The alignment. See {@link Align}
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param r The rotation
+	 * @param c The color of the texture
+	 */
+	default void drawTexture(Texture tex, Align a, float x, float y, float r, Vector4f c) {
+		this.drawTexture(tex, a, x, y, tex.getWidth(), tex.getHeight(), r, c);
+	}
+	
+	/**
+	 * Draws the texture specified to the screen
 	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
@@ -155,9 +176,21 @@ public interface IRenderer {
 	}
 	
 	/**
-	 * Draws the texture specified to the screen at x,y (relative to the
-	 * bottom left of the screen and alignment a) with a specified
-	 * width, height and rotation.
+	 * Draws the texture specified to the screen
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
+	 * @param a The alignment. See {@link Align}
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param w The width
+	 * @param h The height
+	 * @param c The color of the texture
+	 */
+	default void drawTexture(Texture tex, Align a, float x, float y, float w, float h, Vector4f c) {
+		this.drawTexture(tex, a, x, y, w, h, 0.0f, c);
+	}
+	
+	/**
+	 * Draws the texture specified to the screen
 	 * @param tex The texture specified. See {@link #getTextureBank()}.
 	 * @param a The alignment. See {@link Align}
 	 * @param x The x-coordinate
@@ -166,7 +199,22 @@ public interface IRenderer {
 	 * @param h The height
 	 * @param r The rotation
 	 */
-	void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r);
+	default void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r) {
+		this.drawTexture(tex, a, x, y, w, h, r, ColorUtil.WHITE);
+	}
+	
+	/**
+	 * Draws the texture specified to the screen
+	 * @param tex The texture specified. See {@link #getTextureBank()}.
+	 * @param a The alignment. See {@link Align}
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param w The width
+	 * @param h The height
+	 * @param r The rotation
+	 * @param c The color of the texture
+	 */
+	void drawTexture(Texture tex, Align a, float x, float y, float w, float h, float r, Vector4f c);
 	
 	default void drawTextureUV(Texture tex, Align a, float x, float y, float w, float h, float u0, float v0, float u1, float v1) {
 		this.drawTextureUV(tex, a, x, y, w, h, 0.0f, u0, v0, u1, v1);

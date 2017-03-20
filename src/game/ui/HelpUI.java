@@ -16,8 +16,8 @@ import game.world.ClientWorld;
 
 public class HelpUI extends UI implements InputPipeMulti{
 	private UI nextUI;
+	private final UI afterUI;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
-	private TextureBank bank;
 	private ButtonComponent backBtn, nextBtn, exitBtn;
 
 	private float winWidth;
@@ -28,9 +28,14 @@ public class HelpUI extends UI implements InputPipeMulti{
 	private int imageCount;
 	private Font font;
 	
-	public HelpUI(UI ui){
+	/**
+	 * Constructs a new HelpUI
+	 * @param afterUI The UI that will be the next UI after this one
+	 */
+	public HelpUI(UI ui, UI afterUI){
 		super(ui);
 		nextUI = this;
+		this.afterUI = afterUI;
 		font = fontBank.getFont("emulogic.ttf");
 		imageCount = 0;
 	
@@ -55,7 +60,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		);
 			
 		exitBtn = new ButtonComponent(
-				() -> this.nextUI = new StartUI(this),
+				() -> this.nextUI = afterUI,
 				Align.BL, 100, 100,
 				textureBank.getTexture("exitButtonDefault.png"),
 				textureBank.getTexture("exitButtonHover.png"),
@@ -184,7 +189,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 		strWS[10] = "Do what you can to keep yourself alive";
 		strWS[11] = "from the zombies and other players who";
 		strWS[12] = "are out to get you. Good luck!";
-		}
+	}
 	
 	public ArrayList<InputHandler> getHandlers() {
 		return this.inputHandlers;
@@ -203,19 +208,16 @@ public class HelpUI extends UI implements InputPipeMulti{
 		nextBtn.update(dt);
 		exitBtn.update(dt);
 	}
-
-	
-	
 	
 	@Override
 	public void render(IRenderer r) {
 		backgroundImage.render(r);
 		backBtn.setX(50);
-		backBtn.setY((int) 200);
-		nextBtn.setX((int) winWidth - 150);
-		nextBtn.setY((int) 100);
-		exitBtn.setX((int) winWidth - 150);
-		exitBtn.setY((int) winHeight - 150);
+		backBtn.setY(200);
+		nextBtn.setX(winWidth - 150);
+		nextBtn.setY(100);
+		exitBtn.setX(winWidth - 150);
+		exitBtn.setY(winHeight - 150);
 		
 		if(imageCount<3){
 			r.drawText(font, "HOW TO SET UP A GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
@@ -288,14 +290,14 @@ public class HelpUI extends UI implements InputPipeMulti{
 		}
 		
 		if(imageCount==7){
-			this.nextUI = new StartUI(this);
+			this.nextUI = afterUI;
 		}
 		
 		exitBtn.render(r);
 		nextBtn.render(r);
-		backBtn.render2(r, 350.0f, 100.0f);
+		backBtn.render(r, 350.0f, 100.0f);
 	}
-
+	
 	@Override
 	public UI next() {
 		return nextUI;
@@ -304,10 +306,5 @@ public class HelpUI extends UI implements InputPipeMulti{
 	@Override
 	public void destroy() {
 		//Nothing to destroy
-	}
-
-	@Override
-	public String toString() {
-		return "HelpUI";
 	}
 }

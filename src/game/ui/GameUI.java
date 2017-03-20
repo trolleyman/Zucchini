@@ -10,6 +10,7 @@ import game.render.IRenderer;
 import game.ui.component.ScoreboardComponent;
 import game.world.ClientWorld;
 import game.world.PlayerScoreboardInfo;
+import game.world.entity.Player;
 import game.world.entity.damage.Damage;
 import org.joml.Vector4f;
 
@@ -35,8 +36,9 @@ public class GameUI extends UI implements InputPipeMulti {
 	private float playerHealth;
 	private float maxHealth;
 	private Boolean alive;
-	
+
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	private ArrayList<InputHandler> scoreboardInputHandlers = new ArrayList<>();
 	
 	private UI nextUI;
 	
@@ -51,15 +53,21 @@ public class GameUI extends UI implements InputPipeMulti {
 		super(_ui);
 		this.world = _world;
 		this.inputHandlers.add(world);
+		this.scoreboardInputHandlers.add(world);
 		
 		nextUI = this;
 		alive = true;
 		scoreboardComponent = new ScoreboardComponent(world.getScoreboard(), 0.0f);
+		this.scoreboardInputHandlers.add(scoreboardComponent);
 	}
 	
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
-		return this.inputHandlers;
+		if (scoreboardShown) {
+			return scoreboardInputHandlers;
+		} else {
+			return inputHandlers;
+		}
 	}
 	
 	@Override
@@ -78,18 +86,17 @@ public class GameUI extends UI implements InputPipeMulti {
 	@Override
 	public void handleResize(int w, int h) {
 		this.winWidth = w;
-		this.winHeight = h;
+		this.winHeight= h;
 		InputPipeMulti.super.handleResize(w, h);
 	}
 	
 	@Override
 	public void update(double dt) {
-		barWidth = (winWidth/5);
-		barHeight = (winHeight/20);
-		mapSize = (winHeight/5);
 		this.world.update(dt);
 		
-		if (this.scoreboardShown || world.isPlayerDead()) {
+		if (world.isPlayerDead())
+			scoreboardShown = true;
+		if (this.scoreboardShown) {
 			this.scoreboardComponent.update(dt);
 			scoreboardComponent.setScoreboard(world.getScoreboard());
 		}
@@ -106,9 +113,10 @@ public class GameUI extends UI implements InputPipeMulti {
 	}
 	
 	private void renderScoreboard(IRenderer r) {
+		// === Render UI ===
 		float titleScale = 2.0f;
 		Font f = r.getFontBank().getFont("emulogic.ttf");
-		if (scoreboardShown || world.isPlayerDead()) {
+		if (scoreboardShown) {
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
 			//this.world.render2(r);
 		}
@@ -128,25 +136,24 @@ public class GameUI extends UI implements InputPipeMulti {
 			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale) - 80.0f;
 		}
 		
-		if (scoreboardShown || world.isPlayerDead()) {
+		if (scoreboardShown) {
 			scoreboardComponent.setStartY(y);
 			scoreboardComponent.render(r);
+		} else {
+			renderHealthBar(r);
 		}
 	}
 	
 	private void renderHealthBar(IRenderer r){
-		if(world.getPlayer() == null){
-			maxHealth = 10.0f;
-			playerHealth = 10.0f;
-		}else{
-			maxHealth = world.getPlayer().getMaxHealth();
-			playerHealth = world.getPlayer().getHealth();
+		Player p = world.getPlayer();
+		
+		if (p != null) {
+			float barWidth = 400.0f;
+			float barHeight = 80.0f;
+			float segments = barWidth / p.getMaxHealth();
+			r.drawBox(Align.TR, winWidth - Util.HUD_PADDING, winHeight - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
+			r.drawBox(Align.TR, winWidth - Util.HUD_PADDING, winHeight - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
 		}
-		
-		float segments = barWidth / maxHealth;
-		
-		r.drawBox(Align.TR, (float) winWidth - 20, (float) winHeight - 20, barWidth, barHeight, ColorUtil.GREEN);//max health
-		r.drawBox(Align.TR, winWidth - 20, winHeight - 20, segments * (maxHealth - playerHealth), barHeight, ColorUtil.RED);
 	}
 	
 	@Override

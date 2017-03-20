@@ -7,6 +7,7 @@ import game.net.WorldStart;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
 import game.ui.component.ButtonComponent;
+import game.ui.component.ImageComponent;
 import game.world.ClientWorld;
 import game.world.EntityBank;
 import org.joml.Vector4f;
@@ -48,6 +49,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private ButtonComponent leaveButton;
 	
 	private ButtonComponent backButton;
+	
+	private final ImageComponent backgroundImage;
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> errorInputHandlers = new ArrayList<>();
@@ -93,6 +96,11 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("backDefault.png"),
 				textureBank.getTexture("backHover.png"),
 				textureBank.getTexture("backPressed.png")
+		);
+		
+		// Create Background Image
+		backgroundImage = new ImageComponent(
+				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
 		
 		this.inputHandlers.add(this.toggleReadyButton);
@@ -207,6 +215,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
 		if (accepted && lobbyInfo != null) {
 			// Draw lobby view ui screen
 			r.drawText(font, lobbyName,
@@ -267,8 +276,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			// Error has occured
 			float scale = 0.5f;
 			String s = "Could not connect to lobby " + lobbyName + ":";
-			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, scale);
-			r.drawText(font, error, Align.MM, true, r.getWidth()/2, r.getHeight()/2 - font.getHeight(scale), scale);
+			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
+			r.drawText(font, error, Align.MM, true, r.getWidth()/2, r.getHeight()/2 - font.getHeight(scale), scale, ColorUtil.RED);
 			
 			backButton.setX(20.0f);
 			backButton.setY(20.0f);
