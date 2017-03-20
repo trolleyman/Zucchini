@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class Player extends MovableEntity {
 	/** The max distance a player can see */
-	public static final float LINE_OF_SIGHT_MAX = 20.0f;
+	public static final float LINE_OF_SIGHT_MAX = 50.0f;
 	/** The angle of which the player can see */
 	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(360.0);
 	
@@ -87,8 +87,8 @@ public class Player extends MovableEntity {
 		this.heldItem = _heldItem;
 		this.pointLight = new PointLight(
 				new Vector2f(this.position),
-				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.8f),
-				1.0f, true);
+				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.4f),
+				3.0f, true);
 		this.torch = new Spotlight(
 				new Vector2f(position),
 				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 1.0f),
@@ -121,6 +121,7 @@ public class Player extends MovableEntity {
 		this.pointLight.position.set(this.position);
 		this.torch.position.set(this.position);
 		this.torch.angle = this.angle;
+		this.torch.attenuationFactor = 0.005f;
 		
 		if (this.heldItem != null) {
 			this.heldItem.setOwner(this.getId());
@@ -136,7 +137,7 @@ public class Player extends MovableEntity {
 	}
 	
 	@Override
-	protected float getMaxHealth() {
+	public float getMaxHealth() {
 		return 10.0f;
 	}
 	
@@ -242,11 +243,6 @@ public class Player extends MovableEntity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		this.pointLight = new PointLight(
-				new Vector2f(this.position),
-				new Vector4f(SPOT_COLOR.x, SPOT_COLOR.y, SPOT_COLOR.z, 0.6f),
-				3.0f, true);
-		
 		updateChildrenInfo();
 		if (this.heldItem != null)
 			this.heldItem.render(r, map);
@@ -367,6 +363,14 @@ public class Player extends MovableEntity {
 		Entity from = ua.bank.getEntity(d.ownerId);
 		String s = d.type.getDescription(from, this);
 		ua.packetCache.sendStringTcp(Protocol.sendMessageToClient("", s));
+		ua.scoreboard.killPlayer(name, d);
+		if (from != null && from instanceof Player) {
+			Player p = (Player) from;
+			if (name.equals(p.getName()))
+				ua.scoreboard.addPlayerSuicide(p.getName());
+			else
+				ua.scoreboard.addPlayerKill(p.getName());
+		}
 	}
 	
 	@Override

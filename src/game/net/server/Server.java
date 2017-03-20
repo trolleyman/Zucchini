@@ -49,15 +49,13 @@ public class Server implements Runnable
 			e.printStackTrace();
 			return;
 		}
-
-
-		createLobby("TestLobbyT100", 1, 4);
-		createLobby("TestLobbyT101", 1, 4);
-		createLobby("TestLobbyT102", 1, 4);
-		createLobby("TestLobbyT103", 1, 4);
-		createLobby("TestLobbyT104", 1, 4);
-		createLobby("TestLobbyT105", 1, 4);
-
+		
+		createLobby("test lobby t100", 1, 4);
+		createLobby("test lobby t101", 1, 4);
+		createLobby("test lobby t102", 1, 4);
+		createLobby("test lobby t103", 1, 4);
+		createLobby("test lobby t104", 1, 4);
+		createLobby("test lobby t105", 1, 4);
 	}
 
 	private void outUDP(String msg)
@@ -312,7 +310,7 @@ public class Server implements Runnable
 				handler.sendStringTcp(Protocol.sendLobbiesResponse(lobbyInfos));
 			} catch (ProtocolException e)
 			{
-				// This is fine as the handler takes care of exceptions
+				handler.error(e);
 			}
 			return;
 		} else if (Protocol.isLobbyCreateRequest(msg)) {

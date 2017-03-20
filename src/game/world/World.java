@@ -21,6 +21,9 @@ public abstract class World {
 	/** Time until the world starts updating */
 	protected float startTime;
 	
+	/** The current scoreboard */
+	protected Scoreboard scoreboard;
+	
 	/**
 	 * Constructs the world
 	 * @param _map The map
@@ -32,6 +35,12 @@ public abstract class World {
 		this.bank = _bank;
 		
 		this.startTime = Util.GAME_START_WAIT_SECS;
+		
+		this.scoreboard = new Scoreboard();
+	}
+	
+	public Scoreboard getScoreboard() {
+		return scoreboard;
 	}
 	
 	/**
@@ -44,6 +53,7 @@ public abstract class World {
 			this.startTime -= Util.DT_PER_UPDATE;
 			if (this.startTime < 0.0f)
 				this.startTime = 0.0f;
+			scoreboard.update(Util.DT_PER_UPDATE);
 			updateStep(Util.DT_PER_UPDATE);
 			dtPool -= Util.DT_PER_UPDATE;
 		}
@@ -61,6 +71,10 @@ public abstract class World {
 	
 	public boolean isPaused() {
 		return this.startTime != 0.0f;
+	}
+	
+	public void setScoreboard(Scoreboard scoreboard) {
+		this.scoreboard = scoreboard;
 	}
 }
 

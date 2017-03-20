@@ -3,6 +3,7 @@ package game.world.entity.weapon;
 import game.world.entity.Entity;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
+import game.world.entity.effect.LaserMuzzleFlash;
 import game.world.entity.update.DamageUpdate;
 import game.world.map.Map;
 import game.world.map.Wall;
@@ -28,7 +29,7 @@ public class LaserGun extends Weapon {
 	}
 	
 	public LaserGun(Vector2f position, int ammo) {
-		super(position, ammo, false, 0.04f, 60, 2.0f,
+		super(position, ammo, false, 0.2f, 60, 2.0f,
 				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
 	}
 	
@@ -54,7 +55,13 @@ public class LaserGun extends Weapon {
 		// Fire laser segments
 		prevWall = null;
 		Vector2f curDir = Util.pushTemporaryVector2f().set(Util.getDirX(fangle), Util.getDirY(fangle));
+		// curPos = the tip of the muzzle of the laser gun
 		curPos = new Vector2f(Util.getDirX(fangle), Util.getDirY(fangle)).mul(getHeight()).add(position);
+		
+		// Spawn laser muzzle flash
+		ua.bank.addEntityCached(new LaserMuzzleFlash(curPos));
+		
+		// Spawn laser segments
 		float lengthLeft = MAX_LASER_LENGTH;
 		for (int i = 0; i < MAX_REFLECTIONS && lengthLeft > 0.0; i++) {
 			// Calc new max pos
@@ -79,7 +86,7 @@ public class LaserGun extends Weapon {
 				for (Entity e : es) {
 					// Only damage if the id is not who shot the laser, unless it is after the first shot
 					if (e.getId() != this.ownerId || prevWall != null) {
-						Damage damage = new Damage(ownerId, ownerTeam, DamageType.LASER_DAMAGE, 10.0f);
+						Damage damage = new Damage(ownerId, ownerTeam, DamageType.LASER_DAMAGE, 3.5f);
 						ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
 						ua.audio.play("vaporized.wav", 1.0f, e.position);
 					}

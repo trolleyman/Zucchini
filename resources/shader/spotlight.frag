@@ -30,6 +30,6 @@ void main() {
 		
 		// Calc color
 		float a = p * attenuation * color.a;
-		out_color = vec4(color.rgb * a, a);
+		out_color = vec4(color.rgb, a);
 	}
 }

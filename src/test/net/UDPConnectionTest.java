@@ -3,33 +3,34 @@ package test.net;
 import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.net.UDPConnection;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
+import static test.TestUtil.assertThrows;
 
-class UDPConnectionTest {
+public class UDPConnectionTest {
 	private UDPConnection c1;
 	private UDPConnection c2;
 	
-	@BeforeEach
-	void setUp() throws ProtocolException {
+	@Before
+	public void setUp() throws ProtocolException {
 		c1 = new UDPConnection();
 		c2 = new UDPConnection();
 	}
 	
-	@AfterEach
-	void tearDown() {
+	@After
+	public void tearDown() {
 		c1.close();
 		c2.close();
 	}
 	
 	@Test
-	void connect() throws ProtocolException {
+	public void connect() throws ProtocolException {
 		c1.connect(new InetSocketAddress("localhost", c2.getSocket().getLocalPort()));
 		c2.connect(new InetSocketAddress("localhost", c1.getSocket().getLocalPort()));
 		
@@ -39,7 +40,7 @@ class UDPConnectionTest {
 	}
 	
 	@Test
-	void send() throws ProtocolException {
+	public void send() throws ProtocolException {
 		UDPConnection serverConn = new UDPConnection(Protocol.UDP_SERVER_PORT);
 		c1.sendString("test2", new InetSocketAddress("localhost", serverConn.getSocket().getLocalPort()));
 		String s = serverConn.recvString();
@@ -48,7 +49,7 @@ class UDPConnectionTest {
 	}
 	
 	@Test
-	void decode() throws ProtocolException {
+	public void decode() throws ProtocolException {
 		c1.connect(new InetSocketAddress("localhost", c2.getSocket().getLocalPort()));
 		c2.connect(new InetSocketAddress("localhost", c1.getSocket().getLocalPort()));
 		
@@ -63,7 +64,7 @@ class UDPConnectionTest {
 	}
 	
 	@Test
-	void timeout() throws ProtocolException {
+	public void timeout() throws ProtocolException {
 		c1.connect(new InetSocketAddress("localhost", c2.getSocket().getLocalPort()));
 		c2.connect(new InetSocketAddress("localhost", c1.getSocket().getLocalPort()));
 		

@@ -10,6 +10,7 @@ import game.audio.event.AudioEvent;
 import game.exception.InvalidMessageException;
 import game.exception.ProtocolException;
 import game.net.codec.ObjectCodec;
+import game.world.Scoreboard;
 import game.world.entity.Entity;
 import game.world.map.Map;
 import game.world.entity.update.EntityUpdate;
@@ -55,6 +56,7 @@ public class Protocol {
 	private static final String TAG_WORLD_UPDATE         = "[WORLD_UPDATE]";
 	private static final String TAG_MESSAGE_TO_SERVER    = "[MESS_S]";
 	private static final String TAG_MESSAGE_TO_CLIENT    = "[MESS_C]";
+	private static final String TAG_SCOREBOARD_UPDATE    = "[SCOREBOARD]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {
@@ -453,7 +455,7 @@ public class Protocol {
 		return ObjectCodec.worldUpdateFromString(msg.substring(TAG_WORLD_UPDATE.length()));
 	}
 	
-	/**************** Send Message To Server ****************/
+	/**************** Message To Server ****************/
 	public static String sendMessageToServer(String msg) {
 		return TAG_MESSAGE_TO_SERVER + msg;
 	}
@@ -466,7 +468,7 @@ public class Protocol {
 		return msg.substring(TAG_MESSAGE_TO_SERVER.length());
 	}
 	
-	/**************** Send Message To Client ****************/
+	/**************** Message To Client ****************/
 	private static final char NAME_SEPERATOR = ' ';
 	static {
 		// Ensure that the name seperator will not occur in a username

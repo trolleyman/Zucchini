@@ -18,7 +18,7 @@ public class EntityBank {
 	private int nextEntityId = 0;
 	
 	/** Next sequential team ID to use */
-	private int nextFreeTeam = Team.START_FREE_TEAM;
+	private int nextFreeTeam = Team.FIRST_PLAYER_TEAM;
 	
 	/** The current scoreboard */
 	protected Scoreboard scoreboard;
@@ -99,7 +99,7 @@ public class EntityBank {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
-					// This is ok, as the ClientHandler will handle this
+					swc.handler.error(ex);
 				}
 			}
 		}
@@ -123,7 +123,7 @@ public class EntityBank {
 						swc.handler.sendStringUdp(euStr);
 					
 				} catch (ProtocolException ex) {
-					// This is ok, as the ClientHandler will handle this
+					swc.handler.error(ex);
 				}
 			}
 		}
@@ -139,7 +139,7 @@ public class EntityBank {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendRemoveEntity(id));
 				} catch (ProtocolException ex) {
-					// This is ok, as the ClientHandler will handle this
+					swc.handler.error(ex);
 				}
 			}
 		}

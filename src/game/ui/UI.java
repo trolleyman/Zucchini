@@ -12,7 +12,6 @@ import game.render.TextureBank;
 
 /**
  * The UI is the root class of all UIs
- * 
  * @author jackm
  */
 public abstract class UI implements InputHandler {
@@ -21,14 +20,25 @@ public abstract class UI implements InputHandler {
 	protected AudioManager audio;
 	protected TextureBank textureBank;
 	protected FontBank fontBank;
-	
+
+	/**
+	 * Constructs a UI using an existing UI
+	 * @param ui The ui
+	 */
 	public UI(UI ui) {
 		this.connection = ui.connection;
 		this.audio = ui.audio;
 		this.textureBank = ui.textureBank;
 		this.fontBank = ui.fontBank;
 	}
-	
+
+	/**
+	 * Constructs a UI using all of the components
+	 * @param _connection The client connection to the server
+	 * @param _audio The audio manager
+	 * @param _textureBank The texture bank
+	 * @param _fontBank The font bank
+	 */
 	public UI(IClientConnection _connection, AudioManager _audio, TextureBank _textureBank, FontBank _fontBank) {
 		this.connection = _connection;
 		this.audio = _audio;
@@ -57,8 +67,4 @@ public abstract class UI implements InputHandler {
 	 * Called when the UI is destroyed so that it will not be used again.
 	 */
 	public abstract void destroy();
-	
-	/** Inheriting classes must implement {@link java.lang.Object#toString toString()} */
-	@Override
-	public abstract String toString();
 }

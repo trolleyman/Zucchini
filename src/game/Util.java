@@ -55,6 +55,9 @@ public class Util {
 	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SNAPSHOT_UPDATE} */
 	public static final double DT_PER_SNAPSHOT_UPDATE = NANOS_PER_SNAPSHOT_UPDATE / (double) NANOS_PER_SECOND;
 	
+	/** General HUD padding value for UI elements */
+	public static final float HUD_PADDING = 50.0f;
+	
 	// These values will be different for release
 	public static final int LOBBY_WAIT_SECS = 3;
 	public static final int GAME_START_WAIT_SECS = 3;
@@ -97,9 +100,12 @@ public class Util {
 	public static void popTemporaryVector3f() {
 		int stackSize = vector3fStackSize.get();
 		stackSize--;
-		vector3fStackSize.set(stackSize);
-		if (stackSize < 0)
+		if (stackSize < 0) {
+			vector3fStackSize.set(0);
 			throw new IndexOutOfBoundsException();
+		} else {
+			vector3fStackSize.set(stackSize);
+		}
 	}
 	
 	// ======= Vector2f Stack =======
@@ -138,9 +144,12 @@ public class Util {
 	public static void popTemporaryVector2f() {
 		int stackSize = vector2fStackSize.get();
 		stackSize--;
-		vector2fStackSize.set(stackSize);
-		if (stackSize < 0)
+		if (stackSize < 0) {
+			vector2fStackSize.set(0);
 			throw new IndexOutOfBoundsException();
+		} else {
+			vector2fStackSize.set(stackSize);
+		}
 	}
 	
 	/**
@@ -307,8 +316,6 @@ public class Util {
 	public static final int DEFAULT_MIN_PLAYERS = 1;
 	public static final int DEFAULT_MAX_PLAYERS = 4;
 	
-	public static float HUD_PADDING = 50.0f;
-	
 	/**
 	 * Sorts the float buffer specified
 	 */
@@ -383,5 +390,16 @@ public class Util {
 			j++;
 		}
 		buf.limit(i);
+	}
+	
+	/**
+	 * Gets the last message in a throwable chain
+	 * @param t The throwable
+	 */
+	public static String getLastMessage(Throwable t) {
+		while (t.getCause() != null) {
+			t = t.getCause();
+		}
+		return t.getMessage();
 	}
 }

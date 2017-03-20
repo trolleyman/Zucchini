@@ -2,12 +2,14 @@ package game.render.shader;
 
 import static org.lwjgl.opengl.GL20.*;
 
+import game.exception.ShaderCompilationException;
 import org.joml.Vector4f;
 
 import game.ColorUtil;
 
 /**
  * Represents an OpenGL shader that has a transformation and color uniform.
+ * By default the shader uploads a white color
  * 
  * @author Callum
  */
@@ -21,7 +23,7 @@ public class SimpleShader extends TransformationShader {
 	/**
 	 * Constructs a simple shader with the default name
 	 */
-	public SimpleShader() {
+	public SimpleShader() throws ShaderCompilationException {
 		this("simple");
 	}
 	
@@ -29,7 +31,7 @@ public class SimpleShader extends TransformationShader {
 	 * Constructs the simple shader with the specified name
 	 * @param name The shader's name
 	 */
-	public SimpleShader(String name) {
+	public SimpleShader(String name) throws ShaderCompilationException {
 		super(name);
 		
 		colorUniform = getUniformLocation("color");
@@ -56,7 +58,6 @@ public class SimpleShader extends TransformationShader {
 	@Override
 	public void use() {
 		super.use();
-		
 		uploadColor();
 	}
 }
