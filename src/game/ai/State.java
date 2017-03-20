@@ -11,9 +11,9 @@ import game.world.UpdateArgs;
  */
 public interface State<E> {
 	/**This method will execute when a state is entered*/
-	public void enter(E entity);
+	void enter(E entity);
 	/**This method will be what the entity will do while in this state*/
-	public void update(E entity, UpdateArgs ua);
+	void update(E entity, UpdateArgs ua);
 	/**This will be executed when the state is exited*/
-	public void exit(E entity);
+	void exit(E entity);
 }

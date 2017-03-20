@@ -19,22 +19,17 @@ public class StateMachine<E, S extends State<E>> implements IStateMachine<E,S> {
 		this.setInitialState(initialState);
 	}
 	
-
-	
 	/**
 	 * Updates the state machine by invoking the current state's code
 	 */
 	@Override
 	public void update(UpdateArgs ua) {
-	
 		if(currentState!=null) currentState.update(this.owner, ua);
 	}
-	
 	
 	public E getOwner(){
 		return owner;
 	}
-	
 	
 	@Override
 	public void changeState(S newState) {

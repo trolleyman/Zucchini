@@ -1,7 +1,9 @@
 package game.ai;
 
+import game.Util;
 import game.action.Action;
 import game.action.ActionType;
+import game.action.AimAction;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
 import game.world.entity.Player;
@@ -179,10 +181,11 @@ public enum AIPlayerStates implements State<AIPlayer> {
 				aiPlayer.handleAction(ua.bank, new Action(ActionType.END_USE));
 				aiPlayer.getStateMachine().changeState(MOVE_TOWARDS_CENTRE);
 			} else {
+				float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, kill.position.x, kill.position.y);
 				aiPlayer.handleAction(ua.bank, new Action(ActionType.BEGIN_USE));
+				aiPlayer.handleAction(ua.bank, new AimAction(angle)); // aimbot mode
 				aiPlayer.setDestination(ua.map.getPathFindingMap(), kill.position);
 			}
-			
 		}
 		
 		@Override

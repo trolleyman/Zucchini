@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Optional;
 
+import game.action.AimAction;
 import game.world.Team;
 import game.world.entity.*;
+import game.world.entity.update.AngleUpdate;
 import org.joml.Vector2f;
 
 import game.ColorUtil;
@@ -64,12 +66,13 @@ public class AIPlayer extends Player {
 	}
 	
 	@Override
-	public void update(UpdateArgs ua){
-		if (time >= 0.5f){
+	public void update(UpdateArgs ua) {
+		stateMachine.update(ua);
+		/*if (time >= 0.5f){
 			stateMachine.update(ua);
 			time = 0;
 		}
-		time += ua.dt;
+		time += ua.dt;*/
 		
 		super.update(ua);
 	}
