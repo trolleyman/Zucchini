@@ -23,7 +23,7 @@ import game.world.map.Map;
  * @author George and Yean
  */
 public class AIPlayer extends Player {
-	protected boolean debug = true;    //debug messages for when ai changes states
+	protected boolean debug = false;    //debug messages for when ai changes states
 	protected boolean debug2 = false;  // debug messages for ai during the states
 	
 	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;

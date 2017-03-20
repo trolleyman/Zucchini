@@ -11,6 +11,7 @@ import game.world.EntityBank;
 import game.world.ServerWorld;
 import game.world.Team;
 import game.world.entity.Player;
+import game.world.entity.monster.Zombie;
 import game.world.entity.weapon.MachineGun;
 import game.world.map.Map;
 import org.joml.Vector2f;
@@ -140,6 +141,7 @@ public class Lobby {
 					world.addAI(new AIPlayer(team, new Vector2f(position), name,new MachineGun(new Vector2f(0.0f, 0.0f),256) ));
 				}
 			}
+			
 		}
 		
 		long prevTime = System.nanoTime();

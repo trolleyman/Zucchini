@@ -38,12 +38,15 @@ public class Zombie extends AutonomousEntity {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
 		
 		if (time >= 0.5f){
-			// Set node
+		
 			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-			if (kill == null) {
-				this.setDestination(pfmap, null);
-			} else {
-				this.setDestination(pfmap, kill.position);
+			if (kill == null){
+					
+			}else{
+				if  (this.position.distance(kill.position.x, kill.position.y) > 5){
+					this.setDestination(pfmap, kill.position);
+				}
+
 			}
 			
 			time = 0;
