@@ -91,9 +91,9 @@ public class Zombie extends AutonomousEntity {
 		float x = position.x + 0.25f * (float) Math.sin(angle);
 		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
-		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
+		//r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
-		r.drawTexture(r.getTextureBank().getTexture("zombie_v1.png"), Align.MM, position.x, position.y, angle);
+		r.drawTexture(r.getTextureBank().getTexture("zombie_v1.png"), Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 	}
 	
 	@Override

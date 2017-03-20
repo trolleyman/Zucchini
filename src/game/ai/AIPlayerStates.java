@@ -187,9 +187,8 @@ public enum AIPlayerStates implements State<AIPlayer> {
 								System.out.println("wall near");
 							}
 						}
-						
 					}
-					if (aWallNear == false){
+					if (aWallNear == false) {
 						notAWallBool = true;
 						aiPlayer.setDestination(pfmap, new Vector2f(kitingX,kitingY));
 						System.out.println("gogogogo");
@@ -205,12 +204,7 @@ public enum AIPlayerStates implements State<AIPlayer> {
 			if(aiPlayer.debug) System.out.println(Math.round(similarWander.getY() / pfmap.scale) + ", " + kitingY);
 			if (Math.round(similarWander.getX() / pfmap.scale) == Math.round(kitingX) && Math.round(similarWander.getY() / pfmap.scale) == Math.round(kitingY)){
 				kiting = false;
-					
-
 			}
-			
-		
-			
 		}
 		
 		@Override
