@@ -44,7 +44,7 @@ public class AIPlayer extends Player {
 	public AIPlayer(int team, Vector2f position, String name, Item heldItem) {
 		super(team, position, name, heldItem);
 		
-		stateMachine = new StateMachine<>(this, AIPlayerStates.MOVE_TOWARDS_CENTRE);
+		stateMachine = new StateMachine<>(this, AIPlayerStates.WANDER);
 	}
 	
 	private void updateHeldItemInfo() {
@@ -67,12 +67,13 @@ public class AIPlayer extends Player {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		stateMachine.update(ua);
-		/*if (time >= 0.5f){
+
+		if (time >= 0.10f){
 			stateMachine.update(ua);
 			time = 0;
+		
 		}
-		time += ua.dt;*/
+		time += ua.dt;
 		
 		super.update(ua);
 	}

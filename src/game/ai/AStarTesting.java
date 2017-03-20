@@ -11,7 +11,7 @@ public class AStarTesting {
 
 	public static void main(String[] args) {
 		//if error with zombies not finding player, go through the program and make sure the scale is the same throughout
-		PathFindingMap map = new PathFindingMap(new FinalMap(), 10f);
+		PathFindingMap map = new PathFindingMap(new FinalMap(), 3f);
 		
 		ArrayList<Node> node = new ArrayList<Node>();
 		node = new AStar(new Node(1,1), new Node((int)map.width - 5,(int)map.height -5),map.grid).findRoute();
@@ -38,7 +38,7 @@ public class AStarTesting {
 		
 		
 		System.out.println(map.grid[0][0]);
-		System.out.println(map.grid[19][10]);
+		System.out.println(map.grid[22][22]);
 		
 				
 	}

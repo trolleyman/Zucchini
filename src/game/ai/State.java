@@ -16,4 +16,5 @@ public interface State<E> {
 	void update(E entity, UpdateArgs ua);
 	/**This will be executed when the state is exited*/
 	void exit(E entity);
+
 }

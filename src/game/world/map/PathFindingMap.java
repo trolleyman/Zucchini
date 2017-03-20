@@ -176,5 +176,12 @@ public class PathFindingMap {
 		return new ArrayList<>(route);
 	}
 
+	public boolean notAWall(float x, float y){
+		Node a = getClosestNodeTo(x, y);
+		
+		return !grid[a.getX()][a.getY()];
+		
+	}
+
 	
 }
