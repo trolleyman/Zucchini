@@ -219,6 +219,10 @@ public class HelpUI extends UI implements InputPipeMulti{
 		exitBtn.setX(winWidth - 150);
 		exitBtn.setY(winHeight - 150);
 		
+		if(imageCount<0){
+			nextUI = afterUI;
+		}
+		
 		if(imageCount<3){
 			r.drawText(font, "HOW TO SET UP A GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
 		}

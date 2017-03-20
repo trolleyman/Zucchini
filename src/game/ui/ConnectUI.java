@@ -12,8 +12,9 @@ import game.net.client.IClientConnection;
 import game.render.*;
 import game.ui.component.ButtonComponent;
 import game.ui.component.ImageComponent;
+import game.ui.component.MuteComponent;
 import game.ui.component.TextEntryComponent;
-
+import game.ui.component.VolumeComponent;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -40,6 +41,12 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	private ButtonComponent connectButton;
 	/** The auto connect button */
 	private ButtonComponent autoConnectButton;
+	/** The help button */
+	private ButtonComponent helpBtn;
+	/** The volume slider */
+	private VolumeComponent volumeComponent;
+	/** The mute toggle button */
+	private MuteComponent muteComponent;
 	
 	private double time = 0.0f;
 	
@@ -100,10 +107,25 @@ public class ConnectUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("autoPressed.png")
 		);
 		
+		helpBtn = new ButtonComponent(
+				() -> this.nextUI = new HelpUI(this, this),
+				Align.BL, 0, 0,
+				textureBank.getTexture("helpbtn.png"),
+				textureBank.getTexture("helpclicked.png"),
+				textureBank.getTexture("helpclicked.png")
+		);
+		
+		// Create Mute Button
+		muteComponent = new MuteComponent(Align.BL, 100, 100, audio, textureBank);
+			
+		
 		// Create Background Image
 		backgroundImage = new ImageComponent(
 				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
+		
+		// Create Volume Slider
+		volumeComponent = new VolumeComponent(20.0f, 20.0f, audio);
 		
 		// Create loading texture
 		this.loadingTex = textureBank.getTexture("loading.png");
@@ -113,6 +135,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(ipEntry);
 		this.inputHandlers.add(connectButton);
 		this.inputHandlers.add(autoConnectButton);
+		this.inputHandlers.add(helpBtn);
+		this.inputHandlers.add(volumeComponent);
+		this.inputHandlers.add(muteComponent);
+
 	}
 	
 	@Override
@@ -142,6 +168,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		ipEntry.update(dt);
 		connectButton.update(dt);
 		autoConnectButton.update(dt);
+		helpBtn.update(dt);
+		volumeComponent.update(dt);
+		muteComponent.update(dt);
+
 		
 		if (connecting) {
 			nameEntry.setEnabled(false);
@@ -169,6 +199,13 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		connectButton.setY(nameEntry.getY() - padding*3 - nameEntry.h);
 		autoConnectButton.setX(padding + connectButton.getX() + connectButton.getWidth());
 		autoConnectButton.setY(connectButton.getY());
+		helpBtn.setX(padding);
+		helpBtn.setY(padding);
+		muteComponent.setX(20.0f);
+		muteComponent.setY((r.getHeight()/3) - muteComponent.getHeight() - 20.0f);
+		volumeComponent.setX(muteComponent.getX() + muteComponent.getWidth()/2 - VolumeComponent.WIDTH/2);
+		volumeComponent.setY(muteComponent.getY() - VolumeComponent.HEIGHT - 20.0f);
+		
 		
 		// Render the buttons
 		r.drawText(font, "Address", Align.TL, false, padding, r.getHeight() - padding, 1.0f);
@@ -177,6 +214,9 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		ipEntry.render(r);
 		connectButton.render(r);
 		autoConnectButton.render(r);
+		helpBtn.render(r);
+		muteComponent.render(r);
+		volumeComponent.render(r);
 		if (connecting) {
 			float angle = (float)(time * 5.0 % (Math.PI * 2));
 			r.drawTexture(loadingTex, Align.MM,
