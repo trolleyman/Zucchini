@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public abstract class AutonomousEntity extends MovableEntity {
 	/** The min time between route regen */
-	private static double MIN_TIME_BETWEEN_ROUTE_REGEN = 0.3;
+	private static double MIN_TIME_BETWEEN_ROUTE_REGEN = 0.4;
 	
 	/** Whether the AutonomousEntity is enabled or not */
 	protected boolean enabled;

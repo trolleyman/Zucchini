@@ -28,9 +28,6 @@ public class AIPlayer extends Player {
 	
 	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
 	
-	// AIPlayer doesn't update it's moves every update cycle
-	private transient double time = 0.0;
-	
 	public AIPlayer(AIPlayer ai) {
 		super(ai);
 		this.debug = ai.debug;
@@ -79,11 +76,6 @@ public class AIPlayer extends Player {
 	@Override
 	public void update(UpdateArgs ua) {
 		stateMachine.update(ua);
-		/*if (time >= 0.5f){
-			stateMachine.update(ua);
-			time = 0;
-		}
-		time += ua.dt;*/
 		
 		super.update(ua);
 	}
