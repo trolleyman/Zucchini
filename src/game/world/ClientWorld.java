@@ -98,6 +98,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	
 	/** What the next debug framebuffer should be */
 	private DebugFramebuffer nextDebugFramebuffer = null;
+	/** Should the line of sight debug lines option be toggled on the next frame? */
+	private boolean shouldToggleDebugDrawLOSLines = false;
 	
 	/**
 	 * Constructs a client world
@@ -267,6 +269,12 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			r.setRenderSettings(s);
 			nextDebugFramebuffer = null;
 		}
+		if (shouldToggleDebugDrawLOSLines) {
+			RenderSettings s = r.getRenderSettings();
+			s.debugDrawLineOfSightLines = !s.debugDrawLineOfSightLines;
+			r.setRenderSettings(s);
+			shouldToggleDebugDrawLOSLines = false;
+		}
 		
 		// Set model view matrix
 		Player p = getPlayer();
@@ -299,6 +307,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		
 		// === Draw world with lighting ===
 		Framebuffer wwlFramebuffer = r.getFreeFramebuffer();
+		wwlFramebuffer.setWrapMode(GL_REPEAT);
 		wwlFramebuffer.bind();
 		r.drawWorldWithLighting(worldFramebuffer, lightFramebuffer);
 		
@@ -544,6 +553,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 				}
 			}
 		} else {
+			// Ctrl is down
 			if (action == GLFW_PRESS && cPressed) {
 				switch (key) {
 					case GLFW_KEY_1:
@@ -557,6 +567,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 						break;
 					case GLFW_KEY_4:
 						nextDebugFramebuffer = DebugFramebuffer.GLITCH;
+						break;
+					case GLFW_KEY_5:
+						shouldToggleDebugDrawLOSLines = true;
 						break;
 				}
 			}
