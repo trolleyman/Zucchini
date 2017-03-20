@@ -34,7 +34,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private float mapSize;
 	private float playerHealth;
 	private float maxHealth;
-	
+	private Boolean alive;
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
@@ -53,7 +53,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.inputHandlers.add(world);
 		
 		nextUI = this;
-		
+		alive = true;
 		scoreboardComponent = new ScoreboardComponent(world.getScoreboard(), 0.0f);
 	}
 	
@@ -100,7 +100,9 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.world.render(r);
 		
 		renderScoreboard(r);
-		renderHealthBar(r);
+		if(alive){
+			renderHealthBar(r);
+		}
 	}
 	
 	private void renderScoreboard(IRenderer r) {
@@ -108,9 +110,11 @@ public class GameUI extends UI implements InputPipeMulti {
 		Font f = r.getFontBank().getFont("emulogic.ttf");
 		if (scoreboardShown || world.isPlayerDead()) {
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
+			//this.world.render2(r);
 		}
 		float y = 0.0f;
 		if (world.isPlayerDead()) {
+			alive = false;
 			r.drawText(f, "You are dead.", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.RED);
 			PlayerScoreboardInfo p = world.getScoreboard().getPlayer(connection.getName());
 			Damage d = p == null ? null : p.lastDamage;

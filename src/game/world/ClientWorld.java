@@ -510,8 +510,8 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// Set model view matrix
 		r.getModelViewMatrix()
 			.pushMatrix()
-			.translate(150, 150, 0.0f)
-			.scale(50);
+			.translate(r.getWidth()/3, 150, 0.0f)
+			.scale(30);
 			//.translate(-cameraPos.x, -cameraPos.y, 0.0f);
 		this.map.render(r);
 		
