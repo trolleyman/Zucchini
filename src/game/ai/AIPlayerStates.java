@@ -1,10 +1,14 @@
 package game.ai;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import game.ai.State;
+import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
+import game.world.entity.Player;
 import game.world.map.PathFindingMap;
 
 /**
@@ -32,21 +36,15 @@ public enum AIPlayerStates implements State<AIPlayer>{
 			PathFindingMap  pfmap = aiPlayer.getPFMap();
 			//TODO:do wandering things
 			//top priority for all states will be if this entity can see an enemy, then switch states
-			if(aiPlayer.canSeeEnemy()){
+			
+			
+			if(aiPlayer.CanISeeEnemy(ua, Player.class) != null){
 				if(aiPlayer.debug2) System.out.println("While wandering, we see an enemy!");
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
 				return;
 			}
-			if(aiPlayer.isShotAt()){
-				if(aiPlayer.debug2) System.out.println("While wandering, we are getting shot at!");
-				aiPlayer.getStateMachine().changeState(EVADE);
-				return;
-			}
-			if(aiPlayer.canSeePickUp()){
-				if(aiPlayer.debug2) System.out.println("While wandering, we see a valuable pickup!");
-				aiPlayer.getStateMachine().changeState(PICKUP);
-				return;
-			}
+			
+			
 			
 			//wander
 			if(aiPlayer.debug2) System.out.println("AI is wandering");
@@ -70,7 +68,7 @@ public enum AIPlayerStates implements State<AIPlayer>{
 			pfmap = aiPlayer.getPFMap();
 			// TODO Auto-generated method stub
 		
-			aiPlayer.setDestination(pfmap,new Vector2f(pfmap.height / 2,pfmap.width / 2));
+			
 		
 		}
 		
@@ -78,8 +76,8 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		public void update(AIPlayer aiPlayer, UpdateArgs ua){
 			pfmap = aiPlayer.getPFMap();
 			
-			aiPlayer.setDestination(pfmap,new Vector2f(5,5));
-			if(aiPlayer.canSeeEnemy()){
+			aiPlayer.setDestination(pfmap,new Vector2f(15,15));
+			if(aiPlayer.CanISeeEnemy(ua, Player.class) != null){
 				if(aiPlayer.debug2) System.out.println("While wandering, we see an enemy!");
 				
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
@@ -111,7 +109,7 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		@Override
 		public void update(AIPlayer aiPlayer, UpdateArgs ua){
 			//TODO:try to dodge incoming bullets
-			if(aiPlayer.canSeeEnemy()){
+			if(aiPlayer.CanISeeEnemy(ua, Player.class) != null){
 				if(aiPlayer.debug2) System.out.println("While evading, we spot the enemy!");
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
 				return;
@@ -151,7 +149,7 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		@Override
 		public void update(AIPlayer aiPlayer, UpdateArgs ua){
 			//TODO:go towards pickup and take it
-			if(aiPlayer.canSeeEnemy()){
+			if(aiPlayer.CanISeeEnemy(ua, Player.class) != null){
 				if(aiPlayer.debug2) System.out.println("Moving Toward pickup, but encounters enemy!");
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
 				return;
@@ -195,12 +193,16 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		
 		@Override
 		public void update(AIPlayer aiPlayer, UpdateArgs ua){
-			Entity kill = ua.bank.getClosestHostileEntity(aiPlayer.position.x, aiPlayer.position.y, aiPlayer.getTeam());
-			if (aiPlayer.heldItem != null)
-				aiPlayer.heldItem.beginUse();
+			Entity kill = aiPlayer.CanISeeEnemy(ua, Player.class);
+			
+		
 			if (kill == null) {
-				aiPlayer.setDestination(pfmap, null);
+				aiPlayer.heldItem.endUse();
+				aiPlayer.getStateMachine().changeState(MOVE_TOWARDS_CENTRE);
 			} else {
+				if (aiPlayer.heldItem != null)
+					aiPlayer.heldItem.beginUse();
+				
 				aiPlayer.setDestination(pfmap, kill.position);
 			}
 
@@ -210,6 +212,8 @@ public enum AIPlayerStates implements State<AIPlayer>{
 		public void exit(AIPlayer aiPlayer) {
 			if(aiPlayer.debug) System.out.println("AI exits SHOOT_ENEMY state");
 		}
+		
+	
 	};
 	
 	

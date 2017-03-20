@@ -1,5 +1,7 @@
 package game.ai;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import game.ColorUtil;
@@ -28,7 +30,7 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	public final float RADIUS = 0.15f;
 	private static final float MAX_SPEED = 1.0f;
 	//for statemachine
-	private boolean canSeeEnemyVar = false;
+
 	private PathFindingMap pfmap;
 	//for lag
 	private int tickCounter = 0;
@@ -85,7 +87,6 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		
 		pfmap =  ua.map.getPathFindingMap();
 		if (tickCounter > 100){
-			changeCanISeeEnemy(ua);
 			stateMachine.update(ua);
 			tickCounter = 0;
 		}
@@ -115,20 +116,26 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		
 	}
 	
-	public boolean canSeeEnemy(){
-		//TODO: make function that tells us if this entity can see an enemy
-		return canSeeEnemyVar;
-	}
-	private void changeCanISeeEnemy(UpdateArgs ua){
-		Entity closest = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-		if (closest != null){
-			if (closest.position.distance(this.position) < 4.0f){
-				canSeeEnemyVar = true;
-			}else{
-				canSeeEnemyVar = false;
-			}
+
+	public Entity CanISeeEnemy(UpdateArgs ua, Class<?> find){
+		
+		ArrayList<Entity> closest  = ua.bank.getEntitiesNear(this.position.x, this.position.y, 20);
+		Vector2f v = null;
+		for (Entity kill : closest){
+				if (kill.getClass() == find){
+					System.out.println("hi");
+					
+					v = ua.map.intersectsLine(this.position.x, this.position.y, kill.position.x, kill.position.y, null);
+				
+					if (v == null){
+						return kill;
+					}
+				}
 		}
+		return null;			
 	}
+	
+	
 	public boolean canSeePickUp(){
 		//TODO: make function that can tell us if this entity can see a pickup
 		//and also if it's worth picking up
