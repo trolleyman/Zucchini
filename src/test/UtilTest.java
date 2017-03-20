@@ -1,6 +1,7 @@
 package test;
 
 import game.Util;
+import game.exception.ProtocolException;
 import game.render.Align;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lwjgl.system.MemoryUtil;
 
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
@@ -243,5 +245,10 @@ public class UtilTest {
 		buf2.flip();
 		Util.reverseFloatBuffer(buf1);
 		assertEquals(buf1, buf2);
+	}
+	
+	@Test
+	public void getLastMessage() {
+		assertEquals("Test", Util.getLastMessage(new ProtocolException(new IOException("Test"))));
 	}
 }

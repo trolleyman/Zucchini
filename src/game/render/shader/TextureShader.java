@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.*;
 
+import game.exception.ShaderCompilationException;
 import game.render.Texture;
 
 /**
@@ -15,13 +16,10 @@ public class TextureShader extends SimpleShader {
 	/** Texture uniform location */
 	private int texUniform;
 	
-	/** Current texture ID */
-	private int tex;
-	
 	/**
 	 * Constructs a texture shader with the default name
 	 */
-	public TextureShader() {
+	public TextureShader() throws ShaderCompilationException {
 		super("texture");
 		
 		texUniform = getUniformLocation("tex");
@@ -29,28 +27,11 @@ public class TextureShader extends SimpleShader {
 	
 	/**
 	 * Binds an OpenGL texture to the shader
-	 * @param _tex The texture
+	 * @param tex The texture
 	 */
-	public void bindTexture(Texture _tex) {
-		this.tex = _tex.getTextureID();
-		
-		if (getCurrentShader() == this)
-			uploadTexture();
-	}
-	
-	/**
-	 * Uploads the texture to the shader
-	 */
-	private void uploadTexture() {
+	public void bindTexture(Texture tex) {
 		glUniform1i(texUniform, 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tex);
-	}
-	
-	@Override
-	public void use() {
-		super.use();
-		
-		uploadTexture();
+		glBindTexture(GL_TEXTURE_2D, tex.getTextureID());
 	}
 }

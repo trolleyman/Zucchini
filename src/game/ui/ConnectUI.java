@@ -214,22 +214,9 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	}
 
 	/**
-	 * Gets the last message from the server
-	 * @param t Throwable
-	 * @return The last message
-	 */
-	private String getLastMessage(Throwable t) {
-		while (t.getCause() != null) {
-			t = t.getCause();
-		}
-		return t.getMessage();
-	}
-
-
-	/**
 	 * Helper function for connecting to the server
 	 * @param name Name of the player
-	 * @param sAddress The address of the server
+	 * @param sAddress The address of the server as a string. This can be null for autoconnecting
 	 */
 	private void connectToServer(String name, String sAddress) {
 		try {
@@ -252,10 +239,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 				try {
 					connection = new ClientConnection(name, 3);
 				} catch (ProtocolException e) {
-					error = "Could not connect to server: " + getLastMessage(e);
+					error = "Could not connect to server: " + Util.getLastMessage(e);
 					return;
 				} catch (NameException e) {
-					error = "Name is not valid: " + getLastMessage(e);
+					error = "Name is not valid: " + Util.getLastMessage(e);
 					return;
 				}
 			} else {
@@ -263,10 +250,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 					InetAddress addr = InetAddress.getByName(sAddress);
 					connection = new ClientConnection(name, addr);
 				} catch (ProtocolException e) {
-					error = "Could not connect to server: " + getLastMessage(e);
+					error = "Could not connect to server: " + Util.getLastMessage(e);
 					return;
 				} catch (NameException e) {
-					error = "Name is not valid: " + getLastMessage(e);
+					error = "Name is not valid: " + Util.getLastMessage(e);
 					return;
 				} catch (UnknownHostException e) {
 					error = "Host could not be resolved";

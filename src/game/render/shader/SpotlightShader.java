@@ -1,5 +1,7 @@
 package game.render.shader;
 
+import game.Util;
+import game.exception.ShaderCompilationException;
 import org.joml.Vector2f;
 
 import static org.lwjgl.opengl.GL20.*;
@@ -11,15 +13,10 @@ import static org.lwjgl.opengl.GL20.*;
  */
 public class SpotlightShader extends PointLightShader {
 	private int coneAngleMinUniform;
-	private float coneAngleMin = (float) Math.toRadians(45.0);
-	
 	private int coneAngleMaxUniform;
-	private float coneAngleMax = (float) Math.toRadians(50.0);
-	
 	private int coneDirectionUniform;
-	private Vector2f coneDirection = new Vector2f(1.0f, 0.0f);
 	
-	public SpotlightShader() {
+	public SpotlightShader() throws ShaderCompilationException {
 		super("spotlight");
 		
 		coneAngleMinUniform = getUniformLocation("coneAngleMin");
@@ -28,48 +25,17 @@ public class SpotlightShader extends PointLightShader {
 	}
 	
 	public void setConeAngleMin(float angle) {
-		this.coneAngleMin = angle;
-		
-		if (Shader.getCurrentShader() == this)
-			uploadConeAngleMin();
+		glUniform1f(coneAngleMinUniform, angle);
 	}
 	
 	public void setConeAngleMax(float angle) {
-		this.coneAngleMax = angle;
-		
-		if (Shader.getCurrentShader() == this)
-			uploadConeAngleMax();
-	}
-	
-	public void setConeDirection(Vector2f direction) {
-		setConeDirection(direction.x, direction.y);
+		glUniform1f(coneAngleMaxUniform, angle);
 	}
 	
 	public void setConeDirection(float x, float y) {
-		this.coneDirection.set(x, y).normalize();
-		
-		if (Shader.getCurrentShader() == this)
-			uploadConeDirection();
-	}
-	
-	private void uploadConeAngleMin() {
-		glUniform1f(coneAngleMinUniform, coneAngleMin);
-	}
-	
-	private void uploadConeAngleMax() {
-		glUniform1f(coneAngleMaxUniform, coneAngleMax);
-	}
-	
-	private void uploadConeDirection() {
-		glUniform2f(coneDirectionUniform, coneDirection.x, coneDirection.y);
-	}
-	
-	@Override
-	public void use() {
-		super.use();
-		
-		uploadConeAngleMin();
-		uploadConeAngleMax();
-		uploadConeDirection();
+		// Ensure that the direction is normalized
+		Vector2f temp = Util.pushTemporaryVector2f().set(x, y).normalize();
+		glUniform2f(coneDirectionUniform, temp.x, temp.y);
+		Util.popTemporaryVector2f();
 	}
 }

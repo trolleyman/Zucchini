@@ -66,7 +66,7 @@ public class StartUI extends UI implements InputPipeMulti {
 		
 		// Create Help Button
 		helpButton = new ButtonComponent(
-				() -> this.nextUI = new HelpUI(this, this),
+				() -> this.nextUI = new HelpUI(this, () -> new StartUI(this)),
 				Align.BL, 100, 100,
 				textureBank.getTexture("helpDefault.png"),
 				textureBank.getTexture("helpHover.png"),

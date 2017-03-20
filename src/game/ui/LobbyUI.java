@@ -119,7 +119,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 	}
 
 	/**
-	 * Gets the lobbies from the server
+	 * Gets the lobbies from the server and sets the correct state of the UI
 	 */
 	private void getLobbies() {
 		synchronized (this) {
@@ -173,7 +173,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 	}
 
 	/**
-	 * Refresh Error
+	 * Called when there was an error in getting the lobbies from the server4
 	 * @param msg The message
 	 */
 	private void refreshErr(String msg) {
