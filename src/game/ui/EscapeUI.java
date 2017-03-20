@@ -16,9 +16,7 @@ import org.joml.Vector4f;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
- * 
  * @author Abby Wiggins
- *
  */
 
 public class EscapeUI extends UI implements InputPipeMulti {
@@ -46,7 +44,12 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private Font font;
-	
+
+	/**
+	 * Constructs a new EscapeUI
+	 * @param _ui The UI superclass
+	 * @param _world The client world
+	 */
 	public EscapeUI(UI _ui, ClientWorld _world) {
 		super(_ui);
 		nextUI = this;
@@ -57,7 +60,10 @@ public class EscapeUI extends UI implements InputPipeMulti {
 
 		start(); //java convention to keep constructor under 10 lines
 	}
-	
+
+	/**
+	 * Helper function for the constructor
+	 */
 	public void start() {
 		continueBtn = new ButtonComponent(
 				() -> this.nextUI = new GameUI(this, world),
@@ -68,7 +74,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		);
 		
 		helpBtn = new ButtonComponent(
-				() -> this.nextUI = new HelpUI(this, this),
+				() -> this.nextUI = new HelpUI(this, () -> new EscapeUI(this, world)),
 				Align.BL, 0, 0,
 				textureBank.getTexture("helpbtn.png"),
 				textureBank.getTexture("helpclicked.png"),
@@ -91,7 +97,8 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		
 		// Create Volume Slider
 		volumeComponent = new VolumeComponent(20.0f, 20.0f, audio);
-		
+
+		// Add input handlers
 		this.inputHandlers.add(continueBtn);
 		this.inputHandlers.add(helpBtn);
 		this.inputHandlers.add(quitBtn);

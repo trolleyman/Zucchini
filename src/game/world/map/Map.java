@@ -417,17 +417,27 @@ public class Map {
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
+		this.render(r, false);
+	}
+	
+	/**
+	 * Render the map
+	 * @param r The renderer
+	 * @param drawWalls Whether to draw the walls
+	 */
+	public void render(IRenderer r, boolean drawWalls) {
 		// Render background
-		this.renderBackground(r);
+		this.renderFloor(r);
 		
 		// Render foreground
-		this.renderForeground(r);
+		if (drawWalls)
+			this.renderWalls(r);
 	}
 	
 	/**
 	 * Renders the background of the map (i.e. the floor)
 	 */
-	public void renderBackground(IRenderer r) {
+	public void renderFloor(IRenderer r) {
 		Vector4f rect = getRect();
 		r.drawBox(Align.BL, rect.x, rect.y, rect.z, rect.w, ColorUtil.BLACK);
 		Texture background = r.getTextureBank().getTexture("map_background3.png");
@@ -437,14 +447,14 @@ public class Map {
 	/**
 	 * Renders the foreground (i.e. the walls)
 	 */
-	public void renderForeground(IRenderer r) {
+	public void renderWalls(IRenderer r) {
 		for (Wall wall : walls) {
 			float x0 = wall.p0.x;
 			float y0 = wall.p0.y;
 			float x1 = wall.p1.x;
 			float y1 = wall.p1.y;
 			
-			r.drawLine(x0, y0, x1, y1, ColorUtil.TRANSPARENT, 1.0f);
+			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
 		}
 	}
 	

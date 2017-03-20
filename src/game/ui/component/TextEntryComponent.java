@@ -46,8 +46,13 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	/**
 	 * Constructs a new TextEntryComponent
 	 * @param f The font to be used
+	 * @param scale The scale of the font
 	 * @param isValidChar Function returning true if the character given is valid.
 	 * @param submitFunc Function that is called when the user presses the ENTER key.
+	 * @param maxLength The max length of the input
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 * @param w The width of the text entry
 	 */
 	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, float x, float y, float w) {
 		this(f, scale, isValidChar, submitFunc, maxLength, () -> {}, x, y, w);
@@ -59,6 +64,9 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	 * @param isValidChar Function returning true if the character given is valid.
 	 * @param submitFunc Function that is called when the user presses the ENTER key.
 	 * @param onFocus Function that is called when the user clicks on the entry.
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 * @param w The width of the text entry
 	 */
 	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, Runnable onFocus, float x, float y, float w) {
 		this(f, scale, isValidChar, submitFunc, maxLength, onFocus, (c) -> c, x, y, w);
@@ -71,6 +79,9 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	 * @param submitFunc Function that is called when the user presses the ENTER key.
 	 * @param onFocus Function that is called when the user clicks on the entry.
 	 * @param characterConverter Function that is called to convert a character whenever a character is entered.
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 * @param w The width of the text entry
 	 */
 	public TextEntryComponent(Font f, float scale, Predicate<Character> isValidChar, Runnable submitFunc, int maxLength, Runnable onFocus, CharacterConverter characterConverter, float x, float y, float w) {
 		super(Align.BL, x, y);
@@ -130,7 +141,11 @@ public class TextEntryComponent extends AbstractButtonComponent {
 			fa.free();
 		}
 	}
-	
+
+	/**
+	 * Prints output for debug
+	 * @param msg The message
+	 */
 	private void out(String msg) {
 		System.out.println("TextEntry Info: " + msg);
 	}
@@ -272,7 +287,11 @@ public class TextEntryComponent extends AbstractButtonComponent {
 		
 		fa.free();
 	}
-	
+
+	/**
+	 * Gets the string with a position for the text entry cursor
+	 * @return The string
+	 */
 	private String getStringWithPos() {
 		StringBuilder s = new StringBuilder(currentString.size());
 		for (int i = 0; i < currentString.size(); i++) {
@@ -284,14 +303,23 @@ public class TextEntryComponent extends AbstractButtonComponent {
 			s.append('|');
 		return s.toString();
 	}
-	
+
+	/**
+	 * Gets the current string
+	 * @return The string
+	 */
 	public String getString() {
 		StringBuilder s = new StringBuilder(currentString.size());
 		for (Character c : currentString)
 			s.append(c);
 		return s.toString();
 	}
-	
+
+	/**
+	 * Gets the width of the string
+	 * @param num The number of characters
+	 * @return The length (float)
+	 */
 	private float getWidthTruncatedString(int num) {
 		FontAdvancer fa = f.getAdvancer(0.0f, 0.0f, scale);
 		for (int i = 0; i < num; i++) {
@@ -304,11 +332,19 @@ public class TextEntryComponent extends AbstractButtonComponent {
 		fa.free();
 		return w;
 	}
-	
+
+	/**
+	 * Gets the inner width of the text entry
+	 * @return The width
+	 */
 	private float getInnerWidth() {
 		return w - BORDER_WIDTH*2 - INNER_PADDING*2;
 	}
-	
+
+	/**
+	 * Returns the number of characters in the string
+	 * @return The number of characters
+	 */
 	private int getTruncStringLen() {
 		float maxWidth = getInnerWidth();
 		for (int num = currentString.size(); num >= 0; num--) {
@@ -318,7 +354,11 @@ public class TextEntryComponent extends AbstractButtonComponent {
 		}
 		return 0;
 	}
-	
+
+	/**
+	 * Gets the truncated string
+	 * @return The truncated string
+	 */
 	public String getTruncatedString() {
 		float maxWidth = getInnerWidth();
 		float tw = getWidthTruncatedString(currentString.size());
@@ -349,19 +389,35 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	public float getHeight() {
 		return h;
 	}
-	
+
+	/**
+	 * Set the width of the text entry
+	 * @param width The width
+	 */
 	public void setWidth(float width) {
 		this.w = width;
 	}
-	
+
+	/**
+	 * Set the height of the text entry
+	 * @param height The height
+	 */
 	public void setHeight(float height) {
 		this.h = height;
 	}
-	
+
+	/**
+	 * Sets whether the text entry component is enabled
+	 * @param enabled The boolean to set it to
+	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+
+	/**
+	 * Returns whether the text entry is enabled
+	 * @return Is it enabled?
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}

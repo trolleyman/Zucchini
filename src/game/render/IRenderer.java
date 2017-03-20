@@ -65,25 +65,19 @@ public interface IRenderer {
 	void beginFrame();
 	
 	/**
-	 * Begins the rendering to the world framebuffer
+	 * Clears the current framebuffer.
 	 */
-	void beginDrawWorld();
-	
-	/**
-	 * Ends the rendering to the world framebuffer, and draws the result to the screen
-	 */
-	void endDrawWorld();
-	
-	void beginDrawLighting();
-	
-	void endDrawLighting();
-	
-	void drawWorldWithLighting();
+	void clearFrame();
 	
 	/**
 	 * This should be called at the end of every frame, never at any other time.
 	 */
 	void endFrame();
+	
+	/**
+	 * Gets a free temporary framebuffer and binds it as the current framebuffer.
+	 */
+	Framebuffer getFreeFramebuffer();
 	
 	/**
 	 * Returns the {@link TextureBank} instance.
@@ -273,7 +267,7 @@ public interface IRenderer {
 	 * @param c The color of the object
 	 */
 	void drawTriangleFan(float[] data, float x, float y, Vector4f c);
-
+	
 	/**
 	 * Draws a triangle fan of the data provided. See GL_TRIANGLE_FAN for the details.
 	 * @param data The data points in [x0, y0, x1, y1, x2, y2, ...] format.
@@ -282,7 +276,7 @@ public interface IRenderer {
 	 * @param c The color of the object
 	 */
 	void drawTriangleFan(FloatBuffer data, float x, float y, Vector4f c);
-
+	
 	default void drawCircle(float x, float y, float radius) {
 		this.drawCircle(x, y, radius, ColorUtil.WHITE);
 	}
@@ -346,13 +340,53 @@ public interface IRenderer {
 	 * Disables stencil checking
 	 */
 	void disableStencil();
-	
 	/**
 	 * Gets the current mouse x-coordinate
 	 */
 	double getMouseX();
+	
 	/**
 	 * Gets the current mouse y-coordinate
 	 */
 	double getMouseY();
+	
+	/**
+	 * Draws the world with lighting
+	 * @param world The world framebuffer
+	 * @param light The lighting framebuffer
+	 */
+	void drawWorldWithLighting(Framebuffer world, Framebuffer light);
+	
+	/**
+	 * Draws a framebuffer to the currently bound framebuffer
+	 */
+	void drawFramebuffer(Framebuffer framebuffer);
+	
+	/**
+	 * Draws a framebuffer to the currently bound framebuffer with a specified position and size.
+	 * The position and size are in Normalized Device Coordinates. (i.e. from -1.0f to 1.0f in both axes)
+	 */
+	void drawFramebuffer(Framebuffer framebuffer, float x, float y, float w, float h);
+	
+	/**
+	 * Draws the glitch effect to the current framebuffer. Each red, green and blue pixel is transformed to
+	 * a place equal to the respective color's component in the effect framebuffer multiplied by the red, green
+	 * and blue directions respectively.
+	 * @param input The input framebuffer
+	 * @param effect The effect framebuffer. All black = no effect
+	 * @param rDir The red direction of the effect
+	 * @param gDir The green direction of the effect
+	 * @param bDir The blue direction of the effect
+	 */
+	void drawGlitchEffect(Framebuffer input, Framebuffer effect, Vector2f rDir, Vector2f gDir, Vector2f bDir);
+	
+	/**
+	 * Sets the default blend equation
+	 */
+	void setDefaultBlend();
+	
+	/**
+	 * Sets the lighting blend equation
+	 */
+	void setLightingBlend();
 }

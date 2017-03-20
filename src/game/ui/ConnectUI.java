@@ -65,15 +65,22 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		super(ui);
 		setup();
 	}
-	
+
 	/**
 	 * Constructs a new ConnectUI
+	 * @param _conn The client connection
+	 * @param _audio The audio manager
+	 * @param _tb The texture bank
+	 * @param _fb The font bank
 	 */
 	public ConnectUI(IClientConnection _conn, AudioManager _audio, TextureBank _tb, FontBank _fb) {
 		super(_conn, _audio, _tb, _fb);
 		setup();
 	}
-	
+
+	/**
+	 * The setup - helper function for constructor
+	 */
 	private void setup() {
 		font = fontBank.getFont("emulogic.ttf");
 		
@@ -108,7 +115,7 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		);
 		
 		helpBtn = new ButtonComponent(
-				() -> this.nextUI = new HelpUI(this, this),
+				() -> this.nextUI = new HelpUI(this, () -> new ConnectUI(this)),
 				Align.BL, 0, 0,
 				textureBank.getTexture("helpbtn.png"),
 				textureBank.getTexture("helpclicked.png"),
@@ -227,26 +234,30 @@ public class ConnectUI extends UI implements InputPipeMulti {
 					autoConnectButton.getY() - padding, 0.5f, ColorUtil.RED);
 		}
 	}
-	
+
+	/**
+	 * Attempts connection to the server using the given IP address
+	 */
 	public void connect() {
 		System.out.println("Connecting...");
 		error = null;
 		new Thread(() -> connectToServer(nameEntry.getString(), ipEntry.getString()), "ConnectUI Connection Starter").start();
 	}
-	
+
+	/**
+	 * Attempts connection to the server without an IP address
+	 */
 	public void autoConnect() {
 		System.out.println("Autoconnecting...");
 		error = null;
 		new Thread(() -> connectToServer(nameEntry.getString(), null), "ConnectUI Connection Starter").start();
 	}
-	
-	private String getLastMessage(Throwable t) {
-		while (t.getCause() != null) {
-			t = t.getCause();
-		}
-		return t.getMessage();
-	}
-	
+
+	/**
+	 * Helper function for connecting to the server
+	 * @param name Name of the player
+	 * @param sAddress The address of the server as a string. This can be null for autoconnecting
+	 */
 	private void connectToServer(String name, String sAddress) {
 		try {
 			boolean temp;
@@ -268,10 +279,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 				try {
 					connection = new ClientConnection(name, 3);
 				} catch (ProtocolException e) {
-					error = "Could not connect to server: " + getLastMessage(e);
+					error = "Could not connect to server: " + Util.getLastMessage(e);
 					return;
 				} catch (NameException e) {
-					error = "Name is not valid: " + getLastMessage(e);
+					error = "Name is not valid: " + Util.getLastMessage(e);
 					return;
 				}
 			} else {
@@ -279,10 +290,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 					InetAddress addr = InetAddress.getByName(sAddress);
 					connection = new ClientConnection(name, addr);
 				} catch (ProtocolException e) {
-					error = "Could not connect to server: " + getLastMessage(e);
+					error = "Could not connect to server: " + Util.getLastMessage(e);
 					return;
 				} catch (NameException e) {
-					error = "Name is not valid: " + getLastMessage(e);
+					error = "Name is not valid: " + Util.getLastMessage(e);
 					return;
 				} catch (UnknownHostException e) {
 					error = "Host could not be resolved";

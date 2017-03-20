@@ -16,13 +16,25 @@ public class MuteComponent extends AbstractButtonComponent {
 	private Texture currentTex;
 	private boolean hover = false;
 	private boolean pressed = false;
-	
+
+	/**
+	 * Construct a mute component
+	 * @param a The alignment
+	 * @param x The x coordinate
+	 * @param y The y Coordinate
+	 * @param audio The audio manager
+	 * @param bank The texture bank
+	 */
 	public MuteComponent(Align a, float x, float y, AudioManager audio, TextureBank bank) {
 		super(a, x, y);
 		this.audio = audio;
 		setCurrentTexture(bank);
 	}
-	
+
+	/**
+	 * Set the current texture based on tha state of the volume
+	 * @param bank The texture bank
+	 */
 	private void setCurrentTexture(TextureBank bank) {
 		if (audio.isMuted())
 			currentTex = bank.getTexture("Volume-Mute.png");

@@ -107,16 +107,23 @@ public abstract class Entity implements Cloneable {
 	/**
 	 * Renders the entity to the screen
 	 * @param r The renderer
-	 * @param map
+	 * @param map The map
 	 */
 	public abstract void render(IRenderer r, Map map);
 	
 	/**
 	 * Renders the light associated with the entity. By default the entity emits no light.
 	 * @param r The renderer
-	 * @param map
+	 * @param map The map
 	 */
 	public void renderLight(IRenderer r, Map map) {}
+	
+	/**
+	 * Renders the glitch effect associated with the entity. For most objects this will be nothing.
+	 * @param r The renderer
+	 * @param map The map
+	 */
+	public void renderGlitch(IRenderer r, Map map) {}
 	
 	/**
 	 * Calculates an intersection with the entity and a line

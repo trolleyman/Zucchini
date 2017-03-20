@@ -11,13 +11,11 @@ import static org.lwjgl.opengl.GL30.*;
  * Represents an OpenGL Framebuffer object
  */
 public class Framebuffer {
-	
 	/** Framebuffer ID */
 	private int fbId;
 	
 	/** Color Texture ID */
 	private int colorTexId;
-	
 	/** Depth & stencil Renderbuffer ID */
 	private int depthStencilTexId;
 	
@@ -39,8 +37,8 @@ public class Framebuffer {
 		glBindTexture(GL_TEXTURE_2D, depthStencilTexId);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		this.resizeDepthStencilTex(width, height);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		
@@ -67,6 +65,30 @@ public class Framebuffer {
 	private void resizeDepthStencilTex(int width, int height) {
 		glBindTexture(GL_TEXTURE_2D, depthStencilTexId);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, (ByteBuffer) null);
+	}
+	
+	/**
+	 * Sets the wrap mode for the underlying textures. The default is GL_CLAMP_TO_BORDER
+	 * @param wrapMode Can be GL_REPEAT, GL_CLAMP_TO_EDGE or GL_CLAMP_TO_BORDER
+	 */
+	public void setWrapMode(int wrapMode) {
+		switch (wrapMode) {
+			case GL_REPEAT:
+			case GL_CLAMP_TO_EDGE:
+			case GL_CLAMP_TO_BORDER:
+				break;
+			default:
+				System.err.println("Warning: Invalid wrap mode: " + wrapMode);
+				return;
+		}
+		
+		glBindTexture(GL_TEXTURE_2D, colorTexId);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+		glBindTexture(GL_TEXTURE_2D, depthStencilTexId);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	
 	/**

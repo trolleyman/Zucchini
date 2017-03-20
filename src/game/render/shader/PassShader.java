@@ -1,5 +1,6 @@
 package game.render.shader;
 
+import game.exception.ShaderCompilationException;
 import game.render.AccessFrequency;
 import game.render.VAO;
 import game.render.VBO;
@@ -21,36 +22,38 @@ public abstract class PassShader extends Shader {
 	/** Transformation uniform location */
 	private int transUniform;
 	
+	/** The identity matrix */
+	private final Matrix4f identityMatrix = new Matrix4f();
+	
 	/** Temp buffer used to upload the transformation matrix to the shader */
 	private FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
 	
-	public PassShader(String name) {
+	public PassShader(String name) throws ShaderCompilationException {
 		super(name);
 		
 		transUniform = getUniformLocation("trans");
 		
-		buffer.clear();
-		new Matrix4f().setOrtho(0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 1.0f).get(buffer).rewind();
-		
 		float[] vertexPositions = {
+				// .: CCW :.
 				// t0
-				0.0f, 0.0f, // BL
-				0.0f, 1.0f, // TL
-				1.0f, 0.0f, // BR
+				-1.0f, -1.0f, // BL
+				 1.0f, -1.0f, // BR
+				-1.0f,  1.0f, // TL
 				// t1
-				0.0f, 1.0f, // TL
-				1.0f, 1.0f, // TR
-				1.0f, 0.0f, // BR
+				-1.0f,  1.0f, // TL
+				 1.0f, -1.0f, // BR
+				 1.0f,  1.0f, // TR
 		};
 		float[] vertexUVs = {
+				// .: CCW :.
 				// t0
-				0.0f, 1.0f, // BL
-				0.0f, 0.0f, // TL
-				1.0f, 1.0f, // BR
+				0.0f, 0.0f, // BL
+				1.0f, 0.0f, // BR
+				0.0f, 1.0f, // TL
 				// t1
-				0.0f, 0.0f, // TL
-				1.0f, 0.0f, // TR
-				1.0f, 1.0f, // BR
+				0.0f, 1.0f, // TL
+				1.0f, 0.0f, // BR
+				1.0f, 1.0f, // TR
 		};
 		
 		VBO positions = new VBO(vertexPositions, AccessFrequency.STATIC);
@@ -65,24 +68,16 @@ public abstract class PassShader extends Shader {
 	 * Processes the current inputs and draws the result to the current framebuffer
 	 */
 	public void draw() {
-		this.use();
-		
-		boxUV.bind();
-		boxUV.draw(GL_TRIANGLES, 6);
+		this.draw(identityMatrix);
 	}
 	
 	/**
-	 * Uploads the transformation matrix to the shader
+	 * Processes the current inputs and draws the result to the current framebuffer
+	 * @param matrix The transformation matrix
 	 */
-	private void uploadMatrix() {
-		buffer.rewind();
+	public void draw(Matrix4f matrix) {
+		matrix.get(buffer).rewind();
 		glUniformMatrix4fv(transUniform, false, buffer);
-	}
-	
-	@Override
-	public void use() {
-		super.use();
-		
-		uploadMatrix();
+		boxUV.draw(GL_TRIANGLES, 6);
 	}
 }

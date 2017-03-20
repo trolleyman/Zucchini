@@ -64,7 +64,7 @@ public class Shader {
 	 * Constructs a new shader with the specified shader name.
 	 * @param _shaderName The shader name
 	 */
-	public Shader(String _shaderName) {
+	public Shader(String _shaderName) throws ShaderCompilationException {
 		this.shaderName = _shaderName;
 		// Get shader base, e.g. "./resources/shader/simple"
 		HashMap<String, byte[]> shaderData = Resources.getShaders();
@@ -85,12 +85,8 @@ public class Shader {
 			}
 			
 			program = glCreateProgram();
-			try {
-				vertShader = compileAndAttach(vertBytes, ShaderType.VERTEX, program);
-				fragShader = compileAndAttach(fragBytes, ShaderType.FRAGMENT, program);
-			} catch (ShaderCompilationException ex) {
-				throw new RuntimeException(ex);
-			}
+			vertShader = compileAndAttach(vertBytes, ShaderType.VERTEX, program);
+			fragShader = compileAndAttach(fragBytes, ShaderType.FRAGMENT, program);
 			
 			glLinkProgram(program);
 			if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
