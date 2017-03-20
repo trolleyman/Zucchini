@@ -65,7 +65,7 @@ public class TestMap extends Map {
 	
 	/** Constructs the test map */
 	public TestMap() {
-		super(new ArrayList<>(), 5.0f);
+		super(new ArrayList<>(), 5.0f, 1);
 		walls.add(new Wall(CA, RA, CG, RA)); // -- Outside walls --
 		walls.add(new Wall(CG, RA, CG, RG));
 		walls.add(new Wall(CA, RA, CA, RG));

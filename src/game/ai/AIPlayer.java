@@ -39,11 +39,22 @@ public class AIPlayer extends Player {
 	}
 	
 	/**
+	 * Contructs an AIPlayer at position with a default held item
+	 */
+	public AIPlayer(int team, Vector2f position, String name) {
+		super(team, position, name);
+		setup();
+	}
+	
+	/**
 	 * Contructs an AIPlayer at position with an Item
 	 */
 	public AIPlayer(int team, Vector2f position, String name, Item heldItem) {
 		super(team, position, name, heldItem);
-		
+		setup();
+	}
+	
+	private void setup() {
 		stateMachine = new StateMachine<>(this, AIPlayerStates.MOVE_TOWARDS_CENTRE);
 	}
 	
@@ -101,7 +112,7 @@ public class AIPlayer extends Player {
 		Optional<Entity> closest = entities.stream().min(
 				(l, r) -> Float.compare(l.position.distanceSquared(position), r.position.distanceSquared(position)));
 		if (closest.isPresent()) {
-			System.out.println("Hi there, " + closest.get().getReadableName() + " :)");
+			// System.out.println("Hi there, " + closest.get().getReadableName() + " :)");
 			return closest.get();
 		}
 		return null;

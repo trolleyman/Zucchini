@@ -4,12 +4,15 @@ import game.LobbyInfo;
 import game.PlayerInfo;
 import game.Util;
 import game.action.Action;
+import game.ai.AIPlayer;
 import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.world.EntityBank;
 import game.world.ServerWorld;
 import game.world.Team;
+import game.world.entity.Player;
 import game.world.map.Map;
+import org.joml.Vector2f;
 
 import java.util.ArrayList;
 
@@ -123,6 +126,19 @@ public class Lobby {
 			isClosed = true;
 			for (LobbyClient c : clients)
 				world.addClient(c);
+			
+			int nClients = clients.size();
+			int minPlayers = map.getMinPlayers();
+			int numAI = minPlayers - nClients;
+			if (numAI > 0) {
+				for (int i = 0; i < numAI; i++) {
+					int team = Team.FIRST_PLAYER_TEAM + clients.size() + i;
+					Vector2f position = map.getSpawnLocation(team);
+					// TODO: Generate names
+					String name = "[BOT] " + (i + 1);
+					world.addAI(new AIPlayer(team, new Vector2f(position), name));
+				}
+			}
 		}
 		
 		long prevTime = System.nanoTime();

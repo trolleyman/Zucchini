@@ -27,9 +27,6 @@ public class Map {
 	/** Small number added and subtracted from critical points to get either side of the critical point */
 	private static final float LOS_DIFF_EPSILON = (float) Math.toRadians(0.1f);
 	
-	/** Holds the extents of the map. [x, y, w, h] format */
-	private Vector4f rect;
-	
 	public static Map createTestMap() {
 //		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 //		return new MazeMap(maze, 1.5f);
@@ -39,6 +36,11 @@ public class Map {
 		
 //		return new SimpleMap();
 	}
+	
+	/** Holds the extents of the map. [x, y, w, h] format */
+	private Vector4f rect;
+	
+	private int minPlayers;
 	
 	/** The "walls" of the map that entities can collide with */
 	public ArrayList<Wall> walls;
@@ -55,17 +57,18 @@ public class Map {
 	/**
 	 * Construct a map with the specified walls
 	 */
-	public Map(ArrayList<Wall> _walls, float _pathfindingScale) {
-		this(_walls, new ArrayList<>(), _pathfindingScale);
+	public Map(ArrayList<Wall> _walls, float _pathfindingScale, int _minPlayers) {
+		this(_walls, new ArrayList<>(), _pathfindingScale, _minPlayers);
 	}
 	
 	/**
 	 * Construct a map with the specified walls and initial entities
 	 */
-	public Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale) {
+	public Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale, int _minPlayers) {
 		this.walls = _walls;
 		this.initialEntities = _initialEntities;
 		this.pathFindingScale = _pathFindingScale;
+		this.minPlayers = _minPlayers;
 	}
 	
 	/**
@@ -500,6 +503,10 @@ public class Map {
 	public Vector2f getSpawnLocation(int team) {
 		// TODO: Actually have different spawns for different teams
 		return new Vector2f(2.0f, 2.0f);
+	}
+	
+	public int getMinPlayers() {
+		return this.minPlayers;
 	}
 }
 

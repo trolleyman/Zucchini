@@ -101,8 +101,7 @@ public enum AIPlayerStates implements State<AIPlayer> {
 			if (aiPlayer.getClosestSeenEntity(ua) != null) {
 				if (aiPlayer.debug2) System.out.println("While evading, we spot the enemy!");
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
-				return;
-			}
+				return;			}
 			if (aiPlayer.isShotAt()) {
 				//do evade stuff and try to find enemy
 				if (aiPlayer.debug2) System.out.println("Still evading! Trying to locate enemy...");
