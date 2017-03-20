@@ -9,12 +9,17 @@ import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
+import game.world.entity.Item;
 import game.world.entity.Player;
 import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageType;
 import game.world.entity.update.AngleUpdate;
+import game.world.entity.update.DamageUpdate;
 import game.world.map.Map;
 import game.world.map.PathFindingMap;
 import game.world.entity.update.PositionUpdate;
+
+import java.util.ArrayList;
 import java.util.Random;
 import org.joml.Vector2f;
 public class Zombie extends AutonomousEntity {
@@ -22,9 +27,10 @@ public class Zombie extends AutonomousEntity {
 	private static final float RADIUS = 0.15f;
 	private transient boolean soundSourceInit = false;
 	private transient int zombieSoundID;
-	
+	private transient boolean enabled = false;
+	private transient float attackCooldown;
 	private double time = 0.0;
-	
+	protected Item heldItem;
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED, true);
 	}
@@ -36,22 +42,39 @@ public class Zombie extends AutonomousEntity {
 	@Override
 	public void update(UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
+		ArrayList<Entity> entities = ua.bank.getEntitiesNear(this.position.x, this.position.y, 2.0f);
+		if (attackCooldown > 0.5f){
+			for (Entity e : entities){
+				if (e.getTeam() >= Team.FIRST_PLAYER_TEAM && attackCooldown > 0.5f){
+					System.out.println("hi");
+					Damage damage = new Damage(this.getId(), this.getTeam(), DamageType.KNIFE_DAMAGE, 0.1f);
+					ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));				
+					attackCooldown = 0;
+				}
+			}
+		}
 		
 		if (time >= 0.5f){
-		
-			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-			if (kill == null){
-					
-			}else{
-				if  (this.position.distance(kill.position.x, kill.position.y) > 5){
-					this.setDestination(pfmap, kill.position);
-				}
-
-			}
 			
+
+			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
+			if  (this.position.distance(kill.position.x, kill.position.y) < 2){
+				enabled = true;
+			}
+				if (enabled){
+					
+				
+				if (kill != null){
+				
+					this.setDestination(pfmap, kill.position);
+				
+	
+				}
+			}
 			time = 0;
 		}
 		time += ua.dt;
+		attackCooldown += ua.dt;
 		super.update(ua);
 		
 		ua.bank.updateEntityCached(new AngleUpdate(this.getId(), Util.getAngle(velocity.x, velocity.y)));
