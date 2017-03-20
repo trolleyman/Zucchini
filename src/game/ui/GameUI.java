@@ -23,7 +23,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * @author Abbygayle Wiggins
  */
 public class GameUI extends UI implements InputPipeMulti {
-	private static final Vector4f SCOREBOARD_BACKGROUND_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.5f);
+	private static final Vector4f SCOREBOARD_BACKGROUND_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.3f);
 	
 	/** The world of the game */
 	private ClientWorld world;

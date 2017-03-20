@@ -117,14 +117,13 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		helpBtn = new ButtonComponent(
 				() -> this.nextUI = new HelpUI(this, () -> new ConnectUI(this)),
 				Align.BL, 0, 0,
-				textureBank.getTexture("helpbtn.png"),
-				textureBank.getTexture("helpclicked.png"),
-				textureBank.getTexture("helpclicked.png")
+				textureBank.getTexture("helpDefault.png"),
+				textureBank.getTexture("helpHover.png"),
+				textureBank.getTexture("helpPressed.png")
 		);
 		
 		// Create Mute Button
 		muteComponent = new MuteComponent(Align.BL, 100, 100, audio, textureBank);
-			
 		
 		// Create Background Image
 		backgroundImage = new ImageComponent(
@@ -206,13 +205,12 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		connectButton.setY(nameEntry.getY() - padding*3 - nameEntry.h);
 		autoConnectButton.setX(padding + connectButton.getX() + connectButton.getWidth());
 		autoConnectButton.setY(connectButton.getY());
-		helpBtn.setX(padding);
+		muteComponent.setX(padding);
+		muteComponent.setY(padding);
+		helpBtn.setX(muteComponent.getX() + muteComponent.getWidth() + padding);
 		helpBtn.setY(padding);
-		muteComponent.setX(20.0f);
-		muteComponent.setY((r.getHeight()/3) - muteComponent.getHeight() - 20.0f);
 		volumeComponent.setX(muteComponent.getX() + muteComponent.getWidth()/2 - VolumeComponent.WIDTH/2);
-		volumeComponent.setY(muteComponent.getY() - VolumeComponent.HEIGHT - 20.0f);
-		
+		volumeComponent.setY(muteComponent.getY() + muteComponent.getHeight() + padding);
 		
 		// Render the buttons
 		r.drawText(font, "Address", Align.TL, false, padding, r.getHeight() - padding, 1.0f);

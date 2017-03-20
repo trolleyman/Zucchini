@@ -18,9 +18,8 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * @author Abby Wiggins
  */
-
 public class EscapeUI extends UI implements InputPipeMulti {
-	private static final Vector4f ESCAPE_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.7f);
+	private static final Vector4f ESCAPE_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.3f);
 	private static final float BUTTON_PADDING = 8;
 	
 	private ButtonComponent continueBtn;
