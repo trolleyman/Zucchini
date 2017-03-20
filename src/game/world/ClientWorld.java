@@ -447,7 +447,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 			
 			// Render health
-			float barWidth = 300.0f;
+			float barWidth = 400.0f;
 			float barHeight = 80.0f;
 			float segments = barWidth / p.getMaxHealth();
 			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
