@@ -41,9 +41,11 @@ public class Zombie extends AutonomousEntity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
-		ArrayList<Entity> entities = ua.bank.getEntitiesNear(this.position.x, this.position.y, 2.0f);
 		if (attackCooldown > 0.5f){
+			ArrayList<Entity> entities = ua.bank.getEntitiesNear(this.position.x, this.position.y, 2.0f);
+
 			for (Entity e : entities){
 				if (e.getTeam() >= Team.FIRST_PLAYER_TEAM && attackCooldown > 0.5f){
 					System.out.println("hi");
@@ -58,17 +60,18 @@ public class Zombie extends AutonomousEntity {
 			
 
 			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-			if  (this.position.distance(kill.position.x, kill.position.y) < 2){
-				enabled = true;
-			}
-				if (enabled){
+			
+			
+			if (enabled){
 					
 				
 				if (kill != null){
-				
 					this.setDestination(pfmap, kill.position);
+				}
 				
-	
+			}else{
+				if  (this.position.distance(kill.position.x, kill.position.y) < 2){
+					enabled = true;
 				}
 			}
 			time = 0;

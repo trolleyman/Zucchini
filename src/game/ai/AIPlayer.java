@@ -23,9 +23,9 @@ import game.world.map.Map;
  * @author George and Yean
  */
 public class AIPlayer extends Player {
-	protected boolean debug = false;    //debug messages for when ai changes states
-	protected boolean debug2 = false;  // debug messages for ai during the states
-	
+	protected boolean debug = true;    //debug messages for when ai changes states
+	protected boolean debug2 = true;  // debug messages for ai during the states
+	private transient double  time;
 	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
 	
 	public AIPlayer(AIPlayer ai) {
@@ -76,9 +76,13 @@ public class AIPlayer extends Player {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-
-		stateMachine.update(ua);
-
+		if (time > 0.5){
+			stateMachine.update(ua);
+			time = 0.0;
+		}
+		
+		time += ua.dt;
+		
 		
 		super.update(ua);
 	}
