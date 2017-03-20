@@ -492,13 +492,23 @@ public class Map {
 		
 		return rect;
 	}
-	
+
+	/**
+	 * Gets the initial entities in the map
+	 * @return The initial entities
+	 */
 	public ArrayList<Entity> getInitialEntities() {
 		return initialEntities;
 	}
-	
+
+	/**
+	 * Gets the spawn location of a given player's team
+	 * This is overwritten by each map (due to different spawn locations
+	 * @param team The team
+	 * @return The spawn location
+	 */
 	public Vector2f getSpawnLocation(int team) {
-		// TODO: Actually have different spawns for different teams
+		// This is overwritten by each map (due to different spawn locations
 		return new Vector2f(2.0f, 2.0f);
 	}
 }
