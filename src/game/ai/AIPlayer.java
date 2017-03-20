@@ -28,9 +28,6 @@ public class AIPlayer extends Player {
 	
 	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
 	
-	// AIPlayer doesn't update it's moves every update cycle
-	private transient double time = 0.0;
-	
 	public AIPlayer(AIPlayer ai) {
 		super(ai);
 		this.debug = ai.debug;
@@ -39,12 +36,24 @@ public class AIPlayer extends Player {
 	}
 	
 	/**
+	 * Contructs an AIPlayer at position with a default held item
+	 */
+	public AIPlayer(int team, Vector2f position, String name) {
+		super(team, position, name);
+		setup();
+	}
+	
+	/**
 	 * Contructs an AIPlayer at position with an Item
 	 */
 	public AIPlayer(int team, Vector2f position, String name, Item heldItem) {
 		super(team, position, name, heldItem);
-		
-		stateMachine = new StateMachine<>(this, AIPlayerStates.WANDER);
+		setup();
+	}
+	
+	private void setup() {
+		stateMachine = new StateMachine<>(this, AIPlayerStates.MOVE_TOWARDS_CENTRE);
+
 	}
 	
 	private void updateHeldItemInfo() {
@@ -68,12 +77,8 @@ public class AIPlayer extends Player {
 	@Override
 	public void update(UpdateArgs ua) {
 
-		if (time >= 0.10f){
-			stateMachine.update(ua);
-			time = 0;
-		
-		}
-		time += ua.dt;
+		stateMachine.update(ua);
+
 		
 		super.update(ua);
 	}
@@ -102,7 +107,7 @@ public class AIPlayer extends Player {
 		Optional<Entity> closest = entities.stream().min(
 				(l, r) -> Float.compare(l.position.distanceSquared(position), r.position.distanceSquared(position)));
 		if (closest.isPresent()) {
-			System.out.println("Hi there, " + closest.get().getReadableName() + " :)");
+			// System.out.println("Hi there, " + closest.get().getReadableName() + " :)");
 			return closest.get();
 		}
 		return null;

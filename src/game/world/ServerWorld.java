@@ -3,6 +3,7 @@ package game.world;
 import java.util.ArrayList;
 
 import game.action.Action;
+import game.ai.AIPlayer;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
@@ -82,6 +83,15 @@ public class ServerWorld extends World implements Cloneable {
 		} catch (ProtocolException e) {
 			c.handler.error(e);
 		}
+	}
+	
+	/**
+	 * Adds an AI to the world
+	 * @param ai The AI player
+	 */
+	public synchronized void addAI(AIPlayer ai) {
+		this.bank.addEntity(ai);
+		this.scoreboard.addPlayer(ai.getName());
 	}
 	
 	public synchronized void handleAction(String name, Action a) {

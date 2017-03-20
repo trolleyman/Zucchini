@@ -4,7 +4,6 @@ import game.Util;
 import game.ai.Node;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
-import game.world.entity.update.AngleUpdate;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -13,6 +12,8 @@ import java.util.ArrayList;
  * An entity that can be given a position to go to, and will navigate to that.
  */
 public abstract class AutonomousEntity extends MovableEntity {
+	/** The min time between route regen */
+	private static double MIN_TIME_BETWEEN_ROUTE_REGEN = 0.4;
 	
 	/** Whether the AutonomousEntity is enabled or not */
 	protected boolean enabled;
@@ -24,6 +25,12 @@ public abstract class AutonomousEntity extends MovableEntity {
 	
 	/** The max speed of the entity */
 	private transient float maxSpeed;
+	
+	/** Time since last regen of the route */
+	private transient double timeSinceRouteRegen = MIN_TIME_BETWEEN_ROUTE_REGEN;
+	
+	/** Should the route be regenerated */
+	private transient boolean routeDirty = true;
 	
 	public AutonomousEntity(int team, Vector2f position, float momentumScale, float _maxSpeed, boolean _enabled) {
 		super(team, position, momentumScale);
@@ -46,7 +53,15 @@ public abstract class AutonomousEntity extends MovableEntity {
 	@Override
 	public void update(UpdateArgs ua) {
 		if (enabled) {
+			timeSinceRouteRegen += MIN_TIME_BETWEEN_ROUTE_REGEN;
 			PathFindingMap pfmap = ua.map.getPathFindingMap();
+			
+			// If the route is dirty, regenerate the route
+			if (routeDirty && timeSinceRouteRegen > MIN_TIME_BETWEEN_ROUTE_REGEN) {
+				regenRoute(ua.map.getPathFindingMap());
+				routeDirty = false;
+				timeSinceRouteRegen = 0.0;
+			}
 			
 			// If close to current node, remove it
 			while (true) {
@@ -113,13 +128,13 @@ public abstract class AutonomousEntity extends MovableEntity {
 			this.destination = new Vector2f();
 		
 		if (prevDest == null || destination == null) {
-			regenRoute(map);
+			this.routeDirty = true;
 		} else {
 			Node prevDestNode = map.getClosestNodeTo(prevDest);
 			Node destinationNode = map.getClosestNodeTo(destination);
 			
 			if (!prevDestNode.equals(destinationNode)) {
-				regenRoute(map);
+				this.routeDirty = true;
 			}
 		}
 		
