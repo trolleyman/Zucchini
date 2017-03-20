@@ -16,12 +16,14 @@ import org.joml.Vector4f;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
+ * Shows the menu when escape is pressed
  * @author Abby Wiggins
  */
 public class EscapeUI extends UI implements InputPipeMulti {
 	private static final Vector4f ESCAPE_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.3f);
 	private static final float BUTTON_PADDING = 8;
 	
+	/** The continue, quit and help buttons */
 	private ButtonComponent continueBtn;
 	private ButtonComponent helpBtn;
 	private ButtonComponent quitBtn;
@@ -31,16 +33,21 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	/** The volume slider */
 	private VolumeComponent volumeComponent;
 	
+	/** The current world of this player */
 	private ClientWorld world;
 	
 	private boolean destroy = false;
-	private UI nextUI;
 	
+	/** The next UI class to be shown */
+	private UI nextUI;
+
+	/** The window width and window height */
 	private float windowW;
 	private float windowH;
 	
 	private boolean help;
 	
+	/** To handle the inputs */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private Font font;
 
@@ -142,6 +149,9 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		world.update(dt);
 	}
 
+	/** Renders the buttons on top of the faded world
+	 * @param r The IRenderer
+	 */
 	@Override
 	public void render(IRenderer r) {
 		world.render(r);

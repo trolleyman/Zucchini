@@ -17,17 +17,29 @@ import game.ui.component.ImageComponent;
 import game.world.ClientWorld;
 
 public class HelpUI extends UI implements InputPipeMulti{
+	/** The next UI class to be shown */
 	private UI nextUI;
+	/** The UI class to be shown when exiting HelpUI */
 	private final Supplier<UI> afterUI;
+	/** To handle the inputs */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
+	/** The back (previous slide), next (next slide) and exit buttons */
 	private ButtonComponent backBtn, nextBtn, exitBtn;
 
+	/** The window width and height */
 	private float winWidth;
 	private float winHeight;
+	
+	/** The background image */
 	private ImageComponent backgroundImage;
+	
+	/** The different screenshots of the game for visual demonstrations */
 	private ImageComponent logInScreen, lobbyScreen, lobbyWaitScreen, gameScreen, escapeScreen;
+	/** Arrays holding the lines of text to show with each ImageComponent */
 	private String[] strLIS, strLS, strLWS, strGS, strES, strWS;
+	/** Keeps a track of which "slide" showing */
 	private int imageCount;
+	/** The font the text is written in */
 	private Font font;
 	
 	/**
@@ -200,10 +212,12 @@ public class HelpUI extends UI implements InputPipeMulti{
 		strWS[12] = "are out to get you. Good luck!";
 	}
 	
+	/** Handles the buttons when pressed or hovered over */
 	public ArrayList<InputHandler> getHandlers() {
 		return this.inputHandlers;
 	}
 
+	/** Handles when the window size is changed */
 	@Override
 	public void handleResize(int w, int h) {
 		this.winWidth = w;
@@ -224,6 +238,9 @@ public class HelpUI extends UI implements InputPipeMulti{
 		exitBtn.update(dt);
 	}
 	
+	/** Renders the UI
+	 * @param r The IRenderer
+	 */
 	@Override
 	public void render(IRenderer r) {
 		backgroundImage.render(r);

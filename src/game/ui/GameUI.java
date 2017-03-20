@@ -27,15 +27,22 @@ public class GameUI extends UI implements InputPipeMulti {
 	
 	/** The world of the game */
 	private ClientWorld world;
-	private float windowW; //window width
-	private float windowH; //window height
+	
+	/** The window width and window height */
+	private float windowW; 
+	private float windowH; 
 		
+	/** To handle the inputs */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> scoreboardInputHandlers = new ArrayList<>();
 	
+	/** The next UI class to be shown */
 	private UI nextUI;
 	
+	/** Whether the score board should be rendered */
 	private boolean scoreboardShown;
+	
+	/** The score board */
 	private ScoreboardComponent scoreboardComponent;
 	
 	/**
@@ -55,6 +62,7 @@ public class GameUI extends UI implements InputPipeMulti {
 		this.scoreboardInputHandlers.add(scoreboardComponent);
 	}
 	
+	
 	@Override
 	public ArrayList<InputHandler> getHandlers() {
 		if (scoreboardShown) {
@@ -63,6 +71,7 @@ public class GameUI extends UI implements InputPipeMulti {
 			return inputHandlers;
 		}
 	}
+	
 	
 	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
@@ -96,6 +105,10 @@ public class GameUI extends UI implements InputPipeMulti {
 		}
 	}
 	
+	/** The render method - renders the world and additional features.
+	 *  These features include the minimap and health bar.
+	 *  @param r The instance of IRenderer
+	 */
 	@Override
 	public void render(IRenderer r) {
 		this.world.render(r);
