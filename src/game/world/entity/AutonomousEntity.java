@@ -13,7 +13,6 @@ import java.util.ArrayList;
  * An entity that can be given a position to go to, and will navigate to that.
  */
 public abstract class AutonomousEntity extends MovableEntity {
-	
 	private transient Vector2f destination = null;
 	
 	/** This will be empty if there is no route */
