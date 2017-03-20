@@ -11,6 +11,7 @@ import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
 import game.world.entity.Player;
 import game.world.entity.damage.Damage;
+import game.world.entity.update.AngleUpdate;
 import game.world.map.Map;
 import game.world.map.PathFindingMap;
 import game.world.entity.update.PositionUpdate;
@@ -21,11 +22,11 @@ public class Zombie extends AutonomousEntity {
 	private static final float RADIUS = 0.15f;
 	private transient boolean soundSourceInit = false;
 	private transient int zombieSoundID;
-	//dont delete this again pls
-	private int tickCounter = 0;
+	
+	private double time = 0.0;
 	
 	public Zombie(Vector2f position) {
-		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED);
+		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED, true);
 	}
 	
 	public Zombie(Zombie z) {
@@ -36,7 +37,7 @@ public class Zombie extends AutonomousEntity {
 	public void update(UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
 		
-		if (tickCounter > 100){
+		if (time >= 0.5f){
 			// Set node
 			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
 			if (kill == null) {
@@ -45,12 +46,14 @@ public class Zombie extends AutonomousEntity {
 				this.setDestination(pfmap, kill.position);
 			}
 			
-			tickCounter = 0;
+			time = 0;
 		}
-		tickCounter ++;
+		time += ua.dt;
 		super.update(ua);
-		// Update AI
 		
+		ua.bank.updateEntityCached(new AngleUpdate(this.getId(), Util.getAngle(velocity.x, velocity.y)));
+		
+		// Update AI
 		
 		// Calculate intersection
 		// TODO: Not DRY enough - see Player#update(UpdateArgs)

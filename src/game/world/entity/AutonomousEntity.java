@@ -14,6 +14,9 @@ import java.util.ArrayList;
  */
 public abstract class AutonomousEntity extends MovableEntity {
 	
+	/** Whether the AutonomousEntity is enabled or not */
+	protected boolean enabled;
+	
 	private transient Vector2f destination = null;
 	
 	/** This will be empty if there is no route */
@@ -22,14 +25,16 @@ public abstract class AutonomousEntity extends MovableEntity {
 	/** The max speed of the entity */
 	private transient float maxSpeed;
 	
-	public AutonomousEntity(int team, Vector2f position, float momentumScale, float _maxSpeed) {
+	public AutonomousEntity(int team, Vector2f position, float momentumScale, float _maxSpeed, boolean _enabled) {
 		super(team, position, momentumScale);
 		this.maxSpeed = _maxSpeed;
+		this.enabled = _enabled;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public AutonomousEntity(AutonomousEntity e) {
 		super(e);
+		this.enabled = e.enabled;
 		
 		if (this.destination != null)
 			this.destination = new Vector2f(e.destination);
@@ -40,36 +45,36 @@ public abstract class AutonomousEntity extends MovableEntity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		PathFindingMap pfmap = ua.map.getPathFindingMap();
-		
-		// If close to current node, remove it
-		while (true) {
-			if (this.route.size() == 0)
-				break;
-			Node targetNode = this.route.get(0);
-			float dist = this.position.distance(pfmap.getNodeWorldX(targetNode), pfmap.getNodeWorldY(targetNode));
-			if (dist < 0.15f)
-				this.route.remove(0);
-			else
-				break;
-		}
-		
-		// Update velocity
-		Vector2f target;
-		if (this.route.size() == 0) {
-			target = new Vector2f();
-		} else {
-			Node targetNode = this.route.get(0);
-			// Set target to be direction to targetNode
-			target = new Vector2f()
-					.set(pfmap.getNodeWorldX(targetNode), pfmap.getNodeWorldY(targetNode))
-					.sub(position)
-					.normalize()
-					.mul(maxSpeed);
+		if (enabled) {
+			PathFindingMap pfmap = ua.map.getPathFindingMap();
 			
-			ua.bank.updateEntityCached(new AngleUpdate(this.getId(), Util.getAngle(velocity.x, velocity.y)));
+			// If close to current node, remove it
+			while (true) {
+				if (this.route.size() == 0)
+					break;
+				Node targetNode = this.route.get(0);
+				float dist = this.position.distance(pfmap.getNodeWorldX(targetNode), pfmap.getNodeWorldY(targetNode));
+				if (dist < 0.15f)
+					this.route.remove(0);
+				else
+					break;
+			}
+			
+			// Update velocity
+			Vector2f target;
+			if (this.route.size() == 0) {
+				target = new Vector2f();
+			} else {
+				Node targetNode = this.route.get(0);
+				// Set target to be direction to targetNode
+				target = new Vector2f()
+						.set(pfmap.getNodeWorldX(targetNode), pfmap.getNodeWorldY(targetNode))
+						.sub(position)
+						.normalize()
+						.mul(maxSpeed);
+			}
+			this.addTargetVelocity(ua, target);
 		}
-		this.addTargetVelocity(ua, target);
 		
 		// Update position
 		super.update(ua);
@@ -88,6 +93,8 @@ public abstract class AutonomousEntity extends MovableEntity {
 	}
 	
 	public void setDestination(PathFindingMap map, Vector2f newDest) {
+		this.enabled = true;
+		
 		Vector2f prevDest;
 		if (this.destination == null)
 			prevDest = null;

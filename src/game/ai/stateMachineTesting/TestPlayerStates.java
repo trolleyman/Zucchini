@@ -63,7 +63,7 @@ public enum TestPlayerStates implements State<TestPlayer>{
 		}
 		
 		@Override
-		public void update(TestPlayer aiPlayer){
+		public void update(TestPlayer aiPlayer, UpdateArgs ua){
 			//TODO:make the ai move towards the middle
 			if(aiPlayer.canSeeEnemy()){
 				aiPlayer.getStateMachine().changeState(SHOOT_ENEMY);
@@ -92,7 +92,7 @@ public enum TestPlayerStates implements State<TestPlayer>{
 		}
 		
 		@Override
-		public void update(TestPlayer aiPlayer){
+		public void update(TestPlayer aiPlayer, UpdateArgs ua){
 			//TODO:try to dodge incoming bullets
 			if(aiPlayer.canSeeEnemy()){
 				System.out.println("While evading, we spot the enemy!");
@@ -132,7 +132,7 @@ public enum TestPlayerStates implements State<TestPlayer>{
 		}
 		
 		@Override
-		public void update(TestPlayer aiPlayer){
+		public void update(TestPlayer aiPlayer, UpdateArgs ua){
 			//TODO:go towards pickup and take it
 			if(aiPlayer.canSeeEnemy()){
 				System.out.println("Moving Toward pickup, but encounters enemy!");
@@ -173,7 +173,7 @@ public enum TestPlayerStates implements State<TestPlayer>{
 		}
 		
 		@Override
-		public void update(TestPlayer aiPlayer){
+		public void update(TestPlayer aiPlayer, UpdateArgs ua) {
 			if(aiPlayer.canSeeEnemy()){
 				System.out.println("Shooting at enemy!");
 				return;
@@ -189,11 +189,5 @@ public enum TestPlayerStates implements State<TestPlayer>{
 		public void exit(TestPlayer aiPlayer) {
 			if(aiPlayer.debug()) System.out.println("AI exits SHOOT_ENEMY state");
 		}
-	};
-	
-	
-	
-
-	
-
+	},
 }

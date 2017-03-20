@@ -1,39 +1,33 @@
 package game.ai;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Optional;
 
+import game.world.Team;
+import game.world.entity.*;
 import org.joml.Vector2f;
 
 import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
-import game.world.Team;
 import game.world.UpdateArgs;
-import game.world.entity.AutonomousPlayerEntity;
-import game.world.entity.Entity;
-import game.world.entity.Item;
-import game.world.entity.MovableEntity;
-import game.world.entity.update.PositionUpdate;
 import game.world.map.Map;
-import game.world.map.PathFindingMap;
 
 /**
  * Represents an AI player, uses a FSM to determine it's actions
  * @author George and Yean
  */
-public class AIPlayer extends AutonomousPlayerEntity{
+public class AIPlayer extends Player {
 	protected boolean debug = true;    //debug messages for when ai changes states
 	protected boolean debug2 = false;  // debug messages for ai during the states
+	
 	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
-	public Item heldItem;
-	public final float RADIUS = 0.15f;
-	private static final float MAX_SPEED = 1.0f;
-	//for statemachine
-
-	private PathFindingMap pfmap;
-	//for lag
-	private int tickCounter = 0;
+	
+	// AIPlayer doesn't update it's moves every update cycle
+	private transient double time = 0.0;
 	
 	public AIPlayer(AIPlayer ai) {
 		super(ai);
@@ -44,20 +38,11 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	
 	/**
 	 * Contructs an AIPlayer at position with an Item
-	 * @param team
-	 * @param position
-	 * @param heldItem
 	 */
-	public AIPlayer(int team, Vector2f position, Item heldItem) {
-		//TODO: AI player is currently in monster team... not sure if this is right
-		super(team, position,1.0f,MAX_SPEED, heldItem);
-		this.heldItem = heldItem;
-		if (this.heldItem != null)
-			this.heldItem.setOwnerTeam(this.getTeam());
-		updateHeldItemInfo();
+	public AIPlayer(int team, Vector2f position, String name, Item heldItem) {
+		super(team, position, name, heldItem);
 		
-		stateMachine = new StateMachine<AIPlayer, AIPlayerStates>(this, AIPlayerStates.MOVE_TOWARDS_CENTRE);
-		
+		stateMachine = new StateMachine<>(this, AIPlayerStates.MOVE_TOWARDS_CENTRE);
 	}
 	
 	private void updateHeldItemInfo() {
@@ -77,68 +62,52 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	public IStateMachine<AIPlayer, AIPlayerStates> getStateMachine(){
 		return stateMachine;
 	}
-	public PathFindingMap getPFMap(){
-		return this.pfmap;
-	}
 	
-
 	@Override
 	public void update(UpdateArgs ua){
-		
-		pfmap =  ua.map.getPathFindingMap();
-		if (tickCounter > 100){
+		if (time >= 0.5f){
 			stateMachine.update(ua);
-			tickCounter = 0;
+			time = 0;
 		}
-		tickCounter++;
+		time += ua.dt;
 		
-		
-		
-		
-		// Calculate intersection
-		// TODO: Not DRY enough - see Player#update(UpdateArgs)
-		Vector2f intersection = Util.pushTemporaryVector2f();
-		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
-			// Intersection with map - push out
-			Vector2f newPosition = new Vector2f();
-			newPosition.set(position)
-					.sub(intersection)
-					.normalize()
-					.mul(RADIUS + Util.EPSILON)
-					.add(intersection);
-			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
-			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
-		}
-		Util.popTemporaryVector2f();
-
 		super.update(ua);
-	
-		
 	}
 	
-
-	public Entity CanISeeEnemy(UpdateArgs ua, Class<?> find){
+	public Entity getClosestSeenEntity(UpdateArgs ua) {
+		ArrayList<Entity> entities  = ua.bank.getEntitiesNear(this.position.x, this.position.y, Player.LINE_OF_SIGHT_MAX);
+		Vector2f temp = Util.pushTemporaryVector2f();
 		
-		ArrayList<Entity> closest  = ua.bank.getEntitiesNear(this.position.x, this.position.y, 20);
-		Vector2f v = null;
-		for (Entity kill : closest){
-				if (kill.getClass() == find){
-					System.out.println("hi");
-					
-					v = ua.map.intersectsLine(this.position.x, this.position.y, kill.position.x, kill.position.y, null);
+		// Get entities that can be seen
+		ListIterator<Entity> it = entities.listIterator();
+		Entity kill;
+		while (it.hasNext()) {
+			kill = it.next();
+			if (Team.isHostileTeam(this.getTeam(), kill.getTeam())) {
+				Vector2f v = ua.map.intersectsLine(this.position.x, this.position.y, kill.position.x, kill.position.y, temp);
 				
-					if (v == null){
-						return kill;
-					}
+				if (v == null) {
+					continue;
 				}
+			}
+			it.remove();
 		}
-		return null;			
+		Util.popTemporaryVector2f();
+		
+		// Now get nearest entity
+		Optional<Entity> closest = entities.stream().min(
+				(l, r) -> Float.compare(l.position.distanceSquared(position), r.position.distanceSquared(position)));
+		if (closest.isPresent()) {
+			System.out.println("Hi there, " + closest.get().getReadableName() + " :)");
+			return closest.get();
+		}
+		return null;
 	}
 	
 	
 	public boolean canSeePickUp(){
 		//TODO: make function that can tell us if this entity can see a pickup
-		//and also if it's worth picking up
+		// and also if it's worth picking up
 		return false;
 	}
 
@@ -148,7 +117,7 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	}
 	
 	@Override
-	protected float getMaxHealth() {
+	public float getMaxHealth() {
 		return 10.0f;
 	}
 
@@ -161,9 +130,7 @@ public class AIPlayer extends AutonomousPlayerEntity{
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
 		return PhysicsUtil.intersectCircleLine(position.x, position.y, RADIUS, x0, y0, x1, y1, null);
 	}
-
-
-
+	
 	@Override
 	public void render(IRenderer r, Map map) {
 		updateHeldItemInfo();
@@ -174,10 +141,6 @@ public class AIPlayer extends AutonomousPlayerEntity{
 		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
 		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
-		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.BLUE);	
-		
+		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.BLUE);
 	}
-
-	
-
 }

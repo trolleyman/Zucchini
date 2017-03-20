@@ -11,6 +11,7 @@ import game.net.Protocol;
 import game.net.WorldStart;
 import game.net.server.LobbyClient;
 import game.world.entity.Entity;
+import game.world.entity.HumanPlayer;
 import game.world.entity.Player;
 import game.world.map.Map;
 import game.world.update.ScoreboardWorldUpdate;
@@ -72,7 +73,7 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param c The client
 	 */
 	public synchronized void addClient(LobbyClient c) {
-		Player player = new Player(c.team, map.getSpawnLocation(c.team), c.handler.getClientInfo().name, Player.getDefaultHeldItem());
+		Player player = new HumanPlayer(c.team, map.getSpawnLocation(c.team), c.handler.getClientInfo().name, Player.getDefaultHeldItem());
 		this.bank.addEntity(player);
 		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
 		this.scoreboard.addPlayer(c.handler.getClientInfo().name);

@@ -10,7 +10,7 @@ import game.world.UpdateArgs;
  */
 public class TestFSMLogic {
 	public final static int refreshRate = 1; //artificial update rate per second
-	public static UpdateArgs ua = new UpdateArgs(refreshRate, null, null, null);
+	public static UpdateArgs ua = new UpdateArgs(refreshRate, null, null, null, null, null);
 	public static TestPlayer ai = new TestPlayer();
 	public enum eventType{SEE_ENEMY, ENEMY_GONE, SEE_PICKUP, PICKUP_GONE, SHOT_AT, NOT_SHOT_AT};
 	public static HashMap<Integer,eventType> events = new HashMap<Integer,eventType>();

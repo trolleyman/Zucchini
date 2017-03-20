@@ -11,6 +11,7 @@ import game.net.Protocol;
 import game.net.Tuple;
 import game.net.WorldStart;
 import game.world.entity.Entity;
+import game.world.entity.HumanPlayer;
 import game.world.entity.Player;
 import game.world.entity.update.EntityUpdate;
 import game.world.entity.update.HealthUpdate;
@@ -61,12 +62,12 @@ public class ProtocolTest {
 	
 	@Test
 	public void sendAddEntity() throws ProtocolException {
-		Player e1 = new Player(1, new Vector2f(2.0f, 3.0f), "test", null);
+		HumanPlayer e1 = new HumanPlayer(1, new Vector2f(2.0f, 3.0f), "test", null);
 		String msg = Protocol.sendAddEntity(e1);
 		assertTrue(Protocol.isAddEntity(msg));
 		Entity e2 = Protocol.parseAddEntity(msg);
-		assertTrue(e2 instanceof Player);
-		Player e3 = (Player) e2;
+		assertTrue(e2 instanceof HumanPlayer);
+		HumanPlayer e3 = (HumanPlayer) e2;
 		assertEquals(e1.getId(), e3.getId());
 		assertEquals(e1.getName(), e3.getName());
 		assertEquals(e1.getHeldItem(), e3.getHeldItem());
