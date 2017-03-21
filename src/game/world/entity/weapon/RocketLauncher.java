@@ -75,4 +75,10 @@ public class RocketLauncher extends Weapon {
 	public RocketLauncher clone() {
 		return new RocketLauncher(this);
 	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
