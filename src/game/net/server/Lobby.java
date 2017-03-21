@@ -17,6 +17,7 @@ import game.world.map.Map;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class Lobby {
 	public String lobbyName;
@@ -28,7 +29,7 @@ public class Lobby {
 	private final Object clientsLock = new Object();
 	private ArrayList<LobbyClient> clients;
 	
-	private Map map;
+	private Supplier<Map> mapSupplier;
 	
 	private ServerWorld world;
 	
@@ -37,13 +38,13 @@ public class Lobby {
 	
 	private boolean countingDown = false;
 	
-	public Lobby(String lobbyName, int minPlayers, int maxPlayers, Map map) {
+	public Lobby(String lobbyName, int minPlayers, int maxPlayers, Supplier<Map> mapSupplier) {
 		this.lobbyName = lobbyName;
 		this.minPlayers = minPlayers;
 		this.maxPlayers = maxPlayers;
 		this.clients = new ArrayList<>();
 		
-		this.map = map;
+		this.mapSupplier = mapSupplier;
 		
 		lobbyHandler = new Thread(this::run, "Lobby Handler: " + lobbyName);
 		lobbyHandler.start();
@@ -138,15 +139,7 @@ public class Lobby {
 	
 	private void runWorld() {
 		lobbyOut("Started running the world.");
-		if (world != null) {
-			// Destroy previous world
-			synchronized (clientsLock) {
-				for (LobbyClient c : clients) {
-					world.removeClient(c.handler.getClientInfo().name);
-				}
-			}
-		}
-		
+		Map map = mapSupplier.get();
 		world = new ServerWorld(map, new EntityBank());
 		synchronized (clientsLock) {
 			isClosed = true;
@@ -165,7 +158,6 @@ public class Lobby {
 					world.addAI(new AIPlayer(team, new Vector2f(position), name,new MachineGun(new Vector2f(0.0f, 0.0f),256) ));
 				}
 			}
-			
 		}
 		
 		long prevTime = System.nanoTime();
@@ -179,7 +171,7 @@ public class Lobby {
 			
 			if (world.isFinished()) {
 				lobbyOut("Finished running the world.");
-				return;
+				break;
 			}
 			
 			try {
@@ -189,6 +181,13 @@ public class Lobby {
 				//System.err.println("Warning: Sleep Thread Interrupted: " + e.toString());
 			}
 		}
+		
+		synchronized (clientsLock) {
+			for (LobbyClient c : clients) {
+				world.removeClient(c.handler.getClientInfo().name);
+			}
+		}
+		world = null;
 	}
 	
 	/**

@@ -232,7 +232,7 @@ public class FinalMap extends Map {
 		initialEntities.add(new Torch(new Vector2f(16.24f, 19.79f)));
 		initialEntities.add(new Torch(new Vector2f(13.78f, 19.79f)));
 	}
-
+	
 	/**
 	 * Draw 4 walls in a rectangle based on 2 opposite corners
 	 * @param x0 First x pos
@@ -246,7 +246,7 @@ public class FinalMap extends Map {
 		walls.add(new Wall(x1, y0, x1, y1));
 		walls.add(new Wall(x0, y1, x1, y1));
 	}
-
+	
 	@Override
 	public Vector2f getSpawnLocation(int team) {
 		switch (team) {
