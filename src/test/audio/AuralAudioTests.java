@@ -20,7 +20,7 @@ import game.audio.AudioManager;
  *  Volume settings
  * @author Yean
  */
-public class AudioTests {
+public class AuralAudioTests {
 	/**listenerPos represents the players position in the world*/
 	//in this testing, we are in (0,0). All sounds will be heard from the position (0,0) in our world
     private static Vector2f listenerPos = new Vector2f(0, 0);
