@@ -32,6 +32,9 @@ import java.util.Optional;
  * @author Callum
  */
 public abstract class Player extends AutonomousEntity {
+	/** The offset of the hand holding the weapon */
+	private static final float WEAPON_OFFSET_X = 0.15f;
+	
 	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 10.0f;
 	/** The angle of which the player can see */
@@ -125,7 +128,8 @@ public abstract class Player extends AutonomousEntity {
 			
 			// Calculate position
 			Vector2f offset = Util.pushTemporaryVector2f();
-			offset.set(Util.getDirX(angle+(float)Math.PI/2), Util.getDirY(angle+(float)Math.PI/2)).mul(0.15f);
+			offset.set(Util.getDirX(angle+(float)Math.PI/2), Util.getDirY(angle+(float)Math.PI/2))
+					.mul(WEAPON_OFFSET_X);
 			this.heldItem.position.set(this.position).add(offset);
 			Util.popTemporaryVector2f();
 		}
@@ -339,5 +343,8 @@ public abstract class Player extends AutonomousEntity {
 				ua.scoreboard.addPlayerKill(p.getName());
 		}
 		ua.audio.play("dying.wav", 1f, this.position);
+		
+		// Drop weapon
+		dropHeldItem(ua.bank, this.position);
 	}
 }
