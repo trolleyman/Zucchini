@@ -23,37 +23,40 @@ import game.world.map.Map;
  * @author George and Yean
  */
 public class AIPlayer extends Player {
-	protected boolean debug = true;    //debug messages for when ai changes states
-	protected boolean debug2 = true;  // debug messages for ai during the states
-	private transient double  time;
-	public transient IStateMachine<AIPlayer, AIPlayerStates> stateMachine;
+	protected boolean debug = false;    //debug messages for when ai changes states
+	protected boolean debug2 = false;  // debug messages for ai during the states
+	private transient double time;
+	public transient IStateMachine<AIPlayer, State<AIPlayer>> stateMachine;
+	private Difficulty difficulty;
 	
 	public AIPlayer(AIPlayer ai) {
 		super(ai);
 		this.debug = ai.debug;
 		this.stateMachine = ai.stateMachine;
-		this.heldItem = ai.heldItem;
+		if (this.heldItem != null)
+			this.heldItem = ai.heldItem.clone();
+		this.difficulty = ai.difficulty;
 	}
 	
 	/**
 	 * Contructs an AIPlayer at position with a default held item
 	 */
-	public AIPlayer(int team, Vector2f position, String name) {
+	public AIPlayer(int team, Vector2f position, String name, Difficulty difficulty) {
 		super(team, position, name);
-		setup();
+		setup(difficulty);
 	}
 	
 	/**
 	 * Contructs an AIPlayer at position with an Item
 	 */
-	public AIPlayer(int team, Vector2f position, String name, Item heldItem) {
+	public AIPlayer(int team, Vector2f position, String name, Item heldItem, Difficulty difficulty) {
 		super(team, position, name, heldItem);
-		setup();
+		setup(difficulty);
 	}
 	
-	private void setup() {
-		stateMachine = new StateMachine<>(this, AIPlayerStates.WANDER);
-
+	private void setup(Difficulty difficulty) {
+		stateMachine = new StateMachine<>(this, new Wander());
+		this.difficulty = difficulty;
 	}
 	
 	private void updateHeldItemInfo() {
@@ -70,7 +73,7 @@ public class AIPlayer extends Player {
 		}
 	}
 	
-	public IStateMachine<AIPlayer, AIPlayerStates> getStateMachine(){
+	public IStateMachine<AIPlayer, State<AIPlayer>> getStateMachine(){
 		return stateMachine;
 	}
 	

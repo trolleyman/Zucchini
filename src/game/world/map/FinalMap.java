@@ -139,19 +139,19 @@ public class FinalMap extends Map {
 			int weapon = r.nextInt(high);
 			switch (weapon) {
 				case 0:
-					initialEntities.add(new Pickup(outerPickups.get(i), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new MachineGun(new Vector2f(0.0f, 0.0f), 60)));
 					break;
 				case 1:
-					initialEntities.add(new Pickup(outerPickups.get(i), new Handgun(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new Handgun(new Vector2f(0.0f, 0.0f), 32)));
 					break;
 				case 2:
-					initialEntities.add(new Pickup(outerPickups.get(i), new PumpActionShotgun(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new PumpActionShotgun(new Vector2f(0.0f, 0.0f), 16)));
 					break;
 				case 3:
-					initialEntities.add(new Pickup(outerPickups.get(i), new RocketLauncher(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new RocketLauncher(new Vector2f(0.0f, 0.0f), 5)));
 					break;
 				case 4:
-					initialEntities.add(new Pickup(outerPickups.get(i), new SilencedPistol(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new SilencedPistol(new Vector2f(0.0f, 0.0f), 32)));
 					break;
 				default:
 					// Spawn Nothing
@@ -159,9 +159,13 @@ public class FinalMap extends Map {
 			}
 		}
 		// Center is filled with laser guns
-		for (int i = 0; i < innerPickups.size(); i++) {
-			initialEntities.add(new Pickup(innerPickups.get(i), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
-		}
+//		for (int i = 0; i < innerPickups.size(); i++) {
+//			initialEntities.add(new Pickup(innerPickups.get(i), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
+//		}
+
+		// Center has 1 laser gun
+		initialEntities.add(new Pickup(new Vector2f(15.0f, 15.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
+
 		// Add all types of guns for testing only
 		initialEntities.add(new Pickup(new Vector2f(1, 1), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
 		initialEntities.add(new Pickup(new Vector2f(2, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f), 16)));

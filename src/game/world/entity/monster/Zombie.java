@@ -44,12 +44,12 @@ public class Zombie extends AutonomousEntity {
 		
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
 		if (attackCooldown > 0.5f){
-			ArrayList<Entity> entities = ua.bank.getEntitiesNear(this.position.x, this.position.y, 2.0f);
+			ArrayList<Entity> entities = ua.bank.getEntitiesNear(this.position.x, this.position.y, 0.5f);
 
 			for (Entity e : entities){
 				if (e.getTeam() >= Team.FIRST_PLAYER_TEAM && attackCooldown > 0.5f){
-					System.out.println("hi");
-					Damage damage = new Damage(this.getId(), this.getTeam(), DamageType.KNIFE_DAMAGE, 0.1f);
+					
+					Damage damage = new Damage(this.getId(), this.getTeam(), DamageType.KNIFE_DAMAGE, 1.0f);
 					ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));				
 					attackCooldown = 0;
 				}
