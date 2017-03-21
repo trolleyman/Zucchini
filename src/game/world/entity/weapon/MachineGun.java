@@ -103,4 +103,15 @@ public class MachineGun extends Weapon {
 	public MachineGun clone() {
 		return new MachineGun(this);
 	}
+
+	@Override
+	public String toString() {
+		return "Machine Gun";
+	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 3;
+	}
 }

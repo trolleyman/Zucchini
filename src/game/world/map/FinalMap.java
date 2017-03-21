@@ -173,16 +173,17 @@ public class FinalMap extends Map {
 		initialEntities.add(new Pickup(new Vector2f(2.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f),14)));
 		initialEntities.add(new Pickup(new Vector2f(1.5f,2.5f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f),16)));
         
-		
-//        initialEntities.add(new Zombie(new Vector2f(3.0f, 2.0f)));
+
+        
 //		initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
 //		initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
-//		initialEntities.add(new Zombie(new Vector2f(1.0f, 2.0f)));
+		initialEntities.add(new Zombie(new Vector2f(1.0f, 2.0f)));
 		initialEntities.add(new Zombie(new Vector2f(1.5f, 6.0f)));
 		initialEntities.add(new Zombie(new Vector2f(3.25f, 5.45f)));
     
 		//initialEntities.add(new AIPlayer(3, new Vector2f(15.0f, 15.0f), "[BOT] Bob", new MachineGun(new Vector2f(0.0f, 0.0f),256)));
-		
+
+		/*
 		// Add torches
 		// West Entrance
 		initialEntities.add(new Torch(new Vector2f(10.21f, 16.22f)));
@@ -196,6 +197,7 @@ public class FinalMap extends Map {
 		// North Entrace
 		initialEntities.add(new Torch(new Vector2f(16.24f, 19.79f)));
 		initialEntities.add(new Torch(new Vector2f(13.78f, 19.79f)));
+		*/
 	}
 	
 	/**

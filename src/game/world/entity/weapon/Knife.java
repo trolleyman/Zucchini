@@ -104,7 +104,7 @@ public class Knife extends Weapon {
 			
 			// Add damage
 			System.out.println("[Game]: Weapon: Knifed " + e.getReadableName());
-			Damage d = new Damage(this.getId(), this.getTeam(), DamageType.KNIFE_DAMAGE, 5.0f);
+			Damage d = new Damage(ownerId, ownerTeam, DamageType.KNIFE_DAMAGE, 5.0f);
 			ua.bank.updateEntityCached(new DamageUpdate(e.getId(), d));
 		}
 		
@@ -128,5 +128,16 @@ public class Knife extends Weapon {
 	@Override
 	public Knife clone() {
 		return new Knife(this);
+	}
+
+	@Override
+	public String toString() {
+		return "Knife";
+	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 1;
 	}
 }

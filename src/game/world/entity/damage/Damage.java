@@ -1,8 +1,5 @@
 package game.world.entity.damage;
 
-import game.world.EntityBank;
-import game.world.entity.Entity;
-
 public class Damage {
 	/** What player this damage originated from. */
 	public int ownerId;

@@ -30,18 +30,18 @@ public class Evade implements State<AIPlayer> {
 		Entity kill = aiPlayer.getClosestSeenEntity(ua);
 		
 		if (kill == null) {
-			aiPlayer.handleAction(ua.bank, new Action(ActionType.END_USE));
+			aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 			aiPlayer.getStateMachine().changeState(new MoveTowardsCentre());
 		} else {
 			float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, kill.position.x, kill.position.y);
-			aiPlayer.handleAction(ua.bank, new Action(ActionType.BEGIN_USE));
+			aiPlayer.handleAction(ua, new Action(ActionType.BEGIN_USE));
 			Random randAim = new Random();
 			float aim = randAim.nextFloat() / 5;
 			
 			
 				
 		
-			aiPlayer.handleAction(ua.bank, new AimAction(angle + aim)); // aimbot mode
+			aiPlayer.handleAction(ua, new AimAction(angle + aim)); // aimbot mode
 			
 		}
 		
