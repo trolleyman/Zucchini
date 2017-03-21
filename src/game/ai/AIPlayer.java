@@ -52,7 +52,7 @@ public class AIPlayer extends Player {
 	}
 	
 	private void setup() {
-		stateMachine = new StateMachine<>(this, AIPlayerStates.MOVE_TOWARDS_CENTRE);
+		stateMachine = new StateMachine<>(this, AIPlayerStates.WANDER);
 
 	}
 	
@@ -76,13 +76,7 @@ public class AIPlayer extends Player {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		if (time > 0.5){
-			stateMachine.update(ua);
-			time = 0.0;
-		}
-		
-		time += ua.dt;
-		
+		stateMachine.update(ua);		
 		
 		super.update(ua);
 	}

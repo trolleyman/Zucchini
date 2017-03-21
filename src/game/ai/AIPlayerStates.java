@@ -1,4 +1,5 @@
 package game.ai;
+import java.util.ArrayList;
 import java.util.Random;
 import game.Util;
 import game.action.Action;
@@ -24,9 +25,10 @@ public enum AIPlayerStates implements State<AIPlayer> {
 	 */
 	WANDER() {
 		private boolean wandering = false;
-		float wanderX;
+		int wanderX;
 		float wanderY;
 		int counterWandering =0;
+		Vector2f[] places = {new Vector2f(1.0f, 1.0f), new Vector2f(1.0f, 29.0f), new Vector2f(29.0f, 29.0f), new Vector2f(29.0f, 1.0f)};
 		@Override
 		public void enter(AIPlayer aiPlayer) {
 			
@@ -42,38 +44,43 @@ public enum AIPlayerStates implements State<AIPlayer> {
 			if (!wandering){
 				if(aiPlayer.debug) System.out.println("While wandering!!!!!!!!!!!!");
 				counterWandering ++;
-				boolean notAWallBool = false;
-				while(notAWallBool == false){
-					Random rand =  new Random();
-					wanderX = rand.nextInt(30);
-					wanderY= rand.nextInt(30);
-					boolean aWallNear = false;
-					//for (float x = -1f; x < 1f; x+= 1f){
-						//for (float y = -1f; y < 1f; y+=1f){
-							if (!pfmap.notAWall(wanderX ,wanderY)){
-								aWallNear = true;
-								System.out.println("wall near");
-							}
-						//}
-						
-					//}
-					if (aWallNear == false){
-						notAWallBool = true;
-						aiPlayer.setDestination(pfmap, new Vector2f(wanderX,wanderY));
-						System.out.println("gogogogo");
-					}
-				}
+			//	boolean notAWallBool = false;
+				Random rand = new Random();
+				
+				wanderX = rand.nextInt(3);
+				aiPlayer.setDestination(pfmap, places[wanderX]);
+				
+//				while(notAWallBool == false){
+//					Random rand =  new Random();
+//					wanderX = rand.nextInt(30);
+//					wanderY= rand.nextInt(30);
+//					boolean aWallNear = false;
+//					for (float x = -1f; x < 1f; x+= 1f){
+//						for (float y = -1f; y < 1f; y+=1f){
+//							if (!pfmap.notAWall(wanderX ,wanderY)){
+//								aWallNear = true;
+//								System.out.println("wall near");
+//							}
+//						}
+//						
+//					}
+//					if (aWallNear == false){
+//						notAWallBool = true;
+//						aiPlayer.setDestination(pfmap, new Vector2f(wanderX,wanderY));
+//						System.out.println("gogogogo");
+//					}
+//				}
 				wandering = true;
 				
 			}else{
-				aiPlayer.setDestination(pfmap, new Vector2f(wanderX,wanderY));
-				float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, wanderX, wanderY);
-				aiPlayer.handleAction(ua.bank, new AimAction(angle));
+				aiPlayer.setDestination(pfmap, places[wanderX]);
+				//float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, wanderX, wanderY);
+				//aiPlayer.handleAction(ua.bank, new AimAction(angle));
 			}
 			Node similarWander = pfmap.getClosestNodeTo(aiPlayer.position.x, aiPlayer.position.y);
 			if(aiPlayer.debug) System.out.println(Math.round(similarWander.getX() / pfmap.scale) + ", " + wanderX);
-			if(aiPlayer.debug) System.out.println(Math.round(similarWander.getY() / pfmap.scale) + ", " + wanderY);
-			if (Math.round(similarWander.getX() / pfmap.scale) == Math.round(wanderX) && Math.round(similarWander.getY() / pfmap.scale) == Math.round(wanderY)){
+			if(aiPlayer.debug) System.out.println(Math.round(similarWander.getY() / pfmap.scale) + ", " + wanderX);
+			if (Math.round(similarWander.getX() / pfmap.scale) == Math.round(places[wanderX].x) && Math.round(similarWander.getY() / pfmap.scale) == Math.round(places[wanderX].y)){
 					wandering = false;
 					
 			}
@@ -184,14 +191,14 @@ public enum AIPlayerStates implements State<AIPlayer> {
 						for (float y = -1f; y < 1f; y+=1f){
 							if (!pfmap.notAWall(kitingX + x,kitingY + y)){
 								aWallNear = true;
-								System.out.println("wall near");
+								//System.out.println("wall near");
 							}
 						}
 					}
 					if (aWallNear == false) {
 						notAWallBool = true;
 						aiPlayer.setDestination(pfmap, new Vector2f(kitingX,kitingY));
-						System.out.println("gogogogo");
+						//System.out.println("gogogogo");
 					}
 				}
 				kiting = true;
@@ -200,8 +207,8 @@ public enum AIPlayerStates implements State<AIPlayer> {
 				aiPlayer.setDestination(pfmap, new Vector2f(kitingX,kitingY));
 			}
 			Node similarWander = pfmap.getClosestNodeTo(aiPlayer.position.x, aiPlayer.position.y);
-			if(aiPlayer.debug) System.out.println(Math.round(similarWander.getX() / pfmap.scale) + ", " + kitingX);
-			if(aiPlayer.debug) System.out.println(Math.round(similarWander.getY() / pfmap.scale) + ", " + kitingY);
+			//if(aiPlayer.debug) System.out.println(Math.round(similarWander.getX() / pfmap.scale) + ", " + kitingX);
+			//if(aiPlayer.debug) System.out.println(Math.round(similarWander.getY() / pfmap.scale) + ", " + kitingY);
 			if (Math.round(similarWander.getX() / pfmap.scale) == Math.round(kitingX) && Math.round(similarWander.getY() / pfmap.scale) == Math.round(kitingY)){
 				kiting = false;
 			}
@@ -271,7 +278,7 @@ public enum AIPlayerStates implements State<AIPlayer> {
 		@Override
 		public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 			Entity kill = aiPlayer.getClosestSeenEntity(ua);
-			if (aiPlayer.getHealth() / aiPlayer.getMaxHealth() < 0.7f){
+			if (aiPlayer.getHealth() / aiPlayer.getMaxHealth() < 0.95f){
 				aiPlayer.getStateMachine().changeState(EVADE);
 			}
 			if (kill == null) {

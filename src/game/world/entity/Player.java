@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public abstract class Player extends AutonomousEntity {
 	/** The max distance a player can see */
-	public static final float LINE_OF_SIGHT_MAX = 50.0f;
+	public static final float LINE_OF_SIGHT_MAX = 10.0f;
 	/** The angle of which the player can see */
 	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(360.0);
 	

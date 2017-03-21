@@ -247,7 +247,7 @@ public class ProtocolTest {
 	public void sendWorldStart() throws ProtocolException {
 		ArrayList<Wall> walls = new ArrayList<>();
 		walls.add(new Wall(0.0f, 1.0f, 2.0f, 3.0f));
-		WorldStart ws1 = new WorldStart(new Map(walls, 5.0f, 1), 10);
+		WorldStart ws1 = new WorldStart(new Map(walls, 10.0f, 1), 10);
 		String msg = Protocol.sendWorldStart(ws1);
 		assertTrue(Protocol.isWorldStart(msg));
 		WorldStart ws2 = Protocol.parseWorldStart(msg);
