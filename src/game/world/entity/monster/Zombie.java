@@ -70,8 +70,10 @@ public class Zombie extends AutonomousEntity {
 				}
 				
 			}else{
-				if  (this.position.distance(kill.position.x, kill.position.y) < 2f){
-					enabled = true;
+				if (kill != null){
+					if  (this.position.distance(kill.position.x, kill.position.y) < 2f){
+						enabled = true;
+					}
 				}
 			}
 			time = 0;
