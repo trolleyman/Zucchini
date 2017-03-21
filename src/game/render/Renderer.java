@@ -1,6 +1,7 @@
 package game.render;
 
 import game.InputHandler;
+import game.Resources;
 import game.Util;
 import game.exception.ShaderCompilationException;
 import game.render.shader.*;
@@ -9,16 +10,21 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.*;
+import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Renderer implements IRenderer {
@@ -245,6 +251,9 @@ public class Renderer implements IRenderer {
 		// Generate meshes
 		generateMeshes();
 		
+		// Set window icon
+		setWindowIcon();
+		
 		// Setup render settings
 		this.setRenderSettings(settings);
 		
@@ -327,6 +336,43 @@ public class Renderer implements IRenderer {
 		VBO circleVBO = new VBO(circleData, AccessFrequency.STATIC);
 		circle = new VAO();
 		circle.addData(simpleShader, "position", circleVBO, 2, 0, 0);
+	}
+	
+	/**
+	 * Sets the current window icon
+	 */
+	private void setWindowIcon() {
+		HashMap<String, byte[]> files = Resources.getFiles("img", (s) -> s.equals("icon.png"));
+		if (files.size() == 0) {
+			System.err.println("Warning: Icon could not be located");
+			return;
+		}
+		byte[] iconData = files.values().iterator().next();
+		ByteBuffer bbData = MemoryUtil.memAlloc(iconData.length);
+		bbData.put(iconData);
+		bbData.flip();
+		
+		int[] wArr = new int[1];
+		int[] hArr = new int[1];
+		int[] compArr = new int[1];
+		
+		// Load PNG
+		ByteBuffer imageData = stbi_load_from_memory(bbData, wArr, hArr, compArr, 4);
+		imageData.rewind();
+		
+		bbData.rewind();
+		MemoryUtil.memFree(bbData);
+		
+		// Generate a GLFW image from the raw data
+		GLFWImage.Buffer imageBuf = GLFWImage.calloc(1);
+		imageBuf.get(0).pixels(imageData);
+		imageBuf.get(0).width(wArr[0]);
+		imageBuf.get(0).height(hArr[0]);
+		
+		// Set window icon
+		glfwSetWindowIcon(window, imageBuf);
+		
+		MemoryUtil.memFree(imageData);
 	}
 	
 	/**

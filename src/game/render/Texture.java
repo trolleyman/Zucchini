@@ -46,6 +46,7 @@ public class Texture {
 		h = hArr[0];
 		
 		this.loadTexture(data, w, h, GL_RGBA);
+		MemoryUtil.memFree(data);
 	}
 	
 	public Texture(ByteBuffer data, int _w, int _h, int format) {
