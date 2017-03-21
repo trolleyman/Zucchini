@@ -189,7 +189,7 @@ public abstract class Player extends AutonomousEntity {
 			this.heldItem.update(ua);
 		
 		// Play walking sounds
-		if (velocity.length() > Util.EPSILON) {
+		if (velocity.length() > 1f) {
 			//System.out.println("Starting sound id: " + walkingSoundID);
 			if (walkingSoundID == -1) {
 				this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.6f,this.position);
@@ -338,5 +338,6 @@ public abstract class Player extends AutonomousEntity {
 			else
 				ua.scoreboard.addPlayerKill(p.getName());
 		}
+		ua.audio.play("dying.wav", 1f, this.position);
 	}
 }

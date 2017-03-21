@@ -27,6 +27,9 @@ public class AStar {
 	private float[][] heuristicMap;
 	private float[][] movementCostMap;
 	private float[][] totalCostMap;
+	private float D2 = 1;
+	private float D = 1;
+	
 	
 	private int width;
 	private int height;
@@ -64,9 +67,8 @@ public class AStar {
 		// setting all default values
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				float dx = x - start.getX();
-				float dy = y - start.getY();
-				heuristicMap[x][y] = (float)Math.sqrt(dx * dx + dy * dy);
+				
+				heuristicMap[x][y] = heuristic(x, y);
 
 				movementCostMap[x][y] = Integer.MAX_VALUE;
 
@@ -173,5 +175,13 @@ public class AStar {
 	 */
 	public ArrayList<Node> getPath() {
 		return this.finalPath;
+	}
+	
+	private float heuristic(int x, int y){
+		
+		float dx = Math.abs(x - goal.getY());
+		float dy = Math.abs(y - goal.getY());
+		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
+		
 	}
 }

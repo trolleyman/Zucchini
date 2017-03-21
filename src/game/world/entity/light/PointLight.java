@@ -1,5 +1,4 @@
 package game.world.entity.light;
-
 import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
@@ -8,9 +7,7 @@ import game.world.entity.LightUtil;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
-
 import java.nio.FloatBuffer;
-
 public class PointLight extends Entity {
 	/** The intensity multiplier below at which the intensity is assumed to be 0. */
 	protected static final float CUTOFF_INTENSITY = 0.01f;
