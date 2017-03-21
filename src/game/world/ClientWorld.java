@@ -447,16 +447,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 			
 			// Render health
-			float barWidth = 400.0f;
-			float barHeight = 80.0f;
+			float barWidth = windowW/5;
+			float barHeight = windowH/20;
 			float segments = barWidth / p.getMaxHealth();
 			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, barWidth, barHeight, ColorUtil.GREEN);//max health
 			r.drawBox(Align.TR, windowW - Util.HUD_PADDING, windowH - Util.HUD_PADDING, segments * (p.getMaxHealth() - p.getHealth()), barHeight, ColorUtil.RED);
 		}
 		
 		// Draw mini-map
-		if (!isPlayerDead())
-			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - 300.0f - Util.HUD_PADDING, 300.0f, 300.0f, 20.0f);
+		float mapWidth = r.getWidth()/7;
+		if (!isPlayerDead()){
+			this.renderMiniMap(r, Util.HUD_PADDING, r.getHeight() - mapWidth - Util.HUD_PADDING, mapWidth, mapWidth, 20.0f);
+		}
 	}
 	
 	/**
