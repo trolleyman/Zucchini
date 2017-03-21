@@ -75,4 +75,10 @@ public class PumpActionShotgun extends Weapon {
 	public PumpActionShotgun clone() {
 		return new PumpActionShotgun(this);
 	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

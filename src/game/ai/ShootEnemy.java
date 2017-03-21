@@ -19,7 +19,7 @@ public class ShootEnemy implements State<AIPlayer>{
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		Entity kill = aiPlayer.getClosestSeenEntity(ua);
-		if (aiPlayer.getHealth() / aiPlayer.getMaxHealth() < 0.95f){
+		if (aiPlayer.getHealth() / aiPlayer.getMaxHealth() < 0.95f && aiPlayer.getHeldItem().aiValue() > 1){
 			aiPlayer.getStateMachine().changeState(new Evade());
 		}
 		if (kill == null) {

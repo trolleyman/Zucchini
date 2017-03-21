@@ -50,6 +50,8 @@ public abstract class Item extends Entity {
 	/** Called when the user releases the mouse button */
 	public abstract void endUse();
 	
+	public abstract float aiValue();
+	
 	/** Called to render information about the item to the screen */
 	public abstract void renderUI(IRenderer r);
 	

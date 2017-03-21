@@ -80,4 +80,10 @@ public class Handgun extends Weapon {
 	public Handgun clone() {
 		return new Handgun(this);
 	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 2;
+	}
 }
