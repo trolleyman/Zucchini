@@ -24,7 +24,7 @@ import java.util.Random;
 import org.joml.Vector2f;
 public class Zombie extends AutonomousEntity {
 	private static final float MAX_SPEED = 1.0f;
-	private static final float RADIUS = 0.15f;
+	private static final float RADIUS = 0.2f;
 	private transient boolean soundSourceInit = false;
 	private transient int zombieSoundID;
 	private transient boolean enabled = false;
