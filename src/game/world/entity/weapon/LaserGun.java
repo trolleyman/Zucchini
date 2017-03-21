@@ -131,4 +131,10 @@ public class LaserGun extends Weapon {
 	public LaserGun clone() {
 		return new LaserGun(this);
 	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 4;
+	}
 }

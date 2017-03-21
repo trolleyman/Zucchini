@@ -129,4 +129,10 @@ public class Knife extends Weapon {
 	public Knife clone() {
 		return new Knife(this);
 	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
 }
