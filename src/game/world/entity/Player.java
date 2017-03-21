@@ -338,5 +338,6 @@ public abstract class Player extends AutonomousEntity {
 			else
 				ua.scoreboard.addPlayerKill(p.getName());
 		}
+		ua.audio.play("dying.wav", 1f, this.position);
 	}
 }
