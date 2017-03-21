@@ -77,6 +77,11 @@ public class PumpActionShotgun extends Weapon {
 	}
 
 	@Override
+	public String toString() {
+		return "Shotgun";
+	}
+
+	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
 		return 0;

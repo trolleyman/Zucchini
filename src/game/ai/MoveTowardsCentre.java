@@ -19,7 +19,7 @@ public class MoveTowardsCentre implements State<AIPlayer> {
 		
 		aiPlayer.setDestination(pfmap, new Vector2f(15,15));
 		float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, 15, 15);
-		aiPlayer.handleAction(ua.bank, new AimAction(angle));
+		aiPlayer.handleAction(ua, new AimAction(angle));
 		if (aiPlayer.getClosestSeenEntity(ua) != null) {
 			if (aiPlayer.debug2) System.out.println("While wandering, we see an enemy!");
 			

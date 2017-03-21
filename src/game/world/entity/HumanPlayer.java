@@ -77,7 +77,7 @@ public class HumanPlayer extends Player {
 	}
 	
 	@Override
-	public void handleAction(EntityBank bank, Action a) {
+	public void handleAction(UpdateArgs ua, Action a) {
 		switch (a.getType()) {
 			case BEGIN_MOVE_NORTH: this.moveNorth = true ; break;
 			case BEGIN_MOVE_SOUTH: this.moveSouth = true ; break;
@@ -88,7 +88,7 @@ public class HumanPlayer extends Player {
 			case END_MOVE_EAST   : this.moveEast  = false; break;
 			case END_MOVE_WEST   : this.moveWest  = false; break;
 			default:
-				super.handleAction(bank, a);
+				super.handleAction(ua, a);
 		}
 	}
 	

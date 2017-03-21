@@ -23,19 +23,19 @@ public class ShootEnemy implements State<AIPlayer>{
 			aiPlayer.getStateMachine().changeState(new Evade());
 		}
 		if (kill == null) {
-			aiPlayer.handleAction(ua.bank, new Action(ActionType.END_USE));
+			aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 			aiPlayer.getStateMachine().changeState(new MoveTowardsCentre());
 		} else {
 			if (!hasBegunUse) {
-				aiPlayer.handleAction(ua.bank, new Action(ActionType.BEGIN_USE));
+				aiPlayer.handleAction(ua, new Action(ActionType.BEGIN_USE));
 				hasBegunUse = true;
 			} else if (!aiPlayer.getHeldItem().isUsing()) {
-				aiPlayer.handleAction(ua.bank, new Action(ActionType.END_USE));
+				aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 				hasBegunUse = false;
 			}
 			
 			float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, kill.position.x, kill.position.y);
-			aiPlayer.handleAction(ua.bank, new AimAction(angle)); // aimbot mode
+			aiPlayer.handleAction(ua, new AimAction(angle)); // aimbot mode
 			aiPlayer.setDestination(ua.map.getPathFindingMap(), kill.position);
 		}
 	}

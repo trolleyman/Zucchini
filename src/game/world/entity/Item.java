@@ -57,4 +57,7 @@ public abstract class Item extends Entity {
 	
 	@Override
 	public abstract Item clone();
+
+	@Override
+	public abstract String toString();
 }

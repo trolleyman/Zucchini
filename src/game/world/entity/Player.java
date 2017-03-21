@@ -235,10 +235,10 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Handles an action on the player
-	 * @param bank The entity bank
+	 * @param ua The update arguments
 	 * @param a The action
 	 */
-	public void handleAction(EntityBank bank, Action a) {
+	public void handleAction(UpdateArgs ua, Action a) {
 		switch (a.getType()) {
 		case BEGIN_MOVE_NORTH:
 		case BEGIN_MOVE_SOUTH:
@@ -252,7 +252,7 @@ public abstract class Player extends AutonomousEntity {
 			break;
 		case AIM:
 			angle = ((AimAction)a).getAngle();
-			bank.updateEntityCached(new AngleUpdate(this.getId(), angle));
+			ua.bank.updateEntityCached(new AngleUpdate(this.getId(), angle));
 			break;
 		case BEGIN_USE: {
 			if (!this.beganUse) {
@@ -270,7 +270,7 @@ public abstract class Player extends AutonomousEntity {
 		}
 		case PICKUP: {
 			// Get pickups around to the player
-			ArrayList<Entity> es = bank.getEntitiesNear(position.x, position.y, 0.5f);
+			ArrayList<Entity> es = ua.bank.getEntitiesNear(position.x, position.y, 0.5f);
 			Optional<Entity> oe = es.stream()
 					.filter((e) -> e instanceof Pickup)
 					.min((l, r) -> Float.compare(l.position.distanceSquared(this.position), r.position.distanceSquared(this.position)));
@@ -278,7 +278,7 @@ public abstract class Player extends AutonomousEntity {
 				Pickup p = (Pickup) oe.get();
 				
 				// Drop current item
-				this.dropHeldItem(bank, p.position);
+				this.dropHeldItem(ua.bank, p.position);
 				
 				// Get item
 				Item item = p.getItem();
@@ -286,22 +286,23 @@ public abstract class Player extends AutonomousEntity {
 				// Own item & pickup item
 				item.setOwnerTeam(this.getTeam());
 				item.setOwner(this.getId());
-				this.pickupItem(bank, item);
+				this.pickupItem(ua.bank, item);
+				ua.packetCache.sendStringTcp(this.getName(), Protocol.sendMessageToClient("", "Equipped " + item.toString()));
 				
 				// Remove pickup entity
-				bank.removeEntityCached(p.getId());
+				ua.bank.removeEntityCached(p.getId());
 			}
 			break;
 		}
 		case TOGGLE_LIGHT:
 			this.torchOn = !this.torchOn;
-			bank.updateEntityCached(new TorchLightUpdate(this.getId(), this.torchOn));
+			ua.bank.updateEntityCached(new TorchLightUpdate(this.getId(), this.torchOn));
 			break;
 		case RELOAD:
 			if (heldItem != null && heldItem instanceof Weapon) {
 				Weapon w = (Weapon) heldItem;
 				if (!w.isReloading())
-					w.doReload(bank);
+					w.doReload(ua.bank);
 			}
 			break;
 		}

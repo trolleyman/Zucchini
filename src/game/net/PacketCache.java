@@ -9,6 +9,8 @@ import java.util.ArrayList;
 public class PacketCache {
 	private ArrayList<String> tcpCache = new ArrayList<>();
 	private ArrayList<String> udpCache = new ArrayList<>();
+
+	private ArrayList<Tuple<String, String>> tcpToCache = new ArrayList<>();
 	
 	public synchronized void sendStringTcp(String msg) {
 		tcpCache.add(msg);
@@ -50,5 +52,24 @@ public class PacketCache {
 		}
 		tcpCache.clear();
 		udpCache.clear();
+
+		for (Tuple<String, String> t : tcpToCache) {
+			String name = t.getFirst();
+			String msg = t.getSecond();
+			for (ServerWorldClient swc : clients) {
+				if (swc.handler.getClientInfo().name.equals(name)) {
+					try {
+						swc.handler.sendStringTcp(msg);
+					} catch (ProtocolException e) {
+						swc.handler.error(e);
+					}
+				}
+			}
+		}
+		tcpToCache.clear();
+	}
+
+	public void sendStringTcp(String name, String msg) {
+		tcpToCache.add(new Tuple<>(name, msg));
 	}
 }
