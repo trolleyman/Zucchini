@@ -84,36 +84,24 @@ public class AIPlayer extends Player {
 		super.update(ua);
 	}
 	
-	public Entity getClosestSeenEntity(UpdateArgs ua) {
-		ArrayList<Entity> entities  = ua.bank.getEntitiesNear(this.position.x, this.position.y, Player.LINE_OF_SIGHT_MAX);
+	public Pickup getClosestValublePickup(UpdateArgs ua){
 		Vector2f temp = Util.pushTemporaryVector2f();
-		
-		// Get entities that can be seen
-		ListIterator<Entity> it = entities.listIterator();
-		Entity kill;
-		while (it.hasNext()) {
-			kill = it.next();
-			if (Team.isHostileTeam(this.getTeam(), kill.getTeam())) {
-				Vector2f v = ua.map.intersectsLine(this.position.x, this.position.y, kill.position.x, kill.position.y, temp);
-				
-				if (v == null) {
-					continue;
-				}
-			}
-			it.remove();
-		}
+		Pickup i = (Pickup)ua.bank.getClosestEntity(position.x, position.y,
+				(e) ->  ua.map.intersectsLine(this.position.x, this.position.y, e.position.x, e.position.y, temp) == null
+				&& e instanceof Pickup
+				&& ((Pickup)e).getItem().aiValue() > this.heldItem.aiValue());
 		Util.popTemporaryVector2f();
-		
-		// Now get nearest entity
-		Optional<Entity> closest = entities.stream().min(
-				(l, r) -> Float.compare(l.position.distanceSquared(position), r.position.distanceSquared(position)));
-		if (closest.isPresent()) {
-			// System.out.println("Hi there, " + closest.get().getReadableName() + " :)");
-			return closest.get();
-		}
-		return null;
+		return i;
 	}
 	
+	public Entity getClosestSeenEntity(UpdateArgs ua) {
+		Vector2f temp = Util.pushTemporaryVector2f();
+		Entity ret = ua.bank.getClosestEntity(position.x, position.y,
+				(e) -> Team.isHostileTeam(this.getTeam(), e.getTeam())
+				&& ua.map.intersectsLine(this.position.x, this.position.y, e.position.x, e.position.y, temp) == null);
+		Util.popTemporaryVector2f();
+		return ret;
+	}
 	
 	public boolean canSeePickUp(){
 		//TODO: make function that can tell us if this entity can see a pickup

@@ -279,8 +279,19 @@ public class EntityBank {
 	 * @return null if an entity could not be found
 	 */
 	public synchronized Entity getClosestHostileEntity(float x, float y, int team) {
+		return this.getClosestEntity(x, y, (e) -> Team.isHostileTeam(team, e.getTeam()));
+	}
+	
+	/**
+	 * Gets the closest hostile entity to x,y
+	 * @param x The x-coordinate
+	 * @param y The y-coordinate
+	 * @param team The team that the returned entity is hostile to
+	 * @return null if an entity could not be found
+	 */
+	public synchronized Entity getClosestEntity(float x, float y, Predicate<Entity> pred) {
 		Optional<Entity> oe = entities.values().stream()
-				.filter((e) -> Team.isHostileTeam(team, e.getTeam()))
+				.filter(pred)
 				.min((l, r) -> Float.compare(l.position.distanceSquared(x, y),
 						r.position.distanceSquared(x, y)));
 		
