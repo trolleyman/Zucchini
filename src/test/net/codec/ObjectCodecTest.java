@@ -10,7 +10,7 @@ import game.world.entity.Player;
 import game.world.entity.update.EntityUpdate;
 import game.world.entity.update.HealthUpdate;
 import game.world.entity.weapon.Knife;
-import game.world.update.SetStartTimeWorldUpdate;
+import game.world.update.StartTimeWorldUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
 import org.junit.Test;
@@ -59,12 +59,12 @@ public class ObjectCodecTest {
 	
 	@Test
 	public void worldUpdateCodec() throws ProtocolException {
-		SetStartTimeWorldUpdate s1 = new SetStartTimeWorldUpdate(3.0f);
+		StartTimeWorldUpdate s1 = new StartTimeWorldUpdate(3.0f);
 		WorldUpdate u1 = s1;
 		String s = ObjectCodec.worldUpdateToString(u1);
 		WorldUpdate u2 = ObjectCodec.worldUpdateFromString(s);
-		assertTrue(u2 instanceof SetStartTimeWorldUpdate);
-		SetStartTimeWorldUpdate s2 =(SetStartTimeWorldUpdate) u2;
+		assertTrue(u2 instanceof StartTimeWorldUpdate);
+		StartTimeWorldUpdate s2 =(StartTimeWorldUpdate) u2;
 		assertEquals(s1.getStartTime(), s2.getStartTime(), 0.00001);
 	}
 	

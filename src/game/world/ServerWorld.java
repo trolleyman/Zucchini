@@ -15,8 +15,10 @@ import game.world.entity.Entity;
 import game.world.entity.HumanPlayer;
 import game.world.entity.Player;
 import game.world.map.Map;
+import game.world.update.EndTimeWorldUpdate;
 import game.world.update.ScoreboardWorldUpdate;
-import game.world.update.SetStartTimeWorldUpdate;
+import game.world.update.StartFinishingWorldUpdate;
+import game.world.update.StartTimeWorldUpdate;
 
 /**
  * The world located on the server
@@ -26,6 +28,8 @@ import game.world.update.SetStartTimeWorldUpdate;
 public class ServerWorld extends World implements Cloneable {
 	/** Time in seconds between start time updates */
 	private static final float START_TIME_UPDATE_DT = 0.5f;
+	/** Time in seconds between end time updates */
+	private static final float END_TIME_UPDATE_DT = 0.5f;
 	
 	/** Cached UpdateArgs object */
 	private UpdateArgs ua = new UpdateArgs(0.0, null, null, null, new PacketCache(), null);
@@ -39,6 +43,9 @@ public class ServerWorld extends World implements Cloneable {
 	/** The time since the last startTime update */
 	private float startTimeUpdate;
 	
+	/** The time since the last endTime update */
+	private float endTimeUpdate;
+	
 	/**
 	 * Clones a ServerWorld
 	 */
@@ -50,6 +57,7 @@ public class ServerWorld extends World implements Cloneable {
 		this.clients = w.clients;
 		
 		this.startTimeUpdate = w.startTimeUpdate;
+		this.endTimeUpdate = w.endTimeUpdate;
 	}
 	
 	/**
@@ -67,6 +75,23 @@ public class ServerWorld extends World implements Cloneable {
 		}
 		
 		this.startTimeUpdate = 0.0f;
+		this.endTimeUpdate = 0.0f;
+	}
+	
+	/**
+	 * Should the world start the finishing phase of the game?
+	 */
+	protected boolean shouldStartFinishing() {
+		if (startTime != 0.0f)
+			return false;
+		
+		// Count alive players
+		int numAlive = 0;
+		for (PlayerScoreboardInfo p : scoreboard.getPlayers()) {
+			if (!p.dead)
+				numAlive++;
+		}
+		return numAlive <= 1;
 	}
 	
 	/**
@@ -149,7 +174,7 @@ public class ServerWorld extends World implements Cloneable {
 			
 			if (this.startTimeUpdate > START_TIME_UPDATE_DT) {
 				this.startTimeUpdate = 0.0f;
-				String s = Protocol.sendWorldUpdate(new SetStartTimeWorldUpdate(this.startTime));
+				String s = Protocol.sendWorldUpdate(new StartTimeWorldUpdate(this.startTime));
 				for (ServerWorldClient c : clients) {
 					try {
 						c.handler.sendStringTcp(s);
@@ -158,6 +183,31 @@ public class ServerWorld extends World implements Cloneable {
 					}
 				}
 			}
+		}
+		if (isFinishing()) {
+			this.endTimeUpdate += dt;
+			
+			if (this.endTimeUpdate > END_TIME_UPDATE_DT || this.endTime == 0.0f) {
+				this.endTimeUpdate = 0.0f;
+				String s = Protocol.sendWorldUpdate(new EndTimeWorldUpdate(this.endTime));
+				for (ServerWorldClient c : clients) {
+					try {
+						c.handler.sendStringTcp(s);
+					} catch (ProtocolException e) {
+						c.handler.error(e);
+					}
+				}
+			}
+		} else if (shouldStartFinishing()) {
+			// Send start finishing packet
+			for (ServerWorldClient swc : clients) {
+				try {
+					swc.handler.getClientInfo().tcpConn.sendString(Protocol.sendWorldUpdate(new StartFinishingWorldUpdate()));
+				} catch (ProtocolException e) {
+					swc.handler.error(e);
+				}
+			}
+			startFinishing();
 		}
 		
 		// If scoreboard is dirty, send update
