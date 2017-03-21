@@ -3,6 +3,7 @@ package game.ui;
 import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
+import game.exception.ProtocolException;
 import game.Util;
 import game.render.Align;
 import game.render.Font;
@@ -83,6 +84,11 @@ public class EscapeUI extends UI implements InputPipeMulti {
 		quitBtn = new ButtonComponent(
 				() -> {
 					this.destroy = true;
+					try {
+						connection.sendLobbyLeaveRequest();
+					} catch (ProtocolException e) {
+						connection.error(e);
+					}
 					this.nextUI = new StartUI(this);
 				},
 				Align.BL, 0, 0,

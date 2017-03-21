@@ -33,6 +33,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> scoreboardInputHandlers = new ArrayList<>();
 	
+	private boolean destroy = false;
 	private UI nextUI;
 	
 	private boolean scoreboardShown;
@@ -88,7 +89,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	public void update(double dt) {
 		this.world.update(dt);
 		
-		if (world.isPlayerDead())
+		if (world.isPlayerDead() || world.hasPlayerWon())
 			scoreboardShown = true;
 		if (this.scoreboardShown) {
 			this.scoreboardComponent.update(dt);
@@ -108,7 +109,11 @@ public class GameUI extends UI implements InputPipeMulti {
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), SCOREBOARD_BACKGROUND_COLOR);
 		}
 		float y = 0.0f;
-		if (world.isPlayerDead()) {
+		if (world.hasPlayerWon()) {
+			r.drawText(f, "Victory!", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.GREEN);
+			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale) - 55.0f;
+			
+		} else if (world.isPlayerDead()) {
 			r.drawText(f, "You are dead.", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.RED);
 			PlayerScoreboardInfo p = world.getScoreboard().getPlayer(connection.getName());
 			Damage d = p == null ? null : p.lastDamage;
@@ -126,6 +131,11 @@ public class GameUI extends UI implements InputPipeMulti {
 			scoreboardComponent.setStartY(y);
 			scoreboardComponent.render(r);
 		}
+		
+		if (world.isFinished()) {
+			destroy = true;
+			nextUI = new LobbyWaitUI(this, world.getLobbyName(), false);
+		}
 	}
 	
 	@Override
@@ -135,6 +145,7 @@ public class GameUI extends UI implements InputPipeMulti {
 
 	@Override
 	public void destroy() {
-		// Do nothing
+		if (destroy)
+			this.world.destroy();
 	}
 }

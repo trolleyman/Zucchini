@@ -42,6 +42,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	/** The connection to the server */
 	private IClientConnection connection;
 	
+	/** The name of the lobby that this world is hosted on */
+	private final String lobbyName;
+	
 	private final Object messageLogLock = new Object();
 	private final ArrayList<Message> messageLog;
 	
@@ -109,21 +112,35 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	 * @param _connection The connection to the server
 	 * @param _audio The audio manager
 	 */
-	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection, ArrayList<Message> _messageLog) {
+	public ClientWorld(Map map, EntityBank bank, int _playerID, AudioManager _audio, IClientConnection _connection, String _lobbyName, ArrayList<Message> _messageLog) {
 		super(map, bank);
 		this.playerID = _playerID;
 		this.audio = _audio;
 		this.clientAudio = new ClientAudioManager(audio);
 		this.connection = _connection;
+		this.lobbyName = _lobbyName;
 		this.messageLog = _messageLog;
 		connection.setHandler(this);
 		
 		this.updateStep(0.0f);
 	}
 	
+	public String getLobbyName() {
+		return lobbyName;
+	}
+	
 	public boolean isPlayerDead() {
 		PlayerScoreboardInfo p = scoreboard.getPlayer(connection.getName());
 		return p != null && p.dead;
+	}
+	
+	public boolean hasPlayerWon() {
+		ArrayList<PlayerScoreboardInfo> ps = scoreboard.getPlayers();
+		if (isFinishing() && ps.size() >= 1) {
+			PlayerScoreboardInfo p = ps.get(0);
+			return p.name.equals(connection.getName());
+		}
+		return false;
 	}
 	
 	@Override
@@ -631,10 +648,6 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	}
 	
 	public void destroy() {
-		try {
-			connection.sendLobbyLeaveRequest();
-		} catch (ProtocolException e) {
-			connection.error(e);
-		}
+		// Do nothing
 	}
 }

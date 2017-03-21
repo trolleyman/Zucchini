@@ -11,6 +11,8 @@ public class RenderSettings {
 	public boolean debugDrawLineOfSightLines;
 	/** Draw the specified framebuffer on the screen in a snall box on the screen */
 	public DebugFramebuffer debugDrawFramebuffer;
+	/** Whether or not the font is drawn debug style */
+	public boolean debugDrawFont;
 	
 	public RenderSettings() {
 		vSync = true;
@@ -18,6 +20,7 @@ public class RenderSettings {
 		drawGlitchEffect = false;
 		debugDrawLineOfSightLines = false;
 		debugDrawFramebuffer = DebugFramebuffer.NONE;
+		debugDrawFont = false;
 	}
 	
 	public RenderSettings(RenderSettings s) {
@@ -33,10 +36,11 @@ public class RenderSettings {
 		drawGlitchEffect = s.drawGlitchEffect;
 		debugDrawLineOfSightLines = s.debugDrawLineOfSightLines;
 		debugDrawFramebuffer = s.debugDrawFramebuffer;
+		debugDrawFont = s.debugDrawFont;
 	}
 	
 	@Override
-	protected RenderSettings clone() {
+	public RenderSettings clone() {
 		return new RenderSettings(this);
 	}
 }

@@ -178,7 +178,7 @@ public class Font {
 	 * @param color The colour of the text
 	 */
 	public void render(Renderer r, String s, boolean fromBaseline, float x, float y, float scale, Vector4f color) {
-		if (Util.isDebugRenderMode())
+		if (r.getRenderSettings().debugDrawFont)
 			r.drawBox(Align.BL, x, y, getWidth(s, scale), getHeight(scale), ColorUtil.GREEN);
 		
 		if (!fromBaseline) {
@@ -199,7 +199,7 @@ public class Font {
 			float w = (q.x1() - q.x0())*scale;
 			float h = (q.y1() - q.y0())*scale;
 			
-			if (Util.isDebugRenderMode())
+			if (r.getRenderSettings().debugDrawFont)
 				r.drawBox(Align.BL, q.x0(), y - q.y0()*scale - h, w, h, ColorUtil.PINK);
 			
 			r.drawTextureUV(text, Align.BL, q.x0(), y - q.y0()*scale - h, w, h, 0.0f, q.s0(), q.t0(), q.s1(), q.t1(), color);

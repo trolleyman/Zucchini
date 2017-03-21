@@ -91,9 +91,7 @@ public class Explosion extends Entity {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		if (Util.isDebugRenderMode()) {
-			r.drawCircle(position.x, position.y, radius, ColorUtil.GREEN);
-		}
+		//r.drawCircle(position.x, position.y, radius, ColorUtil.GREEN);
 		
 		if (this.light == null)
 			constructLight();

@@ -10,7 +10,7 @@ public class PumpActionShotgunBullet extends Bullet {
 	}
 	
 	public PumpActionShotgunBullet(Vector2f position, int ownerId, int teamId, float angle) {
-		super(position, ownerId, teamId, angle, SPEED, 10.0, 1.3f);
+		super(position, ownerId, teamId, angle, SPEED, 10.0, 1.5f);
 	}
 	
 	@Override

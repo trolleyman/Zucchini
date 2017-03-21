@@ -1,4 +1,4 @@
-package game.audio.test;
+package test.audio;
 
 import java.util.Scanner;
 
@@ -6,7 +6,8 @@ import org.joml.Vector2f;
 
 import game.audio.AudioManager;
 /**
- * Class to test the sound system. It is set up so that it takes input via system console and plays a specified sound.
+ * Class to test the sound system. Testing will be done aurally, requires user approval.
+ * It is set up so that it takes input via system console and plays a specified sound.
  * Things this class tests:
  * 	If a sound can play
  *  Correct sound file playing
@@ -80,7 +81,6 @@ public class AudioTests {
     			System.out.println("Type in a float between 0-1");
 				Scanner scanner = new Scanner(System.in);
 				Float v = scanner.nextFloat();
-				System.out.println("v: " +v );
         		soundMgr.setVolume(v);
         	}
         }

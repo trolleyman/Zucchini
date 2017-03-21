@@ -1,17 +1,13 @@
 package game.world.map;
-
 import game.ai.AIPlayer;
 import game.world.Team;
 import game.world.entity.Pickup;
 import game.world.entity.light.Torch;
 import game.world.entity.monster.Zombie;
 import game.world.entity.weapon.*;
-
 import org.joml.Vector2f;
-
 import java.util.ArrayList;
 import java.util.Random;
-
 /**
  * Created by jackm.
  */
@@ -24,120 +20,91 @@ public class FinalMap extends Map {
 		super(new ArrayList<>(), 8.0f, 4);
 		// Outer Walls
 		wall2D(0, 0, 30, 30);
-
 		// Horizontal Walls
 		wall2D(10, 2.05f, 12, 1.95f);
 		wall2D(16, 2.05f, 18, 1.95f);
-
 		wall2D(0, 4.05f, 4, 3.95f);
 		wall2D(8, 4.05f, 12, 3.95f);
 		wall2D(16, 4.05f, 18, 3.95f);
 		wall2D(26, 4.05f, 30, 3.95f);
-
 		wall2D(2, 6.05f, 4, 5.95f);
 		wall2D(18, 6.05f, 22, 5.95f);
 		wall2D(24, 6.05f, 30, 5.95f);
-
 		wall2D(0, 8.05f, 2, 7.95f);
 		wall2D(4, 8.05f, 8, 7.95f);
 		wall2D(12, 8.05f, 16, 7.95f);
 		wall2D(18, 8.05f, 24, 7.95f);
 		wall2D(26, 8.05f, 30, 7.95f);
-
 		wall2D(0, 10.05f, 4, 9.95f);
 		wall2D(6, 10.05f, 14, 9.95f);
 		wall2D(16, 10.05f, 20, 9.95f);
 		wall2D(26, 10.05f, 28, 9.95f);
-
 		wall2D(0, 12.05f, 4, 11.95f);
-
 		wall2D(4, 14.05f, 8, 13.95f);
 		wall2D(26, 14.05f, 28, 13.95f);
-
 		wall2D(24, 16.05f, 28, 15.95f);
-
 		wall2D(4, 20.05f, 14, 19.95f);
 		wall2D(16, 20.05f, 22, 19.95f);
 		wall2D(28, 20.05f, 30, 19.95f);
-
 		wall2D(2, 22.05f, 6, 21.95f);
 		wall2D(12, 22.05f, 20, 21.95f);
 		wall2D(24, 22.05f, 28, 21.95f);
-
 		wall2D(2, 24.05f, 6, 23.95f);
 		wall2D(14, 24.05f, 24, 23.95f);
-
 		wall2D(0, 26.05f, 4, 25.95f);
 		wall2D(8, 26.05f, 12, 25.95f);
 		wall2D(16, 26.05f, 20, 25.95f);
-
 		wall2D(2, 28.05f, 6, 27.95f);
 		wall2D(26, 28.05f, 30, 27.95f);
-
 		// Vertical Walls
 		//wall2D(2.05f, 0, 1.95f, 2);
 		wall2D(2.05f, 5.95f, 1.95f, 8.05f);
 		wall2D(2.05f, 12, 1.95f, 16);
 		wall2D(2.05f, 18, 1.95f, 22.05f);
 		wall2D(2.05f, 27.95f, 1.95f, 30);
-
 		wall2D(4.05f, 0, 3.95f, 2);
 		wall2D(4.05f, 7.95f, 3.95f, 10.05f);
 		wall2D(4.05f, 16, 3.95f, 20.05f);
-
 		wall2D(6.05f, 0, 5.95f, 6);
 		wall2D(6.05f, 9.95f, 5.95f, 12);
 		wall2D(6.05f, 14, 5.95f, 18);
 		wall2D(6.05f, 23.95f, 5.95f, 26);
-
 		wall2D(8.05f, 2, 7.95f, 6);
 		wall2D(8.05f, 12, 7.95f, 18);
 		wall2D(8.05f, 22, 7.95f, 26.05f);
 		wall2D(8.05f, 28, 7.95f, 30);
-
 		wall2D(10.05f, 0, 9.95f, 2.05f);
 		wall2D(10.05f, 6, 9.95f, 14);
 		wall2D(10.05f, 16, 9.95f, 24);
 		wall2D(10.05f, 26, 9.95f, 28);
-
 		wall2D(12.05f, 3.95f, 11.95f, 8.05f);
 		wall2D(12.05f, 21.95f, 11.95f, 24);
 		wall2D(12.05f, 28, 11.95f, 30);
-
 		wall2D(14.05f, 2, 13.95f, 6);
 		wall2D(14.05f, 23.95f, 13.95f, 28);
-
 		wall2D(16.05f, 1.95f, 15.95f, 4.05f);
 		wall2D(16.05f, 6, 15.95f, 8.05f);
 		wall2D(16.05f, 28, 15.95f, 30);
-
 		wall2D(18.05f, 5.95f, 17.95f, 8.05f);
 		wall2D(18.05f, 26, 17.95f, 28);
-
 		wall2D(20.05f, 0, 19.95f, 4);
 		wall2D(20.05f, 8, 19.95f, 14);
 		wall2D(20.05f, 16, 19.95f, 20);
 		wall2D(20.05f, 25.95f, 19.95f, 30);
-
 		wall2D(22.05f, 2, 21.95f, 4);
 		wall2D(22.05f, 10, 21.95f, 16);
 		wall2D(22.05f, 18, 21.95f, 22);
 		wall2D(22.05f, 24, 21.95f, 28);
-
 		wall2D(24.05f, 0, 23.95f, 4);
 		wall2D(24.05f, 12, 23.95f, 22.05f);
 		wall2D(24.05f, 26, 23.95f, 30);
-
 		wall2D(26.05f, 2, 25.95f, 4.05f);
 		wall2D(26.05f, 12, 25.95f, 14.05f);
 		wall2D(26.05f, 18, 25.95f, 24);
-
 		wall2D(28.05f, 0, 27.95f, 2);
 		wall2D(28.05f, 9.95f, 27.95f, 12);
 		wall2D(28.05f, 18, 27.95f, 20.05f);
 		wall2D(28.05f, 24, 27.95f, 28);
-
-
 		// Outer Pickup Locations
 		outerPickups.add(new Vector2f(1,3));
 		outerPickups.add(new Vector2f(11,1));
@@ -155,7 +122,6 @@ public class FinalMap extends Map {
 		outerPickups.add(new Vector2f(19,27));
 		outerPickups.add(new Vector2f(3,29));
 		outerPickups.add(new Vector2f(29,27));
-
 		// Inner Pickup Locations
 		innerPickups.add(new Vector2f(12,12));
 		innerPickups.add(new Vector2f(18,12));
@@ -163,11 +129,9 @@ public class FinalMap extends Map {
 		innerPickups.add(new Vector2f(18,18));
 		innerPickups.add(new Vector2f(14,16));
 		innerPickups.add(new Vector2f(16,14));
-
 		// Random Generator
 		Random r = new Random();
 		int high = 4;
-
 		// Simple Random weapon spawning (no laser guns)
 		// TODO: Potentially add more spawns with chance of nothing spawning
 		// TODO: Add weighted randomness
@@ -175,31 +139,32 @@ public class FinalMap extends Map {
 			int weapon = r.nextInt(high);
 			switch (weapon) {
 				case 0:
-					initialEntities.add(new Pickup(outerPickups.get(i), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new MachineGun(new Vector2f(0.0f, 0.0f), 60)));
 					break;
 				case 1:
-					initialEntities.add(new Pickup(outerPickups.get(i), new Handgun(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new Handgun(new Vector2f(0.0f, 0.0f), 32)));
 					break;
 				case 2:
-					initialEntities.add(new Pickup(outerPickups.get(i), new PumpActionShotgun(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new PumpActionShotgun(new Vector2f(0.0f, 0.0f), 16)));
 					break;
 				case 3:
-					initialEntities.add(new Pickup(outerPickups.get(i), new RocketLauncher(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new RocketLauncher(new Vector2f(0.0f, 0.0f), 5)));
 					break;
 				case 4:
-					initialEntities.add(new Pickup(outerPickups.get(i), new SilencedPistol(new Vector2f(0.0f, 0.0f), 256)));
+					initialEntities.add(new Pickup(outerPickups.get(i), new SilencedPistol(new Vector2f(0.0f, 0.0f), 32)));
 					break;
 				default:
 					// Spawn Nothing
 					break;
 			}
 		}
-
 		// Center is filled with laser guns
-		for (int i = 0; i < innerPickups.size(); i++) {
-			initialEntities.add(new Pickup(innerPickups.get(i), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
+//		for (int i = 0; i < innerPickups.size(); i++) {
+//			initialEntities.add(new Pickup(innerPickups.get(i), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
+//		}
 
-		}
+		// Center has 1 laser gun
+		initialEntities.add(new Pickup(new Vector2f(15.0f, 15.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
 
 		// Add all types of guns for testing only
 		initialEntities.add(new Pickup(new Vector2f(1, 1), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
@@ -232,7 +197,7 @@ public class FinalMap extends Map {
 		initialEntities.add(new Torch(new Vector2f(16.24f, 19.79f)));
 		initialEntities.add(new Torch(new Vector2f(13.78f, 19.79f)));
 	}
-
+	
 	/**
 	 * Draw 4 walls in a rectangle based on 2 opposite corners
 	 * @param x0 First x pos
@@ -246,7 +211,7 @@ public class FinalMap extends Map {
 		walls.add(new Wall(x1, y0, x1, y1));
 		walls.add(new Wall(x0, y1, x1, y1));
 	}
-
+	
 	@Override
 	public Vector2f getSpawnLocation(int team) {
 		switch (team) {
