@@ -202,10 +202,12 @@ public abstract class Weapon extends Item {
 		}
 		
 		// Update current mag shots
-		if (this.ammo != -1 && this.ammo < this.shotsPerMag)
-			this.currentShots = this.ammo;
-		else
-			this.currentShots = this.shotsPerMag;
+		if (this.ammo != -1) {
+			if (this.ammo < this.shotsPerMag)
+				this.currentShots = this.ammo;
+			else
+				this.currentShots = this.shotsPerMag;
+		}
 		
 		// Update ammo
 		if (this.ammo != -1)
@@ -266,6 +268,14 @@ public abstract class Weapon extends Item {
 	@Override
 	public void beginUse() {
 		this.fire = true;
+	}
+	
+	@Override
+	public boolean isUsing() {
+		if (semiAuto)
+			return fire;
+		else
+			return fire && !reloading;
 	}
 	
 	@Override

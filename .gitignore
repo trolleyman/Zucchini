@@ -3,6 +3,9 @@
 # Mac OS X
 .DS_Store
 
+# Random stuff
+*.swp
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

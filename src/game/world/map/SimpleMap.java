@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class SimpleMap extends Map {
 	public SimpleMap() {
-		super(new ArrayList<>(), 5.0f);
+		super(new ArrayList<>(), 5.0f, 1);
 		
 		float x0 = -1.0f;
 		float y0 = -1.0f;
