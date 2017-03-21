@@ -177,7 +177,7 @@ public abstract class Player extends AutonomousEntity {
 			newPosition.set(position)
 				.sub(intersection)
 				.normalize()
-				.mul(RADIUS + Util.EPSILON)
+				.mul(RADIUS + 0.0001f)
 				.add(intersection);
 			this.position.set(newPosition);
 			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
