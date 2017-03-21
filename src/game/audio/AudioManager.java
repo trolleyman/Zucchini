@@ -409,9 +409,4 @@ public class AudioManager implements IAudioManager{
 		this.soundBufferList.add(buffer);
 		this.soundBufferMap.put(buffer.getBufferId(), name);
 	}
-	
-    
-	
-	
->>>>>>> master
 }
