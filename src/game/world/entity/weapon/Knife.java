@@ -138,6 +138,6 @@ public class Knife extends Weapon {
 	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
-		return 1;
+		return 0;
 	}
 }
