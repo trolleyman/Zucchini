@@ -81,4 +81,10 @@ public class SilencedPistol extends Weapon {
 	public SilencedPistol clone() {
 		return new SilencedPistol(this);
 	}
+
+	@Override
+	public float aiValue() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
