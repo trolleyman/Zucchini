@@ -1,5 +1,7 @@
 package game.ai;
 
+import java.util.Random;
+
 import game.Util;
 import game.action.Action;
 import game.action.ActionType;
@@ -26,7 +28,16 @@ public class ShootEnemy implements State<AIPlayer>{
 			aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 			aiPlayer.getStateMachine().changeState(new MoveTowardsCentre());
 		} else {
-			if (!hasBegunUse) {
+			float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, kill.position.x, kill.position.y);
+			Random randAim = new Random();
+			float target = angle + (randAim.nextFloat() - 0.5f) / 5;
+			
+			float da = target - aiPlayer.angle;
+			float newAngle = aiPlayer.angle + (da * (float)ua.dt * 5f);
+			
+			float diff = Util.getAngleDiff(angle, newAngle);
+			
+			if (!hasBegunUse && diff < Math.toRadians(35.0)) {
 				aiPlayer.handleAction(ua, new Action(ActionType.BEGIN_USE));
 				hasBegunUse = true;
 			} else if (!aiPlayer.getHeldItem().isUsing()) {
@@ -34,8 +45,7 @@ public class ShootEnemy implements State<AIPlayer>{
 				hasBegunUse = false;
 			}
 			
-			float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, kill.position.x, kill.position.y);
-			aiPlayer.handleAction(ua, new AimAction(angle)); // aimbot mode
+			aiPlayer.handleAction(ua, new AimAction(newAngle)); // aimbot mode
 			aiPlayer.setDestination(ua.map.getPathFindingMap(), kill.position);
 		}
 	}

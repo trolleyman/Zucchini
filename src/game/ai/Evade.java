@@ -17,11 +17,13 @@ public class Evade implements State<AIPlayer> {
 	int kitingX ;
 	int kitingY;
 	int counter = 0;
+	private boolean hasBegunUse;
+	
 	@Override
 	public void enter(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub
 		if (aiPlayer.debug) System.out.println("AI enters EVADE state");
-		
+		hasBegunUse = false;
 	}
 	
 	@Override
@@ -34,15 +36,23 @@ public class Evade implements State<AIPlayer> {
 			aiPlayer.getStateMachine().changeState(new MoveTowardsCentre());
 		} else {
 			float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, kill.position.x, kill.position.y);
-			aiPlayer.handleAction(ua, new Action(ActionType.BEGIN_USE));
 			Random randAim = new Random();
-			float aim = randAim.nextFloat() / 5;
+			float target = angle + (randAim.nextFloat() - 0.5f) / 5;
 			
+			float da = target - aiPlayer.angle;
+			float newAngle = aiPlayer.angle + (da * (float)ua.dt * 5f);
 			
-				
-		
-			aiPlayer.handleAction(ua, new AimAction(angle + aim)); // aimbot mode
+			float diff = Util.getAngleDiff(angle, newAngle);
 			
+			if (!hasBegunUse && diff < Math.toRadians(35.0)) {
+				aiPlayer.handleAction(ua.bank, new Action(ActionType.BEGIN_USE));
+				hasBegunUse = true;
+			} else if (!aiPlayer.getHeldItem().isUsing()) {
+				aiPlayer.handleAction(ua.bank, new Action(ActionType.END_USE));
+				hasBegunUse = false;
+			}
+			
+			aiPlayer.handleAction(ua, new AimAction(newAngle)); // aimbot mode
 		}
 		
 		//TODO:try to dodge incoming bullets

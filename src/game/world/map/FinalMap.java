@@ -17,7 +17,7 @@ public class FinalMap extends Map {
 	ArrayList<Vector2f> innerPickups = new ArrayList<>();
 	
 	public FinalMap() {
-		super(new ArrayList<>(), 8.0f, 4);
+		super(new ArrayList<>(), 6.0f, 4);
 		// Outer Walls
 		wall2D(0, 0, 30, 30);
 		// Horizontal Walls
@@ -175,8 +175,8 @@ public class FinalMap extends Map {
         
 
         
-//		initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
-//		initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
+		initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
+		initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
 		initialEntities.add(new Zombie(new Vector2f(1.0f, 2.0f)));
 		initialEntities.add(new Zombie(new Vector2f(1.5f, 6.0f)));
 		initialEntities.add(new Zombie(new Vector2f(3.25f, 5.45f)));

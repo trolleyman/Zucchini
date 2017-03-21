@@ -16,10 +16,15 @@ public class MoveTowardsCentre implements State<AIPlayer> {
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
-		
+		if (aiPlayer.getClosestValublePickup(ua) != null){
+			
+			aiPlayer.getStateMachine().changeState(new PickupState());
+		}
 		aiPlayer.setDestination(pfmap, new Vector2f(15,15));
-		float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, 15, 15);
+	
+		float angle = (float) Util.getAngle(aiPlayer.velocity.x, aiPlayer.velocity.y);
 		aiPlayer.handleAction(ua, new AimAction(angle));
+		
 		if (aiPlayer.getClosestSeenEntity(ua) != null) {
 			if (aiPlayer.debug2) System.out.println("While wandering, we see an enemy!");
 			
