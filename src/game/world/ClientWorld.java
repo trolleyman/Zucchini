@@ -337,10 +337,23 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			}
 		}
 		
+		// === Draw stencil if needed to another framebuffer
+		boolean drawStencil = p != null && !isPlayerDead() && r.getRenderSettings().drawLineOfSightStencil;
+		Framebuffer stencilFramebuffer = null;
+		if (r.getRenderSettings().debugDrawFramebuffer == DebugFramebuffer.STENCIL) {
+			stencilFramebuffer = r.getFreeFramebuffer();
+			stencilFramebuffer.bind();
+			if (drawStencil) {
+				drawLineOfSightStencil(r);
+			}
+			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), ColorUtil.WHITE);
+			r.disableStencil();
+		}
+		
 		// === Draw glitch effect ===
 		Framebuffer.bindDefault();
 		r.setDefaultBlend();
-		if (p != null && !isPlayerDead() && r.getRenderSettings().drawLineOfSightStencil) {
+		if (drawStencil) {
 			// Render the line of sight stencil
 			drawLineOfSightStencil(r);
 		}
@@ -361,6 +374,9 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 			float dw = 0.5f;
 			float dh = 0.5f;
 			switch (r.getRenderSettings().debugDrawFramebuffer) {
+				case STENCIL:
+					r.drawFramebuffer(stencilFramebuffer, dx, dy, dw, dh);
+					break;
 				case WORLD:
 					r.drawFramebuffer(worldFramebuffer, dx, dy, dw, dh);
 					break;
@@ -411,7 +427,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 	private void drawLineOfSightStencil(IRenderer r) {
 		r.enableStencilDraw(1);
 		
-		r.drawTriangleFan(losBuf, 0, 0, ColorUtil.WHITE);
+		r.drawTriangleFan(losBuf, 0.0f, 0.0f, ColorUtil.WHITE);
 		
 		r.disableStencilDraw();
 		r.enableStencil(1);
@@ -577,15 +593,18 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 						nextDebugFramebuffer = DebugFramebuffer.NONE;
 						break;
 					case GLFW_KEY_2:
-						nextDebugFramebuffer = DebugFramebuffer.WORLD;
+						nextDebugFramebuffer = DebugFramebuffer.STENCIL;
 						break;
 					case GLFW_KEY_3:
-						nextDebugFramebuffer = DebugFramebuffer.LIGHTING;
+						nextDebugFramebuffer = DebugFramebuffer.WORLD;
 						break;
 					case GLFW_KEY_4:
-						nextDebugFramebuffer = DebugFramebuffer.GLITCH;
+						nextDebugFramebuffer = DebugFramebuffer.LIGHTING;
 						break;
 					case GLFW_KEY_5:
+						nextDebugFramebuffer = DebugFramebuffer.GLITCH;
+						break;
+					case GLFW_KEY_6:
 						shouldToggleDebugDrawLOSLines = true;
 						break;
 				}
