@@ -52,6 +52,8 @@ public class LaserGun extends Weapon {
 	
 	@Override
 	protected void fire(UpdateArgs ua, float fangle) {
+		Vector2f temp = Util.pushTemporaryVector2f();
+		
 		// Play audio
 		ua.audio.play("lasergun-fire.wav", 1.0f, this.position);
 		
@@ -72,8 +74,10 @@ public class LaserGun extends Weapon {
 			
 			// Calculate intersection
 			Wall wall = new Wall(0.0f, 0.0f, 0.0f, 0.0f);
-			Vector2f intersection = ua.map.intersectsLine(curPos.x, curPos.y, newPos.x, newPos.y, newPos, wall,
+			Vector2f intersection = ua.map.intersectsLine(curPos.x, curPos.y, newPos.x, newPos.y, temp, wall,
 					(w) -> prevWall == null || !w.p0.equals(prevWall.p0) && !w.p1.equals(prevWall.p1));
+			if (intersection != null)
+				newPos.set(intersection);
 			
 			float newLengthLeft = lengthLeft - curPos.distance(newPos);
 			
@@ -106,8 +110,11 @@ public class LaserGun extends Weapon {
 			Vector2f normal = Util.pushTemporaryVector2f().set(dy, -dx).normalize();
 			
 			Vector2f r = Util.pushTemporaryVector2f();
-			r.set(normal).mul(2).mul(normal.dot(curDir)).negate().add(curDir);
+			float dot = -normal.dot(curDir);
+			r.set(normal).mul(2).mul(dot).add(curDir);
 			curDir.set(r).normalize();
+			float mod = dot < 0.0f ? -1 : 1;
+			newPos.set(normal.mul(mod).mul(Util.EPSILON).add(newPos));
 			
 			Util.popTemporaryVector2f();
 			Util.popTemporaryVector2f();
@@ -120,6 +127,7 @@ public class LaserGun extends Weapon {
 			prevWall.p0.set(wall.p0);
 			prevWall.p1.set(wall.p1);
 		}
+		Util.popTemporaryVector2f();
 		Util.popTemporaryVector2f();
 	}
 	
