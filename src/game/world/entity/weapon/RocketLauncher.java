@@ -77,6 +77,11 @@ public class RocketLauncher extends Weapon {
 	}
 
 	@Override
+	public String toString() {
+		return "Rocket Launcher";
+	}
+
+	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
 		return 0;

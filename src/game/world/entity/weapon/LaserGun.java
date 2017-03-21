@@ -133,6 +133,11 @@ public class LaserGun extends Weapon {
 	}
 
 	@Override
+	public String toString() {
+		return "Laser Gun";
+	}
+
+	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
 		return 4;

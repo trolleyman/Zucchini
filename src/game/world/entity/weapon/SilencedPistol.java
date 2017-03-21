@@ -83,6 +83,11 @@ public class SilencedPistol extends Weapon {
 	}
 
 	@Override
+	public String toString() {
+		return "Silenced Pistol";
+	}
+
+	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
 		return 0;

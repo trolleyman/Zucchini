@@ -131,6 +131,11 @@ public class Knife extends Weapon {
 	}
 
 	@Override
+	public String toString() {
+		return "Knife";
+	}
+
+	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
 		return 1;

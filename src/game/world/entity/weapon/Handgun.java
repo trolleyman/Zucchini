@@ -82,6 +82,11 @@ public class Handgun extends Weapon {
 	}
 
 	@Override
+	public String toString() {
+		return "Handgun";
+	}
+
+	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
 		return 2;

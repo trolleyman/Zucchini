@@ -125,7 +125,8 @@ public class ServerWorld extends World implements Cloneable {
 				Entity e = bank.getEntity(swc.playerId);
 				if (e != null && e instanceof Player) {
 					Player p = (Player) e;
-					p.handleAction(bank, a);
+					if (ua.bank != null)
+						p.handleAction(ua, a);
 					break;
 				}
 				//System.err.println("Warning: Could not find player with ID " + swc.playerId);
