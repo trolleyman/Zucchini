@@ -1,17 +1,20 @@
 package test.ui;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
+import game.render.IRenderer;
 import game.ui.GameUI;
+import game.ui.UI;
 
 public class GameUITest {
 
 	
-	GameUI gameui = new GameUI(null, null);
+	GameUI input = new GameUI(null, null);
 	
-	@Test
-	public void testWorld() {
-		assertNotNull(gameui.world);
+	@Before
+	public void setup() {
+		
 	}
 
 }
