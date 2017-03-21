@@ -45,10 +45,10 @@ public class Evade implements State<AIPlayer> {
 			float diff = Util.getAngleDiff(angle, newAngle);
 			
 			if (!hasBegunUse && diff < Math.toRadians(35.0)) {
-				aiPlayer.handleAction(ua.bank, new Action(ActionType.BEGIN_USE));
+				aiPlayer.handleAction(ua, new Action(ActionType.BEGIN_USE));
 				hasBegunUse = true;
 			} else if (!aiPlayer.getHeldItem().isUsing()) {
-				aiPlayer.handleAction(ua.bank, new Action(ActionType.END_USE));
+				aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 				hasBegunUse = false;
 			}
 			

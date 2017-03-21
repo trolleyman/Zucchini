@@ -86,7 +86,7 @@ public class Wander implements State<AIPlayer> {
 			return;
 		}
 		float angle = (float) Util.getAngle(aiPlayer.velocity.x, aiPlayer.velocity.y);
-		aiPlayer.handleAction(ua.bank, new AimAction(angle));
+		aiPlayer.handleAction(ua, new AimAction(angle));
 	}
 	
 	@Override

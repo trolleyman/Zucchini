@@ -21,7 +21,7 @@ public class PickupState implements State<AIPlayer> {
 		if (closestWeapon != null){
 			aiPlayer.setDestination(ua.map.getPathFindingMap(), closestWeapon.position);
 			if (aiPlayer.position.distanceSquared(closestWeapon.position) < 0.2f) {
-				aiPlayer.handleAction(ua.bank, new Action(ActionType.PICKUP));
+				aiPlayer.handleAction(ua, new Action(ActionType.PICKUP));
 				aiPlayer.getStateMachine().changeState(new Wander());
 			}
 		}else{
