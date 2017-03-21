@@ -71,13 +71,4 @@ public class StateMachine<E, S extends State<E>> implements IStateMachine<E,S> {
 	public void setOwner(E owner){
 		this.owner = owner;
 	}
-
-
-
-	
-
-	
-
-	
-
 }

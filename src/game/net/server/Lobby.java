@@ -5,6 +5,7 @@ import game.PlayerInfo;
 import game.Util;
 import game.action.Action;
 import game.ai.AIPlayer;
+import game.ai.Difficulty;
 import game.exception.ProtocolException;
 import game.net.Protocol;
 import game.world.EntityBank;
@@ -138,7 +139,7 @@ public class Lobby {
 					Vector2f position = map.getSpawnLocation(team);
 					// TODO: Generate names
 					String name = "[BOT] " + (i + 1);
-					world.addAI(new AIPlayer(team, new Vector2f(position), name,new MachineGun(new Vector2f(0.0f, 0.0f),256) ));
+					world.addAI(new AIPlayer(team, new Vector2f(position), name,Difficulty.HARD) );
 				}
 			}
 			
