@@ -1,5 +1,6 @@
 package game.render.shader;
 
+import game.exception.ShaderCompilationException;
 import game.render.Framebuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -10,20 +11,14 @@ public class LightingPassShader extends PassShader {
 	/** World uniform location */
 	private int worldUniform;
 	
-	/** World texture ID */
-	private int worldTex;
-	
 	/** Lighting uniform location */
 	private int lightUniform;
-	
-	/** Lighting texture ID */
-	private int lightTex;
 	
 	/**
 	 * Constructs the lighting shader
 	 */
-	public LightingPassShader() {
-		super("lightingPass");
+	public LightingPassShader() throws ShaderCompilationException {
+		super("pass_lighting");
 		
 		worldUniform = getUniformLocation("world");
 		lightUniform = getUniformLocation("light");
@@ -34,10 +29,10 @@ public class LightingPassShader extends PassShader {
 	 * @param fb The world framebuffer
 	 */
 	public void setWorldFramebuffer(Framebuffer fb) {
-		this.worldTex = fb.getColorTexId();
-		
-		if (getCurrentShader() == this)
-			uploadWorldTexture();
+		int worldTex = fb.getColorTexId();
+		glUniform1i(worldUniform, 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, worldTex);
 	}
 	
 	/**
@@ -45,35 +40,9 @@ public class LightingPassShader extends PassShader {
 	 * @param fb The light framebuffer
 	 */
 	public void setLightFramebuffer(Framebuffer fb) {
-		this.lightTex = fb.getColorTexId();
-		
-		if (getCurrentShader() == this)
-			uploadLightTexture();
-	}
-	
-	/**
-	 * Uploads the world texture to the shader
-	 */
-	private void uploadWorldTexture() {
-		glUniform1i(worldUniform, 0);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, worldTex);
-	}
-	
-	/**
-	 * Uploads the light texture to the shader
-	 */
-	private void uploadLightTexture() {
+		int lightTex = fb.getColorTexId();
 		glUniform1i(lightUniform, 1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, lightTex);
-	}
-	
-	@Override
-	public void use() {
-		super.use();
-		
-		uploadWorldTexture();
-		uploadLightTexture();
 	}
 }

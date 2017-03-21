@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.UpdateArgs;
 import game.world.entity.Player;
 import game.world.map.Map;
@@ -75,7 +76,9 @@ public class MachineGun extends Weapon {
 		
 		// Draw weapon
 		Align a = isHeld() ? Align.BM : Align.MM;
-		r.drawBox(a, position.x, position.y, 0.2f, getHeight(), ColorUtil.CYAN, this.angle);
+		Texture tex = r.getTextureBank().getTexture("Weapon_MachineGun.png");
+		float ratio = getHeight() / tex.getHeight();
+		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
@@ -93,7 +96,7 @@ public class MachineGun extends Weapon {
 	}
 	
 	private float getHeight() {
-		return 0.2f;
+		return 0.4f;
 	}
 	
 	@Override

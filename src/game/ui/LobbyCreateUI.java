@@ -18,8 +18,8 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 	private UI nextUI = this;
 	
 	private final TextEntryComponent entry;
-	private final ButtonComponent submitButton;
 	private final ButtonComponent backButton;
+	private final ButtonComponent createButton;
 	
 	private final ImageComponent backgroundImage;
 	
@@ -28,7 +28,11 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 	private double time = 0.0;
 	private boolean loading = false;
 	private String error = null;
-	
+
+	/**
+	 * Constructs a LobbyCreateUI
+	 * @param _ui The UI superclass
+	 */
 	public LobbyCreateUI(UI _ui) {
 		super(_ui);
 		
@@ -43,13 +47,6 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 				PADDING, PADDING + font.getHeight(1.0f) + 10.0f, 150
 		);
 		
-		submitButton = new ButtonComponent(
-				this::submit, Align.TL, 0.0f, 0.0f,
-				textureBank.getTexture("joinDefault.png"),
-				textureBank.getTexture("joinHover.png"),
-				textureBank.getTexture("joinPressed.png")
-		);
-		
 		backButton = new ButtonComponent(
 				() -> this.nextUI = new LobbyUI(this),
 				Align.TL, 100, 100,
@@ -58,9 +55,16 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("backPressed.png")
 		);
 		
+		createButton = new ButtonComponent(
+				this::submit, Align.TL, 0.0f, 0.0f,
+				textureBank.getTexture("createDefault.png"),
+				textureBank.getTexture("createHover.png"),
+				textureBank.getTexture("createPressed.png")
+		);
+		
 		components = new ArrayList<>();
 		components.add(entry);
-		components.add(submitButton);
+		components.add(createButton);
 		components.add(backButton);
 		
 		// Create Background Image
@@ -87,7 +91,10 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 			}
 		});
 	}
-	
+
+	/**
+	 * Submit the current lobby if the name is valid
+	 */
 	private void submit() {
 		String s = entry.getString();
 		if (!Util.isValidLobbyName(s)) {
@@ -124,11 +131,11 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 		entry.setY(r.getHeight() - PADDING - INTERNAL_PADDING - 10.0f - f.getHeight(1.0f) - f.getHeight(1.0f));
 		entry.setWidth(r.getWidth() - PADDING * 2);
 		
-		submitButton.setX(PADDING);
-		submitButton.setY(entry.getY() - INTERNAL_PADDING);
+		backButton.setX(PADDING);
+		backButton.setY(entry.getY() - INTERNAL_PADDING);
 		
-		backButton.setX(submitButton.getX() + submitButton.getWidth() + INTERNAL_PADDING);
-		backButton.setY(submitButton.getY());
+		createButton.setX(backButton.getX() + backButton.getWidth() + INTERNAL_PADDING);
+		createButton.setY(backButton.getY());
 		
 		for (UIComponent c : components) {
 			c.render(r);

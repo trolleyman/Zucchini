@@ -55,7 +55,13 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> errorInputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
-	
+
+	/**
+	 * Constructs a LobbyWaitUI
+	 * @param _ui The UI superclass
+	 * @param _lobbyName The lobby name
+	 * @param sendJoinRequest Send the join request (boolean)
+	 */
 	public LobbyWaitUI(UI _ui, String _lobbyName, boolean sendJoinRequest) {
 		super(_ui);
 		
@@ -74,10 +80,12 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		Texture defaultTex = textureBank.getTexture("toggleReadyDefault.png");
 		Texture hoverTex = textureBank.getTexture("toggleReadyHover.png");
 		Texture pressedTex = textureBank.getTexture("toggleReadyPressed.png");
-		
+
+		// Create Toggle Ready Button
 		this.toggleReadyButton = new ButtonComponent(
 				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
-		
+
+		// Create Leave Button
 		this.leaveButton = new ButtonComponent(
 				() -> { try {
 					connection.sendLobbyLeaveRequest();
@@ -89,7 +97,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("leaveHover.png"),
 				textureBank.getTexture("leavePressed.png")
 		);
-		
+
+		// Create Back Button
 		backButton = new ButtonComponent(
 				() -> this.nextUI = new LobbyUI(this),
 				Align.BL, 100, 100,
@@ -102,7 +111,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		backgroundImage = new ImageComponent(
 				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
 		);
-		
+
+		// Add input handlers
 		this.inputHandlers.add(this.toggleReadyButton);
 		this.inputHandlers.add(this.leaveButton);
 		this.errorInputHandlers.add(this.backButton);
@@ -168,7 +178,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		else
 			return emptyInputHandlers;
 	}
-	
+
+	// Toggle whether the player is ready
 	private void toggleReady() {
 		try {
 			connection.sendToggleReady();

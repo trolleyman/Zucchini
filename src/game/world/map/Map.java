@@ -27,9 +27,6 @@ public class Map {
 	/** Small number added and subtracted from critical points to get either side of the critical point */
 	private static final float LOS_DIFF_EPSILON = (float) Math.toRadians(0.1f);
 	
-	/** Holds the extents of the map. [x, y, w, h] format */
-	private Vector4f rect;
-	
 	public static Map createTestMap() {
 //		Maze maze = new Maze(ThreadLocalRandom.current(), 15, 15, 0, 0, 14, 14);
 //		return new MazeMap(maze, 1.5f);
@@ -40,12 +37,17 @@ public class Map {
 //		return new SimpleMap();
 	}
 	
+	/** Holds the extents of the map. [x, y, w, h] format */
+	private Vector4f rect;
+	
+	private int minPlayers;
+	
 	/** The "walls" of the map that entities can collide with */
 	public ArrayList<Wall> walls;
 	/** The intiial starting entities in the map */
 	protected transient ArrayList<Entity> initialEntities;
 	/** What scale the pathfinding algorithm should use */
-	private float pathFindingScale;
+	private float pathFindingScale = 3f;
 	/** The cached pathfinding map */
 	private transient PathFindingMap pathFindingMap = null;
 	
@@ -55,17 +57,18 @@ public class Map {
 	/**
 	 * Construct a map with the specified walls
 	 */
-	public Map(ArrayList<Wall> _walls, float _pathfindingScale) {
-		this(_walls, new ArrayList<>(), _pathfindingScale);
+	public Map(ArrayList<Wall> _walls, float _pathfindingScale, int _minPlayers) {
+		this(_walls, new ArrayList<>(), _pathfindingScale, _minPlayers);
 	}
 	
 	/**
 	 * Construct a map with the specified walls and initial entities
 	 */
-	public Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale) {
+	public Map(ArrayList<Wall> _walls, ArrayList<Entity> _initialEntities, float _pathFindingScale, int _minPlayers) {
 		this.walls = _walls;
 		this.initialEntities = _initialEntities;
 		this.pathFindingScale = _pathFindingScale;
+		this.minPlayers = _minPlayers;
 	}
 	
 	/**
@@ -417,17 +420,27 @@ public class Map {
 	 * @param r The renderer
 	 */
 	public void render(IRenderer r) {
+		this.render(r, false);
+	}
+	
+	/**
+	 * Render the map
+	 * @param r The renderer
+	 * @param drawWalls Whether to draw the walls
+	 */
+	public void render(IRenderer r, boolean drawWalls) {
 		// Render background
-		this.renderBackground(r);
+		this.renderFloor(r);
 		
 		// Render foreground
-		this.renderForeground(r);
+		if (drawWalls)
+			this.renderWalls(r);
 	}
 	
 	/**
 	 * Renders the background of the map (i.e. the floor)
 	 */
-	public void renderBackground(IRenderer r) {
+	public void renderFloor(IRenderer r) {
 		Vector4f rect = getRect();
 		r.drawBox(Align.BL, rect.x, rect.y, rect.z, rect.w, ColorUtil.BLACK);
 		Texture background = r.getTextureBank().getTexture("map_background3.png");
@@ -437,14 +450,14 @@ public class Map {
 	/**
 	 * Renders the foreground (i.e. the walls)
 	 */
-	public void renderForeground(IRenderer r) {
+	public void renderWalls(IRenderer r) {
 		for (Wall wall : walls) {
 			float x0 = wall.p0.x;
 			float y0 = wall.p0.y;
 			float x1 = wall.p1.x;
 			float y1 = wall.p1.y;
 			
-			r.drawLine(x0, y0, x1, y1, ColorUtil.TRANSPARENT, 1.0f);
+			r.drawLine(x0, y0, x1, y1, ColorUtil.RED, 1.0f);
 		}
 	}
 	
@@ -482,14 +495,28 @@ public class Map {
 		
 		return rect;
 	}
-	
+
+	/**
+	 * Gets the initial entities in the map
+	 * @return The initial entities
+	 */
 	public ArrayList<Entity> getInitialEntities() {
 		return initialEntities;
 	}
-	
+
+	/**
+	 * Gets the spawn location of a given player's team
+	 * This is overwritten by each map (due to different spawn locations
+	 * @param team The team
+	 * @return The spawn location
+	 */
 	public Vector2f getSpawnLocation(int team) {
-		// TODO: Actually have different spawns for different teams
+		// This is overwritten by each map (due to different spawn locations
 		return new Vector2f(2.0f, 2.0f);
+	}
+	
+	public int getMinPlayers() {
+		return this.minPlayers;
 	}
 }
 

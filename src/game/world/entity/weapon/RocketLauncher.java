@@ -4,14 +4,13 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.UpdateArgs;
 import game.world.map.Map;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class RocketLauncher extends Weapon {
-	private static final Vector4f COLOR = new Vector4f(0.0f, 0.4f, 0.0f, 1.0f);
-	
 	private transient int reloadSoundID = -1;
 	
 	public RocketLauncher(RocketLauncher rl) {
@@ -25,7 +24,9 @@ public class RocketLauncher extends Weapon {
 	@Override
 	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
-		r.drawBox(a, position.x, position.y, 0.1f, getHeight(), COLOR, this.angle);
+		Texture tex = r.getTextureBank().getTexture("Weapon_RocketLauncher.png");
+		float ratio = getHeight() / tex.getHeight();
+		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
@@ -67,7 +68,7 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	private float getHeight() {
-		return 0.5f;
+		return isHeld() ? 0.5f : 0.75f;
 	}
 	
 	@Override

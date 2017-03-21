@@ -55,6 +55,9 @@ public class Util {
 	/** Time in seconds per update. This is calculated from the {@link #NANOS_PER_SNAPSHOT_UPDATE} */
 	public static final double DT_PER_SNAPSHOT_UPDATE = NANOS_PER_SNAPSHOT_UPDATE / (double) NANOS_PER_SECOND;
 	
+	/** General HUD padding value for UI elements */
+	public static final float HUD_PADDING = 50.0f;
+	
 	/** Number of seconds to wait before the lobby enters the game */
 	public static final int LOBBY_WAIT_SECS = 3;
 	/** Number of seconds to wait before the game starts upon entering the game */
@@ -312,8 +315,6 @@ public class Util {
 	public static final int DEFAULT_MIN_PLAYERS = 1;
 	public static final int DEFAULT_MAX_PLAYERS = 4;
 	
-	public static float HUD_PADDING = 50.0f;
-	
 	/**
 	 * Sorts the float buffer specified
 	 */
@@ -388,5 +389,16 @@ public class Util {
 			j++;
 		}
 		buf.limit(i);
+	}
+	
+	/**
+	 * Gets the last message in a throwable chain
+	 * @param t The throwable
+	 */
+	public static String getLastMessage(Throwable t) {
+		while (t.getCause() != null) {
+			t = t.getCause();
+		}
+		return t.getMessage();
 	}
 }

@@ -2,6 +2,7 @@ package game.world.entity.damage;
 
 import game.world.Team;
 import game.world.entity.Entity;
+import game.world.entity.HumanPlayer;
 import game.world.entity.Player;
 import org.joml.Vector2f;
 
@@ -97,9 +98,9 @@ public enum DamageType {
 	}
 	
 	public static void main(String[] args) {
-		Entity a = new Player(Team.FIRST_PLAYER_TEAM, new Vector2f(), "A", null);
+		Entity a = new HumanPlayer(Team.FIRST_PLAYER_TEAM, new Vector2f(), "A", null);
 		a.setId(0);
-		Entity b = new Player(Team.FIRST_PLAYER_TEAM, new Vector2f(), "B", null);
+		Entity b = new HumanPlayer(Team.FIRST_PLAYER_TEAM, new Vector2f(), "B", null);
 		b.setId(1);
 		for (DamageType dt : DamageType.values()) {
 			for (int i = 0; i < 10; i++)

@@ -93,6 +93,13 @@ public class LaserBulletSegment extends Entity {
 	}
 	
 	@Override
+	public void renderGlitch(IRenderer r, Map map) {
+		updateLightParams();
+		light.color.w /= 1.8f;
+		light.render(r, map);
+	}
+	
+	@Override
 	public LaserBulletSegment clone() {
 		return new LaserBulletSegment(this);
 	}

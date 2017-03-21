@@ -1,8 +1,10 @@
 package game.world.entity.weapon;
 
+import game.render.Texture;
 import game.world.entity.Entity;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
+import game.world.entity.effect.LaserMuzzleFlash;
 import game.world.entity.update.DamageUpdate;
 import game.world.map.Map;
 import game.world.map.Wall;
@@ -35,7 +37,9 @@ public class LaserGun extends Weapon {
 	@Override
 	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
-		r.drawBox(a, position.x, position.y, 0.15f, getHeight(), ColorUtil.RED, this.angle);
+		Texture tex = r.getTextureBank().getTexture("Weapon_LaserGun.png");
+		float ratio = getHeight() / tex.getHeight();
+		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
@@ -54,7 +58,13 @@ public class LaserGun extends Weapon {
 		// Fire laser segments
 		prevWall = null;
 		Vector2f curDir = Util.pushTemporaryVector2f().set(Util.getDirX(fangle), Util.getDirY(fangle));
+		// curPos = the tip of the muzzle of the laser gun
 		curPos = new Vector2f(Util.getDirX(fangle), Util.getDirY(fangle)).mul(getHeight()).add(position);
+		
+		// Spawn laser muzzle flash
+		ua.bank.addEntityCached(new LaserMuzzleFlash(curPos));
+		
+		// Spawn laser segments
 		float lengthLeft = MAX_LASER_LENGTH;
 		for (int i = 0; i < MAX_REFLECTIONS && lengthLeft > 0.0; i++) {
 			// Calc new max pos
@@ -114,7 +124,7 @@ public class LaserGun extends Weapon {
 	}
 	
 	private float getHeight() {
-		return 0.35f;
+		return 0.55f;
 	}
 	
 	@Override

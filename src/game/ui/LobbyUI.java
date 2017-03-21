@@ -51,7 +51,11 @@ public class LobbyUI extends UI implements InputPipeMulti
 	private double time = 0.0;
 	private boolean loading = false;
 	private String error;
-	
+
+	/**
+	 * Constructs a LobbyUI
+	 * @param _ui The UI superclass
+	 */
 	public LobbyUI(UI _ui)
 	{
 		super(_ui);
@@ -113,7 +117,10 @@ public class LobbyUI extends UI implements InputPipeMulti
 
 		this.getLobbies();
 	}
-	
+
+	/**
+	 * Gets the lobbies from the server and sets the correct state of the UI
+	 */
 	private void getLobbies() {
 		synchronized (this) {
 			refresh(new ArrayList<>());
@@ -125,7 +132,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 	
 	/**
 	 * Is called when any of the lobbies are selected
-	 * @param lobby
+	 * @param lobby The lobby index int the arraylist
 	 */
 	private void lobbySelect(int lobby)
 	{
@@ -136,7 +143,12 @@ public class LobbyUI extends UI implements InputPipeMulti
 		lobby_buttons.get(lobby).setSelected(true);
 		currentLobby = lobbies.get(lobby);
 	}
-	
+
+	/**
+	 * Refresh the lobbies and create the correct number of
+	 * buttons for the number of lobbies. Adding input handlers etc.
+	 * @param lobs The current lobby list
+	 */
 	private void refresh(ArrayList<LobbyInfo> lobs) {
 		synchronized (this) {
 			loading = false;
@@ -159,7 +171,11 @@ public class LobbyUI extends UI implements InputPipeMulti
 			this.inputHandlers.add(nextButton);
 		}
 	}
-	
+
+	/**
+	 * Called when there was an error in getting the lobbies from the server4
+	 * @param msg The message
+	 */
 	private void refreshErr(String msg) {
 		synchronized (this) {
 			loading = false;
@@ -167,6 +183,10 @@ public class LobbyUI extends UI implements InputPipeMulti
 		}
 	}
 
+	/**
+	 * Goes to the next page of the lobbies
+	 * (4 per page)
+	 */
 	public void nextPage() {
 		if (lobbiesToRender + 4 < lobbies.size()) {
 			lobbiesToRender = lobbiesToRender + 4;

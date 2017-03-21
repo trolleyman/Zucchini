@@ -5,6 +5,7 @@ import game.audio.AudioManager;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
+import game.render.TextureBank;
 import org.joml.Vector4f;
 
 public class MuteComponent extends AbstractButtonComponent {
@@ -15,10 +16,34 @@ public class MuteComponent extends AbstractButtonComponent {
 	private Texture currentTex;
 	private boolean hover = false;
 	private boolean pressed = false;
-	
-	public MuteComponent(Align a, float x, float y, AudioManager audio) {
+
+	/**
+	 * Construct a mute component
+	 * @param a The alignment
+	 * @param x The x coordinate
+	 * @param y The y Coordinate
+	 * @param audio The audio manager
+	 * @param bank The texture bank
+	 */
+	public MuteComponent(Align a, float x, float y, AudioManager audio, TextureBank bank) {
 		super(a, x, y);
 		this.audio = audio;
+		setCurrentTexture(bank);
+	}
+
+	/**
+	 * Set the current texture based on tha state of the volume
+	 * @param bank The texture bank
+	 */
+	private void setCurrentTexture(TextureBank bank) {
+		if (audio.isMuted())
+			currentTex = bank.getTexture("Volume-Mute.png");
+		else if (audio.getVolume() < 0.3f)
+			currentTex = bank.getTexture("Volume-Low.png");
+		else if (audio.getVolume() < 0.7f)
+			currentTex = bank.getTexture("Volume-Medium.png");
+		else
+			currentTex = bank.getTexture("Volume-High.png");
 	}
 	
 	@Override
@@ -28,14 +53,7 @@ public class MuteComponent extends AbstractButtonComponent {
 	
 	@Override
 	public void render(IRenderer r) {
-		if (audio.isMuted())
-			currentTex = r.getTextureBank().getTexture("Volume-Mute.png");
-		else if (audio.getVolume() < 0.3f)
-			currentTex = r.getTextureBank().getTexture("Volume-Low.png");
-		else if (audio.getVolume() < 0.7f)
-			currentTex = r.getTextureBank().getTexture("Volume-Medium.png");
-		else
-			currentTex = r.getTextureBank().getTexture("Volume-High.png");
+		setCurrentTexture(r.getTextureBank());
 		r.drawBox(a, x, y, getWidth(), getHeight(), ColorUtil.WHITE);
 		r.drawBox(a, x+BORDER_WIDTH, y+BORDER_WIDTH, currentTex.getWidth(), currentTex.getHeight(), ColorUtil.BLACK);
 		float tx = x + BORDER_WIDTH;

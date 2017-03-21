@@ -58,7 +58,10 @@ public class SilencedPistol extends Weapon {
 	
 	@Override
 	public void render(IRenderer r, Map map) {
-		r.drawBox(Align.BM, position.x, position.y, 0.2f, getHeight(), ColorUtil.BLACK, this.angle);
+		Align a = isHeld() ? Align.BM : Align.MM;
+		Texture tex = r.getTextureBank().getTexture("Weapon_SilencedPistol.png");
+		float ratio = getHeight() / tex.getHeight();
+		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
@@ -71,7 +74,7 @@ public class SilencedPistol extends Weapon {
 	}
 	
 	private float getHeight() {
-		return 0.2f;
+		return isHeld() ? 0.35f : 0.4f;
 	}
 	
 	@Override

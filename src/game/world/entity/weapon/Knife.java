@@ -1,7 +1,6 @@
 package game.world.entity.weapon;
 
 import game.Util;
-import game.net.Protocol;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
@@ -14,13 +13,14 @@ import game.world.entity.update.DamageUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.map.Map;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 
 public class Knife extends Weapon {
 	private static final float COOLDOWN_TIME = 0.2f;
-	private static final float KNIFE_RANGE = 0.8f;
-	private static final float KNIFE_FOV = (float)Math.toRadians(140);
+	private static final float KNIFE_RADIUS = 0.4f;
+	private static final float KNIFE_OFFSET = 0.4f;
 	
 	private static final float STAB_ANIMATION_TIME = 0.1f;
 	private static final float STAB_ANIMATION_LENGTH = 0.25f;
@@ -41,6 +41,14 @@ public class Knife extends Weapon {
 		this.stabbed = false;
 	}
 	
+	private float getDamageCentreX() {
+		return position.x + Util.getDirX(angle) * KNIFE_OFFSET;
+	}
+	
+	private float getDamageCentreY() {
+		return position.y + Util.getDirY(angle) * KNIFE_OFFSET;
+	}
+	
 	@Override
 	public void render(IRenderer r, Map map) {
 		float mag = 0.0f;
@@ -55,12 +63,12 @@ public class Knife extends Weapon {
 		float ratio = t.getHeight() / (float)t.getWidth();
 		float w = 0.08f;
 		r.drawTexture(t, Align.BM, x, y, w, w * ratio, angle);
+		
+		//r.drawCircle(getDamageCentreX(), getDamageCentreY(), KNIFE_RADIUS, new Vector4f(1.0f, 0.0f, 0.0f, 0.3f));
 	}
 	
 	@Override
 	public void clientUpdate(UpdateArgs ua) {
-		super.clientUpdate(ua);
-		
 		if (this.stabbed) {
 			this.stabTime += ua.dt;
 			if (this.stabTime > STAB_ANIMATION_TIME) {
@@ -68,6 +76,8 @@ public class Knife extends Weapon {
 				this.stabbed = false;
 			}
 		}
+		
+		super.clientUpdate(ua);
 	}
 	
 	@Override
@@ -81,41 +91,25 @@ public class Knife extends Weapon {
 		}
 		
 		super.update(ua);
+		
+		
 	}
 	
 	@Override
 	protected void fire(UpdateArgs ua, float angle) {
-		ArrayList<Entity> es = ua.bank.getEntitiesNear(position.x, position.y, KNIFE_RANGE);
-		Entity closest = null;
-		float closestDistanceSq = 0.0f;
+		ArrayList<Entity> es = ua.bank.getEntitiesNear(getDamageCentreX(), getDamageCentreY(), KNIFE_RADIUS);
 		for (Entity e : es) {
 			if (!Team.isHostileTeam(this.ownerTeam, e.getTeam()))
 				continue;
 			
-			float angleTo = Util.getAngle(position.x, position.y, e.position.x, e.position.y);
-			if (Util.getAngleDiff(angleTo, angle) < KNIFE_FOV / 2)
-				continue;
-			
-			// Is in fov - get closest
-			if (closest == null) {
-				closest = e;
-				closestDistanceSq = closest.position.distanceSquared(this.position);
-			} else {
-				float eDistanceSq = e.position.distanceSquared(this.position);
-				if (eDistanceSq < closestDistanceSq) {
-					closest = e;
-					closestDistanceSq = eDistanceSq;
-				}
-			}
+			// Add damage
+			System.out.println("[Game]: Weapon: Knifed " + e.getReadableName());
+			Damage d = new Damage(this.getId(), this.getTeam(), DamageType.KNIFE_DAMAGE, 5.0f);
+			ua.bank.updateEntityCached(new DamageUpdate(e.getId(), d));
 		}
 		
 		ua.audio.play("slash.wav", 1f, this.position);
 		
-		if (closest != null) {
-			System.out.println("[Game]: Weapon: Knifed " + closest.getId() + " (" + closest + ")");
-			Damage damage = new Damage(ownerId, ownerTeam, DamageType.KNIFE_DAMAGE, 5.0f);
-			ua.bank.updateEntityCached(new DamageUpdate(closest.getId(), damage));
-		}
 		this.stabbed = true;
 		ua.bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
 	}
