@@ -339,5 +339,8 @@ public abstract class Player extends AutonomousEntity {
 				ua.scoreboard.addPlayerKill(p.getName());
 		}
 		ua.audio.play("dying.wav", 1f, this.position);
+		
+		// Drop weapon
+		dropHeldItem(ua.bank, this.position);
 	}
 }

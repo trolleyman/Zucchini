@@ -21,6 +21,7 @@ public class Pickup extends Entity {
 		if (this.item != null) {
 			this.item.setOwner(Entity.INVALID_ID);
 			this.item.setOwnerTeam(Team.INVALID_TEAM);
+			this.item.endUse();
 		}
 	}
 	
