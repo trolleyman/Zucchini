@@ -44,7 +44,6 @@ public class VAO {
 	 * Add data to the VAO.
 	 * @param shader The shader that this VAO corresponds to
 	 * @param attribName The name of the attribute to bind the data to
-	 * @param data The vertex data
 	 * @param components The number of data points for each vertex. For example, 2 for a vec2.
 	 * @param offset The offset of the first data point in the array
 	 * @param stride The byte offset between consecutive generic vertex attributes.

@@ -73,6 +73,10 @@ public class ButtonComponent extends AbstractButtonComponent {
 		r.drawTexture(currentTexture, a, x, y);
 	}
 	
+	public void render(IRenderer r, float w, float h) {
+		r.drawTexture(currentTexture, a, x, y, w, h);
+	}
+	
 	@Override
 	public float getWidth() {
 		return currentTexture.getWidth();

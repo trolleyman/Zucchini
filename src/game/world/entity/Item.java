@@ -44,6 +44,9 @@ public abstract class Item extends Entity {
 	/** Called when the user presses the mouse button */
 	public abstract void beginUse();
 	
+	/** Returns true if the item is currently being used (for weapons, if they are firing) */
+	public abstract boolean isUsing();
+	
 	/** Called when the user releases the mouse button */
 	public abstract void endUse();
 	

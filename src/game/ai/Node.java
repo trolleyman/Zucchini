@@ -1,8 +1,6 @@
 package game.ai;
 
 public class Node{
-	public static final Node ZERO = new Node(0, 0);
-	
     private int x, y;
 
     public Node(int x, int y){

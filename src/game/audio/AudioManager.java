@@ -38,7 +38,9 @@ public class AudioManager implements IAudioManager{
 	/** A hash map relating Filename->number of sources*/
 	public Map<String,Integer> fileSourceMap = new HashMap<>();
 	public float currentVolume = 1f;
-    /**
+	private boolean mute = false;
+	
+	/**
      * Constructor for AudioManager, will initialise OpenAL, get all sound files from the resources/audio_assets library and places them into
      * memory to be played. The main backgroud music will also be played in an infinite loop. Also initialises Sources, the object from which sounds will be played.
      * @throws Exception
@@ -119,10 +121,13 @@ public class AudioManager implements IAudioManager{
         fileSourceMap.put("[bgm]Desolation.wav", 0);
 		fileSourceMap.put("bullet_impact_body.wav", 10);
 		fileSourceMap.put("bullet_impact_wall.wav", 20);
+		fileSourceMap.put("bullet_whiz1.wav", 0);
 		fileSourceMap.put("bullet_whizz_silent.wav", 20);
-		fileSourceMap.put("dying.wav", 3);
+		fileSourceMap.put("bullet_whizz2.wav", 0);
+		fileSourceMap.put("bullet_whizz3.wav", 0);
 		fileSourceMap.put("explosion.wav", 3);
 		fileSourceMap.put("footsteps_running.wav", 20);
+		fileSourceMap.put("footsteps_walking.wav", 0);
 		fileSourceMap.put("grunt1.wav", 5);
 		fileSourceMap.put("grunt2.wav", 5);
 		fileSourceMap.put("grunt3.wav", 5);
@@ -130,10 +135,11 @@ public class AudioManager implements IAudioManager{
 		fileSourceMap.put("gun_reload[2sec].wav", 4);
 		fileSourceMap.put("handgunshot.wav", 30);
 		fileSourceMap.put("laser_round.wav", 2);
-		fileSourceMap.put("lasergun-fire.wav", 20);
+		fileSourceMap.put("lasergun-fire.wav", 30);
 		fileSourceMap.put("no-ammo-click.wav", 3);
 		fileSourceMap.put("pump-shotgun-reload[4sec].wav", 3);
 		fileSourceMap.put("pump-shotgun-shot.wav", 5);
+		fileSourceMap.put("punch-hit.wav", 0);
 		fileSourceMap.put("rocket_reload[5sec].wav", 2);
 		fileSourceMap.put("rocket-launcher.wav", 3);
 		fileSourceMap.put("slash.wav", 5);
@@ -148,29 +154,54 @@ public class AudioManager implements IAudioManager{
      */
     public void mute(){
         alListenerf(AL_GAIN, 0f);
+        if (!this.mute)
+	        System.out.println("[Audio]: Muted");
+        this.mute = true;
     }
     
     /**
-     * Unmutes audio, resetting to volume before mute
+     * Unmutes audio, reseting to volume before mute
      */
     public void unMute(){
     	alListenerf(AL_GAIN, currentVolume);
+    	if (this.mute)
+		    System.out.println("[Audio]: Unmuted");
+    	this.mute = false;
     }
-    
-    /**
+	
+	/**
+	 * Returns true if the audio is currently muted
+	 */
+	public boolean isMuted() {
+		return mute;
+	}
+	
+	/**
      * Sets the volume, only takes in a float between 0-1
      * @param volume
      */
-    public void setVolume(float volume){
-    	if (volume >1f || volume<0f){
+    public void setVolume(float volume) {
+    	if (volume == 0.0f) {
+		    this.mute();
+	    } else {
+		    this.unMute();
+	    }
+	    if (volume >1f || volume<0f){
     		System.err.println("Invalid volume, only accepts a float between 0-1");
     		return;
     	}
     	this.currentVolume = volume;
     	alListenerf(AL_GAIN, currentVolume);
     }
-    
-    /**
+	
+	/**
+	 * Gets the current volume.
+	 */
+	public float getVolume() {
+		return currentVolume;
+	}
+	
+	/**
      * Iterate available sound sources for a buffer and return it
      * returns null if no sources are available
      * @param wavfile
@@ -382,4 +413,5 @@ public class AudioManager implements IAudioManager{
     
 	
 	
+>>>>>>> master
 }

@@ -3,6 +3,7 @@ package game.world;
 import java.util.ArrayList;
 
 import game.action.Action;
+import game.ai.AIPlayer;
 import game.audio.ServerAudioManager;
 import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
@@ -11,6 +12,7 @@ import game.net.Protocol;
 import game.net.WorldStart;
 import game.net.server.LobbyClient;
 import game.world.entity.Entity;
+import game.world.entity.HumanPlayer;
 import game.world.entity.Player;
 import game.world.map.Map;
 import game.world.update.ScoreboardWorldUpdate;
@@ -72,15 +74,24 @@ public class ServerWorld extends World implements Cloneable {
 	 * @param c The client
 	 */
 	public synchronized void addClient(LobbyClient c) {
-		Player player = new Player(c.team, map.getSpawnLocation(c.team), c.handler.getClientInfo().name, Player.getDefaultHeldItem());
+		Player player = new HumanPlayer(c.team, map.getSpawnLocation(c.team), c.handler.getClientInfo().name, Player.getDefaultHeldItem());
 		this.bank.addEntity(player);
 		this.clients.add(new ServerWorldClient(c.handler, player.getId()));
 		this.scoreboard.addPlayer(c.handler.getClientInfo().name);
 		try {
 			c.handler.sendStringTcp(Protocol.sendWorldStart(new WorldStart(map, player.getId())));
 		} catch (ProtocolException e) {
-			// This is ok as the handler will take care of it
+			c.handler.error(e);
 		}
+	}
+	
+	/**
+	 * Adds an AI to the world
+	 * @param ai The AI player
+	 */
+	public synchronized void addAI(AIPlayer ai) {
+		this.bank.addEntity(ai);
+		this.scoreboard.addPlayer(ai.getName());
 	}
 	
 	public synchronized void handleAction(String name, Action a) {
@@ -143,7 +154,7 @@ public class ServerWorld extends World implements Cloneable {
 					try {
 						c.handler.sendStringTcp(s);
 					} catch (ProtocolException e) {
-						// This is fine as the handler takes care of it
+						c.handler.error(e);
 					}
 				}
 			}
@@ -213,7 +224,7 @@ public class ServerWorld extends World implements Cloneable {
 				try {
 					swc.handler.sendStringTcp(Protocol.sendAddEntity(e));
 				} catch (ProtocolException ex) {
-					// This is ok as ClientHandler takes care of this
+					swc.handler.error(ex);
 					break;
 				}
 			}

@@ -7,6 +7,7 @@ import game.net.WorldStart;
 import game.net.client.IClientConnectionHandler;
 import game.render.*;
 import game.ui.component.ButtonComponent;
+import game.ui.component.ImageComponent;
 import game.world.ClientWorld;
 import game.world.EntityBank;
 import org.joml.Vector4f;
@@ -49,10 +50,18 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	private ButtonComponent backButton;
 	
+	private final ImageComponent backgroundImage;
+	
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> errorInputHandlers = new ArrayList<>();
 	private ArrayList<InputHandler> emptyInputHandlers = new ArrayList<>();
-	
+
+	/**
+	 * Constructs a LobbyWaitUI
+	 * @param _ui The UI superclass
+	 * @param _lobbyName The lobby name
+	 * @param sendJoinRequest Send the join request (boolean)
+	 */
 	public LobbyWaitUI(UI _ui, String _lobbyName, boolean sendJoinRequest) {
 		super(_ui);
 		
@@ -71,10 +80,12 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		Texture defaultTex = textureBank.getTexture("toggleReadyDefault.png");
 		Texture hoverTex = textureBank.getTexture("toggleReadyHover.png");
 		Texture pressedTex = textureBank.getTexture("toggleReadyPressed.png");
-		
+
+		// Create Toggle Ready Button
 		this.toggleReadyButton = new ButtonComponent(
 				this::toggleReady, Align.BL, PADDING, PADDING, defaultTex, hoverTex, pressedTex);
-		
+
+		// Create Leave Button
 		this.leaveButton = new ButtonComponent(
 				() -> { try {
 					connection.sendLobbyLeaveRequest();
@@ -86,7 +97,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("leaveHover.png"),
 				textureBank.getTexture("leavePressed.png")
 		);
-		
+
+		// Create Back Button
 		backButton = new ButtonComponent(
 				() -> this.nextUI = new LobbyUI(this),
 				Align.BL, 100, 100,
@@ -95,6 +107,12 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 				textureBank.getTexture("backPressed.png")
 		);
 		
+		// Create Background Image
+		backgroundImage = new ImageComponent(
+				Align.BL, 0, 0, textureBank.getTexture("Start_BG.png"), 0.0f
+		);
+
+		// Add input handlers
 		this.inputHandlers.add(this.toggleReadyButton);
 		this.inputHandlers.add(this.leaveButton);
 		this.errorInputHandlers.add(this.backButton);
@@ -160,7 +178,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		else
 			return emptyInputHandlers;
 	}
-	
+
+	// Toggle whether the player is ready
 	private void toggleReady() {
 		try {
 			connection.sendToggleReady();
@@ -207,6 +226,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void render(IRenderer r) {
+		backgroundImage.render(r);
 		if (accepted && lobbyInfo != null) {
 			// Draw lobby view ui screen
 			r.drawText(font, lobbyName,
@@ -267,8 +287,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			// Error has occured
 			float scale = 0.5f;
 			String s = "Could not connect to lobby " + lobbyName + ":";
-			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, scale);
-			r.drawText(font, error, Align.MM, true, r.getWidth()/2, r.getHeight()/2 - font.getHeight(scale), scale);
+			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
+			r.drawText(font, error, Align.MM, true, r.getWidth()/2, r.getHeight()/2 - font.getHeight(scale), scale, ColorUtil.RED);
 			
 			backButton.setX(20.0f);
 			backButton.setY(20.0f);

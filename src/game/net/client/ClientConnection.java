@@ -93,9 +93,7 @@ public class ClientConnection implements IClientConnection {
 					System.err.println("[UDP]: " + name + " Warning: Unknown message received: " + msg);
 				}
 			} catch (ProtocolException e) {
-				System.err.println("[UDP]: " + name + ": Exception encountered:");
-				e.printStackTrace();
-				this.close();
+				this.error(e);
 			}
 		}
 	}
@@ -204,9 +202,7 @@ public class ClientConnection implements IClientConnection {
 					System.err.println("[TCP]: " + name + ": Warning: Unknown message received: " + msg);
 				}
 			} catch (ProtocolException e) {
-				System.err.println("[TCP]: " + name + ": Exception encountered:");
-				e.printStackTrace();
-				this.close();
+				this.error(e);
 			}
 		}
 	}
@@ -294,8 +290,18 @@ public class ClientConnection implements IClientConnection {
 	
 	@Override
 	public void error(ProtocolException e) {
-		System.err.println("[Net]: Error occured: " + e);
-		this.close();
+		synchronized (lobbiesLock) {
+			// Call error callbacks
+			for (Consumer<String> cb : lobbiesErrorCallbacks)
+				cb.accept(e.toString());
+			
+			// Clear callbacks
+			lobbiesSuccessCallbacks.clear();
+			lobbiesErrorCallbacks.clear();
+			
+			System.err.println("[Net]: Error occured: " + e);
+			this.close();
+		}
 	}
 	
 	@Override

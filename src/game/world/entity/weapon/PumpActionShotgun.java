@@ -4,6 +4,7 @@ import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
+import game.render.Texture;
 import game.world.UpdateArgs;
 import game.world.map.Map;
 import org.joml.Vector2f;
@@ -24,7 +25,9 @@ public class PumpActionShotgun extends Weapon {
 	@Override
 	public void render(IRenderer r, Map map) {
 		Align a = isHeld() ? Align.BM : Align.MM;
-		r.drawBox(a, position.x, position.y, 0.1f, getHeight(), ColorUtil.YELLOW, this.angle);
+		Texture tex = r.getTextureBank().getTexture("Weapon_ShotGun.png");
+		float ratio = getHeight() / tex.getHeight();
+		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
@@ -65,7 +68,7 @@ public class PumpActionShotgun extends Weapon {
 	}
 	
 	private float getHeight() {
-		return 0.45f;
+		return isHeld() ? 0.6f : 1.0f;
 	}
 	
 	@Override
