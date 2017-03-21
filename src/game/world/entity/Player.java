@@ -27,13 +27,13 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 /**
- * Represents a player
+ * Represents a player, either controlled by an AI or a human
  *
  * @author Callum
  */
-public class Player extends MovableEntity {
+public abstract class Player extends AutonomousEntity {
 	/** The max distance a player can see */
-	public static final float LINE_OF_SIGHT_MAX = 50.0f;
+	public static final float LINE_OF_SIGHT_MAX = 10.0f;
 	/** The angle of which the player can see */
 	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(360.0);
 	
@@ -41,9 +41,9 @@ public class Player extends MovableEntity {
 	private static final Vector4f TORCH_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
 	
 	/** The speed of the player in m/s */
-	private static final float MAX_SPEED = 4.0f;
+	protected static final float MAX_SPEED = 4.0f;
 	/** The radius of the player in m */
-	private static final float RADIUS = 0.2f;
+	protected static final float RADIUS = 0.2f;
 	/** True if the torch is on */
 	private boolean torchOn = true;
 	
@@ -51,20 +51,11 @@ public class Player extends MovableEntity {
 		return new Knife(new Vector2f(0.0f, 0.0f));
 	}
 	
-	/** If the player is moving north */
-	private transient boolean moveNorth = false;
-	/** If the player is moving south */
-	private transient boolean moveSouth = false;
-	/** If the player is moving east */
-	private transient boolean moveEast  = false;
-	/** If the player is moving west */
-	private transient boolean moveWest  = false;
-	
 	/** The name of the player */
 	private String name;
 	
 	/** The currently held item. Not necessarily a weapon */
-	private Item heldItem;
+	protected Item heldItem;
 	
 	private PointLight pointLight;
 	/** The torch of the player */
@@ -76,13 +67,22 @@ public class Player extends MovableEntity {
 	private transient boolean beganUse = false;
 	
 	/**
+	 * Constructs a new player at the specified position holding {@link Player#getDefaultHeldItem}
+	 * @param position The position
+	 * @param name The name of the player
+	 */
+	public Player(int team, Vector2f position, String name) {
+		this(team, position, name, Player.getDefaultHeldItem());
+	}
+	
+	/**
 	 * Constructs a new player at the specified position holding a weapon
 	 * @param position The position
 	 * @param _name The name of the player
 	 * @param _heldItem The currently held item
 	 */
 	public Player(int team, Vector2f position, String _name, Item _heldItem) {
-		super(team, position, 1.0f);
+		super(team, position, 1.0f, MAX_SPEED, false);
 		this.name = _name;
 		this.heldItem = _heldItem;
 		this.pointLight = new PointLight(
@@ -103,11 +103,6 @@ public class Player extends MovableEntity {
 	public Player(Player p) {
 		super(p);
 		
-		this.moveNorth = p.moveNorth;
-		this.moveSouth = p.moveSouth;
-		this.moveEast = p.moveEast;
-		this.moveWest = p.moveWest;
-		
 		this.name = p.name;
 		this.heldItem = p.heldItem.clone();
 		
@@ -117,7 +112,7 @@ public class Player extends MovableEntity {
 		this.torch = p.torch.clone();
 	}
 	
-	private void updateChildrenInfo() {
+	protected void updateChildrenInfo() {
 		this.pointLight.position.set(this.position);
 		this.torch.position.set(this.position);
 		this.torch.angle = this.angle;
@@ -167,25 +162,6 @@ public class Player extends MovableEntity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		{
-			Vector2f temp = Util.pushTemporaryVector2f();
-			temp.zero();
-			if (this.moveNorth)
-				temp.add(0.0f, 1.0f);
-			if (this.moveSouth)
-				temp.add(0.0f, -1.0f);
-			if (this.moveEast)
-				temp.add(1.0f, 0.0f);
-			if (this.moveWest)
-				temp.add(-1.0f, 0.0f);
-			if (temp.x != 0.0f && temp.y != 0.0f)
-				temp.normalize();
-			temp.mul(MAX_SPEED);
-			
-			this.addTargetVelocity(ua, temp);
-			Util.popTemporaryVector2f();
-		}
-		
 		// Update velocity
 		super.update(ua);
 		
@@ -213,16 +189,16 @@ public class Player extends MovableEntity {
 			this.heldItem.update(ua);
 		
 		// Play walking sounds
-		if (moveNorth || moveSouth || moveEast || moveWest) {
+		if (velocity.length() > 1f) {
 			//System.out.println("Starting sound id: " + walkingSoundID);
-			if (walkingSoundID == -1){
+			if (walkingSoundID == -1) {
 				this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.6f,this.position);
 			} else {
 				ua.audio.continueLoop(this.walkingSoundID,this.position);
 			}
 		} else {
 			//System.out.println("Stopping sound id: " + walkingSoundID);
-			if (walkingSoundID != -1){
+			if (walkingSoundID != -1) {
 				ua.audio.pauseLoop(this.walkingSoundID);
 				walkingSoundID=-1;
 			}
@@ -239,17 +215,6 @@ public class Player extends MovableEntity {
 			this.torch.clientUpdate(ua);
 		if (this.heldItem != null)
 			this.heldItem.clientUpdate(ua);
-	}
-	
-	@Override
-	public void render(IRenderer r, Map map) {
-		updateChildrenInfo();
-		if (this.heldItem != null)
-			this.heldItem.render(r, map);
-		
-		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
-		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
-		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 	}
 	
 	@Override
@@ -271,14 +236,16 @@ public class Player extends MovableEntity {
 	 */
 	public void handleAction(EntityBank bank, Action a) {
 		switch (a.getType()) {
-		case BEGIN_MOVE_NORTH: this.moveNorth = true ; break;
-		case BEGIN_MOVE_SOUTH: this.moveSouth = true ; break;
-		case BEGIN_MOVE_EAST : this.moveEast  = true ; break;
-		case BEGIN_MOVE_WEST : this.moveWest  = true ; break;
-		case END_MOVE_NORTH  : this.moveNorth = false; break;
-		case END_MOVE_SOUTH  : this.moveSouth = false; break;
-		case END_MOVE_EAST   : this.moveEast  = false; break;
-		case END_MOVE_WEST   : this.moveWest  = false; break;
+		case BEGIN_MOVE_NORTH:
+		case BEGIN_MOVE_SOUTH:
+		case BEGIN_MOVE_EAST :
+		case BEGIN_MOVE_WEST :
+		case END_MOVE_NORTH  :
+		case END_MOVE_SOUTH  :
+		case END_MOVE_EAST   :
+		case END_MOVE_WEST   :
+			System.err.println("[Game]: Warning: Invalid action type received for Player: " + a.getType());
+			break;
 		case AIM:
 			angle = ((AimAction)a).getAngle();
 			bank.updateEntityCached(new AngleUpdate(this.getId(), angle));
@@ -371,10 +338,6 @@ public class Player extends MovableEntity {
 			else
 				ua.scoreboard.addPlayerKill(p.getName());
 		}
-	}
-	
-	@Override
-	public Player clone() {
-		return new Player(this);
+		ua.audio.play("dying.wav", 1f, this.position);
 	}
 }

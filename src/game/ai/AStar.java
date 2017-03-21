@@ -1,7 +1,16 @@
 package game.ai;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+
+import game.Util;
+import game.world.map.PathFindingMap;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 
 /**
@@ -15,9 +24,12 @@ import java.util.ArrayList;
 
 
 public class AStar {
-	private int[][] heuristicMap;
-	private int[][] movementCostMap;
-	private int[][] totalCostMap;
+	private float[][] heuristicMap;
+	private float[][] movementCostMap;
+	private float[][] totalCostMap;
+	private float D2 = 1;
+	private float D = 1;
+	
 	
 	private int width;
 	private int height;
@@ -25,8 +37,8 @@ public class AStar {
 	private Node goal;
 	
 
-	private ArrayList<Node> openSet;
-	private ArrayList<Node> closeSet;
+	private PriorityQueue<Node> openSet;
+	private HashSet<Node> closeSet;
 
 	private HashMap<Node, Node> previousNodeMap;
 	
@@ -41,29 +53,26 @@ public class AStar {
  */
 	public AStar(Node start, Node goal, boolean[][] walkable) {
 		this.start = start;
+		
 		this.goal = goal;
 		width = walkable.length;
 		height = walkable[0].length;
-		heuristicMap = new int[width][height];
-		movementCostMap = new int[width][height]; // g score
+		heuristicMap = new float[width][height];
+		movementCostMap = new float[width][height]; // g score
 		previousNodeMap = new HashMap<Node, Node>();
-		totalCostMap = new int[width][height]; // f score
+		totalCostMap = new float[width][height]; // f score
 		
-
-		openSet = new ArrayList<Node>();
-		closeSet = new ArrayList<Node>();
+		openSet = new PriorityQueue<>((l, r) -> Float.compare(heuristicMap[l.getX()][l.getY()], heuristicMap[r.getX()][r.getY()]));
+		closeSet = new HashSet<>();
 		// setting all default values
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				heuristicMap[x][y] = (int) (Math.abs(goal.getX() -x)
-						+ Math.abs(goal.getY() - y));
+				
+				heuristicMap[x][y] = heuristic(x, y);
 
 				movementCostMap[x][y] = Integer.MAX_VALUE;
 
 				totalCostMap[x][y] = Integer.MAX_VALUE;
-
-				
-
 			}
 		}
 
@@ -76,9 +85,8 @@ public class AStar {
 		
 			}
 		}
-
-		//this.finalPath = findRoute(start, goal);
 		
+		//this.finalPath = findRoute(start, goal);
 	}
 	/*
 	 * finds the path to the goal
@@ -86,42 +94,42 @@ public class AStar {
 	 */
 	public ArrayList<Node> findRoute() {
 		// adding start node to the openSet
+		long startTime = System.nanoTime();
+		
 		openSet.add(start);
 		Node currentNode;
-	
+		
+		ArrayList<Node> route = null;
 		movementCostMap[start.getX()][start.getY()] = 0;
 		while (!openSet.isEmpty()) {
 		
-			currentNode = getSmallestValue();
+			currentNode = openSet.remove();
+			if (closeSet.contains(currentNode))
+				continue;
 			
-		
-			openSet.remove(currentNode);
 			closeSet.add(currentNode);
-		
 			
 			if (currentNode.equals(goal)) {
-			
 				// return completed path
-				return constructPath(currentNode);
+				route = constructPath(currentNode);
+				break;
 			}
-
+			
 			for (int x = currentNode.getX() - 1; x <= currentNode.getX() + 1; x++) {
 				for (int y = currentNode.getY() - 1; y <= currentNode.getY() + 1; y++) {
-					if (x < width && x >= 0 && y >= 0 && y < height) {
-							
-					
-						
+					if (x < width && x >= 0 && y >= 0 ) {
 						Node neighbour = new Node(x, y);
-					
+						
 						if (closeSet.contains(neighbour)) {
 							// go to next loop
 							continue;
 						}
-			
-						int tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + 1;
-						if (!openSet.contains(neighbour)) {
-							openSet.add(neighbour);
-						} else if (tentativeGScore >= movementCostMap[neighbour.getX()][neighbour.getY()]) {
+						
+						float tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + 1;
+						
+						openSet.add(neighbour);
+						
+						if (tentativeGScore >= movementCostMap[neighbour.getX()][neighbour.getY()]) {
 							// go to next loop
 							continue;
 						}
@@ -133,11 +141,18 @@ public class AStar {
 					}
 				}
 			}
-
 		}
-		// no path found
-		System.out.println("[Game]: [AStar]: no path found from " + start + " to " + goal);
-		return new ArrayList<>();
+		
+		if (route == null) {
+			route = new ArrayList<>();
+			// no path found
+			System.out.println("[Game]: [AStar]: no path found from " + start + " to " + goal);
+		}
+		long endTime = System.nanoTime();
+		long dt = endTime - startTime;
+		double time = dt / (double)Util.NANOS_PER_SECOND;
+		System.out.println("[Game]: [AStar]: AStar timing: " + time + "s");
+		return route;
 	}
 	/*
 	 * adds the path to an array list
@@ -161,21 +176,12 @@ public class AStar {
 	public ArrayList<Node> getPath() {
 		return this.finalPath;
 	}
-	/*
-	 * When a* chooses the next node to follow it will look at the 
-	 * heuristic mapping, this function finds the smallest heuristic
-	 * value in an adjacent nodes (all the nodes in the open set)
-	 * @retuns node the lowest heuristical value of the adjacent nodes (all the nodes in the open set)
-	 */
-	private Node getSmallestValue() {
-		Node min;
-		min = openSet.get(0);
-		for (Node n : openSet) {
-			if (totalCostMap[n.getX()][ n.getY()] < totalCostMap[min.getX()][min.getY()]) {
-				
-				min = n;
-			}
-		}
-		return min;
+	
+	private float heuristic(int x, int y){
+		
+		float dx = Math.abs(x - goal.getY());
+		float dy = Math.abs(y - goal.getY());
+		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
+		
 	}
 }

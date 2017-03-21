@@ -23,6 +23,7 @@ public class PathFindingMap {
 	 */
 
 	public PathFindingMap(Map map, float _scale){
+		
 		this.scale = _scale;
 		
 		ArrayList<Wall> walls = improvePrecision(scale, map.walls);
@@ -175,24 +176,12 @@ public class PathFindingMap {
 		return new ArrayList<>(route);
 	}
 
-//	No longer needed walls are now arraylist of wall
-//	private static ArrayList<Point> convertToPointList (float[] lines){
-//		int x;
-//		int y;
-//		ArrayList<Point> pointsList = new ArrayList<Point>();
-//		if ((lines.length) % 2 != 0){
-//			System.out.println("lines is not even!");
-//			return null;
-//		}
-//		for (int z = 0; z < lines.length - 1; z+=2){
-//			x = (int)Math.round(lines[z]);
-//			y = (int)Math.round(lines[z+1]);
-//			pointsList.add(new Point(x,y));
-//			
-//		}
-//		return pointsList;
-//		
-//	}
-	
+	public boolean notAWall(float x, float y){
+		Node a = getClosestNodeTo(x, y);
+		
+		return !grid[a.getX()][a.getY()];
+		
+	}
+
 	
 }

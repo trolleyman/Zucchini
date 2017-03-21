@@ -5,6 +5,7 @@ import game.audio.event.AudioStopEvent;
 import game.exception.ProtocolException;
 import game.net.codec.ObjectCodec;
 import game.world.entity.Entity;
+import game.world.entity.HumanPlayer;
 import game.world.entity.Player;
 import game.world.entity.update.EntityUpdate;
 import game.world.entity.update.HealthUpdate;
@@ -20,11 +21,11 @@ import static test.TestUtil.assertThrows;
 public class ObjectCodecTest {
 	@Test
 	public void entityCodec() throws ProtocolException {
-		Player p1 = new Player(1, new Vector2f(2.0f, 3.0f), "4", new Knife(new Vector2f(5.0f, 6.0f)));
+		Player p1 = new HumanPlayer(1, new Vector2f(2.0f, 3.0f), "4", new Knife(new Vector2f(5.0f, 6.0f)));
 		Entity e1 = p1;
 		String s = ObjectCodec.entityToString(e1);
 		Entity e2 = ObjectCodec.entityFromString(s);
-		assertTrue(e2 instanceof Player);
+		assertTrue(e2 instanceof HumanPlayer);
 		Player p2 = (Player) e2;
 		assertEquals(p1.getId(), p2.getId());
 		assertEquals(p1.getTeam(), p2.getTeam());

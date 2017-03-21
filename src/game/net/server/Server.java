@@ -255,7 +255,8 @@ public class Server implements Runnable
 	{
 		synchronized (lock)
 		{
-			lobbies.put(lobbyName, new Lobby(lobbyName, minPlayers, maxPlayers, Map.createTestMap()));
+			Map map = Map.createTestMap();
+			lobbies.put(lobbyName, new Lobby(lobbyName, minPlayers, maxPlayers, map));
 			System.out.println("[Net]: Lobby " + lobbyName + " created. (min=" + minPlayers + ", max=" + maxPlayers + ")");
 		}
 	}
