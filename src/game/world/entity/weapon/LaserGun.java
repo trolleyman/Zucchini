@@ -93,7 +93,7 @@ public class LaserGun extends Weapon {
 				for (Entity e : es) {
 					// Only damage if the id is not who shot the laser, unless it is after the first shot
 					if (e.getId() != owner.entityId || prevWall != null) {
-						Damage damage = new Damage(owner, DamageType.LASER_DAMAGE, 3.5f);
+						Damage damage = new Damage(owner, DamageType.LASER_DAMAGE, 3.0f);
 						ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
 						ua.audio.play("vaporized.wav", 1.0f, e.position);
 					}
