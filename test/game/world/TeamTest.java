@@ -1,4 +1,4 @@
-package test.world;
+package game.world;
 
 import game.world.Team;
 import org.junit.Test;

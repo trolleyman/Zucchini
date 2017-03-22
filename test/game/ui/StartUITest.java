@@ -1,4 +1,4 @@
-package test.ui;
+package game.ui;
 
 import game.ui.StartUI;
 import game.ui.UI;

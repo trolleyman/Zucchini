@@ -1,4 +1,4 @@
-package test;
+package game;
 
 @FunctionalInterface
 public interface Runnable {

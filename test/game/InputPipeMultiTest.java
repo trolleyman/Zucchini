@@ -1,7 +1,5 @@
-package test;
+package game;
 
-import game.InputHandler;
-import game.InputPipeMulti;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

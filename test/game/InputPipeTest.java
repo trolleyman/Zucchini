@@ -1,4 +1,4 @@
-package test;
+package game;
 
 import game.InputHandler;
 import game.InputPipe;

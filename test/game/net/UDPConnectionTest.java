@@ -1,8 +1,6 @@
-package test.net;
+package game.net;
 
 import game.exception.ProtocolException;
-import game.net.Protocol;
-import game.net.UDPConnection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +9,7 @@ import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 
 import static org.junit.Assert.*;
-import static test.TestUtil.assertThrows;
+import static game.TestUtil.assertThrows;
 
 public class UDPConnectionTest {
 	private UDPConnection c1;

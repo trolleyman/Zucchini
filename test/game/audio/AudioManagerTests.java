@@ -1,4 +1,4 @@
-package test.audio;
+package game.audio;
 
 import static org.junit.Assert.*;
 

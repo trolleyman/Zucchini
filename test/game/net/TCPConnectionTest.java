@@ -1,17 +1,14 @@
-package test.net;
+package game.net;
 
 import game.exception.NameException;
 import game.exception.ProtocolException;
-import game.net.Protocol;
-import game.net.TCPConnection;
-import game.net.Tuple;
 import org.junit.*;
 
 import java.io.IOException;
 import java.net.*;
 
 import static org.junit.Assert.*;
-import static test.TestUtil.assertThrows;
+import static game.TestUtil.assertThrows;
 
 public class TCPConnectionTest {
 	private TCPConnection t1;

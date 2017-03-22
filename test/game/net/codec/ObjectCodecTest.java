@@ -1,9 +1,8 @@
-package test.net.codec;
+package game.net.codec;
 
 import game.audio.event.AudioEvent;
 import game.audio.event.AudioStopEvent;
 import game.exception.ProtocolException;
-import game.net.codec.ObjectCodec;
 import game.world.entity.Entity;
 import game.world.entity.HumanPlayer;
 import game.world.entity.Player;
@@ -16,7 +15,7 @@ import org.joml.Vector2f;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static test.TestUtil.assertThrows;
+import static game.TestUtil.assertThrows;
 
 public class ObjectCodecTest {
 	@Test

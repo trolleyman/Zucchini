@@ -1,10 +1,12 @@
-package test;
+package game;
+
+import java.lang.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestUtil {
-	public static void assertThrows(Class<? extends Throwable> clazz, Runnable f) {
+	public static void assertThrows(Class<? extends Throwable> clazz, java.lang.Runnable f) {
 		try {
 			f.run();
 		} catch (Throwable t) {

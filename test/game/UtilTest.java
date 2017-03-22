@@ -1,6 +1,5 @@
-package test;
+package game;
 
-import game.Util;
 import game.exception.ProtocolException;
 import game.render.Align;
 import org.joml.Vector2f;
@@ -15,7 +14,6 @@ import java.nio.FloatBuffer;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
-import static test.TestUtil.assertThrows;
 
 public class UtilTest {
 	private FloatBuffer buf1;
@@ -51,7 +49,7 @@ public class UtilTest {
 		Util.popTemporaryVector3f();
 		Util.popTemporaryVector3f();
 		Util.popTemporaryVector3f();
-		assertThrows(IndexOutOfBoundsException.class, Util::popTemporaryVector3f);
+		TestUtil.assertThrows(IndexOutOfBoundsException.class, Util::popTemporaryVector3f);
 	}
 	
 	@Test
@@ -72,7 +70,7 @@ public class UtilTest {
 		Util.popTemporaryVector2f();
 		Util.popTemporaryVector2f();
 		Util.popTemporaryVector2f();
-		assertThrows(IndexOutOfBoundsException.class, Util::popTemporaryVector2f);
+		TestUtil.assertThrows(IndexOutOfBoundsException.class, Util::popTemporaryVector2f);
 	}
 	
 	@Test

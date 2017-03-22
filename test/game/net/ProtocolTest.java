@@ -1,4 +1,4 @@
-package test.net;
+package game.net;
 
 import game.LobbyInfo;
 import game.PlayerInfo;
@@ -7,12 +7,8 @@ import game.action.AimAction;
 import game.audio.event.AudioEvent;
 import game.audio.event.AudioStopEvent;
 import game.exception.ProtocolException;
-import game.net.Protocol;
-import game.net.Tuple;
-import game.net.WorldStart;
 import game.world.entity.Entity;
 import game.world.entity.HumanPlayer;
-import game.world.entity.Player;
 import game.world.entity.update.EntityUpdate;
 import game.world.entity.update.HealthUpdate;
 import game.world.map.Map;
@@ -62,7 +58,7 @@ public class ProtocolTest {
 	
 	@Test
 	public void sendAddEntity() throws ProtocolException {
-		HumanPlayer e1 = new HumanPlayer(1, new Vector2f(2.0f, 3.0f), "test", null);
+		HumanPlayer e1 = new HumanPlayer(1, new Vector2f(2.0f, 3.0f), "", null);
 		String msg = Protocol.sendAddEntity(e1);
 		assertTrue(Protocol.isAddEntity(msg));
 		Entity e2 = Protocol.parseAddEntity(msg);
