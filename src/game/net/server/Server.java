@@ -50,12 +50,7 @@ public class Server implements Runnable
 			return;
 		}
 		
-		createLobby("test lobby t100", 1, 4);
-		createLobby("test lobby t101", 1, 4);
-		createLobby("test lobby t102", 1, 4);
-		createLobby("test lobby t103", 1, 4);
-		createLobby("test lobby t104", 1, 4);
-		createLobby("test lobby t105", 1, 4);
+		createLobby("test lobby", 1, 4);
 	}
 
 	private void outUDP(String msg)
