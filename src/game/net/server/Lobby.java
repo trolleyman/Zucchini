@@ -11,9 +11,6 @@ import game.net.Protocol;
 import game.world.EntityBank;
 import game.world.ServerWorld;
 import game.world.Team;
-import game.world.entity.Player;
-import game.world.entity.monster.Zombie;
-import game.world.entity.weapon.MachineGun;
 import game.world.map.Map;
 import org.joml.Vector2f;
 
@@ -99,7 +96,7 @@ public class Lobby {
 						long now = System.nanoTime();
 						long dtNanos = now - prevTime;
 						prevTime = now;
-						double dt = dtNanos / (double)Util.NANOS_PER_SECOND;
+						double dt = dtNanos / (double) Util.NANOS_PER_SECOND;
 						countdownTime -= dt;
 					}
 				} else {
@@ -168,7 +165,7 @@ public class Lobby {
 					Vector2f position = map.getSpawnLocation(team);
 					
 					// Add AI to world
-					world.addAI(new AIPlayer(team, new Vector2f(position), name,Difficulty.HARD) );
+					world.addAI(new AIPlayer(team, new Vector2f(position), name, Difficulty.HARD));
 				}
 			}
 		}
@@ -178,7 +175,7 @@ public class Lobby {
 			long now = System.nanoTime();
 			long dtNanos = now - prevTime;
 			prevTime = now;
-			double dt = (double)dtNanos / Util.NANOS_PER_SECOND;
+			double dt = (double) dtNanos / Util.NANOS_PER_SECOND;
 			
 			world.update(dt);
 			
