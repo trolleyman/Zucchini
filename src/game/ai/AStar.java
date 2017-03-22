@@ -143,9 +143,11 @@ public class AStar {
 		long endTime = System.nanoTime();
 		long dt = endTime - startTime;
 		long time = dt / (Util.NANOS_PER_SECOND / 1000);
-		if (time > 50) {
-			String s = route.size() == 0 ? "no path found" : "path found (" + route.size() + " nodes)";
-			System.err.println("[Game]: [AStar]: Warning: AStar duration: " + time + "ms (" + s + ")");
+		if (time > 10) {
+			System.err.println("[Game]: [AStar]: Warning: AStar duration: " + time + "ms - " +
+					(route.size() == 0 ? "no path found" : "path found (" + route.size() + " node(s))") + " - " +
+					"Open set: " + openSet.size() + " node(s) - " +
+					"Closed set: " + (closeSet.size() - closeSetDefault.size()));
 		}
 		return route;
 	}
@@ -167,7 +169,7 @@ public class AStar {
 	}
 	
 	private float heuristic(Node goal, int x, int y) {
-		float dx = Math.abs(x - goal.getY());
+		float dx = Math.abs(x - goal.getX());
 		float dy = Math.abs(y - goal.getY());
 		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
 	}
