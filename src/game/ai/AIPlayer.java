@@ -1,18 +1,11 @@
 package game.ai;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Optional;
-
-import game.action.AimAction;
+import game.ai.state.WanderState;
 import game.render.Align;
 import game.world.Team;
 import game.world.entity.*;
-import game.world.entity.update.AngleUpdate;
 import org.joml.Vector2f;
 
-import game.ColorUtil;
 import game.Util;
 import game.render.IRenderer;
 import game.world.PhysicsUtil;
@@ -24,8 +17,8 @@ import game.world.map.Map;
  * @author George and Yean
  */
 public class AIPlayer extends Player {
-	protected boolean debug = false;    //debug messages for when ai changes states
-	protected boolean debug2 = false;  // debug messages for ai during the states
+	public boolean debug = false;    //debug messages for when ai changes states
+	public boolean debug2 = false;  // debug messages for ai during the states
 	private transient double time;
 	public transient IStateMachine<AIPlayer, State<AIPlayer>> stateMachine;
 	private Difficulty difficulty;
@@ -56,7 +49,7 @@ public class AIPlayer extends Player {
 	}
 	
 	private void setup(Difficulty difficulty) {
-		stateMachine = new StateMachine<>(this, new Wander());
+		stateMachine = new StateMachine<>(this, new WanderState());
 		this.difficulty = difficulty;
 	}
 	
