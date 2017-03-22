@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestUtil {
-	public static void assertThrows(Class<? extends Throwable> clazz, java.lang.Runnable f) {
+	public static void assertThrows(Class<? extends Throwable> clazz, RunnableThrowable f) {
 		try {
 			f.run();
 		} catch (Throwable t) {
@@ -14,5 +14,9 @@ public class TestUtil {
 			return;
 		}
 		assertTrue(false);
+	}
+	
+	public interface RunnableThrowable {
+		void run() throws Throwable;
 	}
 }

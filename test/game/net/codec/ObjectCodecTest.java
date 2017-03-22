@@ -82,8 +82,8 @@ public class ObjectCodecTest {
 		// No 'data' field
 		assertThrows(ProtocolException.class, () -> ObjectCodec.entityFromString("{\"type\":\"game.world.entity.Player\",\"dat\":2}"));
 		// Invalid 'data' field
-		Entity e = ObjectCodec.entityFromString("{\"type\":\"game.world.entity.Player\",data:{}}");
-		assertTrue(e instanceof Player);
+		Entity e = ObjectCodec.entityFromString("{\"type\":\"game.world.entity.HumanPlayer\",data:{}}");
+		assertTrue(e instanceof HumanPlayer);
 		// This should not work as it is instantiating the abstract class
 		assertThrows(ProtocolException.class, () -> ObjectCodec.entityFromString("{\"type\":\"game.world.entity.Entity\",data:{}}"));
 		// This should not work as it is instantiating an abstract class, and this should never happen
