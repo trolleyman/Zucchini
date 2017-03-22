@@ -111,7 +111,7 @@ public class PathFindingMap {
 	}
 	
 	/**
-	 * Gets the closest node to the specified position. The position given is in world (unscaled) coordinated.
+	 * Gets the closest node to the specified position. The position given is in world (unscaled) coordinates.
 	 * @param v The position
 	 */
 	public Node getClosestNodeTo(Vector2f v) {
@@ -119,7 +119,7 @@ public class PathFindingMap {
 	}
 	
 	/**
-	 * Gets the closest node to the specified position. The position given is in world (unscaled) coordinated.
+	 * Gets the closest node to the specified position. The position given is in world (unscaled) coordinates.
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
 	 */
