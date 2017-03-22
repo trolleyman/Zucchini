@@ -18,7 +18,7 @@ public class FinalMap extends Map {
 	ArrayList<Vector2f> zombieSpawns = new ArrayList<>();
 	
 	public FinalMap() {
-		super(new ArrayList<>(), 6.0f, 4);
+		super(new ArrayList<>(), 7.0f, 4);
 		// Outer Walls
 		wall2D(0, 0, 30, 30);
 		// Horizontal Walls

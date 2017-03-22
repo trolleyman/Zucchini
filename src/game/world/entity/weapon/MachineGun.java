@@ -108,7 +108,11 @@ public class MachineGun extends Weapon {
 	public String toString() {
 		return "Machine Gun";
 	}
-
+	@Override
+	public boolean isUseless() {
+		
+		return this.ammo < 5;
+	}
 	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub

@@ -30,7 +30,7 @@ public abstract class Weapon extends Item {
 	private transient boolean fire = false;
 	
 	/** The number of ammunition left */
-	private int ammo;
+	protected int ammo;
 	
 	@SerializedName("semi")
 	private boolean semiAuto;

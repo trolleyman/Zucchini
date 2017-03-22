@@ -86,7 +86,11 @@ public class SilencedPistol extends Weapon {
 	public String toString() {
 		return "Silenced Pistol";
 	}
-
+	@Override
+	public boolean isUseless() {
+		
+		return this.ammo < 2;
+	}
 	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub

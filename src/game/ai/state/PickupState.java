@@ -17,25 +17,27 @@ public class PickupState implements State<AIPlayer> {
 	
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
-		//TODO:go towards pickup and take it
+		//finds closest weapon which is worth picking up
 		Entity closestWeapon = aiPlayer.getClosestValublePickup(ua);
-		
+		//if closest weapon exists -> go to pick up
 		if (closestWeapon != null) {
 			aiPlayer.setDestination(ua.map.getPathFindingMap(), closestWeapon.position);
-			if (aiPlayer.position.distanceSquared(closestWeapon.position) < 0.2f) {
+			//if close to weapon -> pick up and start wandering
+			if (aiPlayer.position.distanceSquared(closestWeapon.position) < 0.4f) {
 				aiPlayer.handleAction(ua, new Action(ActionType.PICKUP));
 				aiPlayer.getStateMachine().changeState(new WanderState());
 			}
 		} else {
+			//if weapon is not around -> wander
 			aiPlayer.getStateMachine().changeState(new WanderState());
-			
 		}
 		
-		if (aiPlayer.getClosestSeenEntity(ua) != null) {
-			if (aiPlayer.debug2) System.out.println("Moving Toward pickup, but encounters enemy!");
-			aiPlayer.getStateMachine().changeState(new ShootEnemyState());
-			return;
-		}
+		//if Enemy is near and weapon useful -> DIE DIE DIE
+//		if (aiPlayer.getClosestSeenEntity(ua) != null && !aiPlayer.getHeldItem().isUseless()) {
+//			if (aiPlayer.debug2) System.out.println("Moving Toward pickup, but encounters enemy!");
+//			aiPlayer.getStateMachine().changeState(new ShootEnemyState());
+//			return;
+//		}
 	}
 	
 	@Override

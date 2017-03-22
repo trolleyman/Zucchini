@@ -23,13 +23,25 @@ public class ShootEnemyState implements State<AIPlayer> {
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		Entity kill = aiPlayer.getClosestSeenEntity(ua);
+	
+		//if close pickup is worth picking up -> pickup
+		if (aiPlayer.getClosestValublePickup(ua) != null) {
+			aiPlayer.getStateMachine().changeState(new PickupState());
+		}
+		//if weapon is useless -> wander to find a weapon!
+		if (aiPlayer.getHeldItem().isUseless()){
+			aiPlayer.getStateMachine().changeState(new WanderState());	
+		}
+		//if health is getting low and item is not melee -> evade
 		if (aiPlayer.getHealth() / aiPlayer.getMaxHealth() < 0.95f && aiPlayer.getHeldItem().aiValue() > 1) {
 			aiPlayer.getStateMachine().changeState(new EvadeState());
 		}
+		//if no enemies in sight -> go towards center
 		if (kill == null) {
 			aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 			aiPlayer.getStateMachine().changeState(new MoveTowardsCentreState());
 		} else {
+			//if enemies in sight -> DIE DIE DIE
 			float desiredAngle = aiPlayer.getFiringAngle(kill.position.x, kill.position.y);
 			float newAngle = aiPlayer.getNewAngle(desiredAngle, ua.dt);
 			aiPlayer.handleAction(ua, new AimAction(newAngle));
@@ -44,6 +56,7 @@ public class ShootEnemyState implements State<AIPlayer> {
 			}
 			aiPlayer.setDestination(ua.map.getPathFindingMap(), kill.position);
 		}
+		
 	}
 	
 	@Override

@@ -80,7 +80,11 @@ public class RocketLauncher extends Weapon {
 	public String toString() {
 		return "Rocket Launcher";
 	}
-
+	@Override
+	public boolean isUseless() {
+		
+		return this.ammo < 1;
+	}
 	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub

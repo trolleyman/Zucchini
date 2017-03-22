@@ -150,4 +150,10 @@ public class LaserGun extends Weapon {
 		// TODO Auto-generated method stub
 		return 4;
 	}
+
+	@Override
+	public boolean isUseless() {
+		
+		return this.ammo < 5;
+	}
 }

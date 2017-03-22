@@ -17,22 +17,29 @@ public class MoveTowardsCentreState implements State<AIPlayer> {
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
-		if (aiPlayer.getClosestValublePickup(ua) != null) {
-			
-			aiPlayer.getStateMachine().changeState(new PickupState());
-		}
-		aiPlayer.setDestination(pfmap, new Vector2f(15, 15));
-		
-		float angle = (float) Util.getAngle(aiPlayer.velocity.x, aiPlayer.velocity.y);
-		aiPlayer.handleAction(ua, new AimAction(angle));
-		
-		if (aiPlayer.getClosestSeenEntity(ua) != null) {
+
+	
+		//if enemy nearby and weapon is not useless -> die die die
+		if (aiPlayer.getClosestSeenEntity(ua) != null && !aiPlayer.getHeldItem().isUseless()) {
 			if (aiPlayer.debug2) System.out.println("While wandering, we see an enemy!");
 			
 			aiPlayer.getStateMachine().changeState(new ShootEnemyState());
 			return;
 		}
-		// TODO: make the ai move towards the middle
+		//if item is useless -> wander to find pickup
+		if (aiPlayer.getHeldItem().isUseless()){
+			aiPlayer.getStateMachine().changeState(new WanderState());
+		}
+		//if close pickup is worth picking up -> pickup
+		if (aiPlayer.getClosestValublePickup(ua) != null) {
+			aiPlayer.getStateMachine().changeState(new PickupState());
+		}
+		//move to centre
+		aiPlayer.setDestination(pfmap, new Vector2f(15, 15));
+		
+		float angle = (float) Util.getAngle(aiPlayer.velocity.x, aiPlayer.velocity.y);
+		aiPlayer.handleAction(ua, new AimAction(angle));
+		
 		
 	}
 	

@@ -45,6 +45,8 @@ public abstract class Item extends Entity {
 	
 	public abstract float aiValue();
 	
+	public abstract boolean isUseless();
+	
 	/** Called to render information about the item to the screen */
 	public abstract void renderUI(IRenderer r);
 	

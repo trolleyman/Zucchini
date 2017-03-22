@@ -31,13 +31,17 @@ public class EvadeState implements State<AIPlayer> {
 	
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
+		
+		
+		//if close pickup is worth picking up -> pickup
+		if (aiPlayer.getClosestValublePickup(ua) != null) {
+				aiPlayer.getStateMachine().changeState(new PickupState());
+		}	
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
 		Entity kill = aiPlayer.getClosestSeenEntity(ua);
-		
-		if (kill == null) {
-			aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
-			aiPlayer.getStateMachine().changeState(new MoveTowardsCentreState());
-		} else {
+		//if enemy  exist  and weapon not useless -> die die die
+		if (kill != null && !aiPlayer.getHeldItem().isUseless()) {
+			//if enemy does exist
 			float desiredAngle = aiPlayer.getFiringAngle(kill.position.x, kill.position.y);
 			float newAngle = aiPlayer.getNewAngle(desiredAngle, ua.dt);
 			aiPlayer.handleAction(ua, new AimAction(newAngle));
@@ -50,10 +54,20 @@ public class EvadeState implements State<AIPlayer> {
 				aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 				hasBegunUse = false;
 			}
+		} else{		
+			//no enemy -> move towards center
+			aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
+			//if weapon is useful -> move towards the fight
+			if (!aiPlayer.getHeldItem().isUseless()){
+				aiPlayer.getStateMachine().changeState(new MoveTowardsCentreState());
+			}else{
+				//go get a weapon
+				aiPlayer.getStateMachine().changeState(new WanderState());
+			}
 		}
 		
-		//TODO:try to dodge incoming bullets
-		
+
+		//if finished kiting to a location -> go to a new location
 		if (!kiting) {
 			if (aiPlayer.debug) System.out.println("While wandering!!!!!!!!!!!!");
 			
@@ -80,14 +94,17 @@ public class EvadeState implements State<AIPlayer> {
 			kiting = true;
 			
 		} else {
+			//kite to this location
 			aiPlayer.setDestination(pfmap, new Vector2f(kitingX, kitingY));
 		}
 		Node similarWander = pfmap.getClosestNodeTo(aiPlayer.position.x, aiPlayer.position.y);
 		//if(aiPlayer.debug) System.out.println(Math.round(similarWander.getX() / pfmap.scale) + ", " + kitingX);
 		//if(aiPlayer.debug) System.out.println(Math.round(similarWander.getY() / pfmap.scale) + ", " + kitingY);
+		//if at location of kiting
 		if (Math.round(similarWander.getX() / pfmap.scale) == Math.round(kitingX) && Math.round(similarWander.getY() / pfmap.scale) == Math.round(kitingY)) {
 			kiting = false;
 		}
+	
 	}
 	
 	@Override

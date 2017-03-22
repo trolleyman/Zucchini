@@ -139,4 +139,10 @@ public class Knife extends Weapon {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public boolean isUseless() {
+		
+		return true;
+	}
 }
