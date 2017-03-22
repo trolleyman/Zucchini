@@ -44,7 +44,7 @@ public class AStar {
 		previousNodeMap = new HashMap<>();
 		totalCostMap = new float[width][height]; // f score
 		
-		openSet = new PriorityQueue<>((l, r) -> Float.compare(heuristicMap[l.getX()][l.getY()], heuristicMap[r.getX()][r.getY()]));
+		openSet = new PriorityQueue<>((l, r) -> Float.compare(totalCostMap[l.getX()][l.getY()], totalCostMap[r.getX()][r.getY()]));
 		closeSet = new HashSet<>();
 		closeSetDefault = new HashSet<>();
 		
@@ -115,7 +115,7 @@ public class AStar {
 							continue;
 						}
 						
-						float tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + 1;
+						float tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + adj;
 						// Calculate heuristic
 						heuristicMap[x][y] = heuristic(goal, x, y);
 						
@@ -151,7 +151,7 @@ public class AStar {
 		}
 		return route;
 	}
-	
+
 	/*
 	 * adds the path to an array list
 	 * @param currentNode adds the current node to the path
