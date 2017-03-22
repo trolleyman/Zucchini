@@ -37,4 +37,15 @@ public class PlayerScoreboardInfo {
 		b.append(" : time=").append(String.format("%.2f", survivalTime));
 		return b.toString();
 	}
+	
+	@Override
+	public PlayerScoreboardInfo clone() {
+		PlayerScoreboardInfo s = new PlayerScoreboardInfo(name);
+		s.dead = dead;
+		s.survivalTime = survivalTime;
+		s.playerKills = playerKills;
+		s.monsterKills = monsterKills;
+		s.lastDamage = lastDamage;
+		return s;
+	}
 }

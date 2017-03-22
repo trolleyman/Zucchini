@@ -182,4 +182,13 @@ public class Scoreboard {
 	public String toString() {
 		return "[" + String.join(", ", getPlayers().stream().map(Object::toString).collect(Collectors.toList())) + "]";
 	}
+	
+	@Override
+	public Scoreboard clone() {
+		Scoreboard s = new Scoreboard();
+		for (PlayerScoreboardInfo p : players) {
+			s.players.add(p.clone());
+		}
+		return s;
+	}
 }

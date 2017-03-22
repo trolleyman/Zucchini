@@ -13,7 +13,8 @@ public class ScoreboardWorldUpdate extends WorldUpdate {
 	
 	@Override
 	public void updateWorld(World w) {
+		Scoreboard clone = scoreboard.clone();
 		w.setScoreboard(scoreboard);
-		System.out.println("Scoreboard Update: " + scoreboard);
+		System.out.println("Scoreboard Update: " + clone);
 	}
 }
