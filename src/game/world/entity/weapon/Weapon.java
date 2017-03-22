@@ -15,7 +15,6 @@ import org.joml.Vector2f;
 
 /**
  * A weapon is something that the player can hold, and fire.
- * 
  * @author Callum
  */
 public abstract class Weapon extends Item {
@@ -79,9 +78,9 @@ public abstract class Weapon extends Item {
 	
 	/**
 	 * Constructs a weapon. The deviation is set to 0.
-	 * @param position Position of the weapon in the world
-	 * @param _cooldown The minimum time in seconds between each shot
-	 * @param _shotsPerMag The number of shots in a clip
+	 * @param position       Position of the weapon in the world
+	 * @param _cooldown      The minimum time in seconds between each shot
+	 * @param _shotsPerMag   The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
 	 */
 	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shotsPerMag, float _reloadingTime) {
@@ -90,13 +89,13 @@ public abstract class Weapon extends Item {
 	
 	/**
 	 * Constructs a weapon. The deviation is constant.
-	 * @param position Position of the weapon in the world
-	 * @param _ammo The current ammunition held
-	 * @param _semiAuto If the weapon is semi-auto or not
-	 * @param _cooldown The minimum time in seconds between each shot
-	 * @param _shotsPerMag The number of shots in a clip
+	 * @param position       Position of the weapon in the world
+	 * @param _ammo          The current ammunition held
+	 * @param _semiAuto      If the weapon is semi-auto or not
+	 * @param _cooldown      The minimum time in seconds between each shot
+	 * @param _shotsPerMag   The number of shots in a clip
 	 * @param _reloadingTime The time it takes to reload the weapon
-	 * @param deviation The deviation.
+	 * @param deviation      The deviation.
 	 */
 	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shotsPerMag, float _reloadingTime, float deviation) {
 		this(position, _ammo, _semiAuto, _cooldown, _shotsPerMag, _reloadingTime, deviation, deviation, 0.0f, 0.0f);
@@ -104,15 +103,15 @@ public abstract class Weapon extends Item {
 	
 	/**
 	 * Constructs a weapon.
-	 * @param position Position of the weapon in the world
-	 * @param _ammo The current ammunition held
-	 * @param _semiAuto If the weapon is semi-auto or not
-	 * @param _cooldown The minimum time in seconds between each shot
-	 * @param _shotsPerMag The number of shots in a clip
-	 * @param _reloadingTime The time it takes to reload the weapon
-	 * @param _deviationMin The starting deviation, in radians
-	 * @param _deviationMax The maximum deviation, in radians
-	 * @param _deviationInc How much the deviation is incremented by each shot, in radians
+	 * @param position        Position of the weapon in the world
+	 * @param _ammo           The current ammunition held
+	 * @param _semiAuto       If the weapon is semi-auto or not
+	 * @param _cooldown       The minimum time in seconds between each shot
+	 * @param _shotsPerMag    The number of shots in a clip
+	 * @param _reloadingTime  The time it takes to reload the weapon
+	 * @param _deviationMin   The starting deviation, in radians
+	 * @param _deviationMax   The maximum deviation, in radians
+	 * @param _deviationInc   How much the deviation is incremented by each shot, in radians
 	 * @param _deviationDecay How much the deviation decays by per second, in radians
 	 */
 	public Weapon(Vector2f position, int _ammo, boolean _semiAuto, float _cooldown, int _shotsPerMag, float _reloadingTime, float _deviationMin, float _deviationMax, float _deviationInc, float _deviationDecay) {
@@ -150,7 +149,7 @@ public abstract class Weapon extends Item {
 			updated = true;
 			// Fire!!!
 			//System.out.println("BANG: Deviation: " + deviation);
-			float fangle = angle + ((float)Math.random() * 2 - 1.0f) * deviation;
+			float fangle = angle + ((float) Math.random() * 2 - 1.0f) * deviation;
 			fangle = Util.normalizeAngle(fangle);
 			this.fire(ua, fangle);
 			// Increment deviation
@@ -175,10 +174,10 @@ public abstract class Weapon extends Item {
 			this.fire = false;
 		
 		// Update deviation
-		this.deviation = Math.max(deviationMin, Math.min(deviationMax, deviation - (float)ua.dt * deviationDecay));
+		this.deviation = Math.max(deviationMin, Math.min(deviationMax, deviation - (float) ua.dt * deviationDecay));
 		
 		// Update cooldown
-		this.currentCooldown = Math.max(0.0f, currentCooldown - (float)ua.dt);
+		this.currentCooldown = Math.max(0.0f, currentCooldown - (float) ua.dt);
 		if (this.currentCooldown <= 0.0f && this.reloading) {
 			this.endReload(ua);
 			this.reloading = false;
@@ -190,29 +189,29 @@ public abstract class Weapon extends Item {
 	}
 	
 	public void doReload(EntityBank bank) {
+		if (this.ammo == -1 && this.shotsPerMag == 1)
+			return;
+		
 		// Update cooldown and marker variable
-		this.currentCooldown = this.reloadingTime;
-		if (this.ammo != 0){
+		if (this.ammo != 0) {
+			this.currentCooldown = this.reloadingTime;
 			this.reloading = true;
-		}
-		
-		// Empty current mag into ammo pool if not empty
-		if (this.currentShots != 0) {
-			this.ammo += this.currentShots;
-		}
-		
-		// Update current mag shots
-		if (this.ammo != -1) {
-			if (this.ammo < this.shotsPerMag)
+			
+			// Empty current mag into ammo pool if not empty
+			if (this.ammo != -1 && this.currentShots != 0) {
+				this.ammo += this.currentShots;
+			}
+			
+			// Update current mag shots
+			if (this.ammo != -1 && this.ammo < this.shotsPerMag)
 				this.currentShots = this.ammo;
 			else
 				this.currentShots = this.shotsPerMag;
+			
+			// Update ammo
+			if (this.ammo != -1)
+				this.ammo = Math.max(0, this.ammo - this.shotsPerMag);
 		}
-		
-		// Update ammo
-		if (this.ammo != -1)
-			this.ammo = Math.max(0, this.ammo - this.shotsPerMag);
-		
 		bank.updateEntityCached(new HeldItemUpdate(this.owner.entityId, this.clone()));
 	}
 	
@@ -232,7 +231,7 @@ public abstract class Weapon extends Item {
 		} else {
 			int a;
 			if (!this.reloading) a = this.ammo;
-			else a = this.ammo + this.currentShots - (int)Math.ceil((1 - (this.currentCooldown / this.reloadingTime)) * this.currentShots);
+			else a = this.ammo + this.currentShots - (int) Math.ceil((1 - (this.currentCooldown / this.reloadingTime)) * this.currentShots);
 			
 			Font f = r.getFontBank().getFont("emulogic.ttf");
 			String s = "" + a;

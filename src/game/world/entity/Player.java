@@ -50,7 +50,7 @@ public abstract class Player extends AutonomousEntity {
 	private boolean torchOn = true;
 	
 	public static Item getDefaultHeldItem() {
-		return new MachineGun(new Vector2f(0.0f, 0.0f), -1);
+		return new Knife(new Vector2f(0.0f, 0.0f));
 	}
 	
 	/** The name of the player */

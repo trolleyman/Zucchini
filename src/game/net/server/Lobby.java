@@ -88,6 +88,7 @@ public class Lobby {
 		long prevTime = System.nanoTime();
 		while (running) {
 			synchronized (clientsLock) {
+				isClosed = false;
 				if (this.countingDown) {
 					// Check that all clients are still ready
 					if (!shouldCountdown()) {
