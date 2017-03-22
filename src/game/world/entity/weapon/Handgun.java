@@ -32,7 +32,7 @@ public class Handgun extends Weapon {
 		
 		// Add bullets to entity bank
 		// TODO: ua.bank.addEntityCached(new GunshotEffect(new Vector2f(bulletPos)));
-		ua.bank.addEntityCached(new HandgunBullet(bulletPos, this.ownerId, this.ownerTeam, fangle));
+		ua.bank.addEntityCached(new HandgunBullet(bulletPos, owner, fangle));
 	}
 	
 	@Override

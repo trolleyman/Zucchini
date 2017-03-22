@@ -6,6 +6,7 @@ import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageSource;
 import game.world.entity.damage.DamageType;
 import game.world.entity.light.PointLight;
 import game.world.entity.update.DamageUpdate;
@@ -24,22 +25,19 @@ public class Explosion extends Entity {
 	/** The radius of the explosion */
 	private transient float radius;
 	
-	/** The player that caused this explosion */
-	private int fromId;
-	/** The team that caused this explostion */
-	private int fromTeam;
+	/** The entity that caused this explosion */
+	private DamageSource source;
 	
 	private PointLight light;
 	
 	private float startAttenuationFactor;
 	private float endAttenuationFactor;
 	
-	public Explosion(Vector2f pos, int fromId, int fromTeam, float _damage, float _radius) {
+	public Explosion(Vector2f pos, DamageSource source, float _maxDamage, float _radius) {
 		super(Team.PASSIVE_TEAM, pos);
-		this.maxDamage = _damage;
+		this.maxDamage = _maxDamage;
 		this.radius = _radius;
-		this.fromId = fromId;
-		this.fromTeam = fromTeam;
+		this.source = source;
 		
 		constructLight();
 	}
@@ -48,8 +46,7 @@ public class Explosion extends Entity {
 		super(e);
 		this.maxDamage = e.maxDamage;
 		this.radius = e.radius;
-		this.fromId = e.fromId;
-		this.fromTeam = e.fromTeam;
+		this.source = e.source.clone();
 		
 		this.light = e.light;
 	}
@@ -62,7 +59,7 @@ public class Explosion extends Entity {
 	
 	@Override
 	public void clientUpdate(UpdateArgs ua) {
-		super.clientUpdate(ua);
+		this.addHealth(-(float)ua.dt);
 	}
 	
 	@Override
@@ -74,13 +71,12 @@ public class Explosion extends Entity {
 				if (e.getTeam() != Team.PASSIVE_TEAM) {
 					float d2 = e.position.distanceSquared(this.position);
 					float fdamage = maxDamage / Math.min(maxDamage, d2);
-					Damage damage = new Damage(fromId, fromTeam, DamageType.EXPLOSION_DAMAGE, fdamage);
+					Damage damage = new Damage(source, DamageType.EXPLOSION_DAMAGE, fdamage);
 					ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
 				}
 			}
 		}
-		Damage damage = new Damage(Entity.INVALID_ID, Team.INVALID_TEAM, DamageType.UNKNOWN_DAMAGE, (float)ua.dt);
-		ua.bank.updateEntityCached(new DamageUpdate(this.getId(), damage));
+		this.addHealth(-(float)ua.dt);
 	}
 	
 	private void setLightParams() {

@@ -1,5 +1,6 @@
 package game.world.entity.weapon;
 
+import game.world.entity.damage.DamageSource;
 import org.joml.Vector2f;
 
 public class PumpActionShotgunBullet extends Bullet {
@@ -9,8 +10,8 @@ public class PumpActionShotgunBullet extends Bullet {
 		super(b);
 	}
 	
-	public PumpActionShotgunBullet(Vector2f position, int ownerId, int teamId, float angle) {
-		super(position, ownerId, teamId, angle, SPEED, 10.0, 2.0f);
+	public PumpActionShotgunBullet(Vector2f position, DamageSource source, float angle) {
+		super(position, source, angle, SPEED, 10.0, 2.0f);
 	}
 	
 	@Override

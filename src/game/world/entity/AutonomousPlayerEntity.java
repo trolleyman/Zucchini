@@ -122,8 +122,7 @@ public abstract class AutonomousPlayerEntity extends MovableEntity {
 		this.torch.angle = this.angle;
 		
 		if (this.heldItem != null) {
-			this.heldItem.setOwner(this.getId());
-			this.heldItem.setOwnerTeam(this.getTeam());
+			this.heldItem.setOwner(this);
 			this.heldItem.angle = this.angle;
 			
 			// Calculate position
@@ -147,8 +146,7 @@ public abstract class AutonomousPlayerEntity extends MovableEntity {
 	}
 	private void pickupItem(EntityBank bank, Item item) {
 		this.dropHeldItem(bank, this.position);
-		item.setOwner(this.getId());
-		item.setOwnerTeam(this.getTeam());
+		item.setOwner(this);
 		bank.updateEntityCached(new HeldItemUpdate(this.getId(), item));
 		this.heldItem = item;
 	}

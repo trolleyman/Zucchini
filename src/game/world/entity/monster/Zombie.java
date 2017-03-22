@@ -1,6 +1,5 @@
 package game.world.entity.monster;
 
-import game.ColorUtil;
 import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
@@ -9,30 +8,32 @@ import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.AutonomousEntity;
 import game.world.entity.Entity;
-import game.world.entity.Item;
 import game.world.entity.Player;
 import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageSource;
 import game.world.entity.damage.DamageType;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.DamageUpdate;
+import game.world.entity.update.PositionUpdate;
 import game.world.map.Map;
 import game.world.map.PathFindingMap;
-import game.world.entity.update.PositionUpdate;
+import org.joml.Vector2f;
 
 import java.util.ArrayList;
 import java.util.Random;
-import org.joml.Vector2f;
+
 public class Zombie extends AutonomousEntity {
+	private static final float LINE_OF_SIGHT_MAX = 10.0f;
 	private static final float MAX_SPEED = 1.0f;
 	private static final float RADIUS = 0.2f;
+	
 	private transient boolean soundSourceInit = false;
 	private transient int zombieSoundID;
-	private transient boolean enabled = false;
-	private transient float attackCooldown;
+	private transient float attackCooldown = 0.0f;
 	private double time = 0.0;
-	protected Item heldItem;
+	
 	public Zombie(Vector2f position) {
-		super(Team.MONSTER_TEAM, position, 1.0f, MAX_SPEED, true);
+		super(Team.MONSTER_TEAM, position, RADIUS, 1.0f, MAX_SPEED, true);
 	}
 	
 	public Zombie(Zombie z) {
@@ -41,69 +42,43 @@ public class Zombie extends AutonomousEntity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		time += ua.dt;
+		attackCooldown += ua.dt;
 		
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
-		if (attackCooldown > 0.5f){
+		if (attackCooldown > 0.5f) {
 			ArrayList<Entity> entities = ua.bank.getEntitiesNear(this.position.x, this.position.y, 0.5f);
-
-			for (Entity e : entities){
-				if (e.getTeam() >= Team.FIRST_PLAYER_TEAM && attackCooldown > 0.5f){
-					
-					Damage damage = new Damage(this.getId(), this.getTeam(), DamageType.KNIFE_DAMAGE, 1.0f);
-					ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));				
+			
+			for (Entity e : entities) {
+				if (e.getTeam() >= Team.FIRST_PLAYER_TEAM && attackCooldown > 0.5f) {
+					Damage damage = new Damage(new DamageSource(this), DamageType.ZOMBIE_DAMAGE, 1.0f);
+					ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
 					attackCooldown = 0;
 				}
 			}
 		}
 		
-		if (time >= 0.5f){
+		if (time >= 0.5f) {
+			Vector2f temp = Util.pushTemporaryVector2f();
+			Entity kill = ua.bank.getClosestEntity(position.x, position.y,
+					(e) -> Team.isHostileTeam(this.getTeam(), e.getTeam())
+							&& e.position.distance(position) <= LINE_OF_SIGHT_MAX
+							&& ua.map.intersectsLine(position.x, position.y, e.position.x, e.position.y, temp) == null);
+			Util.popTemporaryVector2f();
 			
-
-			Entity kill = ua.bank.getClosestHostileEntity(position.x, position.y, this.getTeam());
-			
-			
-			if (enabled){
-					
-				
-				if (kill != null){
-					this.setDestination(pfmap, kill.position);
-				}
-				
-			}else{
-				if (kill != null){
-					if  (this.position.distance(kill.position.x, kill.position.y) < 2f){
-						enabled = true;
-					}
-				}
+			if (kill != null) {
+				this.setDestination(pfmap, kill.position);
+				enabled = true;
 			}
-			time = 0;
+			time = 0.0;
 		}
-		time += ua.dt;
-		attackCooldown += ua.dt;
 		super.update(ua);
 		
 		ua.bank.updateEntityCached(new AngleUpdate(this.getId(), Util.getAngle(velocity.x, velocity.y)));
 		
-		// Update AI
-		
-		// Calculate intersection
-		// TODO: Not DRY enough - see Player#update(UpdateArgs)
-		Vector2f intersection = Util.pushTemporaryVector2f();
-		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
-			// Intersection with map - push out
-			Vector2f newPosition = new Vector2f();
-			newPosition.set(position)
-					.sub(intersection)
-					.normalize()
-					.mul(RADIUS + Util.EPSILON)
-					.add(intersection);
-			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
-			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
-		}
-		
 		if (!soundSourceInit) {
 			Random rng = new Random();
-			this.zombieSoundID = ua.audio.play("zombie"+(rng.nextInt(3)+1)+".wav", 1f, this.position);
+			this.zombieSoundID = ua.audio.play("zombie" + (rng.nextInt(3) + 1) + ".wav", 1f, this.position);
 			//this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.1f,this.position);
 			//System.out.println("found zombie footstep sound "+walkingSoundID+" for zombie "+this.getId());
 			ua.audio.pauseLoop(zombieSoundID);
@@ -112,9 +87,8 @@ public class Zombie extends AutonomousEntity {
 		}
 		
 		// Play zombie sounds
-		ua.audio.continueLoop(this.zombieSoundID,this.position);
+		ua.audio.continueLoop(this.zombieSoundID, this.position);
 		//ua.audio.continueLoop(this.walkingSoundID,this.position);
-		Util.popTemporaryVector2f();
 	}
 	
 	@Override
@@ -124,7 +98,7 @@ public class Zombie extends AutonomousEntity {
 		
 		//r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
-		r.drawTexture(r.getTextureBank().getTexture("zombie_v1.png"), Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
+		r.drawTexture(r.getTextureBank().getTexture("zombie_v1.png"), Align.MM, position.x, position.y, RADIUS * 2, RADIUS * 2, angle);
 	}
 	
 	@Override
@@ -146,10 +120,8 @@ public class Zombie extends AutonomousEntity {
 	public void death(UpdateArgs ua) {
 		super.death(ua);
 		Damage d = getLastDamage();
-		Entity e = ua.bank.getEntity(d.ownerId);
-		if (e != null && e instanceof Player) {
-			Player p = (Player) e;
-			ua.scoreboard.addMonsterKill(p.getName());
+		if (d.source.entityId != Entity.INVALID_ID && d.source.isPlayer) {
+			ua.scoreboard.addMonsterKill(d.source.readableName);
 		}
 	}
 	

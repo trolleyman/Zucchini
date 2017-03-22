@@ -7,6 +7,7 @@ import game.render.IRenderer;
 import game.world.EntityIntersection;
 import game.world.UpdateArgs;
 import game.world.entity.Explosion;
+import game.world.entity.damage.DamageSource;
 import game.world.entity.update.VelocityUpdate;
 import game.world.map.Map;
 import org.joml.Vector2f;
@@ -19,8 +20,8 @@ public class Rocket extends Projectile {
 	private static final float W = 0.05f;
 	private static final float H = 0.2f;
 	
-	public Rocket(Vector2f position, int ownerId, int ownerTeam, float angle) {
-		super(position, ownerId, ownerTeam, angle, INITIAL_SPEED, 12.0);
+	public Rocket(Vector2f position, DamageSource source, float angle) {
+		super(position, source, angle, INITIAL_SPEED, 12.0);
 	}
 	
 	public Rocket(Rocket r) {
@@ -67,7 +68,7 @@ public class Rocket extends Projectile {
 		ua.audio.play("explosion.wav", 1.0f, pos);
 		
 		Vector2f nvel = Util.pushTemporaryVector2f().set(vel).normalize().mul(0.05f);
-		ua.bank.addEntityCached(new Explosion(pos.sub(nvel), ownerId, ownerTeam, 30.0f, 3.0f));
+		ua.bank.addEntityCached(new Explosion(pos.sub(nvel), source, 30.0f, 3.0f));
 		Util.popTemporaryVector2f();
 	}
 	

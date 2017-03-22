@@ -35,7 +35,7 @@ public class MachineGun extends Weapon {
 		ua.audio.play("handgunshot.wav", 0.5f, new Vector2f(muzzlePos));
 		
 		// Add bullets to entity bank
-		ua.bank.addEntityCached(new MachineGunBullet(muzzlePos, this.ownerId, this.ownerTeam, fangle));
+		ua.bank.addEntityCached(new MachineGunBullet(muzzlePos, owner, fangle));
 	}
 	
 	@Override

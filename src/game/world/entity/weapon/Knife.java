@@ -99,19 +99,19 @@ public class Knife extends Weapon {
 	protected void fire(UpdateArgs ua, float angle) {
 		ArrayList<Entity> es = ua.bank.getEntitiesNear(getDamageCentreX(), getDamageCentreY(), KNIFE_RADIUS);
 		for (Entity e : es) {
-			if (!Team.isHostileTeam(this.ownerTeam, e.getTeam()))
+			if (!Team.isHostileTeam(owner.teamId, e.getTeam()))
 				continue;
 			
 			// Add damage
 			System.out.println("[Game]: Weapon: Knifed " + e.getReadableName());
-			Damage d = new Damage(ownerId, ownerTeam, DamageType.KNIFE_DAMAGE, 5.0f);
+			Damage d = new Damage(owner, DamageType.KNIFE_DAMAGE, 5.0f);
 			ua.bank.updateEntityCached(new DamageUpdate(e.getId(), d));
 		}
 		
 		ua.audio.play("slash.wav", 1f, this.position);
 		
 		this.stabbed = true;
-		ua.bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
+		ua.bank.updateEntityCached(new HeldItemUpdate(owner.entityId, this));
 	}
 	
 	@Override

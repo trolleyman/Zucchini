@@ -99,8 +99,7 @@ public abstract class Entity implements Cloneable {
 	public void death(UpdateArgs ua) {
 		//System.out.println("*URK*: Death of entity " + id + ". R.I.P.");
 		if (lastDamage != null) {
-			Entity from = ua.bank.getEntity(lastDamage.ownerId);
-			System.out.println("[Game]: " + lastDamage.type.getDescription(from, this));
+			System.out.println("[Game]: " + lastDamage.type.getDescription(lastDamage.source, this));
 		}
 	}
 	

@@ -19,8 +19,7 @@ public class Pickup extends Entity {
 		super(Team.PASSIVE_TEAM, position);
 		this.item = _item;
 		if (this.item != null) {
-			this.item.setOwner(Entity.INVALID_ID);
-			this.item.setOwnerTeam(Team.INVALID_TEAM);
+			this.item.setOwner(null);
 			this.item.endUse();
 		}
 	}

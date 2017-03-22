@@ -186,7 +186,7 @@ public abstract class Weapon extends Item {
 		}
 		
 		if (updated)
-			ua.bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
+			ua.bank.updateEntityCached(new HeldItemUpdate(this.owner.entityId, this.clone()));
 	}
 	
 	public void doReload(EntityBank bank) {
@@ -213,7 +213,7 @@ public abstract class Weapon extends Item {
 		if (this.ammo != -1)
 			this.ammo = Math.max(0, this.ammo - this.shotsPerMag);
 		
-		bank.updateEntityCached(new HeldItemUpdate(this.ownerId, this.clone()));
+		bank.updateEntityCached(new HeldItemUpdate(this.owner.entityId, this.clone()));
 	}
 	
 	public boolean isReloading() {

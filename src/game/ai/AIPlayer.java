@@ -62,8 +62,7 @@ public class AIPlayer extends Player {
 	
 	private void updateHeldItemInfo() {
 		if (this.heldItem != null) {
-			this.heldItem.setOwner(this.getId());
-			this.heldItem.setOwnerTeam(this.getTeam());
+			this.heldItem.setOwner(this);
 			this.heldItem.angle = this.angle;
 			
 			// Calculate position

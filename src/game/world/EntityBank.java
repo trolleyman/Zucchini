@@ -49,28 +49,6 @@ public class EntityBank {
 	}
 	
 	/**
-	 * Clone EntityBank
-	 * @param bank The bank
-	 */
-	public EntityBank(EntityBank bank) {
-		// Clone entities
-		this.entities = new HashMap<>();
-		for (Entity e : bank.entities.values()) {
-			this.addEntity(e.clone());
-		}
-		// Clone caches
-		for (Entity e : bank.addEntities) {
-			this.addEntityCached(e.clone());
-		}
-		for (EntityUpdate eu : bank.updateEntities) {
-			this.updateEntityCached(eu);
-		}
-		for (Integer id : bank.removeEntities) {
-			this.removeEntityCached(id);
-		}
-	}
-	
-	/**
 	 * Create an empty EntityBank
 	 */
 	public EntityBank() {
@@ -286,7 +264,7 @@ public class EntityBank {
 	 * Gets the closest hostile entity to x,y
 	 * @param x The x-coordinate
 	 * @param y The y-coordinate
-	 * @param team The team that the returned entity is hostile to
+	 * @param pred The predicate that the returned entity has to conform to
 	 * @return null if an entity could not be found
 	 */
 	public synchronized Entity getClosestEntity(float x, float y, Predicate<Entity> pred) {

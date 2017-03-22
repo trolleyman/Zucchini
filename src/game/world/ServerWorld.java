@@ -47,20 +47,6 @@ public class ServerWorld extends World implements Cloneable {
 	private float endTimeUpdate;
 	
 	/**
-	 * Clones a ServerWorld
-	 */
-	public ServerWorld(ServerWorld w) {
-		super(w.map, new EntityBank(w.bank));
-		
-		this.audio = w.audio;
-		
-		this.clients = w.clients;
-		
-		this.startTimeUpdate = w.startTimeUpdate;
-		this.endTimeUpdate = w.endTimeUpdate;
-	}
-	
-	/**
 	 * Constructs the world
 	 * @param map The map
 	 * @param bank The entity bank
@@ -280,10 +266,5 @@ public class ServerWorld extends World implements Cloneable {
 				}
 			}
 		}
-	}
-	
-	@Override
-	public ServerWorld clone() {
-		return new ServerWorld(this);
 	}
 }
