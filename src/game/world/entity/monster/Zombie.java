@@ -24,7 +24,6 @@ import java.util.Random;
 
 public class Zombie extends AutonomousEntity {
 	private static final float LINE_OF_SIGHT_MAX = 10.0f;
-	private static final float MAX_SPEED = 1.0f;
 	private static final float RADIUS = 0.2f;
 	
 	private transient boolean soundSourceInit = false;
@@ -33,9 +32,9 @@ public class Zombie extends AutonomousEntity {
 	private double time = 0.0;
 	
 	public Zombie(Vector2f position) {
-		super(Team.MONSTER_TEAM, position, RADIUS, 1.0f, MAX_SPEED, true);
+		super(Team.MONSTER_TEAM, position, RADIUS, 1.0f, (float) Math.random()+1.5f, true);
 	}
-	
+
 	public Zombie(Zombie z) {
 		super(z);
 	}
