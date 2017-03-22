@@ -18,6 +18,7 @@ import game.world.map.Map;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.function.Supplier;
 
 public class Lobby {
@@ -151,11 +152,21 @@ public class Lobby {
 			int minPlayers = map.getMinPlayers();
 			int numAI = minPlayers - nClients;
 			if (numAI > 0) {
+				HashSet<String> generatedNames = new HashSet<>();
 				for (int i = 0; i < numAI; i++) {
 					int team = Team.FIRST_PLAYER_TEAM + clients.size() + i;
+					// Generate names
+					String name;
+					do {
+						name = AIPlayer.generateRandomName();
+					} while (generatedNames.contains(name));
+					generatedNames.add(name);
+					name = "[CPU] " + name;
+					
+					// Get spawn location
 					Vector2f position = map.getSpawnLocation(team);
-					// TODO: Generate names
-					String name = "[BOT] " + (i + 1);
+					
+					// Add AI to world
 					world.addAI(new AIPlayer(team, new Vector2f(position), name,Difficulty.HARD) );
 				}
 			}

@@ -12,15 +12,49 @@ import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.map.Map;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 /**
  * Represents an AI player, uses a FSM to determine it's actions
  * @author George and Yean
  */
 public class AIPlayer extends Player {
+	private static final Random rng = new Random(System.currentTimeMillis() + System.nanoTime() + new Random().nextLong());
+	private static final String[] names = new String[] {
+			"WALL-E",
+			"HAL_9000",
+			"AUTO",
+			"GERTY",
+			"ODIN",
+			"Skynet",
+			"MEDUSA",
+			"UNIVAC",
+			"AM",
+			"Deep_Thgt",
+			"Colossus",
+			"WOPR",
+			"JARVIS",
+			"Mr_Smith",
+			"SHODAN",
+			"GLaDOS",
+			"John_Henry_Eden",
+			"Yes_Man",
+			"DCPU-16",
+			"TIS-100",
+	};
+	
+	public static String generateRandomName() {
+		// Get random name from list
+		int i = rng.nextInt(names.length);
+		return names[i];
+	}
+	
 	public boolean debug = false;    //debug messages for when ai changes states
 	public boolean debug2 = false;  // debug messages for ai during the states
 	private transient double time;
 	public transient IStateMachine<AIPlayer, State<AIPlayer>> stateMachine;
+	
 	private Difficulty difficulty;
 	
 	public AIPlayer(AIPlayer ai) {
@@ -72,7 +106,7 @@ public class AIPlayer extends Player {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		stateMachine.update(ua);		
+		stateMachine.update(ua);
 		
 		super.update(ua);
 	}
