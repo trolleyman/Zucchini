@@ -1,6 +1,7 @@
 package game.ui;
 
 import game.*;
+import game.audio.event.AudioEvent;
 import game.exception.ProtocolException;
 import game.net.Message;
 import game.net.WorldStart;
@@ -10,6 +11,8 @@ import game.ui.component.ButtonComponent;
 import game.ui.component.ImageComponent;
 import game.world.ClientWorld;
 import game.world.EntityBank;
+import game.world.entity.Entity;
+import game.world.entity.update.EntityUpdate;
 import org.joml.Vector4f;
 
 import java.util.*;
@@ -158,6 +161,16 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 					messageLog.add(new Message(name, msg));
 				}
 			}
+			
+			// === Ignore world updates - probably from old worlds ===
+			@Override
+			public void addEntity(Entity e) {}
+			
+			@Override
+			public void updateEntity(EntityUpdate update) {}
+			
+			@Override
+			public void processAudioEvent(AudioEvent ae) {}
 		});
 		
 		if (sendJoinRequest) {
