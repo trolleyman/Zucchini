@@ -115,7 +115,7 @@ public class AStar {
 							continue;
 						}
 						
-						float tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + adj;
+						float tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + 1;
 						// Calculate heuristic
 						heuristicMap[x][y] = heuristic(goal, x, y);
 						
