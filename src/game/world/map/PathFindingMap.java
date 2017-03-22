@@ -1,13 +1,15 @@
 package game.world.map;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import game.ai.AStar;
 import game.ai.Node;
 import org.joml.Vector2f;
 
-import game.world.map.Wall;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class PathFindingMap {
+	
+	private final AStar aStar;
 	
 	public float scale;
 	
@@ -21,9 +23,8 @@ public class PathFindingMap {
 	/*
 	 * https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm seems like a good solution
 	 */
-
-	public PathFindingMap(Map map, float _scale){
-		
+	
+	public PathFindingMap(Map map, float _scale) {
 		this.scale = _scale;
 		
 		ArrayList<Wall> walls = improvePrecision(scale, map.walls);
@@ -33,54 +34,52 @@ public class PathFindingMap {
 		width = widthAndHeight[0];
 		height = widthAndHeight[1];
 		
-		grid = new boolean[(int)width][(int)height];
+		grid = new boolean[(int) width][(int) height];
 		//lines act like float[0] = x1 float[1] = y1 float[2] = x2 float[3] = y2
 		
 		int x0, y0, x1, y1, diffX, diffY, sx, sy, err, err2;
 		// pointsList =  convertToPointList(lines);
-		for (int z = 0; z < walls.size(); z++){
-			
-			
-			
-			x0 = (int)walls.get(z).p0.x;
-			y0 = (int)walls.get(z).p0.y;
-			x1 = (int)walls.get(z).p1.x;
-			y1 = (int)walls.get(z).p1.y;
+		for (int z = 0; z < walls.size(); z++) {
+			x0 = (int) walls.get(z).p0.x;
+			y0 = (int) walls.get(z).p0.y;
+			x1 = (int) walls.get(z).p1.x;
+			y1 = (int) walls.get(z).p1.y;
 			
 			diffX = Math.abs(x1 - x0);
 			diffY = Math.abs(y1 - y0);
-			
 			
 			
 			sx = x0 < x1 ? 1 : -1;
 			sy = y0 < y1 ? 1 : -1;
 			
 			err = diffX - diffY;
-			while (true){
+			while (true) {
 				
 				grid[x0][y0] = true;
-				if (x0 == x1 && y0 == y1){
+				if (x0 == x1 && y0 == y1) {
 					break;
 				}
 				err2 = err * 2;
 				
-				if (err2 > -diffY){
+				if (err2 > -diffY) {
 					err = err - diffY;
 					x0 = x0 + sx;
 				}
 				
-				if (err2 < diffX){
+				if (err2 < diffX) {
 					err = err + diffX;
-					y0 = y0 +sy;
+					y0 = y0 + sy;
 				}
 			}
 		}
+		
+		aStar = new AStar(grid);
 	}
 	
-	private static ArrayList<Wall> improvePrecision (float multiplier, ArrayList<Wall> walls){
+	private static ArrayList<Wall> improvePrecision(float multiplier, ArrayList<Wall> walls) {
 		ArrayList<Wall> newWalls = new ArrayList<Wall>();
 		
-		for (Wall wall : walls){
+		for (Wall wall : walls) {
 			Wall newWall = new Wall(wall.p0.x * multiplier, wall.p0.y * multiplier,
 					wall.p1.x * multiplier, wall.p1.y * multiplier);
 			
@@ -90,16 +89,16 @@ public class PathFindingMap {
 		return newWalls;
 	}
 	
-	private static float[] findWidthHeight(ArrayList<Wall> walls){
+	private static float[] findWidthHeight(ArrayList<Wall> walls) {
 		float[] biggestValue = new float[2]; //0 = width 1 = height
-		for (Wall z : walls){
-			if (z.p0.x > biggestValue[0]){
+		for (Wall z : walls) {
+			if (z.p0.x > biggestValue[0]) {
 				biggestValue[0] = z.p0.x + 1;
 			}
-			if (z.p1.x > biggestValue[0]){
+			if (z.p1.x > biggestValue[0]) {
 				biggestValue[0] = z.p1.x + 1;
 			}
-			if (z.p0.y > biggestValue[1]){
+			if (z.p0.y > biggestValue[1]) {
 				biggestValue[1] = z.p0.y + 1;
 			}
 			if (z.p1.y > biggestValue[1]) {
@@ -169,19 +168,19 @@ public class PathFindingMap {
 			routeCache.put(start, startMap);
 		}
 		
-		ArrayList<Node> route = new AStar(start, end, this.grid).findRoute();
+		ArrayList<Node> route = aStar.findRoute(start, end);
 		startMap.put(end, route);
 		if (route.size() == 0)
 			return route;
 		return new ArrayList<>(route);
 	}
-
-	public boolean notAWall(float x, float y){
+	
+	public boolean notAWall(float x, float y) {
 		Node a = getClosestNodeTo(x, y);
 		
 		return !grid[a.getX()][a.getY()];
 		
 	}
-
+	
 	
 }

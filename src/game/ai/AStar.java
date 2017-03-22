@@ -1,108 +1,97 @@
 package game.ai;
 
+import game.Util;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-
-import game.Util;
-import game.world.map.PathFindingMap;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Comparator;
 
 
 /**
  * Simple A* route from (x,y) to (a,b)
- * 
+ * <p>
  * run by: AStar route = new Astar(new Node(startX, startY), new Node(goalx, goaly), map);
- * 		   route.findRoute();
+ * route.findRoute();
  * If preferred could be converted so that it can be executed in one commanded
  * @author George
  */
-
-
 public class AStar {
-	private float[][] heuristicMap;
-	private float[][] movementCostMap;
-	private float[][] totalCostMap;
+	private final float[][] heuristicMap;
+	private final float[][] movementCostMap;
+	private final float[][] totalCostMap;
 	private float D2 = 1;
 	private float D = 1;
 	
+	private final int width;
+	private final int height;
 	
-	private int width;
-	private int height;
-	private Node start;
-	private Node goal;
+	private final PriorityQueue<Node> openSet;
+	private final HashSet<Node> closeSet;
+	private final HashSet<Node> closeSetDefault;
 	
-
-	private PriorityQueue<Node> openSet;
-	private HashSet<Node> closeSet;
-
-	private HashMap<Node, Node> previousNodeMap;
+	private final HashMap<Node, Node> previousNodeMap;
 	
-	
-	private ArrayList<Node> finalPath;
-
-/*
- * Constructor of A*Star
- * @param start the start coordinates 
- * @param goal the goal coordinates
- * @param walkable the map
- */
-	public AStar(Node start, Node goal, boolean[][] walkable) {
-		this.start = start;
-		
-		this.goal = goal;
+	/**
+	 * Constructor of A*
+	 * @param walkable the map
+	 */
+	public AStar(boolean[][] walkable) {
 		width = walkable.length;
 		height = walkable[0].length;
 		heuristicMap = new float[width][height];
 		movementCostMap = new float[width][height]; // g score
-		previousNodeMap = new HashMap<Node, Node>();
+		previousNodeMap = new HashMap<>();
 		totalCostMap = new float[width][height]; // f score
 		
 		openSet = new PriorityQueue<>((l, r) -> Float.compare(heuristicMap[l.getX()][l.getY()], heuristicMap[r.getX()][r.getY()]));
 		closeSet = new HashSet<>();
-		// setting all default values
+		closeSetDefault = new HashSet<>();
+		
+		// creating obstacles in the map
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				
-				heuristicMap[x][y] = heuristic(x, y);
-
-				movementCostMap[x][y] = Integer.MAX_VALUE;
-
-				totalCostMap[x][y] = Integer.MAX_VALUE;
-			}
-		}
-
-		// creating obstacles in the map
-		for (int x = 0; x < width; x ++) {
-			for (int y = 0; y < height; y++) {
-				if (walkable[x][y]){
-					closeSet.add(new Node(x,y));
+				if (walkable[x][y]) {
+					closeSetDefault.add(new Node(x, y));
 				}
-		
 			}
 		}
-		
-		//this.finalPath = findRoute(start, goal);
 	}
+	
 	/*
 	 * finds the path to the goal
 	 * @returns an ArrayList of nodes which is the route from start to goal
 	 */
-	public ArrayList<Node> findRoute() {
-		// adding start node to the openSet
+	public ArrayList<Node> findRoute(Node start, Node goal) {
 		long startTime = System.nanoTime();
 		
+		// === Reset State ===
+		// Reset total cost map
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				movementCostMap[x][y] = Integer.MAX_VALUE;
+				totalCostMap[x][y] = Integer.MAX_VALUE;
+			}
+		}
+		
+		// Reset sets
+		openSet.clear();
+		closeSet.clear();
+		previousNodeMap.clear();
+		
+		for (Node n : closeSetDefault) {
+			closeSet.add(n);
+		}
+		
+		// === Calculate Route ===
+		// adding start node to the openSet
 		openSet.add(start);
 		Node currentNode;
 		
 		ArrayList<Node> route = null;
 		movementCostMap[start.getX()][start.getY()] = 0;
 		while (!openSet.isEmpty()) {
-		
+			// Get best current node
 			currentNode = openSet.remove();
 			if (closeSet.contains(currentNode))
 				continue;
@@ -115,9 +104,10 @@ public class AStar {
 				break;
 			}
 			
+			// Get neighbours
 			for (int x = currentNode.getX() - 1; x <= currentNode.getX() + 1; x++) {
 				for (int y = currentNode.getY() - 1; y <= currentNode.getY() + 1; y++) {
-					if (x < width && x >= 0 && y >= 0 ) {
+					if (x < width && x >= 0 && y >= 0) {
 						Node neighbour = new Node(x, y);
 						
 						if (closeSet.contains(neighbour)) {
@@ -126,6 +116,8 @@ public class AStar {
 						}
 						
 						float tentativeGScore = movementCostMap[currentNode.getX()][currentNode.getY()] + 1;
+						// Calculate heuristic
+						heuristicMap[x][y] = heuristic(goal, x, y);
 						
 						openSet.add(neighbour);
 						
@@ -157,6 +149,7 @@ public class AStar {
 		}
 		return route;
 	}
+	
 	/*
 	 * adds the path to an array list
 	 * @param currentNode adds the current node to the path
@@ -169,22 +162,13 @@ public class AStar {
 			currentNode = previousNodeMap.get(currentNode);
 			path.add(0, currentNode);
 		}
-
+		
 		return path;
 	}
-	/*
-	 * finds the final path
-	 * @returns the path from start to goal
-	 */
-	public ArrayList<Node> getPath() {
-		return this.finalPath;
-	}
 	
-	private float heuristic(int x, int y){
-		
+	private float heuristic(Node goal, int x, int y) {
 		float dx = Math.abs(x - goal.getY());
 		float dy = Math.abs(y - goal.getY());
 		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
-		
 	}
 }
