@@ -12,7 +12,7 @@ public class MachineGunBullet extends Bullet {
 	}
 	
 	public MachineGunBullet(Vector2f position, DamageSource source, float angle) {
-		super(position, source, angle, SPEED, 10.0, 0.5f);
+		super(position, source, angle, SPEED, 10.0, 0.8f);
 	}
 	
 	@Override
