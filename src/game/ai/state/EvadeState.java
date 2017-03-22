@@ -9,6 +9,7 @@ import game.ai.Node;
 import game.ai.State;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
+import game.world.entity.Player;
 import game.world.map.PathFindingMap;
 import org.joml.Vector2f;
 
@@ -37,15 +38,11 @@ public class EvadeState implements State<AIPlayer> {
 			aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 			aiPlayer.getStateMachine().changeState(new MoveTowardsCentreState());
 		} else {
-			float angle = Util.getAngle(aiPlayer.position.x, aiPlayer.position.y, kill.position.x, kill.position.y);
-			Random randAim = new Random();
-			float target = angle + (randAim.nextFloat() - 0.5f) / 5;
+			float desiredAngle = aiPlayer.getFiringAngle(kill.position.x, kill.position.y);
+			float newAngle = aiPlayer.getNewAngle(desiredAngle, ua.dt);
+			aiPlayer.handleAction(ua, new AimAction(newAngle));
 			
-			float da = target - aiPlayer.angle;
-			float newAngle = aiPlayer.angle + (da * (float) ua.dt * 5f);
-			
-			float diff = Util.getAngleDiff(angle, newAngle);
-			
+			float diff = Util.getAngleDiff(desiredAngle, newAngle);
 			if (!hasBegunUse && diff < Math.toRadians(35.0)) {
 				aiPlayer.handleAction(ua, new Action(ActionType.BEGIN_USE));
 				hasBegunUse = true;
@@ -53,8 +50,6 @@ public class EvadeState implements State<AIPlayer> {
 				aiPlayer.handleAction(ua, new Action(ActionType.END_USE));
 				hasBegunUse = false;
 			}
-			
-			aiPlayer.handleAction(ua, new AimAction(newAngle)); // aimbot mode
 		}
 		
 		//TODO:try to dodge incoming bullets

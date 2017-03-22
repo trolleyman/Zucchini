@@ -96,22 +96,24 @@ public class AIPlayer extends Player {
 		return ret;
 	}
 	
-	public boolean canSeePickUp(){
-		//TODO: make function that can tell us if this entity can see a pickup
-		// and also if it's worth picking up
-		return false;
-	}
-
-	public boolean isShotAt() {
-		// TODO Auto-generated method stub
-		return false;
+	/**
+	 * Returns the actual angle that the AI will be set to, given a desired angle.
+	 * The angle returned will depend on the difficulty of the AI.
+	 * @param desiredAngle The target angle
+	 * @param dt See {@link UpdateArgs#dt}
+	 */
+	public float getNewAngle(float desiredAngle, double dt) {
+		float target = desiredAngle + ((float)Math.random() - 0.5f) * difficulty.getDeviation();
+		
+		float da = target - this.angle;
+		return this.angle + (da * (float) dt / difficulty.getTurningRate());
 	}
 	
 	@Override
 	public float getMaxHealth() {
 		return 10.0f;
 	}
-
+	
 	@Override
 	public AIPlayer clone() {
 		return new AIPlayer(this);

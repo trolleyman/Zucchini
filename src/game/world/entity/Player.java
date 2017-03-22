@@ -330,4 +330,18 @@ public abstract class Player extends AutonomousEntity {
 		// Drop weapon
 		dropHeldItem(ua.bank, this.position);
 	}
+	
+	/**
+	 * Gets the correct angle for the player so that the weapon it's holding will be aimed directly at the point x, y.
+	 * @param x The x co-ordinate of the target
+	 * @param y The y co-ordinate of the target
+	 */
+	public float getFiringAngle(float x, float y) {
+		Vector2f weaponPos = Util.pushTemporaryVector2f();
+		weaponPos.set(Util.getDirX(angle + (float) Math.PI / 2), Util.getDirY(angle + (float) Math.PI / 2))
+				.mul(WEAPON_OFFSET_X).add(this.position);
+		float firingAngle = Util.getAngle(weaponPos.x, weaponPos.y, x, y);
+		Util.popTemporaryVector2f();
+		return firingAngle;
+	}
 }
