@@ -151,7 +151,10 @@ public class AStar {
 		long endTime = System.nanoTime();
 		long dt = endTime - startTime;
 		long time = dt / (Util.NANOS_PER_SECOND / 1000);
-		System.out.println("[Game]: [AStar]: AStar timing: " + time + "ms");
+		if (time > 50) {
+			String s = route.size() == 0 ? "no path found" : "path found (" + route.size() + " nodes)";
+			System.err.println("[Game]: [AStar]: Warning: AStar duration: " + time + "ms (" + s + ")");
+		}
 		return route;
 	}
 	/*

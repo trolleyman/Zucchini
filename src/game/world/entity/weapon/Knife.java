@@ -76,7 +76,6 @@ public class Knife extends Weapon {
 				this.stabbed = false;
 			}
 		}
-		
 		super.clientUpdate(ua);
 	}
 	

@@ -144,6 +144,7 @@ public abstract class Weapon extends Item {
 		if (this.fire && this.ammo == 0 && this.currentShots == 0) {
 			//System.out.println("[Game]: [Weapon]: *Click*: Out of ammo");
 			ua.audio.play("no-ammo-click.wav", 1.0f, this.position);
+			this.currentCooldown = this.cooldown;
 			this.fire = false;
 		} else if (this.fire && this.currentCooldown <= 0.0f) {
 			updated = true;
