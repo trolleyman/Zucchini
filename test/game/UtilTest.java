@@ -94,10 +94,12 @@ public class UtilTest {
 	public void getAngleDiff() {
 		float delta = 0.00001f;
 		
-		assertEquals((float)Math.PI, Util.getAngleDiff(0.0f, (float)Math.PI), delta);
-		assertEquals((float)Math.PI, Util.getAngleDiff(1.0f, (float)Math.PI+1.0f), delta);
+		assertEquals(2.0f, Util.getAngleDiff((float)Math.PI*2-1.0f, 1.0f), delta);
+		assertEquals(-2.0f, Util.getAngleDiff(1.0f, (float)Math.PI*2-1.0f), delta);
+		assertEquals((float)Math.PI/2, Util.getAngleDiff(0.0f, (float)Math.PI/2), delta);
+		assertEquals((float)Math.PI/2, Util.getAngleDiff(1.0f, (float)Math.PI/2+1.0f), delta);
 		assertEquals((float)Math.toRadians(10.0), Util.getAngleDiff((float)Math.toRadians(10.0), (float)Math.toRadians(20.0)), delta);
-		assertEquals((float)Math.toRadians(10.0), Util.getAngleDiff((float)Math.toRadians(20.0), (float)Math.toRadians(10.0)), delta);
+		assertEquals((float)Math.toRadians(-10.0), Util.getAngleDiff((float)Math.toRadians(20.0), (float)Math.toRadians(10.0)), delta);
 	}
 	
 	@Test

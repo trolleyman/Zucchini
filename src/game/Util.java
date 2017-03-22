@@ -184,13 +184,10 @@ public class Util {
 	}
 	
 	/**
-	 * Gets the non-reflex angle between two angles
+	 * Gets the angle clockwise from x to y. The returned angle is in the range [-PI, PI]
 	 */
 	public static float getAngleDiff(float x, float y) {
-		float diff = Math.abs(x - y);
-		if (diff > Math.PI)
-			diff = (float)(2*Math.PI) - diff;
-		return diff;
+		return -(float) Math.atan2(Math.sin(x-y), Math.cos(x-y));
 	}
 	
 	public static float getDirX(float angle) {

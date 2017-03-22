@@ -34,7 +34,7 @@ public class ShootEnemyState implements State<AIPlayer> {
 			float newAngle = aiPlayer.getNewAngle(desiredAngle, ua.dt);
 			aiPlayer.handleAction(ua, new AimAction(newAngle));
 			
-			float diff = Util.getAngleDiff(desiredAngle, newAngle);
+			float diff = Math.abs(Util.getAngleDiff(desiredAngle, newAngle));
 			if (!hasBegunUse && diff < Math.toRadians(35.0)) {
 				aiPlayer.handleAction(ua, new Action(ActionType.BEGIN_USE));
 				hasBegunUse = true;

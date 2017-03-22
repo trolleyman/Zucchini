@@ -16,6 +16,7 @@ import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.entity.update.TorchLightUpdate;
 import game.world.entity.weapon.Knife;
+import game.world.entity.weapon.MachineGun;
 import game.world.entity.weapon.Weapon;
 import game.world.map.Map;
 import org.joml.Vector2f;
@@ -49,7 +50,7 @@ public abstract class Player extends AutonomousEntity {
 	private boolean torchOn = true;
 	
 	public static Item getDefaultHeldItem() {
-		return new Knife(new Vector2f(0.0f, 0.0f));
+		return new MachineGun(new Vector2f(0.0f, 0.0f), -1);
 	}
 	
 	/** The name of the player */

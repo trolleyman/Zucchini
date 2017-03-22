@@ -271,10 +271,10 @@ public class Map {
 		// Put all wall points in the buffer (if they are in the field of view)
 		for (Wall w : walls) {
 			float a0 = Util.getAngle(pos.x, pos.y, w.p0.x, w.p0.y);
-			if (Util.getAngleDiff(a0, aimAngle) < (fov / 2))
+			if (Math.abs(Util.getAngleDiff(a0, aimAngle)) < (fov / 2))
 				tempLosAngleBuf = putFloat(tempLosAngleBuf, a0);
 			float a1 = Util.getAngle(pos.x, pos.y, w.p1.x, w.p1.y);
-			if (Util.getAngleDiff(a1, aimAngle) < (fov / 2))
+			if (Math.abs(Util.getAngleDiff(a1, aimAngle)) < (fov / 2))
 				tempLosAngleBuf = putFloat(tempLosAngleBuf, a1);
 		}
 		

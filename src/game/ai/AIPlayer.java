@@ -105,7 +105,7 @@ public class AIPlayer extends Player {
 	public float getNewAngle(float desiredAngle, double dt) {
 		float target = desiredAngle + ((float)Math.random() - 0.5f) * difficulty.getDeviation();
 		
-		float da = target - this.angle;
+		float da = Util.getAngleDiff(this.angle, target);
 		return this.angle + (da * (float) dt / difficulty.getTurningRate());
 	}
 	
