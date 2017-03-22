@@ -23,7 +23,6 @@ public class Protocol {
 	private static final String TCP_CONNECT_RESPONSE_ACC = "[CONNECT_ACC]";
 	private static final String TCP_CONNECT_RESPONSE_REJ = "[CONNECT_REJ]";
 	
-	// TODO: Handle TXP_EXIT and UDP_EXIT
 	public static final String UDP_EXIT = "[EXIT_UDP]";
 	public static final String TCP_EXIT = "[EXIT_TCP]";
 	
@@ -56,7 +55,6 @@ public class Protocol {
 	private static final String TAG_WORLD_UPDATE         = "[WORLD_UPDATE]";
 	private static final String TAG_MESSAGE_TO_SERVER    = "[MESS_S]";
 	private static final String TAG_MESSAGE_TO_CLIENT    = "[MESS_C]";
-	private static final String TAG_SCOREBOARD_UPDATE    = "[SCOREBOARD]";
 	
 	/**************** TCP Connection Request ****************/
 	public static String sendTcpConnectionRequest(String name, int port) {

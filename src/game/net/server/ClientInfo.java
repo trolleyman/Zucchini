@@ -1,10 +1,7 @@
 package game.net.server;
 
 import game.net.TCPConnection;
-import game.net.UDPConnection;
 import game.net.UDPRelay;
-import game.world.Team;
-import game.world.entity.Entity;
 
 public class ClientInfo {
 	public String name;

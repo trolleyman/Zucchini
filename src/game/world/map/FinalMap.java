@@ -123,6 +123,18 @@ public class FinalMap extends Map {
 		outerPickups.add(new Vector2f(19,27));
 		outerPickups.add(new Vector2f(3,29));
 		outerPickups.add(new Vector2f(29,27));
+		outerPickups.add(new Vector2f(21, 1));
+		outerPickups.add(new Vector2f(13, 5));
+		outerPickups.add(new Vector2f(1, 7));
+		outerPickups.add(new Vector2f(21, 7));
+		outerPickups.add(new Vector2f(9, 9));
+		outerPickups.add(new Vector2f(27, 11));
+		outerPickups.add(new Vector2f(23, 19));
+		outerPickups.add(new Vector2f(29, 19));
+		outerPickups.add(new Vector2f(1, 25));
+		outerPickups.add(new Vector2f(19, 25));
+		outerPickups.add(new Vector2f(11,27));
+		outerPickups.add(new Vector2f(3, 19));
 		// Inner Pickup Locations
 		innerPickups.add(new Vector2f(12,12));
 		innerPickups.add(new Vector2f(18,12));
@@ -131,30 +143,19 @@ public class FinalMap extends Map {
 		innerPickups.add(new Vector2f(14,16));
 		innerPickups.add(new Vector2f(16,14));
 		// Zombie Spawns
-		zombieSpawns.add(new Vector2f(21, 1));
-		zombieSpawns.add(new Vector2f(13, 5));
-		zombieSpawns.add(new Vector2f(1, 7));
-		zombieSpawns.add(new Vector2f(21, 7));
-		zombieSpawns.add(new Vector2f(9, 9));
 		zombieSpawns.add(new Vector2f(15, 11));
-		zombieSpawns.add(new Vector2f(27, 11));
 		zombieSpawns.add(new Vector2f(14, 14));
 		zombieSpawns.add(new Vector2f(16, 14));
 		zombieSpawns.add(new Vector2f(11, 15));
 		zombieSpawns.add(new Vector2f(19,15));
 		zombieSpawns.add(new Vector2f(14, 16));
 		zombieSpawns.add(new Vector2f(16, 16));
-		zombieSpawns.add(new Vector2f(3, 19));
 		zombieSpawns.add(new Vector2f(15, 19));
-		zombieSpawns.add(new Vector2f(23, 19));
-		zombieSpawns.add(new Vector2f(29, 19));
-		zombieSpawns.add(new Vector2f(1, 25));
-		zombieSpawns.add(new Vector2f(19, 25));
-		zombieSpawns.add(new Vector2f(11,27));
+
 
 		// Random Generator
 		Random r = new Random();
-		int high = 4;
+		int high = 10;
 		// Simple Random weapon spawning (no laser guns)
 		// TODO: Potentially add more spawns with chance of nothing spawning
 		// TODO: Add weighted randomness
@@ -175,6 +176,11 @@ public class FinalMap extends Map {
 					break;
 				case 4:
 					initialEntities.add(new Pickup(outerPickups.get(i), new SilencedPistol(new Vector2f(0.0f, 0.0f), 32)));
+					break;
+				case 5:
+				case 6:
+				case 7:
+					initialEntities.add(new Zombie(outerPickups.get(i)));
 					break;
 				default:
 					// Spawn Nothing
