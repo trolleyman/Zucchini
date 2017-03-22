@@ -13,9 +13,9 @@ import game.world.map.Map;
 import org.joml.Vector2f;
 
 public class Rocket extends Projectile {
-	private static final float INITIAL_SPEED = 10.0f;
+	private static final float INITIAL_SPEED = 5.0f;
 	private static final float ACCELERATION = 100.0f;
-	private static final float MAX_SPEED = 50.0f;
+	private static final float MAX_SPEED = 40.0f;
 	
 	private static final float W = 0.05f;
 	private static final float H = 0.2f;
