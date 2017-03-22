@@ -82,7 +82,7 @@ public class LaserGun extends Weapon {
 			float newLengthLeft = lengthLeft - curPos.distance(newPos);
 			
 			// Spawn new segment
-			ua.bank.addEntityCached(new LaserBulletSegment(this.ownerTeam,
+			ua.bank.addEntityCached(new LaserBulletSegment(
 					curPos, lengthLeft/MAX_LASER_LENGTH,
 					newPos, newLengthLeft/MAX_LASER_LENGTH));
 			
@@ -92,8 +92,8 @@ public class LaserGun extends Weapon {
 			if (es != null) {
 				for (Entity e : es) {
 					// Only damage if the id is not who shot the laser, unless it is after the first shot
-					if (e.getId() != this.ownerId || prevWall != null) {
-						Damage damage = new Damage(ownerId, ownerTeam, DamageType.LASER_DAMAGE, 3.5f);
+					if (e.getId() != owner.entityId || prevWall != null) {
+						Damage damage = new Damage(owner, DamageType.LASER_DAMAGE, 3.5f);
 						ua.bank.updateEntityCached(new DamageUpdate(e.getId(), damage));
 						ua.audio.play("vaporized.wav", 1.0f, e.position);
 					}

@@ -150,8 +150,8 @@ public class AStar {
 		}
 		long endTime = System.nanoTime();
 		long dt = endTime - startTime;
-		double time = dt / (double)Util.NANOS_PER_SECOND;
-		System.out.println("[Game]: [AStar]: AStar timing: " + time + "s");
+		long time = dt / (Util.NANOS_PER_SECOND / 1000);
+		System.out.println("[Game]: [AStar]: AStar timing: " + time + "ms");
 		return route;
 	}
 	/*

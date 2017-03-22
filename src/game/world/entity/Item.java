@@ -3,42 +3,35 @@ package game.world.entity;
 import com.google.gson.annotations.SerializedName;
 import game.render.IRenderer;
 import game.world.Team;
+import game.world.entity.damage.DamageSource;
 import org.joml.Vector2f;
 
 public abstract class Item extends Entity {
-	@SerializedName("oTeam")
-	protected int ownerTeam;
-	@SerializedName("oid")
-	protected int ownerId;
+	protected DamageSource owner;
 	
 	public Item(Vector2f position) {
 		super(Team.PASSIVE_TEAM, position);
-		this.ownerTeam = Team.PASSIVE_TEAM;
-		this.ownerId = Entity.INVALID_ID;
+		owner = new DamageSource();
 	}
 	
 	public Item(Item i) {
 		super(i);
-		this.ownerTeam = i.ownerTeam;
-		this.ownerId = i.ownerId;
+		owner = i.owner.clone();
 	}
 	
 	public boolean isHeld() {
-		return this.ownerId != Entity.INVALID_ID;
+		return owner.entityId != Entity.INVALID_ID;
 	}
 	
 	/**
-	 * Sets the owner for this item.
+	 * Sets the owner for this item. Entity can be null, in which case the source will be reset to Unknown.
 	 */
-	public void setOwnerTeam(int ownerTeam) {
-		this.ownerTeam = ownerTeam;
-	}
-	
-	/**
-	 * Sets the owner for this item.
-	 */
-	public void setOwner(int ownerId) {
-		this.ownerId = ownerId;
+	public void setOwner(Entity e) {
+		if (e == null) {
+			if (owner.entityId != Entity.INVALID_ID)
+				owner = new DamageSource();
+		} else if (owner.entityId != e.getId())
+			owner = new DamageSource(e);
 	}
 	
 	/** Called when the user presses the mouse button */

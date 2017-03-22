@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import java.util.Optional;
 
 import game.action.AimAction;
+import game.render.Align;
 import game.world.Team;
 import game.world.entity.*;
 import game.world.entity.update.AngleUpdate;
@@ -61,8 +62,7 @@ public class AIPlayer extends Player {
 	
 	private void updateHeldItemInfo() {
 		if (this.heldItem != null) {
-			this.heldItem.setOwner(this.getId());
-			this.heldItem.setOwnerTeam(this.getTeam());
+			this.heldItem.setOwner(this);
 			this.heldItem.angle = this.angle;
 			
 			// Calculate position
@@ -84,36 +84,24 @@ public class AIPlayer extends Player {
 		super.update(ua);
 	}
 	
-	public Entity getClosestSeenEntity(UpdateArgs ua) {
-		ArrayList<Entity> entities  = ua.bank.getEntitiesNear(this.position.x, this.position.y, Player.LINE_OF_SIGHT_MAX);
+	public Pickup getClosestValublePickup(UpdateArgs ua){
 		Vector2f temp = Util.pushTemporaryVector2f();
-		
-		// Get entities that can be seen
-		ListIterator<Entity> it = entities.listIterator();
-		Entity kill;
-		while (it.hasNext()) {
-			kill = it.next();
-			if (Team.isHostileTeam(this.getTeam(), kill.getTeam())) {
-				Vector2f v = ua.map.intersectsLine(this.position.x, this.position.y, kill.position.x, kill.position.y, temp);
-				
-				if (v == null) {
-					continue;
-				}
-			}
-			it.remove();
-		}
+		Pickup i = (Pickup)ua.bank.getClosestEntity(position.x, position.y,
+				(e) ->  ua.map.intersectsLine(this.position.x, this.position.y, e.position.x, e.position.y, temp) == null
+				&& e instanceof Pickup
+				&& ((Pickup)e).getItem().aiValue() > this.heldItem.aiValue());
 		Util.popTemporaryVector2f();
-		
-		// Now get nearest entity
-		Optional<Entity> closest = entities.stream().min(
-				(l, r) -> Float.compare(l.position.distanceSquared(position), r.position.distanceSquared(position)));
-		if (closest.isPresent()) {
-			// System.out.println("Hi there, " + closest.get().getReadableName() + " :)");
-			return closest.get();
-		}
-		return null;
+		return i;
 	}
 	
+	public Entity getClosestSeenEntity(UpdateArgs ua) {
+		Vector2f temp = Util.pushTemporaryVector2f();
+		Entity ret = ua.bank.getClosestEntity(position.x, position.y,
+				(e) -> Team.isHostileTeam(this.getTeam(), e.getTeam())
+				&& ua.map.intersectsLine(this.position.x, this.position.y, e.position.x, e.position.y, temp) == null);
+		Util.popTemporaryVector2f();
+		return ret;
+	}
 	
 	public boolean canSeePickUp(){
 		//TODO: make function that can tell us if this entity can see a pickup
@@ -150,7 +138,8 @@ public class AIPlayer extends Player {
 		float x = position.x + 0.25f * (float) Math.sin(angle);
 		float y = position.y + 0.25f * (float) Math.cos(angle);
 		
-		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
-		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.BLUE);
+//		r.drawLine(position.x, position.y, x, y, ColorUtil.RED, 1.0f);
+//		r.drawCircle(position.x, position.y, RADIUS, ColorUtil.BLUE);
+		r.drawTexture(r.getTextureBank().getTexture("ai_player_v1.png"), Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
 	}
 }

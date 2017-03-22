@@ -11,6 +11,7 @@ import game.ui.component.ScoreboardComponent;
 import game.world.ClientWorld;
 import game.world.PlayerScoreboardInfo;
 import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageSource;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
@@ -117,8 +118,8 @@ public class GameUI extends UI implements InputPipeMulti {
 			r.drawText(f, "You are dead.", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.RED);
 			PlayerScoreboardInfo p = world.getScoreboard().getPlayer(connection.getName());
 			Damage d = p == null ? null : p.lastDamage;
-			String s = d == null ? "Unknown" : d.type.getDeathAdjective();
-			r.drawText(f, "Cause: " + s, Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING - 50.0f - f.getHeight(titleScale), 1.0f, ColorUtil.RED);
+			String s = d == null ? "Unknown" : d.source.readableName;
+			r.drawText(f, "Killed by " + s + ".", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING - 50.0f - f.getHeight(titleScale), 1.0f, ColorUtil.RED);
 			
 			y = r.getHeight() - Util.HUD_PADDING - f.getHeight(titleScale)*2 - 55.0f;
 		} else if (scoreboardShown) {

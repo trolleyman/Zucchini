@@ -4,17 +4,15 @@ import game.Util;
 import game.action.Action;
 import game.action.AimAction;
 import game.net.Protocol;
-import game.render.Align;
 import game.render.IRenderer;
-import game.render.Texture;
 import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
+import game.world.entity.damage.DamageSource;
 import game.world.entity.light.PointLight;
 import game.world.entity.light.Spotlight;
 import game.world.entity.update.AngleUpdate;
-import game.world.entity.update.PositionUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.entity.update.TorchLightUpdate;
 import game.world.entity.weapon.Knife;
@@ -38,7 +36,7 @@ public abstract class Player extends AutonomousEntity {
 	/** The max distance a player can see */
 	public static final float LINE_OF_SIGHT_MAX = 10.0f;
 	/** The angle of which the player can see */
-	public static final float LINE_OF_SIGHT_FOV = (float)Math.toRadians(360.0);
+	public static final float LINE_OF_SIGHT_FOV = (float) Math.toRadians(360.0);
 	
 	private static final Vector4f SPOT_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
 	private static final Vector4f TORCH_COLOR = LightUtil.LIGHT_DIRECT_SUNLIGHT_6000;
@@ -71,8 +69,9 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Constructs a new player at the specified position holding {@link Player#getDefaultHeldItem}
+	 *
 	 * @param position The position
-	 * @param name The name of the player
+	 * @param name     The name of the player
 	 */
 	public Player(int team, Vector2f position, String name) {
 		this(team, position, name, Player.getDefaultHeldItem());
@@ -80,12 +79,13 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Constructs a new player at the specified position holding a weapon
-	 * @param position The position
-	 * @param _name The name of the player
+	 *
+	 * @param position  The position
+	 * @param _name     The name of the player
 	 * @param _heldItem The currently held item
 	 */
 	public Player(int team, Vector2f position, String _name, Item _heldItem) {
-		super(team, position, 1.0f, MAX_SPEED, false);
+		super(team, position, RADIUS, 1.0f, MAX_SPEED, false);
 		this.name = _name;
 		this.heldItem = _heldItem;
 		this.pointLight = new PointLight(
@@ -101,6 +101,7 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Clones the specified player
+	 *
 	 * @param p The player
 	 */
 	public Player(Player p) {
@@ -122,13 +123,12 @@ public abstract class Player extends AutonomousEntity {
 		this.torch.attenuationFactor = 0.005f;
 		
 		if (this.heldItem != null) {
-			this.heldItem.setOwner(this.getId());
-			this.heldItem.setOwnerTeam(this.getTeam());
+			this.heldItem.setOwner(this);
 			this.heldItem.angle = this.angle;
 			
 			// Calculate position
 			Vector2f offset = Util.pushTemporaryVector2f();
-			offset.set(Util.getDirX(angle+(float)Math.PI/2), Util.getDirY(angle+(float)Math.PI/2))
+			offset.set(Util.getDirX(angle + (float) Math.PI / 2), Util.getDirY(angle + (float) Math.PI / 2))
 					.mul(WEAPON_OFFSET_X);
 			this.heldItem.position.set(this.position).add(offset);
 			Util.popTemporaryVector2f();
@@ -166,25 +166,10 @@ public abstract class Player extends AutonomousEntity {
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		// Update velocity
+		// Update velocity & handle collisions
 		super.update(ua);
 		
-		// Get intersection
-		Vector2f intersection = Util.pushTemporaryVector2f();
-		if (ua.map.intersectsCircle(position.x, position.y, RADIUS, intersection) != null) {
-			// Intersection with map - push out
-			Vector2f newPosition = new Vector2f();
-			newPosition.set(position)
-				.sub(intersection)
-				.normalize()
-				.mul(RADIUS + 0.0001f)
-				.add(intersection);
-			this.position.set(newPosition);
-			ua.bank.updateEntityCached(new PositionUpdate(this.getId(), newPosition));
-			//ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), new Vector2f()));
-		}
-		Util.popTemporaryVector2f();
-		
+		// Update children
 		updateChildrenInfo();
 		this.pointLight.update(ua);
 		if (this.torchOn)
@@ -196,15 +181,15 @@ public abstract class Player extends AutonomousEntity {
 		if (velocity.length() > 1f) {
 			//System.out.println("Starting sound id: " + walkingSoundID);
 			if (walkingSoundID == -1) {
-				this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.6f,this.position);
+				this.walkingSoundID = ua.audio.play("footsteps_running.wav", 0.6f, this.position);
 			} else {
-				ua.audio.continueLoop(this.walkingSoundID,this.position);
+				ua.audio.continueLoop(this.walkingSoundID, this.position);
 			}
 		} else {
 			//System.out.println("Stopping sound id: " + walkingSoundID);
 			if (walkingSoundID != -1) {
 				ua.audio.pauseLoop(this.walkingSoundID);
-				walkingSoundID=-1;
+				walkingSoundID = -1;
 			}
 		}
 	}
@@ -235,83 +220,82 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Handles an action on the player
+	 *
 	 * @param ua The update arguments
-	 * @param a The action
+	 * @param a  The action
 	 */
 	public void handleAction(UpdateArgs ua, Action a) {
 		switch (a.getType()) {
-		case BEGIN_MOVE_NORTH:
-		case BEGIN_MOVE_SOUTH:
-		case BEGIN_MOVE_EAST :
-		case BEGIN_MOVE_WEST :
-		case END_MOVE_NORTH  :
-		case END_MOVE_SOUTH  :
-		case END_MOVE_EAST   :
-		case END_MOVE_WEST   :
-			System.err.println("[Game]: Warning: Invalid action type received for Player: " + a.getType());
-			break;
-		case AIM:
-			angle = ((AimAction)a).getAngle();
-			ua.bank.updateEntityCached(new AngleUpdate(this.getId(), angle));
-			break;
-		case BEGIN_USE: {
-			if (!this.beganUse) {
-				this.beganUse = true;
+			case BEGIN_MOVE_NORTH:
+			case BEGIN_MOVE_SOUTH:
+			case BEGIN_MOVE_EAST:
+			case BEGIN_MOVE_WEST:
+			case END_MOVE_NORTH:
+			case END_MOVE_SOUTH:
+			case END_MOVE_EAST:
+			case END_MOVE_WEST:
+				System.err.println("[Game]: Warning: Invalid action type received for Player: " + a.getType());
+				break;
+			case AIM:
+				angle = ((AimAction) a).getAngle();
+				ua.bank.updateEntityCached(new AngleUpdate(this.getId(), angle));
+				break;
+			case BEGIN_USE: {
+				if (!this.beganUse) {
+					this.beganUse = true;
+					if (this.heldItem != null)
+						this.heldItem.beginUse();
+				}
+				break;
+			}
+			case END_USE: {
+				this.beganUse = false;
 				if (this.heldItem != null)
-					this.heldItem.beginUse();
+					this.heldItem.endUse();
+				break;
 			}
-			break;
-		}
-		case END_USE: {
-			this.beganUse = false;
-			if (this.heldItem != null)
-				this.heldItem.endUse();
-			break;
-		}
-		case PICKUP: {
-			// Get pickups around to the player
-			ArrayList<Entity> es = ua.bank.getEntitiesNear(position.x, position.y, 0.5f);
-			Optional<Entity> oe = es.stream()
-					.filter((e) -> e instanceof Pickup)
-					.min((l, r) -> Float.compare(l.position.distanceSquared(this.position), r.position.distanceSquared(this.position)));
-			if (oe.isPresent()) {
-				Pickup p = (Pickup) oe.get();
-				
-				// Drop current item
-				this.dropHeldItem(ua.bank, p.position);
-				
-				// Get item
-				Item item = p.getItem();
-				
-				// Own item & pickup item
-				item.setOwnerTeam(this.getTeam());
-				item.setOwner(this.getId());
-				this.pickupItem(ua.bank, item);
-				ua.packetCache.sendStringTcp(this.getName(), Protocol.sendMessageToClient("", "Equipped " + item.toString()));
-				
-				// Remove pickup entity
-				ua.bank.removeEntityCached(p.getId());
+			case PICKUP: {
+				// Get pickups around to the player
+				ArrayList<Entity> es = ua.bank.getEntitiesNear(position.x, position.y, 0.5f);
+				Optional<Entity> oe = es.stream()
+						.filter((e) -> e instanceof Pickup)
+						.min((l, r) -> Float.compare(l.position.distanceSquared(this.position), r.position.distanceSquared(this.position)));
+				if (oe.isPresent()) {
+					Pickup p = (Pickup) oe.get();
+					
+					// Drop current item
+					this.dropHeldItem(ua.bank, p.position);
+					
+					// Get item
+					Item item = p.getItem();
+					
+					// Own item & pickup item
+					item.setOwner(this);
+					this.pickupItem(ua.bank, item);
+					ua.packetCache.sendStringTcp(this.getName(), Protocol.sendMessageToClient("", "Equipped " + item.toString()));
+					
+					// Remove pickup entity
+					ua.bank.removeEntityCached(p.getId());
+				}
+				break;
 			}
-			break;
-		}
-		case TOGGLE_LIGHT:
-			this.torchOn = !this.torchOn;
-			ua.bank.updateEntityCached(new TorchLightUpdate(this.getId(), this.torchOn));
-			break;
-		case RELOAD:
-			if (heldItem != null && heldItem instanceof Weapon) {
-				Weapon w = (Weapon) heldItem;
-				if (!w.isReloading())
-					w.doReload(ua.bank);
-			}
-			break;
+			case TOGGLE_LIGHT:
+				this.torchOn = !this.torchOn;
+				ua.bank.updateEntityCached(new TorchLightUpdate(this.getId(), this.torchOn));
+				break;
+			case RELOAD:
+				if (heldItem != null && heldItem instanceof Weapon) {
+					Weapon w = (Weapon) heldItem;
+					if (!w.isReloading())
+						w.doReload(ua.bank);
+				}
+				break;
 		}
 	}
 	
 	private void pickupItem(EntityBank bank, Item item) {
 		this.dropHeldItem(bank, this.position);
-		item.setOwner(this.getId());
-		item.setOwnerTeam(this.getTeam());
+		item.setOwner(this);
 		bank.updateEntityCached(new HeldItemUpdate(this.getId(), item));
 		this.heldItem = item;
 	}
@@ -332,16 +316,14 @@ public abstract class Player extends AutonomousEntity {
 	public void death(UpdateArgs ua) {
 		super.death(ua);
 		Damage d = getLastDamage();
-		Entity from = ua.bank.getEntity(d.ownerId);
-		String s = d.type.getDescription(from, this);
+		String s = d.type.getDescription(d.source, this);
 		ua.packetCache.sendStringTcp(Protocol.sendMessageToClient("", s));
 		ua.scoreboard.killPlayer(name, d);
-		if (from != null && from instanceof Player) {
-			Player p = (Player) from;
-			if (name.equals(p.getName()))
-				ua.scoreboard.addPlayerSuicide(p.getName());
+		if (d.source.entityId != Entity.INVALID_ID && d.source.isPlayer) {
+			if (name.equals(d.source.readableName))
+				ua.scoreboard.addPlayerSuicide(d.source.readableName);
 			else
-				ua.scoreboard.addPlayerKill(p.getName());
+				ua.scoreboard.addPlayerKill(d.source.readableName);
 		}
 		ua.audio.play("dying.wav", 1f, this.position);
 		

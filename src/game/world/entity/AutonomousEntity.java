@@ -26,16 +26,38 @@ public abstract class AutonomousEntity extends MovableEntity {
 	
 	/** The max speed of the entity */
 	private transient float maxSpeed;
-	private transient Item heldItem;
+	
 	/** Time since last regen of the route */
 	private transient double timeSinceRouteRegen = MIN_TIME_BETWEEN_ROUTE_REGEN;
 	
 	/** Should the route be regenerated */
 	private transient boolean routeDirty = true;
 	
+	/**
+	 * Constructs a new AutonomousEntity with no collision shape
+	 * @param team The team of the entity
+	 * @param position The position of the entity
+	 * @param momentumScale The momentum scale. See {@link MovableEntity#MovableEntity(int, Vector2f, float)}
+	 * @param _maxSpeed The max speed of the AutonomousEntity
+	 * @param _enabled Whether or not the AutonomousEntity is enabled.
+	 */
 	public AutonomousEntity(int team, Vector2f position, float momentumScale, float _maxSpeed, boolean _enabled) {
 		super(team, position, momentumScale);
-		this.heldItem = new Knife(this.position);
+		this.maxSpeed = _maxSpeed;
+		this.enabled = _enabled;
+	}
+	
+	/**
+	 * Constructs a new AutonomousEntity with a circular collision shape
+	 * @param team The team of the entity
+	 * @param position The position of the entity
+	 * @param radius The radius of the collision shape
+	 * @param momentumScale The momentum scale. See {@link MovableEntity#MovableEntity(int, Vector2f, float, float)}
+	 * @param _maxSpeed The max speed of the AutonomousEntity
+	 * @param _enabled Whether or not the AutonomousEntity is enabled.
+	 */
+	public AutonomousEntity(int team, Vector2f position, float radius, float momentumScale, float _maxSpeed, boolean _enabled) {
+		super(team, position, radius, momentumScale);
 		this.maxSpeed = _maxSpeed;
 		this.enabled = _enabled;
 	}
@@ -50,12 +72,10 @@ public abstract class AutonomousEntity extends MovableEntity {
 		
 		this.route = (ArrayList<Node>) e.route.clone();
 		this.maxSpeed = e.maxSpeed;
-	
 	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
-		
 		if (enabled) {
 			timeSinceRouteRegen += MIN_TIME_BETWEEN_ROUTE_REGEN;
 			PathFindingMap pfmap = ua.map.getPathFindingMap();

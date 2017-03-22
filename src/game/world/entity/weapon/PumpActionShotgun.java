@@ -47,7 +47,7 @@ public class PumpActionShotgun extends Weapon {
 		for (int i = 0; i < SHOTS_PER_SHELL; i++) {
 			float fang = angle + ((float)Math.random() * 2 - 1.0f) * SPREAD;
 			fang = Util.normalizeAngle(fang);
-			ua.bank.addEntityCached(new PumpActionShotgunBullet(new Vector2f(muzzlePos), this.ownerId, this.ownerTeam, fang));
+			ua.bank.addEntityCached(new PumpActionShotgunBullet(new Vector2f(muzzlePos), owner, fang));
 		}
 		ua.audio.play("pump-shotgun-shot.wav",1.0f, this.position);
 	}
@@ -84,6 +84,6 @@ public class PumpActionShotgun extends Weapon {
 	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 3;
 	}
 }

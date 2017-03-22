@@ -35,7 +35,7 @@ public class RocketLauncher extends Weapon {
 		
 		// System.out.println("[Game]: Whoosh! Rocket fired!");
 		ua.audio.play("rocket-launcher.wav", 0.5f, this.position);
-		ua.bank.addEntityCached(new Rocket(muzzlePos, this.ownerId, this.ownerTeam, angle));
+		ua.bank.addEntityCached(new Rocket(muzzlePos, owner, angle));
 	}
 	
 	@Override
@@ -84,6 +84,6 @@ public class RocketLauncher extends Weapon {
 	@Override
 	public float aiValue() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 2;
 	}
 }

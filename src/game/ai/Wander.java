@@ -6,6 +6,8 @@ import org.joml.Vector2f;
 
 import com.sun.org.apache.bcel.internal.generic.MONITORENTER;
 
+import game.Util;
+import game.action.AimAction;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
 
@@ -70,7 +72,9 @@ public class Wander implements State<AIPlayer> {
 				wandering = false;
 				
 		}
-			
+		if (aiPlayer.getClosestValublePickup(ua) != null){
+			aiPlayer.getStateMachine().changeState(new PickupState());
+		}
 		if (counterWandering > 4){
 			aiPlayer.getStateMachine().changeState(new MoveTowardsCentre());
 			wandering = false;
@@ -81,7 +85,8 @@ public class Wander implements State<AIPlayer> {
 			aiPlayer.getStateMachine().changeState(new ShootEnemy());
 			return;
 		}
-		
+		float angle = (float) Util.getAngle(aiPlayer.velocity.x, aiPlayer.velocity.y);
+		aiPlayer.handleAction(ua, new AimAction(angle));
 	}
 	
 	@Override

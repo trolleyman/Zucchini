@@ -1,7 +1,6 @@
 package game.ai.stateMachineTesting;
 
 import java.util.HashMap;
-
 import game.world.UpdateArgs;
 
 /**
@@ -14,8 +13,9 @@ public class TestFSMLogic {
 	public static TestPlayer ai = new TestPlayer();
 	public enum eventType{SEE_ENEMY, ENEMY_GONE, SEE_PICKUP, PICKUP_GONE, SHOT_AT, NOT_SHOT_AT};
 	public static HashMap<Integer,eventType> events = new HashMap<Integer,eventType>();
-	
+
 	public static void main(String[] args) throws InterruptedException{		
+		
 		int currentRate=0;
 		
 		//craft events and place them into hash map to test our ai decision making
@@ -31,7 +31,7 @@ public class TestFSMLogic {
 		events.put(22, eventType.NOT_SHOT_AT);
 		events.put(25, eventType.ENEMY_GONE); //the pickup is still available after the enemy is gone
 		events.put(27, eventType.PICKUP_GONE); //finally secure that pickup after the fight
-
+		
 		while(true){
 			if(events.containsKey(currentRate)){
 				handleEvent(events.get(currentRate));
@@ -39,10 +39,11 @@ public class TestFSMLogic {
 			
 			ai.update(ua);
 			
-			
 			Thread.sleep(1000/refreshRate);
 			currentRate++;
 		}
+		
+		
 	}
 	
 	private static void handleEvent(eventType eventType) {

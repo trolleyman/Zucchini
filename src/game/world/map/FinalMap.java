@@ -15,9 +15,10 @@ public class FinalMap extends Map {
 	// Arraylists of Outer and Inner Pickup Spawn Locations
 	ArrayList<Vector2f> outerPickups = new ArrayList<>();
 	ArrayList<Vector2f> innerPickups = new ArrayList<>();
+	ArrayList<Vector2f> zombieSpawns = new ArrayList<>();
 	
 	public FinalMap() {
-		super(new ArrayList<>(), 8.0f, 4);
+		super(new ArrayList<>(), 6.0f, 4);
 		// Outer Walls
 		wall2D(0, 0, 30, 30);
 		// Horizontal Walls
@@ -129,6 +130,28 @@ public class FinalMap extends Map {
 		innerPickups.add(new Vector2f(18,18));
 		innerPickups.add(new Vector2f(14,16));
 		innerPickups.add(new Vector2f(16,14));
+		// Zombie Spawns
+		zombieSpawns.add(new Vector2f(21, 1));
+		zombieSpawns.add(new Vector2f(13, 5));
+		zombieSpawns.add(new Vector2f(1, 7));
+		zombieSpawns.add(new Vector2f(21, 7));
+		zombieSpawns.add(new Vector2f(9, 9));
+		zombieSpawns.add(new Vector2f(15, 11));
+		zombieSpawns.add(new Vector2f(27, 11));
+		zombieSpawns.add(new Vector2f(14, 14));
+		zombieSpawns.add(new Vector2f(16, 14));
+		zombieSpawns.add(new Vector2f(11, 15));
+		zombieSpawns.add(new Vector2f(19,15));
+		zombieSpawns.add(new Vector2f(14, 16));
+		zombieSpawns.add(new Vector2f(16, 16));
+		zombieSpawns.add(new Vector2f(3, 19));
+		zombieSpawns.add(new Vector2f(15, 19));
+		zombieSpawns.add(new Vector2f(23, 19));
+		zombieSpawns.add(new Vector2f(29, 19));
+		zombieSpawns.add(new Vector2f(1, 25));
+		zombieSpawns.add(new Vector2f(19, 25));
+		zombieSpawns.add(new Vector2f(11,27));
+
 		// Random Generator
 		Random r = new Random();
 		int high = 4;
@@ -158,32 +181,33 @@ public class FinalMap extends Map {
 					break;
 			}
 		}
-		// Center is filled with laser guns
-//		for (int i = 0; i < innerPickups.size(); i++) {
-//			initialEntities.add(new Pickup(innerPickups.get(i), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
-//		}
 
 		// Center has 1 laser gun
 		initialEntities.add(new Pickup(new Vector2f(15.0f, 15.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 64)));
 
+		// Add Zombies
+		for (int i = 0; i < zombieSpawns.size(); i++) {
+			initialEntities.add(new Zombie(zombieSpawns.get(i)));
+		}
+
+		/*
 		// Add all types of guns for testing only
 		initialEntities.add(new Pickup(new Vector2f(1, 1), new MachineGun(new Vector2f(0.0f, 0.0f), 256)));
 		initialEntities.add(new Pickup(new Vector2f(2, 1.0f), new RocketLauncher(new Vector2f(0.0f, 0.0f), 16)));
 		initialEntities.add(new Pickup(new Vector2f(3.0f,2.0f), new LaserGun(new Vector2f(0.0f, 0.0f), 256)));
 		initialEntities.add(new Pickup(new Vector2f(2.0f,2.0f), new SilencedPistol(new Vector2f(0.0f, 0.0f),14)));
 		initialEntities.add(new Pickup(new Vector2f(1.5f,2.5f), new PumpActionShotgun(new Vector2f(0.0f, 0.0f),16)));
-        
 
-        
-//		initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
-//		initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
+
+
+
+		initialEntities.add(new Zombie(new Vector2f(2.5f, 6.0f)));
+		initialEntities.add(new Zombie(new Vector2f(6.25f, 5.45f)));
 		initialEntities.add(new Zombie(new Vector2f(1.0f, 2.0f)));
 		initialEntities.add(new Zombie(new Vector2f(1.5f, 6.0f)));
 		initialEntities.add(new Zombie(new Vector2f(3.25f, 5.45f)));
-    
-		//initialEntities.add(new AIPlayer(3, new Vector2f(15.0f, 15.0f), "[BOT] Bob", new MachineGun(new Vector2f(0.0f, 0.0f),256)));
 
-		/*
+
 		// Add torches
 		// West Entrance
 		initialEntities.add(new Torch(new Vector2f(10.21f, 16.22f)));
@@ -198,6 +222,7 @@ public class FinalMap extends Map {
 		initialEntities.add(new Torch(new Vector2f(16.24f, 19.79f)));
 		initialEntities.add(new Torch(new Vector2f(13.78f, 19.79f)));
 		*/
+
 	}
 	
 	/**

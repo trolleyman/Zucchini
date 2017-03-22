@@ -6,6 +6,7 @@ import game.world.PhysicsUtil;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.MovableEntity;
+import game.world.entity.damage.DamageSource;
 import org.joml.Vector2f;
 
 public abstract class Projectile extends MovableEntity {
@@ -14,24 +15,20 @@ public abstract class Projectile extends MovableEntity {
 	/** for sound */
 	private transient int whizzSoundID = -1;
 	
-	/** Identifies the source team of the bullet */
-	protected transient int ownerId;
-	
-	/** Identifies the source team of the bullet */
-	protected transient int ownerTeam;
+	/** Identifies the source of the bullet */
+	protected transient DamageSource source;
 	
 	/** Time to live of the bullet: after this time it automatically removes itself from the world */
 	private transient double ttl;
 	
-	public Projectile(Vector2f position, int ownerId, int ownerTeam, float angle, float speed, double ttl) {
-		this(position, ownerId, ownerTeam, new Vector2f(speed * Util.getDirX(angle), speed * Util.getDirY(angle)), ttl);
+	public Projectile(Vector2f position, DamageSource source, float angle, float speed, double ttl) {
+		this(position, source, new Vector2f(speed * Util.getDirX(angle), speed * Util.getDirY(angle)), ttl);
 	}
 	
-	public Projectile(Vector2f position, int _ownerId, int _sourceTeamID, Vector2f _velocity, double _ttl) {
+	public Projectile(Vector2f position, DamageSource _source, Vector2f _velocity, double _ttl) {
 		super(Team.PASSIVE_TEAM, position, 0.0f);
 		this.prevPosition.set(position);
-		this.ownerId = _ownerId;
-		this.ownerTeam = _sourceTeamID;
+		this.source = _source;
 		this.velocity = _velocity;
 		this.ttl = _ttl;
 	}
@@ -39,7 +36,7 @@ public abstract class Projectile extends MovableEntity {
 	public Projectile(Projectile b) {
 		super(b);
 		this.prevPosition = new Vector2f(b.prevPosition);
-		this.ownerTeam = b.ownerTeam;
+		this.source = b.source.clone();
 		this.ttl = b.ttl;
 	}
 	
@@ -62,7 +59,7 @@ public abstract class Projectile extends MovableEntity {
 		float y = getLength() * Util.getDirY(ang);
 		
 		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y,
-				(e) -> Team.isHostileTeam(this.ownerTeam, e.getTeam()));
+				(e) -> Team.isHostileTeam(source.teamId, e.getTeam()));
 		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
 		
 		// Choose closest point

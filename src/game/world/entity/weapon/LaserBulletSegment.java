@@ -5,6 +5,7 @@ import game.Util;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
+import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
 import game.world.entity.light.TubeLight;
@@ -35,12 +36,12 @@ public class LaserBulletSegment extends Entity {
 		this.endGrad = b.endGrad;
 	}
 	
-	public LaserBulletSegment(int team, Vector2f start, float startGrad, Vector2f end, float endGrad) {
-		this(team, start, Util.getAngle(start.x, start.y, end.x, end.y), start.distance(end), startGrad, endGrad);
+	public LaserBulletSegment(Vector2f start, float startGrad, Vector2f end, float endGrad) {
+		this(start, Util.getAngle(start.x, start.y, end.x, end.y), start.distance(end), startGrad, endGrad);
 	}
 	
-	public LaserBulletSegment(int team, Vector2f position, float angle, float length, float startGrad, float endGrad) {
-		super(team, position);
+	public LaserBulletSegment(Vector2f position, float angle, float length, float startGrad, float endGrad) {
+		super(Team.PASSIVE_TEAM, position);
 		
 		this.time = 0.0;
 		this.angle = angle;
