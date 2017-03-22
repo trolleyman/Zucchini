@@ -116,8 +116,8 @@ public class AIPlayer extends Player {
 		Pickup i = (Pickup)ua.bank.getClosestEntity(position.x, position.y,
 				(e) ->  ua.map.intersectsLine(this.position.x, this.position.y, e.position.x, e.position.y, temp) == null
 				&& e instanceof Pickup
-				&& ( ((Pickup)e).getItem().aiValue() > this.heldItem.aiValue() || (this.heldItem.isUseless() && ((Pickup)e).getItem().aiValue() > 0 ) 
-						&& !((Pickup)e).getItem().isUseless()) );
+				&& ( ( (Pickup)e).getItem().aiValue() > this.heldItem.aiValue() || (this.heldItem.isUseless() && ((Pickup)e).getItem().aiValue() > 0 ))
+						&& !((Pickup)e).getItem().isUseless() );
 		Util.popTemporaryVector2f();
 		return i;
 	}
