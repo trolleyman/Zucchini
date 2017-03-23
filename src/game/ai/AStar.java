@@ -44,7 +44,7 @@ public class AStar {
 		previousNodeMap = new HashMap<>();
 		totalCostMap = new float[width][height]; // f score
 		
-		openSet = new PriorityQueue<>((l, r) -> Float.compare(heuristicMap[l.getX()][l.getY()], heuristicMap[r.getX()][r.getY()]));
+		openSet = new PriorityQueue<>((l, r) -> Float.compare(totalCostMap[l.getX()][l.getY()], totalCostMap[r.getX()][r.getY()]));
 		closeSet = new HashSet<>();
 		closeSetDefault = new HashSet<>();
 		
