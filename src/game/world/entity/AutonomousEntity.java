@@ -28,7 +28,7 @@ public abstract class AutonomousEntity extends MovableEntity {
 	private transient float maxSpeed;
 	
 	/** Time since last regen of the route */
-	private transient double timeSinceRouteRegen = MIN_TIME_BETWEEN_ROUTE_REGEN;
+	private transient double timeSinceRouteRegen = MIN_TIME_BETWEEN_ROUTE_REGEN * Math.random();
 	
 	/** Should the route be regenerated */
 	private transient boolean routeDirty = true;

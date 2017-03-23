@@ -56,8 +56,9 @@ public class AIPlayer extends Player {
 	public boolean debug2 = false;  // debug messages for ai during the states
 	public transient IStateMachine<AIPlayer, State<AIPlayer>> stateMachine;
 	
-	private transient double timeSinceLastClosestValublePickup = 0.0;
-	private transient double timeSinceLastClosestSeenEntity = 0.0;
+	// Random starting values
+	private transient double timeSinceLastClosestValublePickup = Math.random() * INTERSECTS_TIMEOUT;
+	private transient double timeSinceLastClosestSeenEntity = Math.random() * INTERSECTS_TIMEOUT;
 	
 	private Difficulty difficulty;
 	
