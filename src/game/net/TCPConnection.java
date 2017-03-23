@@ -17,6 +17,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 
 public class TCPConnection {
 	private final CharsetDecoder decoder = StandardCharsets.UTF_8
@@ -28,9 +29,15 @@ public class TCPConnection {
 	private final Object recvLock = new Object();
 	
 	private final Socket tcpSocket;
+	
 	private final byte[] tcpSendIntTemp = new byte[4];
 	private final byte[] tcpRecvIntTemp = new byte[4];
 	private final byte[] tcpRecvTemp = new byte[32000];
+	
+	private final Object sendAsyncLock = new Object();
+	private LinkedList<String> messagesToSend = new LinkedList<>();
+	
+	private ProtocolException error = null;
 	
 	public TCPConnection(Socket socket) throws ProtocolException {
 		try {
@@ -41,6 +48,7 @@ public class TCPConnection {
 			
 			this.tcpSocket.getInputStream();
 			this.tcpSocket.getOutputStream();
+			setupSender();
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -55,6 +63,7 @@ public class TCPConnection {
 			
 			this.tcpSocket.getInputStream();
 			this.tcpSocket.getOutputStream();
+			setupSender();
 		} catch (IOException e) {
 			throw new ProtocolException(e);
 		}
@@ -62,6 +71,11 @@ public class TCPConnection {
 	
 	public Socket getSocket() {
 		return tcpSocket;
+	}
+	
+	private void setupSender() {
+		Thread t = new Thread(this::runTcpSendHandler, "TCPConnection Send Handler");
+		t.start();
 	}
 	
 	public void close() {
@@ -83,7 +97,46 @@ public class TCPConnection {
 		return tcpSocket.isClosed();
 	}
 	
+	private void runTcpSendHandler() {
+		while (!isClosed()) {
+			synchronized (sendAsyncLock) {
+				String msg;
+				while ((msg = messagesToSend.pollLast()) != null) {
+					try {
+						this.sendStringSynchronous(msg);
+					} catch (ProtocolException e) {
+						this.error = e;
+						this.close();
+						return;
+					}
+				}
+				
+				try {
+					sendAsyncLock.wait();
+				} catch (InterruptedException e) {
+					// This is fine
+				}
+			}
+		}
+	}
+	
 	public void sendString(String msg) throws ProtocolException {
+		this.sendStringAsync(msg);
+	}
+	
+	public void sendStringAsync(String msg) throws ProtocolException {
+		if (this.error != null)
+			throw new ProtocolException(this.error);
+		if (isClosed())
+			throw new ProtocolException("Socked closed");
+		
+		synchronized (sendAsyncLock) {
+			messagesToSend.push(msg);
+			sendAsyncLock.notifyAll();
+		}
+	}
+	
+	public void sendStringSynchronous(String msg) throws ProtocolException {
 		try {
 			synchronized (sendLock) {
 				byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
