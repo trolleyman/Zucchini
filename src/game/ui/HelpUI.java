@@ -192,9 +192,9 @@ public class HelpUI extends UI implements InputPipeMulti{
 		strWS[4] = "throughout which are weapons for you to";
 		strWS[5] = "pick up.";
 		strWS[6] = "";
-		strWS[7] = "As time in the game goes on, the maze";
-		strWS[8] = "will fill with flesh-eating zombies!";
-		strWS[9] = "Nowhere is safe...except the centre.";
+		strWS[7] = "The maze is filled with flesh-eating";
+		strWS[8] = "zombies! Nowhere is safe, and the best";
+		strWS[9] = "weapons you need are in the centre.";
 		strWS[10] = "Do what you can to keep yourself alive";
 		strWS[11] = "from the zombies and other players who";
 		strWS[12] = "are out to get you. Good luck!";
