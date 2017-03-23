@@ -43,6 +43,8 @@ public class AIPlayer extends Player {
 			"DCPU-16",
 			"TIS-100",
 	};
+	/** Timeout for each AI player's intersection request */
+	private static final double INTERSECTS_TIMEOUT = 0.3;
 	
 	public static String generateRandomName() {
 		// Get random name from list
@@ -52,8 +54,10 @@ public class AIPlayer extends Player {
 	
 	public boolean debug = false;    //debug messages for when ai changes states
 	public boolean debug2 = false;  // debug messages for ai during the states
-	private transient double time;
 	public transient IStateMachine<AIPlayer, State<AIPlayer>> stateMachine;
+	
+	private transient double timeSinceLastClosestValublePickup = 0.0;
+	private transient double timeSinceLastClosestSeenEntity = 0.0;
 	
 	private Difficulty difficulty;
 	
@@ -106,12 +110,21 @@ public class AIPlayer extends Player {
 	
 	@Override
 	public void update(UpdateArgs ua) {
+		timeSinceLastClosestValublePickup += ua.dt;
+		timeSinceLastClosestSeenEntity += ua.dt;
+		
 		stateMachine.update(ua);
 		
 		super.update(ua);
 	}
 	
 	public Pickup getClosestValublePickup(UpdateArgs ua){
+		if (timeSinceLastClosestValublePickup < INTERSECTS_TIMEOUT) {
+			return null;
+		}
+		timeSinceLastClosestValublePickup = 0.0;
+		
+		// Process request
 		Vector2f temp = Util.pushTemporaryVector2f();
 		Pickup i = (Pickup)ua.bank.getClosestEntity(position.x, position.y,
 				(e) ->  ua.map.intersectsLine(this.position.x, this.position.y, e.position.x, e.position.y, temp) == null
@@ -123,6 +136,11 @@ public class AIPlayer extends Player {
 	}
 	
 	public Entity getClosestSeenEntity(UpdateArgs ua) {
+		if (timeSinceLastClosestSeenEntity < INTERSECTS_TIMEOUT) {
+			return null;
+		}
+		timeSinceLastClosestSeenEntity = 0.0;
+		
 		Vector2f temp = Util.pushTemporaryVector2f();
 		Entity ret = ua.bank.getClosestEntity(position.x, position.y,
 				(e) -> Team.isHostileTeam(this.getTeam(), e.getTeam())
