@@ -340,11 +340,11 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		// === Draw stencil if needed to another framebuffer
 		boolean drawStencil = p != null && !isPlayerDead() && r.getRenderSettings().drawLineOfSightStencil;
 		Framebuffer stencilFramebuffer = null;
-		if (r.getRenderSettings().debugDrawFramebuffer == DebugFramebuffer.STENCIL) {
+		if (!minimapMode && r.getRenderSettings().debugDrawFramebuffer == DebugFramebuffer.STENCIL) {
 			stencilFramebuffer = r.getFreeFramebuffer();
 			stencilFramebuffer.bind();
 			if (drawStencil) {
-				drawLineOfSightStencil(r);
+				drawLineOfSightStencil(r, 1);
 			}
 			r.drawBox(Align.BL, 0.0f, 0.0f, r.getWidth(), r.getHeight(), ColorUtil.WHITE);
 			r.disableStencil();
@@ -355,7 +355,7 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		r.setDefaultBlend();
 		if (drawStencil) {
 			// Render the line of sight stencil
-			drawLineOfSightStencil(r);
+			drawLineOfSightStencil(r, minimapMode ? 2 : 1);
 		}
 		float intensity = 80.0f;
 		r.drawGlitchEffect(wwlFramebuffer, glitchFramebuffer,
@@ -424,13 +424,13 @@ public class ClientWorld extends World implements InputHandler, IClientConnectio
 		}
 	}
 	
-	private void drawLineOfSightStencil(IRenderer r) {
-		r.enableStencilDraw(1);
+	private void drawLineOfSightStencil(IRenderer r, int i) {
+		r.enableStencilDraw(i);
 		
 		r.drawTriangleFan(losBuf, 0.0f, 0.0f, ColorUtil.WHITE);
 		
 		r.disableStencilDraw();
-		r.enableStencil(1);
+		r.enableStencil(i);
 	}
 	
 	private void drawLighting(IRenderer r) {
