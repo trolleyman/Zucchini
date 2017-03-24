@@ -7,13 +7,25 @@ import game.ai.State;
 import game.world.UpdateArgs;
 import game.world.map.PathFindingMap;
 import org.joml.Vector2f;
-
+/**
+ * the move towards state of the statemachine
+ * @author George Alexander
+ *
+ */
 public class MoveTowardsCentreState implements State<AIPlayer> {
+	/**
+	 * when entering the state this gets called
+	 * @param aiPlayer the ai player/owner of the statemachine
+	 */
 	@Override
 	public void enter(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub
 	}
-	
+	/**
+	 * when statemachine is updated and this is the current state this method is called
+	 * @param aiPlayer the owner of the aiplayer
+	 * @param ua the update args
+	 */
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
@@ -42,7 +54,10 @@ public class MoveTowardsCentreState implements State<AIPlayer> {
 		
 		
 	}
-	
+	/** 
+	 * method called when exiting the state
+	 * @param the owner of the state machine
+	 */
 	@Override
 	public void exit(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub

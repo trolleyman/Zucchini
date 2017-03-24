@@ -19,14 +19,14 @@ public enum Difficulty {
 	private float deviation;
 	
 	/**
-	 * Returns the turning rate, which determines how fast the AI can spin around. The higher, the more difficult the AI.
+	 *@return the turning rate, which determines how fast the AI can spin around. The higher, the more difficult the AI.
 	 */
 	public float getTurningRate() {
 		return turningRate;
 	}
 	
 	/**
-	 * Returns the deviation of the firing angle in radians. The lower, the more difficult the AI.
+	 * @return the deviation of the firing angle in radians. The lower, the more difficult the AI.
 	 */
 	public float getDeviation() {
 		return deviation;

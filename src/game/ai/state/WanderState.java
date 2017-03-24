@@ -10,21 +10,32 @@ import game.world.map.PathFindingMap;
 import org.joml.Vector2f;
 
 import java.util.Random;
-
+/**
+ * the wander state of the state machine
+ * @author George Alexander
+ *
+ */
 public class WanderState implements State<AIPlayer> {
 	private boolean wandering = false;
 	int wanderX;
 	float wanderY;
 	int counterWandering = 0;
 	Vector2f[] places = {new Vector2f(1.0f, 1.0f), new Vector2f(1.0f, 29.0f), new Vector2f(29.0f, 29.0f), new Vector2f(29.0f, 1.0f)};
-	
+	/**
+	 * when entering the state this gets called
+	 * @param aiPlayer the ai player/owner of the statemachine
+	 */
 	@Override
 	public void enter(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub
 		if (aiPlayer.debug) System.out.println("AI enters WANDER state");
 		counterWandering = 0;
 	}
-	
+	/**
+	 * when statemachine is updated and this is the current state this method is called
+	 * @param aiPlayer the owner of the aiplayer
+	 * @param ua the update args
+	 */
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		PathFindingMap pfmap = ua.map.getPathFindingMap();
@@ -79,7 +90,10 @@ public class WanderState implements State<AIPlayer> {
 		float angle = (float) Util.getAngle(aiPlayer.velocity.x, aiPlayer.velocity.y);
 		aiPlayer.handleAction(ua, new AimAction(angle));
 	}
-	
+	/** 
+	 * method called when exiting the state
+	 * @param the owner of the state machine
+	 */
 	@Override
 	public void exit(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub
