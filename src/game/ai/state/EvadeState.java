@@ -14,21 +14,32 @@ import game.world.map.PathFindingMap;
 import org.joml.Vector2f;
 
 import java.util.Random;
-
+/**
+ * The evade state of the statemachine
+ * @author George Alexander
+ *
+ */
 public class EvadeState implements State<AIPlayer> {
 	boolean kiting = false;
 	int kitingX;
 	int kitingY;
 	int counter = 0;
 	private boolean hasBegunUse;
-	
+	/**
+	 * when entering the state this gets called
+	 * @param aiPlayer the ai player/owner of the statemachine
+	 */
 	@Override
 	public void enter(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub
 		if (aiPlayer.debug) System.out.println("AI enters EVADE state");
 		hasBegunUse = false;
 	}
-	
+	/**
+	 * when statemachine is updated and this is the current state this method is called
+	 * @param aiPlayer the owner of the aiplayer
+	 * @param ua the update args
+	 */
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		
@@ -106,7 +117,10 @@ public class EvadeState implements State<AIPlayer> {
 		}
 	
 	}
-	
+	/** 
+	 * method called when exiting the state
+	 * @param the owner of the state machine
+	 */
 	@Override
 	public void exit(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub
