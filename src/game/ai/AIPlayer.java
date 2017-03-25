@@ -12,7 +12,6 @@ import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.map.Map;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -21,7 +20,7 @@ import java.util.Random;
  */
 public class AIPlayer extends Player {
 	private static final Random rng = new Random(System.currentTimeMillis() + System.nanoTime() + new Random().nextLong());
-	private static final String[] names = new String[] {
+	private static final String[] NAMES = new String[] {
 			"WALL-E",
 			"HAL_9000",
 			"AUTO",
@@ -43,14 +42,15 @@ public class AIPlayer extends Player {
 			"DCPU-16",
 			"TIS-100",
 	};
+	
 	/**
 	 * returns a random AI name 
 	 * @return randomName
 	 */
 	public static String generateRandomName() {
 		// Get random name from list
-		int i = rng.nextInt(names.length);
-		return names[i];
+		int i = rng.nextInt(NAMES.length);
+		return NAMES[i];
 	}
 	
 	public boolean debug = false;    //debug messages for when ai changes states
