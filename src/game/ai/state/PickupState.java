@@ -6,15 +6,27 @@ import game.ai.AIPlayer;
 import game.ai.State;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
-
+/**
+ * the pick up state of the statemachine
+ * @author George Alexander
+ *
+ */
 public class PickupState implements State<AIPlayer> {
+	/**
+	 * when entering the state this gets called
+	 * @param aiPlayer the ai player/owner of the statemachine
+	 */
 	@Override
 	public void enter(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub
 		if (aiPlayer.debug) System.out.println("AI enters PICKUP state");
 		
 	}
-	
+	/**
+	 * when statemachine is updated and this is the current state this method is called
+	 * @param aiPlayer the owner of the aiplayer
+	 * @param ua the update args
+	 */
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		//finds closest weapon which is worth picking up
@@ -31,15 +43,12 @@ public class PickupState implements State<AIPlayer> {
 			//if weapon is not around -> wander
 			aiPlayer.getStateMachine().changeState(new WanderState());
 		}
-		
-		//if Enemy is near and weapon useful -> DIE DIE DIE
-//		if (aiPlayer.getClosestSeenEntity(ua) != null && !aiPlayer.getHeldItem().isUseless()) {
-//			if (aiPlayer.debug2) System.out.println("Moving Toward pickup, but encounters enemy!");
-//			aiPlayer.getStateMachine().changeState(new ShootEnemyState());
-//			return;
-//		}
+
 	}
-	
+	/** 
+	 * method called when exiting the state
+	 * @param the owner of the state machine
+	 */
 	@Override
 	public void exit(AIPlayer aiPlayer) {
 		// TODO Auto-generated method stub

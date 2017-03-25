@@ -10,16 +10,27 @@ import game.world.UpdateArgs;
 import game.world.entity.Entity;
 
 import java.util.Random;
-
+/**
+ * the shoot enemy state of the statemachine
+ * @author George Alexander
+ *
+ */
 public class ShootEnemyState implements State<AIPlayer> {
 	private boolean hasBegunUse;
-	
+	/**
+	 * when entering the state this gets called
+	 * @param aiPlayer the ai player/owner of the statemachine
+	 */
 	@Override
 	public void enter(AIPlayer aiPlayer) {
 		if (aiPlayer.debug) System.out.println("AI enters SHOOT_ENEMY state");
 		hasBegunUse = false;
 	}
-	
+	/**
+	 * when statemachine is updated and this is the current state this method is called
+	 * @param aiPlayer the owner of the aiplayer
+	 * @param ua the update args
+	 */
 	@Override
 	public void update(AIPlayer aiPlayer, UpdateArgs ua) {
 		Entity kill = aiPlayer.getClosestSeenEntity(ua);
@@ -58,7 +69,10 @@ public class ShootEnemyState implements State<AIPlayer> {
 		}
 		
 	}
-	
+	/** 
+	 * method called when exiting the state
+	 * @param the owner of the state machine
+	 */
 	@Override
 	public void exit(AIPlayer aiPlayer) {
 		if (aiPlayer.debug) System.out.println("AI exits SHOOT_ENEMY state");

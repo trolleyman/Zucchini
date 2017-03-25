@@ -6,7 +6,7 @@ import game.world.UpdateArgs;
 
 /**
  * A test player ai class that will be used to test the logic of the ai decision making
- * @author Yean
+ * @author George, Yean
  *
  */
 public class TestPlayer {

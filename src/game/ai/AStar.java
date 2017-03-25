@@ -58,8 +58,10 @@ public class AStar {
 		}
 	}
 	
-	/*
+	/**
 	 * finds the path to the goal
+	 * @param start the start position
+	 * @param goal the goal position
 	 * @returns an ArrayList of nodes which is the route from start to goal
 	 */
 	public ArrayList<Node> findRoute(Node start, Node goal) {
@@ -151,8 +153,8 @@ public class AStar {
 		}
 		return route;
 	}
-	
-	/*
+
+	/**
 	 * adds the path to an array list
 	 * @param currentNode adds the current node to the path
 	 * @returns path   
@@ -167,7 +169,13 @@ public class AStar {
 		
 		return path;
 	}
-	
+	/**
+	 * 
+	 * @param goal the goal position
+	 * @param x the x coordinate of the point we want to check the heuristic
+	 * @param y the y coordinate of the point we want to check the heuristic
+	 * @return the heuristic of the point x and y
+	 */
 	private float heuristic(Node goal, int x, int y) {
 		float dx = Math.abs(x - goal.getX());
 		float dy = Math.abs(y - goal.getY());

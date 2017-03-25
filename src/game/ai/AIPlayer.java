@@ -17,7 +17,7 @@ import java.util.Random;
 
 /**
  * Represents an AI player, uses a FSM to determine it's actions
- * @author George and Yean
+ * @author George 
  */
 public class AIPlayer extends Player {
 	private static final Random rng = new Random(System.currentTimeMillis() + System.nanoTime() + new Random().nextLong());
@@ -43,7 +43,10 @@ public class AIPlayer extends Player {
 			"DCPU-16",
 			"TIS-100",
 	};
-	
+	/**
+	 * returns a random AI name 
+	 * @return randomName
+	 */
 	public static String generateRandomName() {
 		// Get random name from list
 		int i = rng.nextInt(names.length);
@@ -56,7 +59,10 @@ public class AIPlayer extends Player {
 	public transient IStateMachine<AIPlayer, State<AIPlayer>> stateMachine;
 	
 	private Difficulty difficulty;
-	
+	/**
+	 * Create a clone of the AIPlayer
+	 * @param ai the clone
+	 */
 	public AIPlayer(AIPlayer ai) {
 		super(ai);
 		this.debug = ai.debug;
@@ -68,25 +74,40 @@ public class AIPlayer extends Player {
 	
 	/**
 	 * Contructs an AIPlayer at position with a default held item
+	 * @param team 
+	 * @param position 
+	 * @param name
+	 * @param difficulty
 	 */
 	public AIPlayer(int team, Vector2f position, String name, Difficulty difficulty) {
 		super(team, position, name);
 		setup(difficulty);
 	}
 	
+
 	/**
 	 * Contructs an AIPlayer at position with an Item
+	 * @param team
+	 * @param position
+	 * @param name
+	 * @param heldItem
+	 * @param difficulty
 	 */
 	public AIPlayer(int team, Vector2f position, String name, Item heldItem, Difficulty difficulty) {
 		super(team, position, name, heldItem);
 		setup(difficulty);
 	}
-	
+	/**
+	 * sets up statemachine and difficulty of the AI Player
+	 * @param difficulty of the AIPlayer
+	 */
 	private void setup(Difficulty difficulty) {
 		stateMachine = new StateMachine<>(this, new WanderState());
 		this.difficulty = difficulty;
 	}
-	
+	/**
+	 * updates the item that the AIPlayer holds
+	 */
 	private void updateHeldItemInfo() {
 		if (this.heldItem != null) {
 			this.heldItem.setOwner(this);
@@ -99,18 +120,28 @@ public class AIPlayer extends Player {
 			Util.popTemporaryVector2f();
 		}
 	}
-	
+	/**
+	 * gets the statemachine
+	 * @return the statemachine of the ai player
+	 */
 	public IStateMachine<AIPlayer, State<AIPlayer>> getStateMachine(){
 		return stateMachine;
 	}
-	
+	/**
+	 * Update the statemachine as well as the super class
+	 * @param ua the update arguments
+	 */
 	@Override
 	public void update(UpdateArgs ua) {
 		stateMachine.update(ua);
 		
 		super.update(ua);
 	}
-	
+	/**
+	 * gets the closest visible pick up that is worth picking up
+	 * @param ua
+	 * @return the closest valuable visible pickup
+	 */
 	public Pickup getClosestValublePickup(UpdateArgs ua){
 		Vector2f temp = Util.pushTemporaryVector2f();
 		Pickup i = (Pickup)ua.bank.getClosestEntity(position.x, position.y,
@@ -122,6 +153,11 @@ public class AIPlayer extends Player {
 		return i;
 	}
 	
+	/**
+	 * gets the closest visible entity from the AI player
+	 * @param ua 
+	 * @return the closest visible entity from the AI player
+	 */
 	public Entity getClosestSeenEntity(UpdateArgs ua) {
 		Vector2f temp = Util.pushTemporaryVector2f();
 		Entity ret = ua.bank.getClosestEntity(position.x, position.y,
@@ -144,21 +180,38 @@ public class AIPlayer extends Player {
 		return this.angle + (da * (float) dt / difficulty.getTurningRate());
 	}
 	
+	/**
+	 * returns the max health
+	 * @return max health
+	 */
 	@Override
 	public float getMaxHealth() {
 		return 10.0f;
 	}
-	
+	/**
+	 * clones the AI player
+	 * @return a clone of this player
+	 */
 	@Override
 	public AIPlayer clone() {
 		return new AIPlayer(this);
 	}
-	
+	/**
+	 * checks if two connecting points are intersected by a wall
+	 * @param x0 x coordinate of point 1
+	 * @param y0 y coordinate of point 1
+	 * @param x1 x coordinate of point 2
+	 * @param y1 y coordinate of point 2
+	 */
 	@Override
 	public Vector2f intersects(float x0, float y0, float x1, float y1) {
 		return PhysicsUtil.intersectCircleLine(position.x, position.y, RADIUS, x0, y0, x1, y1, null);
 	}
-	
+	/**
+	 * render the AIPlayer
+	 * @param r used to render images
+	 * @param map the map of used for the game
+	 */
 	@Override
 	public void render(IRenderer r, Map map) {
 		updateHeldItemInfo();

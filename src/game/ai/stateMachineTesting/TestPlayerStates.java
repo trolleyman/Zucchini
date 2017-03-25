@@ -5,7 +5,7 @@ import game.world.UpdateArgs;
 
 /**
  * Contains all the possible states and their update methods that our test ai can be in
- * @author Yean
+ * @author George, Yean
  */
 public enum TestPlayerStates implements State<TestPlayer>{
 	/**
