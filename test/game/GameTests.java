@@ -19,6 +19,7 @@ import org.junit.runners.Suite;
 		WorldTests.class,
 		
 		// Standalone test classes in the game package
+		ClientTest.class,
 		InputPipeMultiTest.class,
 		InputPipeTest.class,
 		ResourcesTest.class,
