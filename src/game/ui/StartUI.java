@@ -28,13 +28,13 @@ public class StartUI extends UI implements InputPipeMulti {
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
 	/** The start button */
-	private ButtonComponent startButton;
+	protected ButtonComponent startButton;
 	/** The help button */
-	private ButtonComponent helpButton;
+	protected ButtonComponent helpButton;
 	/** The exit button */
-	private ButtonComponent exitButton;
+	protected ButtonComponent exitButton;
 	/** The mute toggle button */
-	private MuteComponent muteComponent;
+	protected MuteComponent muteComponent;
 	/** The volume slider */
 	private VolumeComponent volumeComponent;
 	

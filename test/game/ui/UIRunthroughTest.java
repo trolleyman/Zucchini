@@ -107,8 +107,17 @@ public class UIRunthroughTest {
 	}
 	
 	@Test
-	public void connectTest() throws InterruptedException {
+	public void exitTest() throws InterruptedException {
+		// Connect and go to StartUI
 		connectUsingEnter("localhost", "test0");
-		Thread.sleep(2000);
+		
+		StartUI ui = (StartUI) c.getUI();
+		synchronized (ui) {
+			// Exit application
+			ui.exitButton.onClicked();
+		}
+		Thread.sleep(100);
+		assertEquals(null, c.getUI());
+		assertFalse(t.isAlive());
 	}
 }

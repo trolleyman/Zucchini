@@ -87,7 +87,7 @@ public class MuteComponent extends AbstractButtonComponent {
 	}
 	
 	@Override
-	protected void onClicked() {
+	public void onClicked() {
 		// Toggle mute
 		if (audio.isMuted())
 			audio.unMute();

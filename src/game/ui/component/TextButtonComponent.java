@@ -74,7 +74,7 @@ public class TextButtonComponent extends AbstractButtonComponent {
 	}
 	
 	@Override
-	protected void onClicked() {
+	public void onClicked() {
 		this.setSelected(true);
 		this.callback.run();
 	}

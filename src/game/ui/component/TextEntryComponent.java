@@ -242,7 +242,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	protected void onPressed() {}
 	
 	@Override
-	protected void onClicked() {
+	public void onClicked() {
 		float mx = getMouseX();
 		float my = getMouseY();
 		

@@ -64,7 +64,7 @@ public class ButtonComponent extends AbstractButtonComponent {
 	}
 	
 	@Override
-	protected void onClicked() {
+	public void onClicked() {
 		this.callback.run();
 	}
 	
