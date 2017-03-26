@@ -1,4 +1,4 @@
-package game.ai.stateMachineTesting;
+package game.stateMachineTesting;
 
 import java.util.HashMap;
 import game.world.UpdateArgs;

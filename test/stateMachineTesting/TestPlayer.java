@@ -1,4 +1,4 @@
-package game.ai.stateMachineTesting;
+package game.stateMachineTesting;
 
 import game.ai.IStateMachine;
 import game.ai.StateMachine;

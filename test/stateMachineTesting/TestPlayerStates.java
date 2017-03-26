@@ -1,4 +1,4 @@
-package game.ai.stateMachineTesting;
+package game.stateMachineTesting;
 
 import game.ai.State;
 import game.world.UpdateArgs;
