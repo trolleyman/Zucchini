@@ -1,5 +1,6 @@
 package game.net;
 
+import game.exception.InvalidMessageException;
 import game.exception.NameException;
 import game.exception.ProtocolException;
 import org.junit.*;
@@ -11,12 +12,12 @@ import static org.junit.Assert.*;
 import static game.TestUtil.assertThrows;
 
 public class TCPConnectionTest {
-	private static TCPConnection t1;
-	private static TCPConnection t2;
+	private TCPConnection t1;
+	private TCPConnection t2;
 	
-	private static final Object lock = new Object();
+	private final Object lock = new Object();
 	
-	private static void setSocket(int port) {
+	private void setSocket(int port) {
 		try {
 			Thread.sleep(200);
 			t2 = new TCPConnection(InetAddress.getLocalHost(), port);
@@ -29,15 +30,15 @@ public class TCPConnectionTest {
 		}
 	}
 	
-	@BeforeClass
-	public static void setUp() throws IOException, ProtocolException {
+	@Before
+	public void setUp() throws IOException, ProtocolException {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// This is fine
 		}
 		ServerSocket ss = new ServerSocket(0);
-		new Thread(() -> TCPConnectionTest.setSocket(ss.getLocalPort()), "setSocket").start();
+		new Thread(() -> this.setSocket(ss.getLocalPort()), "setSocket").start();
 		Socket s = ss.accept();
 		t1 = new TCPConnection(s);
 		synchronized (lock) {
@@ -55,8 +56,8 @@ public class TCPConnectionTest {
 		}
 	}
 	
-	@AfterClass
-	public static void tearDown() throws InterruptedException {
+	@After
+	public void tearDown() throws InterruptedException {
 		t1.close();
 		t2.close();
 	}
@@ -84,5 +85,13 @@ public class TCPConnectionTest {
 		t1.close();
 		t2.close();
 		t2.close();
+	}
+	
+	@Test
+	public void invalidMessageExceptionTest() throws ProtocolException, NameException {
+		t1.sendConnectionRequest("test2", 124);
+		t2.recvConnectionRequest();
+		t2.sendString("invalid message");
+		assertThrows(InvalidMessageException.class, () -> t1.recvConnectionResponse());
 	}
 }

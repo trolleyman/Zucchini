@@ -1,5 +1,7 @@
 package game;
 
+import game.action.ActionTest;
+import game.audio.AudioManagerTests;
 import game.net.NetTests;
 import game.world.WorldTests;
 import org.junit.runner.RunWith;
@@ -10,7 +12,9 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-		// Test Suites
+		// Tests in subpackages
+		ActionTest.class,
+		AudioManagerTests.class,
 		NetTests.class,
 		WorldTests.class,
 		

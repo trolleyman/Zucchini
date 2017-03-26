@@ -310,7 +310,7 @@ public class Protocol {
 	/** @see Protocol#TCP_CONNECT_REQUEST */
 	public static Tuple<String, Integer> parseTcpConnectionRequest(String msg) throws ProtocolException {
 		if (!isTcpConnectionRequest(msg))
-			throw new InvalidMessageException(msg);
+			throw new ProtocolException("Invalid format: " + msg);
 		
 		msg = msg.substring(TCP_CONNECT_REQUEST.length());
 		if (!msg.startsWith("["))
