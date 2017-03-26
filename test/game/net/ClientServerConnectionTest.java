@@ -5,7 +5,6 @@ import game.PlayerInfo;
 import game.Util;
 import game.action.Action;
 import game.action.ActionType;
-import game.action.AimAction;
 import game.audio.event.AudioEvent;
 import game.exception.NameException;
 import game.exception.ProtocolException;
@@ -14,12 +13,13 @@ import game.net.client.ClientDiscovery;
 import game.net.client.IClientConnectionHandler;
 import game.net.server.Server;
 import game.world.entity.Entity;
-import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.EntityUpdate;
 import game.world.entity.update.TorchLightUpdate;
 import game.world.update.WorldUpdate;
 import org.junit.*;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import static game.TestUtil.assertThrows;
@@ -54,8 +54,12 @@ public class ClientServerConnectionTest {
 		}
 	}
 	
-	private static ClientConnection getTempConnection() throws NameException, ProtocolException {
-		return new ClientConnection("temp" + ccNum++);
+	private static ClientConnection getTempConnection() throws NameException, ProtocolException, UnknownHostException {
+		// Randomly choose between opening a discovery connection, or a direct connection
+		if (ccNum % 2 == 0)
+			return new ClientConnection("temp" + ccNum++);
+		else
+			return new ClientConnection("temp" + ccNum++, InetAddress.getLocalHost());
 	}
 	
 	private static boolean accepted;
@@ -207,7 +211,7 @@ public class ClientServerConnectionTest {
 	 * @see PacketCache
 	 */
 	@Test
-	public void packetCache() throws ProtocolException, NameException, InterruptedException {
+	public void packetCache() throws ProtocolException, NameException, InterruptedException, UnknownHostException {
 		PacketCache c = new PacketCache();
 		c.sendStringTcp(Protocol.sendMessageToServer("testmessage1"));
 		c.sendStringTcp(Protocol.sendMessageToServer("testmessage2"));
@@ -229,10 +233,29 @@ public class ClientServerConnectionTest {
 		c.processCache(cc);
 		
 		// Wait for a bit, then check if we have passed the test
-		Thread.sleep(500);
+		Thread.sleep(1000);
 		assertTrue(cch.hasPassed());
 		cc.close();
 	}
 	
+	private boolean passedMaliciousClient;
 	
+	/**
+	 * Malicious clients shouldn't take down the server
+	 */
+	@Test
+	public void maliciousClients() throws NameException, ProtocolException, InterruptedException, UnknownHostException {
+		passedMaliciousClient = false;
+		ClientConnection cc1 = getTempConnection();
+		ClientConnection cc2 = getTempConnection();
+		
+		Thread.sleep(200);
+		cc1.sendStringTcp(Protocol.TAG_LOBBY_CREATE_REQUEST + "INVALID MESSAGE IU!HD&U!C\"\\2");
+		cc2.getLobbies((lobs) -> passedMaliciousClient = true, (err) -> {});
+		
+		Thread.sleep(1000);
+		assertTrue(passedMaliciousClient);
+		assertTrue(cc1.isClosed());
+		cc2.close();
+	}
 }

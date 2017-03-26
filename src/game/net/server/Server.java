@@ -58,11 +58,13 @@ public class Server {
 		
 		// Stop all lobby threads & clients
 		synchronized (lock) {
-			for (ClientHandler ch : clients.values()) {
+			ArrayList<ClientHandler> tempClients = new ArrayList<>(clients.values());
+			for (ClientHandler ch : tempClients) {
 				ch.close();
 			}
 			
-			for (Lobby l : lobbies.values()) {
+			ArrayList<Lobby> tempLobbies = new ArrayList<>(lobbies.values());
+			for (Lobby l : tempLobbies) {
 				l.destroy();
 			}
 		}
@@ -153,7 +155,7 @@ public class Server {
 			outTCP("[Accept]: " + sock.getRemoteSocketAddress() + ": Accepting client...");
 			TCPConnection tcpConn = new TCPConnection(sock);
 			
-			Tuple<String, InetSocketAddress> pair = tcpConn.recvConnectionRequest();
+			Pair<String, InetSocketAddress> pair = tcpConn.recvConnectionRequest();
 			String name = pair.getFirst();
 			InetSocketAddress address = pair.getSecond();
 			
@@ -274,7 +276,10 @@ public class Server {
 	}
 	
 	private void handleTcpMessage(String name, String msg) {
-		ClientHandler handler = clients.get(name);
+		ClientHandler handler;
+		synchronized (lock) {
+			handler = clients.get(name);
+		}
 		ClientInfo info = handler.getClientInfo();
 		if (Protocol.isLobbiesRequest(msg)) {
 			ArrayList<LobbyInfo> lobbyInfos = new ArrayList<>();

@@ -192,7 +192,7 @@ public class ClientConnection implements IClientConnection {
 						cch.handleWorldUpdate(update);
 					}
 				} else if (Protocol.isMessageToClient(msg)) {
-					Tuple<String, String> t = Protocol.parseMessageToClient(msg);
+					Pair<String, String> t = Protocol.parseMessageToClient(msg);
 					String name = t.getFirst();
 					String cmsg = t.getSecond();
 					synchronized (cchLock) {

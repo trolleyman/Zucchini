@@ -66,7 +66,7 @@ public class TCPConnectionTest {
 	public void send() throws ProtocolException, NameException {
 		// Connection request & response
 		t1.sendConnectionRequest("test1", 123);
-		Tuple<String, InetSocketAddress> t = t2.recvConnectionRequest();
+		Pair<String, InetSocketAddress> t = t2.recvConnectionRequest();
 		assertEquals("test1", t.getFirst());
 		assertEquals(123, t.getSecond().getPort());
 		t2.sendConnectionResponseSuccess();

@@ -10,7 +10,6 @@ import game.action.Action;
 import game.action.ActionType;
 import game.action.AimAction;
 import game.audio.event.AudioEvent;
-import game.exception.InvalidMessageException;
 import game.exception.ProtocolException;
 import game.net.codec.ObjectCodec;
 import game.world.entity.Entity;
@@ -33,7 +32,7 @@ public class Protocol {
 	 * port = The UDP port to connect to <br>
 	 * username = The requested username of the client
 	 */
-	private static final String TCP_CONNECT_REQUEST = "[CONNECT]";
+	protected static final String TCP_CONNECT_REQUEST = "[CONNECT]";
 	/**
 	 * TCP Connect Response (Accept)
 	 * <p>
@@ -110,7 +109,7 @@ public class Protocol {
 	 * @see Action
 	 * @see ActionType
 	 */
-	private static final String TAG_ACTION = "[ACT]";
+	protected static final String TAG_ACTION = "[ACT]";
 	/**
 	 * Add Entity
 	 * <p>
@@ -163,7 +162,7 @@ public class Protocol {
 	 * Format: TAG_LOBBIES_RESPONSE lobbies <br>
 	 * lobbies = JSON array of {@link LobbyInfo}
 	 */
-	private static final String TAG_LOBBIES_RESPONSE = "[LOBRES]";
+	protected static final String TAG_LOBBIES_RESPONSE = "[LOBRES]";
 	/**
 	 * Full Update Request
 	 * <p>
@@ -206,7 +205,7 @@ public class Protocol {
 	 * Format: TAG_LOBBY_UPDATE info <br>
 	 * info = {@link LobbyInfo} encoded in JSON using {@link ObjectCodec}
 	 */
-	private static final String TAG_LOBBY_UPDATE = "[LOBBY_UPDATE]";
+	protected static final String TAG_LOBBY_UPDATE = "[LOBBY_UPDATE]";
 	/**
 	 * Lobby Leave Request
 	 * <p>
@@ -229,7 +228,7 @@ public class Protocol {
 	 * Format: TAG_LOBBY_CREATE_REQUEST info <br>
 	 * info = {@link LobbyInfo} on the lobby to be created
 	 */
-	private static final String TAG_LOBBY_CREATE_REQUEST = "[LOBBY_CREATE]";
+	protected static final String TAG_LOBBY_CREATE_REQUEST = "[LOBBY_CREATE]";
 	/**
 	 * Lobby Create Response (Accept)
 	 * <p>
@@ -264,7 +263,7 @@ public class Protocol {
 	 * playerId = The entity ID of the client's avatar <br>
 	 * map = The {@link Map} that was chosen, encoded in JSON using {@link ObjectCodec}
 	 */
-	private static final String TAG_WORLD_START = "[WORLD_START]";
+	protected static final String TAG_WORLD_START = "[WORLD_START]";
 	/**
 	 * World Update
 	 * <p>
@@ -294,7 +293,7 @@ public class Protocol {
 	 * message = The message
 	 * @see Message
 	 */
-	private static final String TAG_MESSAGE_TO_CLIENT = "[MESS_C]";
+	protected static final String TAG_MESSAGE_TO_CLIENT = "[MESS_C]";
 	
 	
 	/** @see Protocol#TCP_CONNECT_REQUEST */
@@ -308,10 +307,7 @@ public class Protocol {
 	}
 	
 	/** @see Protocol#TCP_CONNECT_REQUEST */
-	public static Tuple<String, Integer> parseTcpConnectionRequest(String msg) throws ProtocolException {
-		if (!isTcpConnectionRequest(msg))
-			throw new ProtocolException("Invalid format: " + msg);
-		
+	public static Pair<String, Integer> parseTcpConnectionRequest(String msg) throws ProtocolException {
 		msg = msg.substring(TCP_CONNECT_REQUEST.length());
 		if (!msg.startsWith("["))
 			throw new ProtocolException("Invalid format: " + msg);
@@ -329,7 +325,7 @@ public class Protocol {
 		}
 		
 		String name = msg.substring(i + 1);
-		return new Tuple<>(name, port);
+		return new Pair<>(name, port);
 	}
 	
 	
@@ -374,7 +370,7 @@ public class Protocol {
 	public static String sendAction(Action a) {
 		String s = TAG_ACTION + "[" + a.getType() + "]";
 		if (a instanceof AimAction)
-			s += ":" + ((AimAction) a).getAngle();
+			s += ((AimAction) a).getAngle();
 		return s;
 	}
 	
@@ -400,9 +396,7 @@ public class Protocol {
 		
 		if (found.equals(ActionType.AIM)) {
 			int i = s.indexOf(']');
-			if (i == -1)
-				throw new ProtocolException("Invalid action: " + s);
-			String sangle = s.substring(i + 2);
+			String sangle = s.substring(i + 1);
 			float angle;
 			try {
 				angle = Float.parseFloat(sangle);
@@ -570,9 +564,6 @@ public class Protocol {
 	
 	/** @see Protocol#TAG_LOBBY_JOIN_REQUEST */
 	public static String parseLobbyJoinRequest(String msg) throws ProtocolException {
-		if (msg.length() < TAG_LOBBY_JOIN_REQUEST.length())
-			throw new ProtocolException("Invalid lobby join request: Too short: " + msg);
-		
 		return msg.substring(TAG_LOBBY_JOIN_REQUEST.length());
 	}
 	
@@ -616,9 +607,6 @@ public class Protocol {
 	
 	/** @see Protocol#TAG_LOBBY_UPDATE */
 	public static LobbyInfo parseLobbyUpdate(String msg) throws ProtocolException {
-		if (msg.length() < TAG_LOBBY_UPDATE.length())
-			throw new ProtocolException("Invalid lobby update: Too short: " + msg);
-		
 		String nmsg = msg.substring(TAG_LOBBY_UPDATE.length());
 		try {
 			return ObjectCodec.getGson().fromJson(nmsg, LobbyInfo.class);
@@ -738,8 +726,12 @@ public class Protocol {
 		}
 		
 		String sMap = s.substring(i + 1);
-		Map map = ObjectCodec.getGson().fromJson(sMap, Map.class);
-		return new WorldStart(map, playerId);
+		try {
+			Map map = ObjectCodec.getGson().fromJson(sMap, Map.class);
+			return new WorldStart(map, playerId);
+		} catch (JsonParseException e) {
+			throw new ProtocolException(e);
+		}
 	}
 	
 	
@@ -779,7 +771,7 @@ public class Protocol {
 	 * @see Protocol#TAG_MESSAGE_TO_SERVER
 	 * @see Protocol#TAG_MESSAGE_TO_CLIENT
 	 */
-	private static final char NAME_SEPERATOR = ' ';
+	protected static final char NAME_SEPERATOR = ' ';
 	
 	static {
 		// Ensure that the name seperator will not occur in a username
@@ -797,7 +789,7 @@ public class Protocol {
 	}
 	
 	/** @see Protocol#TAG_MESSAGE_TO_CLIENT */
-	public static Tuple<String, String> parseMessageToClient(String msg) throws ProtocolException {
+	public static Pair<String, String> parseMessageToClient(String msg) throws ProtocolException {
 		msg = msg.substring(TAG_MESSAGE_TO_CLIENT.length());
 		int i = msg.indexOf(NAME_SEPERATOR);
 		if (i == -1)
@@ -805,6 +797,6 @@ public class Protocol {
 		
 		String name = msg.substring(0, i);
 		String cmsg = msg.substring(i + 1);
-		return new Tuple<>(name, cmsg);
+		return new Pair<>(name, cmsg);
 	}
 }
