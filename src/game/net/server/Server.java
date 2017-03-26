@@ -11,7 +11,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Server implements Runnable {
+public class Server {
 	private volatile boolean running;
 	
 	private final Object lock = new Object();
@@ -24,11 +24,13 @@ public class Server implements Runnable {
 	private UDPSource udpSource;
 	
 	public Server() {
-		
+	
 	}
 	
-	@Override
-	public void run() {
+	/**
+	 * Starts the threads up for handling the server
+	 */
+	public void start() {
 		running = true;
 		
 		Thread udpDiscoveryServer = new Thread(this::runUdpDiscoveryServer, "UDP Discovery Server");
@@ -46,6 +48,24 @@ public class Server implements Runnable {
 		}
 		
 		createLobby("test lobby", 1, 4);
+	}
+	
+	/**
+	 * Stops the current server
+	 */
+	public void stop() {
+		running = false;
+		
+		// Stop all lobby threads & clients
+		synchronized (lock) {
+			for (ClientHandler ch : clients.values()) {
+				ch.close();
+			}
+			
+			for (Lobby l : lobbies.values()) {
+				l.destroy();
+			}
+		}
 	}
 	
 	private void outUDP(String msg) {
@@ -67,51 +87,64 @@ public class Server implements Runnable {
 			throw new RuntimeException(e);
 		}
 		
-		while (running) {
-			try {
-				DatagramPacket packet = conn.recv();
-				String msg = conn.decode(packet);
-				if (Protocol.isDiscoveryRequest(msg)) {
-					// Respond
-					outUDP("[Discovery]: Received discovery request from " + packet.getSocketAddress());
-					conn.sendString(Protocol.sendDiscoveryResponse(), packet.getSocketAddress());
-					outUDP("[Discovery]: Sent discovery response to " + packet.getSocketAddress());
-				} else {
-					outUDP("[Discovery]: Unknown message received: " + msg);
+		try {
+			while (running) {
+				try {
+					DatagramPacket packet = conn.recv();
+					String msg = conn.decode(packet);
+					if (Protocol.isDiscoveryRequest(msg)) {
+						// Respond
+						outUDP("[Discovery]: Received discovery request from " + packet.getSocketAddress());
+						conn.sendString(Protocol.sendDiscoveryResponse(), packet.getSocketAddress());
+						outUDP("[Discovery]: Sent discovery response to " + packet.getSocketAddress());
+					} else {
+						outUDP("[Discovery]: Unknown message received: " + msg);
+					}
+				} catch (ProtocolException e) {
+					System.err.println("[UDP]: [Discovery]: Error: " + e.toString());
+					e.printStackTrace();
 				}
-			} catch (ProtocolException e) {
-				System.err.println("[UDP]: [Discovery]: Error: " + e.toString());
-				e.printStackTrace();
 			}
+		} finally {
+			// Close sockets when stopping
+			conn.close();
 		}
 	}
 	
 	private void runTcpServer() {
-		ServerSocket serverSocket = null;
+		ServerSocket serverSocket;
 		try {
 			serverSocket = new ServerSocket(Protocol.TCP_SERVER_PORT);
 			serverSocket.setReuseAddress(true);
 		} catch (IOException e) {
 			System.err.println("[TCP]: Error: Unable to open TCP Socket");
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 		
-		outTCP("[Accept]: Listening on port " + Protocol.TCP_SERVER_PORT + "...");
-		while (running) {
-			Socket sock;
-			try {
-				// Accept TCP connection
-				sock = serverSocket.accept();
-			} catch (IOException e) {
-				System.err.println("Error: Unable to accept TCP Socket");
-				e.printStackTrace();
-				System.exit(1);
-				return;
+		try {
+			outTCP("[Accept]: Listening on port " + Protocol.TCP_SERVER_PORT + "...");
+			while (running) {
+				Socket sock;
+				try {
+					// Accept TCP connection
+					sock = serverSocket.accept();
+				} catch (IOException e) {
+					System.err.println("Error: Unable to accept TCP Socket");
+					e.printStackTrace();
+					System.exit(1);
+					return;
+				}
+				
+				Thread t = new Thread(() -> acceptSocket(sock), "TCP Handler: " + sock.getRemoteSocketAddress());
+				t.start();
 			}
-			
-			Thread t = new Thread(() -> acceptSocket(sock), "TCP Handler: " + sock.getRemoteSocketAddress());
-			t.start();
+		} finally {
+			// Close sockets when stopping
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+				// This is fine
+			}
 		}
 	}
 	

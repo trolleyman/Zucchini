@@ -60,7 +60,7 @@ public class ClientDiscovery {
 	
 	/**
 	 * Try to discover the server a specified number of times. If the number of tries is exceeded, throws a ProtocolException
-	 * @param tries
+	 * @param tries The number of tries
 	 */
 	public void tryDiscover(int tries) throws NameException, ProtocolException {
 		UDPConnection broadcastConn = new UDPConnection();
@@ -76,7 +76,7 @@ public class ClientDiscovery {
 			broadcastDiscoveryPacket(broadcastConn);
 			
 			// Recieve packet on port
-			DatagramPacket recv = broadcastConn.recv(3000);
+			DatagramPacket recv = broadcastConn.recv(1500);
 			
 			if (recv == null) {
 				out("Recv timed out. Trying again...");

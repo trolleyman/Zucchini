@@ -366,9 +366,6 @@ public class Protocol {
 	
 	/** @see Protocol#TCP_CONNECT_RESPONSE_REJ */
 	public static String parseTcpConnectionResponseReject(String msg) throws ProtocolException {
-		if (!msg.startsWith(TCP_CONNECT_RESPONSE_REJ))
-			throw new InvalidMessageException(msg);
-		
 		return msg.substring(TCP_CONNECT_RESPONSE_REJ.length());
 	}
 	

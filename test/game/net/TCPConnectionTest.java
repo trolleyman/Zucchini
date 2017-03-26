@@ -11,15 +11,15 @@ import static org.junit.Assert.*;
 import static game.TestUtil.assertThrows;
 
 public class TCPConnectionTest {
-	private TCPConnection t1;
-	private TCPConnection t2;
+	private static TCPConnection t1;
+	private static TCPConnection t2;
 	
-	private final Object lock = new Object();
+	private static final Object lock = new Object();
 	
-	private void setSocket() {
+	private static void setSocket(int port) {
 		try {
 			Thread.sleep(200);
-			t2 = new TCPConnection(InetAddress.getLocalHost(), Protocol.TCP_SERVER_PORT);
+			t2 = new TCPConnection(InetAddress.getLocalHost(), port);
 			Thread.sleep(200);
 			synchronized (lock) {
 				lock.notifyAll();
@@ -29,25 +29,34 @@ public class TCPConnectionTest {
 		}
 	}
 	
-	@Before
-	public void setUp() {
+	@BeforeClass
+	public static void setUp() throws IOException, ProtocolException {
 		try {
-			ServerSocket ss = new ServerSocket(Protocol.TCP_SERVER_PORT);
-			new Thread(this::setSocket, "setSocket").start();
-			Socket s = ss.accept();
-			t1 = new TCPConnection(s);
-			synchronized (lock) {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// This is fine
+		}
+		ServerSocket ss = new ServerSocket(0);
+		new Thread(() -> TCPConnectionTest.setSocket(ss.getLocalPort()), "setSocket").start();
+		Socket s = ss.accept();
+		t1 = new TCPConnection(s);
+		synchronized (lock) {
+			try {
 				lock.wait();
+			} catch (InterruptedException e) {
+				// This is fine
 			}
-			ss.close();
+		}
+		ss.close();
+		try {
 			Thread.sleep(200);
-		} catch (InterruptedException | IOException | ProtocolException e) {
-			throw new RuntimeException(e);
+		} catch (InterruptedException e) {
+			// This is fine
 		}
 	}
 	
-	@After
-	public void tearDown() throws InterruptedException {
+	@AfterClass
+	public static void tearDown() throws InterruptedException {
 		t1.close();
 		t2.close();
 	}

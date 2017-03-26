@@ -110,7 +110,7 @@ public class ClientHandler {
 		}
 	}
 	
-	private void close() {
+	public void close() {
 		synchronized (this) {
 			if (isClosed())
 				return;

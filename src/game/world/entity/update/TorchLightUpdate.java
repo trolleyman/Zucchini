@@ -29,6 +29,10 @@ public class TorchLightUpdate extends EntityUpdate {
 		}
 	}
 	
+	public boolean isOn() {
+		return on;
+	}
+	
 	@Override
 	public TorchLightUpdate clone() {
 		return new TorchLightUpdate(this);
