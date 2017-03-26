@@ -1,9 +1,7 @@
 package game.net;
 
 import game.exception.ProtocolException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
@@ -39,11 +37,9 @@ public class UDPConnectionTest {
 	
 	@Test
 	public void send() throws ProtocolException {
-		UDPConnection serverConn = new UDPConnection(Protocol.UDP_SERVER_PORT);
-		c1.sendString("test2", new InetSocketAddress("localhost", serverConn.getSocket().getLocalPort()));
-		String s = serverConn.recvString();
+		c1.sendString("test2", new InetSocketAddress("localhost", c2.getSocket().getLocalPort()));
+		String s = c2.recvString();
 		assertEquals("test2", s);
-		serverConn.close();
 	}
 	
 	@Test

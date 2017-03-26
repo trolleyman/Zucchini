@@ -234,6 +234,10 @@ public class HelpUI extends UI implements InputPipeMulti{
 		exitBtn.setX(winWidth - 150);
 		exitBtn.setY(winHeight - 150);
 		
+		float fSize = winWidth/7000;
+		float gapSize = winWidth/60;
+
+		
 		if(imageCount<3){
 			r.drawText(font, "HOW TO SET UP A GAME", Align.TL, false, winWidth/3, winHeight, 1.0f);
 		}
@@ -244,7 +248,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			logInScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLIS.length; i++){
-				r.drawText(font, strLIS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
+				r.drawText(font, strLIS[i], Align.BL, false, winWidth - (winWidth/3), winHeight - (winHeight/9) - (gapSize*i), fSize);
 			}
 		}else if(imageCount==1){
 			lobbyScreen.setX(winWidth/15);
@@ -252,7 +256,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			lobbyScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLS.length; i++){
-				r.drawText(font, strLS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
+				r.drawText(font, strLS[i], Align.BL, false, winWidth - (winWidth/3), winHeight - (winHeight/9) - (gapSize*i), fSize);
 			}
 		}else if(imageCount==2){
 			lobbyWaitScreen.setX(winWidth/15);
@@ -260,7 +264,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			lobbyWaitScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strLWS.length; i++){
-				r.drawText(font, strLWS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
+				r.drawText(font, strLWS[i], Align.BL, false, winWidth - (winWidth/3), winHeight - (winHeight/9) - (gapSize*i), fSize);
 			}
 		}
 		
@@ -274,7 +278,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			gameScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < 15; i++){
-				r.drawText(font, strGS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*(i)), 0.4f);
+				r.drawText(font, strGS[i], Align.BL, false, winWidth - (winWidth/3), winHeight - (winHeight/9) - (gapSize*i), fSize);
 			}
 		}else if(imageCount==4){
 			gameScreen.setX(winWidth/15);
@@ -282,7 +286,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			gameScreen.render2(r, 1.8f);
 			
 			for(int i = 15; i < strGS.length; i++){
-				r.drawText(font, strGS[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*(i-15)), 0.4f);
+				r.drawText(font, strGS[i], Align.BL, false, winWidth - (winWidth/3), winHeight - (winHeight/8) - (gapSize*(i-15)), fSize);
 			}
 		}else if(imageCount==5){
 			escapeScreen.setX(winWidth/15);
@@ -290,7 +294,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 			escapeScreen.render2(r, 1.8f);
 			
 			for(int i = 1; i < strES.length; i++){
-				r.drawText(font, strES[i], Align.BL, false, winWidth - 900, winHeight - 200 - (50*i), 0.4f);
+				r.drawText(font, strES[i], Align.BL, false, winWidth - (winWidth/3), winHeight - (winHeight/9) - (gapSize*i), fSize);
 			}
 		}
 		
@@ -300,13 +304,14 @@ public class HelpUI extends UI implements InputPipeMulti{
 		
 		if(imageCount==6){
 			for(int i = 1; i < strWS.length; i++){
-				r.drawText(font, strWS[i], Align.BL, false, 300, winHeight - 150 - (50*i), 0.8f);
+				r.drawText(font, strWS[i], Align.BL, false, (winWidth/3), winHeight - (winHeight/9) - (gapSize*i), fSize*1.5f);
 			}
 		}
 		
-		exitBtn.render(r);
-		nextBtn.render(r);
-		backBtn.render(r, 350.0f, 100.0f);
+		float resize = winWidth/30;
+		exitBtn.render(r, resize, resize);
+		nextBtn.render(r, resize, resize);
+		backBtn.render(r, resize*3.5f, resize);
 	}
 	
 	@Override

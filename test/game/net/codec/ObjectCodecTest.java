@@ -1,5 +1,6 @@
 package game.net.codec;
 
+import com.google.gson.JsonParseException;
 import game.audio.event.AudioEvent;
 import game.audio.event.AudioStopEvent;
 import game.exception.ProtocolException;
@@ -12,6 +13,8 @@ import game.world.entity.weapon.Knife;
 import game.world.update.StartTimeWorldUpdate;
 import game.world.update.WorldUpdate;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -88,5 +91,47 @@ public class ObjectCodecTest {
 		assertThrows(ProtocolException.class, () -> ObjectCodec.entityFromString("{\"type\":\"game.world.entity.Entity\",data:{}}"));
 		// This should not work as it is instantiating an abstract class, and this should never happen
 		assertThrows(RuntimeException.class, () -> ObjectCodec.entityFromString("{\"type\":\"game.world.entity.weapon.Weapon\",data:{}}"));
+	}
+	
+	@Test
+	public void vector2f() {
+		Vector2f v0 = new Vector2f(1.0f, 2.0f);
+		Vector2f v1 = ObjectCodec.getGson().fromJson(ObjectCodec.getGson().toJson(v0), Vector2f.class);
+		assertEquals(v0, v1);
+		
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0\"", Vector2f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0,\"", Vector2f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\",1.0,\"", Vector2f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0,q\"", Vector2f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"s,1.0\"", Vector2f.class));
+	}
+	
+	@Test
+	public void vector3f() {
+		Vector3f v0 = new Vector3f(1.0f, 2.0f, 3.0f);
+		Vector3f v1 = ObjectCodec.getGson().fromJson(ObjectCodec.getGson().toJson(v0), Vector3f.class);
+		assertEquals(v0, v1);
+		
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0\"", Vector3f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0,\"", Vector3f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\",1.0,\"", Vector3f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0,q\"", Vector3f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"s,1.0,1\"", Vector3f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1,1.0,q\"", Vector3f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1,r,1\"", Vector3f.class));
+	}
+	
+	@Test
+	public void vector4f() {
+		Vector4f v0 = new Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
+		Vector4f v1 = ObjectCodec.getGson().fromJson(ObjectCodec.getGson().toJson(v0), Vector4f.class);
+		assertEquals(v0, v1);
+		
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0\"", Vector4f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0,\"", Vector4f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\",1.0,\"", Vector4f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"1.0,q\"", Vector4f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"s,1.0\"", Vector4f.class));
+		assertThrows(JsonParseException.class, () -> ObjectCodec.getGson().fromJson("\"4,1.0,2.0,f\"", Vector4f.class));
 	}
 }

@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.CharsetDecoder;
@@ -155,15 +154,15 @@ public class TCPConnection {
 	 * Receives a connection request
 	 * @return The name of the client + the SocketAddress of the client
 	 */
-	public Tuple<String, InetSocketAddress> recvConnectionRequest() throws ProtocolException {
+	public Pair<String, InetSocketAddress> recvConnectionRequest() throws ProtocolException {
 		String msg = this.recvString();
 		if (!Protocol.isTcpConnectionRequest(msg))
 			throw new ProtocolException("Not TCP Connection Request: " + msg);
 		
-		Tuple<String, Integer> pair = Protocol.parseTcpConnectionRequest(msg);
+		Pair<String, Integer> pair = Protocol.parseTcpConnectionRequest(msg);
 		String name = pair.getFirst();
 		int port = pair.getSecond();
-		return new Tuple<>(name, new InetSocketAddress(tcpSocket.getInetAddress(), port));
+		return new Pair<>(name, new InetSocketAddress(tcpSocket.getInetAddress(), port));
 	}
 	
 	/**

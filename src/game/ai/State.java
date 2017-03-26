@@ -5,7 +5,7 @@ import game.world.UpdateArgs;
 /**
  * The state of a state machine is the logic of the entities
  * that enter or exit a state. 
- * @author Yean
+ * @author Yean, George
  *
  * @param <E> The entity handled by this state machine
  */

@@ -5,7 +5,7 @@ import game.world.UpdateArgs;
 
 /**
  * Tests the logic of the state machine by role playing what events that our ai will go through
- * @author Yean
+ * @author George, Yean
  */
 public class TestFSMLogic {
 	public final static int refreshRate = 1; //artificial update rate per second

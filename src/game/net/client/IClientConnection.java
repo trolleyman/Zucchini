@@ -2,7 +2,6 @@ package game.net.client;
 
 import game.LobbyInfo;
 import game.action.Action;
-import game.exception.LobbyJoinException;
 import game.exception.ProtocolException;
 
 import java.util.ArrayList;

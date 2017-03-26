@@ -15,10 +15,10 @@ public class AimAction extends Action {
 	 * Constructs an {@link game.action.ActionType#AIM AIM} action.
 	 * @param angle angle in the same format as {@link game.world.entity.Entity#angle Entity.angle}.
 	 */
-	public AimAction(float _angle) {
+	public AimAction(float angle) {
 		super(ActionType.AIM);
 		
-		this.angle = _angle;
+		this.angle = angle;
 	}
 	
 	/**
@@ -35,10 +35,5 @@ public class AimAction extends Action {
 	 */
 	public void setAngle(float _angle) {
 		this.angle = _angle;
-	}
-	
-	@Override
-	public String toString() {
-		return super.toString() + ": " + angle;
 	}
 }

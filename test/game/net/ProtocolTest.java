@@ -3,6 +3,7 @@ package game.net;
 import game.LobbyInfo;
 import game.PlayerInfo;
 import game.action.Action;
+import game.action.ActionType;
 import game.action.AimAction;
 import game.audio.event.AudioEvent;
 import game.audio.event.AudioStopEvent;
@@ -20,6 +21,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static game.TestUtil.assertThrows;
 import static org.junit.Assert.*;
 
 public class ProtocolTest {
@@ -27,21 +29,29 @@ public class ProtocolTest {
 	public void sendTcpConnectionRequest() throws ProtocolException {
 		String msg = Protocol.sendTcpConnectionRequest("test123", 456);
 		assertTrue(Protocol.isTcpConnectionRequest(msg));
-		Tuple<String, Integer> t = Protocol.parseTcpConnectionRequest(msg);
+		Pair<String, Integer> t = Protocol.parseTcpConnectionRequest(msg);
 		assertEquals("test123", t.getFirst());
 		assertEquals(456, (int)t.getSecond());
+		
+		assertThrows(ProtocolException.class, () -> Protocol.parseTcpConnectionRequest(Protocol.TCP_CONNECT_REQUEST + "[s]name"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseTcpConnectionRequest(Protocol.TCP_CONNECT_REQUEST + "1]name"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseTcpConnectionRequest(Protocol.TCP_CONNECT_REQUEST + "[14"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseTcpConnectionRequest(Protocol.TCP_CONNECT_REQUEST + "14name"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseTcpConnectionRequest(Protocol.TCP_CONNECT_REQUEST + "[]name"));
 	}
 	
 	@Test
 	public void sendTcpConnectionResponseAccept() throws ProtocolException {
 		String msg = Protocol.sendTcpConnectionResponseAccept();
 		assertTrue(Protocol.isTcpConnectionResponseAccept(msg));
+		assertTrue(Protocol.isTcpConnectionResponse(msg));
 	}
 	
 	@Test
 	public void sendTcpConnectionResponseReject() throws ProtocolException {
 		String msg = Protocol.sendTcpConnectionResponseReject("reason");
 		assertTrue(Protocol.isTcpConnectionResponseReject(msg));
+		assertTrue(Protocol.isTcpConnectionResponse(msg));
 		assertEquals("reason", Protocol.parseTcpConnectionResponseReject(msg));
 	}
 	
@@ -54,6 +64,17 @@ public class ProtocolTest {
 		assertEquals(a2.getType(), a1.getType());
 		assertTrue(a2 instanceof AimAction);
 		assertEquals(((AimAction)a2).getAngle(), a1.getAngle(), 0.0001f);
+		
+		assertEquals(ActionType.BEGIN_MOVE_EAST, Protocol.parseAction(Protocol.sendAction(new Action(ActionType.BEGIN_MOVE_EAST))).getType());
+		
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION + "[]"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION + "]"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION + "["));
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION + "[AIM"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION));
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION + "[" + ActionType.AIM + "]"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION + "[" + ActionType.AIM + "]d"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseAction(Protocol.TAG_ACTION + "[" + ActionType.AIM + "]1.0faw"));
 	}
 	
 	@Test
@@ -147,6 +168,10 @@ public class ProtocolTest {
 			LobbyInfo l2 = ls2.get(i);
 			assertLobbyInfoEquals(l1, l2);
 		}
+		
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbiesResponse(Protocol.TAG_LOBBIES_RESPONSE + "{A@W"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbiesResponse(Protocol.TAG_LOBBIES_RESPONSE + "{\"\"}"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbiesResponse(Protocol.TAG_LOBBIES_RESPONSE + "[\"]"));
 	}
 	
 	@Test
@@ -198,6 +223,10 @@ public class ProtocolTest {
 		assertTrue(Protocol.isLobbyUpdate(msg));
 		LobbyInfo l2 = Protocol.parseLobbyUpdate(msg);
 		assertLobbyInfoEquals(l1, l2);
+		
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbyUpdate(Protocol.TAG_LOBBY_UPDATE + "{\"}"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbyUpdate(Protocol.TAG_LOBBY_UPDATE + "}"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbyUpdate(Protocol.TAG_LOBBY_UPDATE + "[]"));
 	}
 	
 	@Test
@@ -218,6 +247,10 @@ public class ProtocolTest {
 		String msg = Protocol.sendLobbyCreateRequest(l1);
 		assertTrue(Protocol.isLobbyCreateRequest(msg));
 		assertLobbyInfoEquals(l1, Protocol.parseLobbyCreateRequest(msg));
+		
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbyCreateRequest(Protocol.TAG_LOBBY_CREATE_REQUEST + "{\"}"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbyCreateRequest(Protocol.TAG_LOBBY_CREATE_REQUEST + "}"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseLobbyCreateRequest(Protocol.TAG_LOBBY_CREATE_REQUEST + "[]"));
 	}
 	
 	@Test
@@ -257,6 +290,11 @@ public class ProtocolTest {
 			assertEquals(w1.p0, w2.p0);
 			assertEquals(w1.p1, w2.p1);
 		}
+		
+		assertThrows(ProtocolException.class, () -> Protocol.parseWorldStart(Protocol.TAG_WORLD_START + "a]"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseWorldStart(Protocol.TAG_WORLD_START + "[a]{}"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseWorldStart(Protocol.TAG_WORLD_START + "[1"));
+		assertThrows(ProtocolException.class, () -> Protocol.parseWorldStart(Protocol.TAG_WORLD_START + "[1]{d}"));
 	}
 	
 	@Test
@@ -281,8 +319,11 @@ public class ProtocolTest {
 	public void sendMessageToClient() throws ProtocolException {
 		String msg = Protocol.sendMessageToClient("name", "aaa2");
 		assertTrue(Protocol.isMessageToClient(msg));
-		Tuple<String, String> cmsg = Protocol.parseMessageToClient(msg);
+		Pair<String, String> cmsg = Protocol.parseMessageToClient(msg);
 		assertEquals("name", cmsg.getFirst());
 		assertEquals("aaa2", cmsg.getSecond());
+		
+		assertThrows(ProtocolException.class, () -> Protocol.parseMessageToClient(Protocol.TAG_MESSAGE_TO_CLIENT + ""));
+		assertThrows(ProtocolException.class, () -> Protocol.parseMessageToClient(Protocol.TAG_MESSAGE_TO_CLIENT + "daw"));
 	}
 }

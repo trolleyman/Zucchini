@@ -1,22 +1,14 @@
 package game;
 
-import game.exception.NameException;
-import game.exception.ProtocolException;
-import game.net.client.ClientConnection;
-import game.net.client.IClientConnection;
-import game.render.FontBank;
-import game.ui.ConnectUI;
-import org.lwjgl.Version;
-
 import game.audio.AudioManager;
 import game.render.Renderer;
-import game.ui.StartUI;
+import game.ui.ConnectUI;
 import game.ui.UI;
+import org.lwjgl.Version;
 
 /**
  * The main class for the client. It contains a main method that, when run, initializes the client and
  * starts everything running.
- * 
  * @author Callum
  */
 class Client implements Runnable, InputPipe {
@@ -59,6 +51,24 @@ class Client implements Runnable, InputPipe {
 		ui = new ConnectUI(null, audio, renderer.getTextureBank(), renderer.getFontBank());
 	}
 	
+	/**
+	 * This **MUST** only be used for testing.
+	 * <p>
+	 * This gets the current UI used by the client
+	 */
+	protected UI getUI() {
+		return ui;
+	}
+	
+	/**
+	 * This **MUST** only be used for testing.
+	 * <p>
+	 * This sets the current UI used by the client to the one specified
+	 */
+	protected void setUI(UI ui) {
+		this.ui = ui;
+	}
+	
 	@Override
 	public InputHandler getHandler() {
 		return this.ui;
@@ -91,11 +101,13 @@ class Client implements Runnable, InputPipe {
 		prevTime = now;
 		ui.update(dtNanos / (double) Util.NANOS_PER_SECOND);
 		UI next = ui.next();
-		if (next != ui && next != null) {
-			System.out.println("==== UI State Change: " + ui.getClass().getSimpleName() + " => " + next.getClass().getSimpleName() + " ====");
-			next.handleResize(renderer.getWidth(), renderer.getHeight());
-			next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
+		if (next != ui) {
 			ui.destroy();
+			if (next != null) {
+				System.out.println("==== UI State Change: " + ui.getClass().getSimpleName() + " => " + next.getClass().getSimpleName() + " ====");
+				next.handleResize(renderer.getWidth(), renderer.getHeight());
+				next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
+			}
 		}
 		ui = next;
 	}

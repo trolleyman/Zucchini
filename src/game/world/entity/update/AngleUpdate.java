@@ -26,4 +26,8 @@ public class AngleUpdate extends EntityUpdate {
 	public AngleUpdate clone() {
 		return new AngleUpdate(this);
 	}
+	
+	public float getAngle() {
+		return angle;
+	}
 }
