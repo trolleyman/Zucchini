@@ -33,10 +33,10 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	/** The list of objects to redirect input to */
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
 	
-	/** Connection address entry */
-	private TextEntryComponent nameEntry;
 	/** Name entry */
-	private TextEntryComponent ipEntry;
+	protected TextEntryComponent nameEntry;
+	/** Connection address entry */
+	protected TextEntryComponent ipEntry;
 	/** The connect button */
 	private ButtonComponent connectButton;
 	/** The auto connect button */
@@ -57,7 +57,7 @@ public class ConnectUI extends UI implements InputPipeMulti {
 	private Font font;
 	
 	/** The next UI to return */
-	private UI nextUI = this;
+	private transient UI nextUI = this;
 	
 	private ImageComponent backgroundImage;
 	
@@ -232,7 +232,7 @@ public class ConnectUI extends UI implements InputPipeMulti {
 					autoConnectButton.getY() - padding, 0.5f, ColorUtil.RED);
 		}
 	}
-
+	
 	/**
 	 * Attempts connection to the server using the given IP address
 	 */
@@ -241,7 +241,7 @@ public class ConnectUI extends UI implements InputPipeMulti {
 		error = null;
 		new Thread(() -> connectToServer(nameEntry.getString(), ipEntry.getString()), "ConnectUI Connection Starter").start();
 	}
-
+	
 	/**
 	 * Attempts connection to the server without an IP address
 	 */

@@ -11,11 +11,11 @@ import org.lwjgl.Version;
  * starts everything running.
  * @author Callum
  */
-class Client implements Runnable, InputPipe {
+public class Client implements Runnable, InputPipe {
 	/**
 	 * The current UI state
 	 */
-	private UI ui;
+	private transient UI ui;
 	
 	/**
 	 * The renderer
@@ -56,7 +56,7 @@ class Client implements Runnable, InputPipe {
 	 * <p>
 	 * This gets the current UI used by the client
 	 */
-	protected UI getUI() {
+	public synchronized UI getUI() {
 		return ui;
 	}
 	
@@ -65,7 +65,7 @@ class Client implements Runnable, InputPipe {
 	 * <p>
 	 * This sets the current UI used by the client to the one specified
 	 */
-	protected void setUI(UI ui) {
+	public synchronized void setUI(UI ui) {
 		this.ui = ui;
 	}
 	
@@ -93,7 +93,10 @@ class Client implements Runnable, InputPipe {
 		System.out.println("Exiting...");
 	}
 	
-	private void loopIter() {
+	private synchronized void loopIter() {
+		if (ui == null)
+			return;
+		
 		render();
 		
 		long now = System.nanoTime();
@@ -112,7 +115,7 @@ class Client implements Runnable, InputPipe {
 		ui = next;
 	}
 	
-	private void render() {
+	private synchronized void render() {
 		renderer.beginFrame();
 		ui.render(renderer);
 		renderer.endFrame();
