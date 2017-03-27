@@ -7,10 +7,10 @@ import game.world.entity.Player;
 public class HeldItemUpdate extends EntityUpdate {
 	private Item item;
 	
-	public HeldItemUpdate(int id, Item _item) {
+	public HeldItemUpdate(int id, Item item) {
 		super(id, true);
-		if (_item != null)
-			this.item = _item.clone();
+		if (item != null)
+			this.item = item;
 	}
 	
 	@Override
@@ -19,7 +19,7 @@ public class HeldItemUpdate extends EntityUpdate {
 			if (item == null)
 				((Player) e).setHeldItem(null);
 			else
-				((Player) e).setHeldItem(item.clone());
+				((Player) e).setHeldItem(item);
 		}
 	}
 }

@@ -2,7 +2,6 @@ package game.world.map;
 import game.ai.AIPlayer;
 import game.world.Team;
 import game.world.entity.Pickup;
-import game.world.entity.light.Torch;
 import game.world.entity.monster.Zombie;
 import game.world.entity.weapon.*;
 import org.joml.Vector2f;
