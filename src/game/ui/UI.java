@@ -19,7 +19,7 @@ public abstract class UI implements InputHandler {
 	protected AudioManager audio;
 	protected TextureBank textureBank;
 	protected FontBank fontBank;
-
+	
 	/**
 	 * Constructs a UI using an existing UI
 	 * @param ui The ui
@@ -30,7 +30,7 @@ public abstract class UI implements InputHandler {
 		this.textureBank = ui.textureBank;
 		this.fontBank = ui.fontBank;
 	}
-
+	
 	/**
 	 * Constructs a UI using all of the components
 	 * @param _connection The client connection to the server
@@ -44,7 +44,16 @@ public abstract class UI implements InputHandler {
 		this.textureBank = _textureBank;
 		this.fontBank = _fontBank;
 	}
-
+	
+	/** This is the connection to the server */
+	public IClientConnection getConnection() {
+		return connection;
+	}
+	
+	public AudioManager getAudio() {
+		return audio;
+	}
+	
 	/**
 	 * Updates the UI
 	 * @param dt The number of seconds passed since the last update
@@ -66,9 +75,4 @@ public abstract class UI implements InputHandler {
 	 * Called when the UI is destroyed so that it will not be used again.
 	 */
 	public abstract void destroy();
-	
-	/** This is the connection to the server */
-	public IClientConnection getConnection() {
-		return connection;
-	}
 }

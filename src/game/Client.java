@@ -21,8 +21,13 @@ public class Client implements Runnable, InputHandler {
 	private Thread thread;
 	
 	/**
+	 * Lock for {@link Client#queuedEvents}
+	 */
+	private final Object queuedEventsLock = new Object();
+	
+	/**
 	 * Events that are queued to be consumed currently.
-	 *
+	 * <p>
 	 * This is here for synchronization reasons.
 	 */
 	private ArrayList<Consumer<InputHandler>> queuedEvents = new ArrayList<>();
@@ -111,11 +116,6 @@ public class Client implements Runnable, InputHandler {
 		if (ui == null)
 			return;
 		
-		for (Consumer<InputHandler> e : queuedEvents) {
-			e.accept(ui);
-		}
-		queuedEvents.clear();
-		
 		render();
 		
 		long now = System.nanoTime();
@@ -140,6 +140,13 @@ public class Client implements Runnable, InputHandler {
 		renderer.beginFrame();
 		ui.render(renderer);
 		renderer.endFrame();
+		// Process queued events
+		synchronized (queuedEventsLock) {
+			for (Consumer<InputHandler> e : queuedEvents) {
+				e.accept(ui);
+			}
+			queuedEvents.clear();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -150,7 +157,7 @@ public class Client implements Runnable, InputHandler {
 	@Override
 	public void handleKey(int key, int scancode, int action, int mods) {
 		if (Thread.currentThread() != thread) {
-			synchronized (this) {
+			synchronized (queuedEventsLock) {
 				queuedEvents.add((ih) -> ih.handleKey(key, scancode, action, mods));
 			}
 		} else {
@@ -159,9 +166,9 @@ public class Client implements Runnable, InputHandler {
 	}
 	
 	@Override
-	public synchronized void handleChar(char c) {
+	public void handleChar(char c) {
 		if (Thread.currentThread() != thread) {
-			synchronized (this) {
+			synchronized (queuedEventsLock) {
 				queuedEvents.add((ih) -> ih.handleChar(c));
 			}
 		} else {
@@ -170,9 +177,9 @@ public class Client implements Runnable, InputHandler {
 	}
 	
 	@Override
-	public synchronized void handleCursorPos(double xpos, double ypos) {
+	public void handleCursorPos(double xpos, double ypos) {
 		if (Thread.currentThread() != thread) {
-			synchronized (this) {
+			synchronized (queuedEventsLock) {
 				queuedEvents.add((ih) -> ih.handleCursorPos(xpos, ypos));
 			}
 		} else {
@@ -181,9 +188,9 @@ public class Client implements Runnable, InputHandler {
 	}
 	
 	@Override
-	public synchronized void handleMouseButton(int button, int action, int mods) {
+	public void handleMouseButton(int button, int action, int mods) {
 		if (Thread.currentThread() != thread) {
-			synchronized (this) {
+			synchronized (queuedEventsLock) {
 				queuedEvents.add((ih) -> ih.handleMouseButton(button, action, mods));
 			}
 		} else {
@@ -192,9 +199,9 @@ public class Client implements Runnable, InputHandler {
 	}
 	
 	@Override
-	public synchronized void handleScroll(double xoffset, double yoffset) {
+	public void handleScroll(double xoffset, double yoffset) {
 		if (Thread.currentThread() != thread) {
-			synchronized (this) {
+			synchronized (queuedEventsLock) {
 				queuedEvents.add((ih) -> ih.handleScroll(xoffset, yoffset));
 			}
 		} else {
@@ -203,9 +210,9 @@ public class Client implements Runnable, InputHandler {
 	}
 	
 	@Override
-	public synchronized void handleResize(int w, int h) {
+	public void handleResize(int w, int h) {
 		if (Thread.currentThread() != thread) {
-			synchronized (this) {
+			synchronized (queuedEventsLock) {
 				queuedEvents.add((ih) -> ih.handleResize(w, h));
 			}
 		} else {

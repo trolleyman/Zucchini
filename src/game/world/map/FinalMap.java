@@ -107,7 +107,7 @@ public class FinalMap extends Map {
 		wall2D(28.05f, 18, 27.95f, 20.05f);
 		wall2D(28.05f, 24, 27.95f, 28);
 		// Outer Pickup Locations
-		outerPickups.add(new Vector2f(1,3));
+		//outerPickups.add(new Vector2f(1,3)); // Too dangerous for testing run throughs
 		outerPickups.add(new Vector2f(11,1));
 		outerPickups.add(new Vector2f(17,3));
 		outerPickups.add(new Vector2f(27,3));
