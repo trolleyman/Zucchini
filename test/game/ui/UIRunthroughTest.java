@@ -3,6 +3,7 @@ package game.ui;
 import game.Util;
 import game.net.server.Server;
 import game.Client;
+import org.joml.Vector2f;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -321,6 +322,44 @@ public class UIRunthroughTest {
 				assertFalse(((GameUI)ui).scoreboardShown);
 			}
 			Thread.sleep(200);
+			
+			// Move left, right, up, down and see if the player actually moves
+			Vector2f prevPos = new Vector2f();
+			synchronized (ui) {
+				// South west
+				ui.handleKey(GLFW_KEY_S, 0, GLFW_PRESS, 0);
+				ui.handleKey(GLFW_KEY_A, 0, GLFW_PRESS, 0);
+				GameUI gameUI = (GameUI) ui;
+				prevPos.set(gameUI.world.getPlayer().position);
+			}
+			Thread.sleep(1000);
+			synchronized (ui) {
+				// North east
+				ui.handleKey(GLFW_KEY_S, 0, GLFW_RELEASE, 0);
+				ui.handleKey(GLFW_KEY_A, 0, GLFW_RELEASE, 0);
+				ui.handleKey(GLFW_KEY_W, 0, GLFW_PRESS, 0);
+				ui.handleKey(GLFW_KEY_D, 0, GLFW_PRESS, 0);
+				// Check if player position is < prev in both directions
+				GameUI gameUI = (GameUI) ui;
+				Vector2f pos = gameUI.world.getPlayer().position;
+				assertTrue(pos.x < prevPos.x);
+				assertTrue(pos.y < prevPos.y);
+				prevPos.set(pos);
+			}
+			Thread.sleep(1000);
+			synchronized (ui) {
+				// North east
+				ui.handleKey(GLFW_KEY_W, 0, GLFW_RELEASE, 0);
+				ui.handleKey(GLFW_KEY_D, 0, GLFW_RELEASE, 0);
+				// Check if player position is > prev in both directions
+				GameUI gameUI = (GameUI) ui;
+				Vector2f pos = gameUI.world.getPlayer().position;
+				assertTrue(pos.x > prevPos.x);
+				assertTrue(pos.y > prevPos.y);
+				prevPos.set(pos);
+			}
+			Thread.sleep(200);
+			
 			// Go to EscapeUI
 			synchronized (ui) { // Press & release escape
 				ui.handleKey(GLFW_KEY_ESCAPE, 0, GLFW_PRESS, 0);
