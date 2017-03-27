@@ -18,8 +18,8 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 	private UI nextUI = this;
 	
 	private final TextEntryComponent entry;
-	private final ButtonComponent backButton;
-	private final ButtonComponent createButton;
+	protected final ButtonComponent backButton;
+	protected final ButtonComponent createButton;
 	
 	private final ImageComponent backgroundImage;
 	
@@ -73,7 +73,7 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 		);
 		
 		UI that = this;
-		connection.setHandler(new IClientConnectionHandler() {
+		getConnection().setHandler(new IClientConnectionHandler() {
 			@Override
 			public void handleLobbyCreateAccept() {
 				System.out.println("Lobby created.");
@@ -105,7 +105,7 @@ public class LobbyCreateUI extends UI implements InputPipeMulti {
 			loading = true;
 			error = null;
 			entry.setEnabled(false);
-			connection.sendLobbyCreateRequest(new LobbyInfo(s, Util.DEFAULT_MIN_PLAYERS, Util.DEFAULT_MAX_PLAYERS, -1.0, new PlayerInfo[0]));
+			getConnection().sendLobbyCreateRequest(new LobbyInfo(s, Util.DEFAULT_MIN_PLAYERS, Util.DEFAULT_MAX_PLAYERS, -1.0, new PlayerInfo[0]));
 		} catch (ProtocolException e) {
 			loading = false;
 			error = "Error: " + e;

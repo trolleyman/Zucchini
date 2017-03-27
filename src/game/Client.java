@@ -6,12 +6,27 @@ import game.ui.ConnectUI;
 import game.ui.UI;
 import org.lwjgl.Version;
 
+import java.util.ArrayList;
+import java.util.function.Consumer;
+
 /**
  * The main class for the client. It contains a main method that, when run, initializes the client and
  * starts everything running.
  * @author Callum
  */
-public class Client implements Runnable, InputPipe {
+public class Client implements Runnable, InputHandler {
+	/**
+	 * Currently running thread
+	 */
+	private Thread thread;
+	
+	/**
+	 * Events that are queued to be consumed currently.
+	 *
+	 * This is here for synchronization reasons.
+	 */
+	private ArrayList<Consumer<InputHandler>> queuedEvents = new ArrayList<>();
+	
 	/**
 	 * The current UI state
 	 */
@@ -70,19 +85,18 @@ public class Client implements Runnable, InputPipe {
 	}
 	
 	@Override
-	public InputHandler getHandler() {
-		return this.ui;
-	}
-	
-	@Override
 	public void run() {
+		thread = Thread.currentThread();
 		System.out.println("==== UI Start State: " + ui.getClass().getSimpleName() + " ====");
 		renderer.show();
 		
-		loop();
-		
-		renderer.destroy();
-		audio.cleanup();
+		try {
+			loop();
+		} finally {
+			renderer.destroy();
+			audio.cleanup();
+			thread = null;
+		}
 	}
 	
 	private void loop() {
@@ -97,6 +111,11 @@ public class Client implements Runnable, InputPipe {
 		if (ui == null)
 			return;
 		
+		for (Consumer<InputHandler> e : queuedEvents) {
+			e.accept(ui);
+		}
+		queuedEvents.clear();
+		
 		render();
 		
 		long now = System.nanoTime();
@@ -110,6 +129,8 @@ public class Client implements Runnable, InputPipe {
 				System.out.println("==== UI State Change: " + ui.getClass().getSimpleName() + " => " + next.getClass().getSimpleName() + " ====");
 				next.handleResize(renderer.getWidth(), renderer.getHeight());
 				next.handleCursorPos(renderer.getMouseX(), renderer.getMouseY());
+			} else if (ui.getConnection() != null) {
+				ui.getConnection().close();
 			}
 		}
 		ui = next;
@@ -124,5 +145,71 @@ public class Client implements Runnable, InputPipe {
 	public static void main(String[] args) {
 		new Client(false).run();
 		System.exit(0);
+	}
+	
+	@Override
+	public void handleKey(int key, int scancode, int action, int mods) {
+		if (Thread.currentThread() != thread) {
+			synchronized (this) {
+				queuedEvents.add((ih) -> ih.handleKey(key, scancode, action, mods));
+			}
+		} else {
+			ui.handleKey(key, scancode, action, mods);
+		}
+	}
+	
+	@Override
+	public synchronized void handleChar(char c) {
+		if (Thread.currentThread() != thread) {
+			synchronized (this) {
+				queuedEvents.add((ih) -> ih.handleChar(c));
+			}
+		} else {
+			ui.handleChar(c);
+		}
+	}
+	
+	@Override
+	public synchronized void handleCursorPos(double xpos, double ypos) {
+		if (Thread.currentThread() != thread) {
+			synchronized (this) {
+				queuedEvents.add((ih) -> ih.handleCursorPos(xpos, ypos));
+			}
+		} else {
+			ui.handleCursorPos(xpos, ypos);
+		}
+	}
+	
+	@Override
+	public synchronized void handleMouseButton(int button, int action, int mods) {
+		if (Thread.currentThread() != thread) {
+			synchronized (this) {
+				queuedEvents.add((ih) -> ih.handleMouseButton(button, action, mods));
+			}
+		} else {
+			ui.handleMouseButton(button, action, mods);
+		}
+	}
+	
+	@Override
+	public synchronized void handleScroll(double xoffset, double yoffset) {
+		if (Thread.currentThread() != thread) {
+			synchronized (this) {
+				queuedEvents.add((ih) -> ih.handleScroll(xoffset, yoffset));
+			}
+		} else {
+			ui.handleScroll(xoffset, yoffset);
+		}
+	}
+	
+	@Override
+	public synchronized void handleResize(int w, int h) {
+		if (Thread.currentThread() != thread) {
+			synchronized (this) {
+				queuedEvents.add((ih) -> ih.handleResize(w, h));
+			}
+		} else {
+			ui.handleResize(w, h);
+		}
 	}
 }

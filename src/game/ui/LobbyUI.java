@@ -26,15 +26,15 @@ public class LobbyUI extends UI implements InputPipeMulti
 	private float lobby_spacing = 80;
 
 	/** The start button */
-	private ButtonComponent joinButton;
+	protected ButtonComponent joinButton;
 	/** The exit button */
-	private ButtonComponent backButton;
+	protected ButtonComponent backButton;
 	/** The refresh lobby list button */
-	private ButtonComponent refreshButton;
+	protected ButtonComponent refreshButton;
 	/** The next lobby page button */
-	private ButtonComponent nextButton;
+	protected ButtonComponent nextButton;
 	/** The create lobby button */
-	private ButtonComponent createButton;
+	protected ButtonComponent createButton;
 	/** The background image */
 	private ImageComponent backgroundImage;
 	/** The next UI to return */
@@ -43,7 +43,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 	private int lobbiesToRender = 0;
 
 	/** Test lobbies for button generation */
-	private ArrayList<LobbyInfo> lobbies = new ArrayList<>();
+	protected ArrayList<LobbyInfo> lobbies = new ArrayList<>();
 	private LobbyInfo currentLobby = null;
 
 	private ArrayList<TextButtonComponent> lobby_buttons = new ArrayList<>();
@@ -126,7 +126,7 @@ public class LobbyUI extends UI implements InputPipeMulti
 			refresh(new ArrayList<>());
 			loading = true;
 			error = null;
-			connection.getLobbies(this::refresh, this::refreshErr);
+			getConnection().getLobbies(this::refresh, this::refreshErr);
 		}
 	}
 	

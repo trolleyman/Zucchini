@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.exception.ProtocolException;
-import game.Util;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
@@ -85,9 +84,9 @@ public class EscapeUI extends UI implements InputPipeMulti {
 				() -> {
 					this.destroy = true;
 					try {
-						connection.sendLobbyLeaveRequest();
+						getConnection().sendLobbyLeaveRequest();
 					} catch (ProtocolException e) {
-						connection.error(e);
+						getConnection().error(e);
 					}
 					this.nextUI = new StartUI(this);
 				},

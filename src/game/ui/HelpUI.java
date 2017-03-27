@@ -20,7 +20,7 @@ public class HelpUI extends UI implements InputPipeMulti{
 	private UI nextUI;
 	private final Supplier<UI> afterUI;
 	private ArrayList<InputHandler> inputHandlers = new ArrayList<>();
-	private ButtonComponent backBtn, nextBtn, exitBtn;
+	protected ButtonComponent backBtn, nextBtn, exitBtn;
 
 	private float winWidth;
 	private float winHeight;

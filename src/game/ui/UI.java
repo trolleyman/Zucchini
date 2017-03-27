@@ -15,7 +15,6 @@ import game.render.TextureBank;
  * @author jackm
  */
 public abstract class UI implements InputHandler {
-	/** This is the connection to the server */
 	protected IClientConnection connection;
 	protected AudioManager audio;
 	protected TextureBank textureBank;
@@ -26,7 +25,7 @@ public abstract class UI implements InputHandler {
 	 * @param ui The ui
 	 */
 	public UI(UI ui) {
-		this.connection = ui.connection;
+		this.connection = ui.getConnection();
 		this.audio = ui.audio;
 		this.textureBank = ui.textureBank;
 		this.fontBank = ui.fontBank;
@@ -67,4 +66,9 @@ public abstract class UI implements InputHandler {
 	 * Called when the UI is destroyed so that it will not be used again.
 	 */
 	public abstract void destroy();
+	
+	/** This is the connection to the server */
+	public IClientConnection getConnection() {
+		return connection;
+	}
 }
