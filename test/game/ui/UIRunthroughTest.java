@@ -27,14 +27,11 @@ public class UIRunthroughTest {
 	private final Object notifyClientLock = new Object();
 	
 	@BeforeClass
-	public static void setUp() {
+	public static void setUp() throws InterruptedException {
+		Thread.sleep(1000);
 		server = new Server();
 		server.start();
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// This is fine
-		}
+		Thread.sleep(1000);
 	}
 	
 	@AfterClass
@@ -101,64 +98,6 @@ public class UIRunthroughTest {
 			assertFalse(t.isAlive());
 			c = null;
 			t = null;
-		}
-	}
-	
-	@Test
-	public void exitTest() throws InterruptedException {
-		t = new Thread(this::exitTestHelper, "ExitTestHelper");
-		t.start();
-		
-		// Run the client
-		runClient();
-		
-		synchronized (notifyEndResult) {
-			if (!ended) {
-				notifyEndResult.wait();
-			}
-		}
-		Thread.sleep(500);
-		// Ended should be true here
-		assertFalse(t.isAlive());
-		assertTrue(ended);
-		assertFalse(failed);
-	}
-	
-	private void exitTestHelper() {
-		synchronized (notifyEndResult) {
-			ended = false;
-			failed = false;
-		}
-		
-		try {
-			synchronized (notifyClientLock) {
-				notifyClientLock.wait();
-			}
-			
-			// Connect and go to StartUI
-			connectUsingEnter("localhost", "test0");
-			
-			StartUI ui = (StartUI) c.getUI();
-			synchronized (ui) {
-				// Exit application
-				ui.exitButton.onClicked();
-			}
-			Thread.sleep(100);
-			assertEquals(null, c.getUI());
-			failed = false;
-		} catch (Throwable t) {
-			synchronized (notifyEndResult) {
-				failed = true;
-				ended = true;
-				t.printStackTrace();
-				notifyEndResult.notifyAll();
-			}
-		} finally {
-			// Set passed to false
-			synchronized (notifyEndResult) {
-				ended = true;
-				notifyEndResult.notifyAll();
-			}
 		}
 	}
 	

@@ -34,24 +34,18 @@ public class ClientServerConnectionTest {
 	private static Server server;
 	
 	@BeforeClass
-	public static void setUp() {
+	public static void setUp() throws InterruptedException {
+		Thread.sleep(1000);
 		server = new Server();
 		server.start();
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			// This is fine
-		}
+		Thread.sleep(1000);
 	}
 	
 	@AfterClass
-	public static void tearDown() {
+	public static void tearDown() throws InterruptedException {
+		Thread.sleep(1000);
 		server.stop();
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// This is fine
-		}
+		Thread.sleep(1000);
 	}
 	
 	private static ClientConnection getTempConnection() throws NameException, ProtocolException, UnknownHostException {
@@ -145,14 +139,19 @@ public class ClientServerConnectionTest {
 				}
 			}
 			updates.clear();
+			System.out.println("TEST: passedTorch: " + passedTorch);
+			System.out.println("TEST: passedMessage1: " + passedMessage1);
+			System.out.println("TEST: passedMessage2: " + passedMessage2);
 			return passedTorch && passedMessage1 && passedMessage2;
 		}
 		
 		private synchronized void processEntityUpdate(EntityUpdate update) {
 			if (update instanceof TorchLightUpdate) {
 				if (start.playerId == update.getId()) {
-					if (!((TorchLightUpdate) update).isOn())
+					if (!((TorchLightUpdate) update).isOn()) {
 						passedTorch = true;
+						System.out.println("TEST: torch update received");
+					}
 				}
 			}
 		}
@@ -198,10 +197,13 @@ public class ClientServerConnectionTest {
 		@Override
 		public synchronized void handleMessage(String name, String msg) {
 			if (name.equals(cc.getName())) {
-				if (msg.equals("testmessage1"))
+				if (msg.equals("testmessage1")) {
+					System.out.println("TEST: testmessage1 received");
 					passedMessage1 = true;
-				else if (msg.equals("testmessage2"))
+				} else if (msg.equals("testmessage2")) {
+					System.out.println("TEST: testmessage2 received");
 					passedMessage2 = true;
+				}
 			}
 		}
 	}
@@ -217,7 +219,7 @@ public class ClientServerConnectionTest {
 		c.sendStringTcp(Protocol.sendMessageToServer("testmessage2"));
 		c.sendStringTcp(Protocol.sendAction(new Action(ActionType.TOGGLE_LIGHT)));
 		
-		Thread.sleep(100);
+		Thread.sleep(200);
 		ClientConnection cc = getTempConnection();
 		createConnectLobby(cc, getTempLobbyName());
 		
@@ -226,14 +228,17 @@ public class ClientServerConnectionTest {
 		cc.setHandler(cch);
 		
 		// Ready up and start world
+		Thread.sleep(200);
 		cc.sendStringTcp(Protocol.sendReadyToggle());
 		Thread.sleep(Util.LOBBY_WAIT_SECS*1000 + Util.GAME_START_WAIT_SECS*1000 + 1000);
 		
 		// Send cache
+		System.out.println("TEST: Sending cache");
 		c.processCache(cc);
 		
 		// Wait for a bit, then check if we have passed the test
-		Thread.sleep(1000);
+		Thread.sleep(10000);
+		System.out.println("TEST: Testing if passed");
 		assertTrue(cch.hasPassed());
 		cc.close();
 	}
