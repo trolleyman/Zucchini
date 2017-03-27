@@ -34,10 +34,6 @@ public class Zombie extends AutonomousEntity {
 	public Zombie(Vector2f position) {
 		super(Team.MONSTER_TEAM, position, RADIUS, 1.0f, (float) Math.random()+1.5f, true);
 	}
-
-	public Zombie(Zombie z) {
-		super(z);
-	}
 	
 	@Override
 	public void update(UpdateArgs ua) {
@@ -122,10 +118,5 @@ public class Zombie extends AutonomousEntity {
 		if (d.source.entityId != Entity.INVALID_ID && d.source.isPlayer) {
 			ua.scoreboard.addMonsterKill(d.source.readableName);
 		}
-	}
-	
-	@Override
-	public Zombie clone() {
-		return new Zombie(this);
 	}
 }

@@ -12,11 +12,6 @@ public abstract class EntityUpdate {
 		this.tcp = _tcp;
 	}
 	
-	public EntityUpdate(EntityUpdate update) {
-		this.id = update.id;
-		this.tcp = update.tcp;
-	}
-	
 	public int getId() {
 		return id;
 	}
@@ -26,7 +21,4 @@ public abstract class EntityUpdate {
 	}
 	
 	public abstract void updateEntity(Entity e);
-	
-	@Override
-	public abstract EntityUpdate clone();
 }

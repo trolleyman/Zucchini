@@ -52,30 +52,6 @@ public abstract class Weapon extends Item {
 	@SerializedName("dvD")
 	private float deviationDecay;
 	
-	public Weapon(Weapon g) {
-		super(g);
-		
-		this.currentCooldown = g.currentCooldown;
-		this.currentShots = g.currentShots;
-		this.reloading = g.reloading;
-		
-		this.ammo = g.ammo;
-		
-		this.semiAuto = g.semiAuto;
-		
-		this.cooldown = g.cooldown;
-		this.shotsPerMag = g.shotsPerMag;
-		this.reloadingTime = g.reloadingTime;
-		
-		this.fire = g.fire;
-		
-		this.deviation = g.deviation;
-		this.deviationMin = g.deviationMin;
-		this.deviationMax = g.deviationMax;
-		this.deviationInc = g.deviationInc;
-		this.deviationDecay = g.deviationDecay;
-	}
-	
 	/**
 	 * Constructs a weapon. The deviation is set to 0.
 	 * @param position       Position of the weapon in the world
@@ -232,7 +208,8 @@ public abstract class Weapon extends Item {
 		} else {
 			int a;
 			if (!this.reloading) a = this.ammo;
-			else a = this.ammo + this.currentShots - (int) Math.ceil((1 - (this.currentCooldown / this.reloadingTime)) * this.currentShots);
+			else
+				a = this.ammo + this.currentShots - (int) Math.ceil((1 - (this.currentCooldown / this.reloadingTime)) * this.currentShots);
 			
 			Font f = r.getFontBank().getFont("emulogic.ttf");
 			String s = "" + a;
@@ -285,10 +262,9 @@ public abstract class Weapon extends Item {
 	
 	protected abstract void fire(UpdateArgs ua, float angle);
 	
-	protected void startReload(UpdateArgs ua) {}
+	protected void startReload(UpdateArgs ua) {
+	}
 	
-	protected void endReload(UpdateArgs ua) {}
-	
-	@Override
-	public abstract Weapon clone();
+	protected void endReload(UpdateArgs ua) {
+	}
 }

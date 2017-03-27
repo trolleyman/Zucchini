@@ -13,12 +13,6 @@ public class HeldItemUpdate extends EntityUpdate {
 			this.item = _item.clone();
 	}
 	
-	public HeldItemUpdate(HeldItemUpdate shi) {
-		super(shi);
-		if (shi.item != null)
-			this.item = shi.item.clone();
-	}
-	
 	@Override
 	public void updateEntity(Entity e) {
 		if (e != null && e instanceof Player) {
@@ -27,10 +21,5 @@ public class HeldItemUpdate extends EntityUpdate {
 			else
 				((Player) e).setHeldItem(item.clone());
 		}
-	}
-	
-	@Override
-	public HeldItemUpdate clone() {
-		return new HeldItemUpdate(this);
 	}
 }

@@ -5,7 +5,6 @@ import game.action.Action;
 import game.render.Align;
 import game.render.IRenderer;
 import game.render.Texture;
-import game.world.EntityBank;
 import game.world.UpdateArgs;
 import game.world.map.Map;
 import org.joml.Vector2f;
@@ -19,9 +18,9 @@ public class HumanPlayer extends Player {
 	/** If the player is moving south */
 	private transient boolean moveSouth = false;
 	/** If the player is moving east */
-	private transient boolean moveEast  = false;
+	private transient boolean moveEast = false;
 	/** If the player is moving west */
-	private transient boolean moveWest  = false;
+	private transient boolean moveWest = false;
 	
 	public HumanPlayer(int team, Vector2f position, String name) {
 		super(team, position, name);
@@ -29,15 +28,6 @@ public class HumanPlayer extends Player {
 	
 	public HumanPlayer(int team, Vector2f position, String name, Item item) {
 		super(team, position, name, item);
-	}
-	
-	public HumanPlayer(HumanPlayer p) {
-		super(p);
-		
-		this.moveNorth = p.moveNorth;
-		this.moveSouth = p.moveSouth;
-		this.moveEast = p.moveEast;
-		this.moveWest = p.moveWest;
 	}
 	
 	@Override
@@ -73,27 +63,38 @@ public class HumanPlayer extends Player {
 		
 		//r.drawCircle(position.x, position.y, RADIUS, ColorUtil.GREEN);
 		Texture playerTexture = r.getTextureBank().getTexture("player_v1.png");
-		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS*2, RADIUS*2, angle);
+		r.drawTexture(playerTexture, Align.MM, position.x, position.y, RADIUS * 2, RADIUS * 2, angle);
 	}
 	
 	@Override
 	public void handleAction(UpdateArgs ua, Action a) {
 		switch (a.getType()) {
-			case BEGIN_MOVE_NORTH: this.moveNorth = true ; break;
-			case BEGIN_MOVE_SOUTH: this.moveSouth = true ; break;
-			case BEGIN_MOVE_EAST : this.moveEast  = true ; break;
-			case BEGIN_MOVE_WEST : this.moveWest  = true ; break;
-			case END_MOVE_NORTH  : this.moveNorth = false; break;
-			case END_MOVE_SOUTH  : this.moveSouth = false; break;
-			case END_MOVE_EAST   : this.moveEast  = false; break;
-			case END_MOVE_WEST   : this.moveWest  = false; break;
+			case BEGIN_MOVE_NORTH:
+				this.moveNorth = true;
+				break;
+			case BEGIN_MOVE_SOUTH:
+				this.moveSouth = true;
+				break;
+			case BEGIN_MOVE_EAST:
+				this.moveEast = true;
+				break;
+			case BEGIN_MOVE_WEST:
+				this.moveWest = true;
+				break;
+			case END_MOVE_NORTH:
+				this.moveNorth = false;
+				break;
+			case END_MOVE_SOUTH:
+				this.moveSouth = false;
+				break;
+			case END_MOVE_EAST:
+				this.moveEast = false;
+				break;
+			case END_MOVE_WEST:
+				this.moveWest = false;
+				break;
 			default:
 				super.handleAction(ua, a);
 		}
-	}
-	
-	@Override
-	public MovableEntity clone() {
-		return new HumanPlayer(this);
 	}
 }

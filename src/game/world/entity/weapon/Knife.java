@@ -13,7 +13,6 @@ import game.world.entity.update.DamageUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.map.Map;
 import org.joml.Vector2f;
-import org.joml.Vector4f;
 
 import java.util.ArrayList;
 
@@ -28,12 +27,6 @@ public class Knife extends Weapon {
 	private float stabTime;
 	
 	private boolean stabbed;
-	
-	public Knife(Knife k) {
-		super(k);
-		this.stabTime = k.stabTime;
-		this.stabbed = k.stabbed;
-	}
 	
 	public Knife(Vector2f position) {
 		super(position, -1, true, COOLDOWN_TIME, 1, COOLDOWN_TIME);
@@ -53,14 +46,14 @@ public class Knife extends Weapon {
 	public void render(IRenderer r, Map map) {
 		float mag = 0.0f;
 		if (this.stabbed) {
-			mag = STAB_ANIMATION_LENGTH * (float)Math.sin((this.stabTime / STAB_ANIMATION_TIME) * Math.PI);
+			mag = STAB_ANIMATION_LENGTH * (float) Math.sin((this.stabTime / STAB_ANIMATION_TIME) * Math.PI);
 		}
 		
 		float x = position.x + mag * Util.getDirX(angle);
 		float y = position.y + mag * Util.getDirY(angle);
 		
 		Texture t = r.getTextureBank().getTexture("knife.png");
-		float ratio = t.getHeight() / (float)t.getWidth();
+		float ratio = t.getHeight() / (float) t.getWidth();
 		float w = 0.08f;
 		r.drawTexture(t, Align.BM, x, y, w, w * ratio, angle);
 		
@@ -116,8 +109,8 @@ public class Knife extends Weapon {
 	@Override
 	protected float renderBullet(IRenderer r, float x, float y, float p) {
 		Texture t = r.getTextureBank().getTexture("knifeBullet.png");
-		r.drawTextureUV(t, Align.BR, x, y, t.getWidth(), t.getHeight()*p,
-				0.0f, 1-p, 1.0f, 1.0f);
+		r.drawTextureUV(t, Align.BR, x, y, t.getWidth(), t.getHeight() * p,
+				0.0f, 1 - p, 1.0f, 1.0f);
 		
 		x -= t.getWidth();
 		x -= 10.0f;
@@ -125,24 +118,17 @@ public class Knife extends Weapon {
 	}
 	
 	@Override
-	public Knife clone() {
-		return new Knife(this);
-	}
-
-	@Override
 	public String toString() {
 		return "Knife";
 	}
-
+	
 	@Override
 	public float aiValue() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
-
+	
 	@Override
 	public boolean isUseless() {
-		
 		return true;
 	}
 }

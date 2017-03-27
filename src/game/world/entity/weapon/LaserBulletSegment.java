@@ -2,16 +2,13 @@ package game.world.entity.weapon;
 
 import game.ColorUtil;
 import game.Util;
-import game.render.Align;
 import game.render.IRenderer;
-import game.render.Texture;
 import game.world.Team;
 import game.world.UpdateArgs;
 import game.world.entity.Entity;
 import game.world.entity.light.TubeLight;
 import game.world.map.Map;
 import org.joml.Vector2f;
-import org.joml.Vector4f;
 
 public class LaserBulletSegment extends Entity {
 	private static final double TTL = 1.0f;
@@ -25,16 +22,6 @@ public class LaserBulletSegment extends Entity {
 	private float endGrad;
 	
 	private transient TubeLight light;
-	
-	public LaserBulletSegment(LaserBulletSegment b) {
-		super(b);
-		
-		this.time = b.time;
-		this.length = b.length;
-		
-		this.startGrad = b.startGrad;
-		this.endGrad = b.endGrad;
-	}
 	
 	public LaserBulletSegment(Vector2f start, float startGrad, Vector2f end, float endGrad) {
 		this(start, Util.getAngle(start.x, start.y, end.x, end.y), start.distance(end), startGrad, endGrad);
@@ -74,7 +61,7 @@ public class LaserBulletSegment extends Entity {
 		light.position.set(this.position);
 		light.angle = this.angle;
 		light.length = this.length;
-		light.color.w = 0.8f - 0.8f*(float)(time / TTL);
+		light.color.w = 0.8f - 0.8f * (float) (time / TTL);
 		light.width = 1.0f;
 		light.attenuationFactor = 200.0f;
 	}
@@ -98,10 +85,5 @@ public class LaserBulletSegment extends Entity {
 		updateLightParams();
 		light.color.w /= 1.8f;
 		light.render(r, map);
-	}
-	
-	@Override
-	public LaserBulletSegment clone() {
-		return new LaserBulletSegment(this);
 	}
 }

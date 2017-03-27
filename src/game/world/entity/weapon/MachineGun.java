@@ -16,13 +16,9 @@ public class MachineGun extends Weapon {
 	/** Where the line of sight intersects with the map */
 	private transient Vector2f lineOfSightIntersecton = new Vector2f();
 	
-	public MachineGun(MachineGun g) {
-		super(g);
-	}
-	
 	public MachineGun(Vector2f position, int ammo) {
 		super(position, ammo, false, 0.05f, 30, 2.0f,
-				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
+				(float) Math.toRadians(0.5f), (float) Math.toRadians(5.0f), (float) Math.toRadians(0.2f), (float) Math.toRadians(1.0f));
 	}
 	
 	@Override
@@ -47,7 +43,7 @@ public class MachineGun extends Weapon {
 	protected void startReload(UpdateArgs ua) {
 		if (this.reloadSoundID == -1) {
 			this.reloadSoundID = ua.audio.play("gun_reload[2sec].wav", 0.6f, this.position);
-		}else{
+		} else {
 			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
 		}
 	}
@@ -62,8 +58,8 @@ public class MachineGun extends Weapon {
 		if (lineOfSightIntersecton == null)
 			lineOfSightIntersecton = new Vector2f();
 		
-		float x = position.x + Player.LINE_OF_SIGHT_MAX * (float)Math.sin(angle);
-		float y = position.y + Player.LINE_OF_SIGHT_MAX * (float)Math.cos(angle);
+		float x = position.x + Player.LINE_OF_SIGHT_MAX * (float) Math.sin(angle);
+		float y = position.y + Player.LINE_OF_SIGHT_MAX * (float) Math.cos(angle);
 		
 		if (map.intersectsLine(position.x, position.y, x, y, lineOfSightIntersecton) == null)
 			lineOfSightIntersecton.set(x, y);
@@ -78,7 +74,7 @@ public class MachineGun extends Weapon {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		Texture tex = r.getTextureBank().getTexture("Weapon_MachineGun.png");
 		float ratio = getHeight() / tex.getHeight();
-		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
+		r.drawTexture(tex, a, position.x, position.y, ratio * tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
@@ -91,7 +87,7 @@ public class MachineGun extends Weapon {
 	}
 	
 	private void getMuzzlePos(Vector2f dest) {
-		float h = isHeld() ? getHeight() : getHeight()/2;
+		float h = isHeld() ? getHeight() : getHeight() / 2;
 		dest.set(Util.getDirX(angle), Util.getDirY(angle)).mul(h).add(this.position);
 	}
 	
@@ -100,22 +96,17 @@ public class MachineGun extends Weapon {
 	}
 	
 	@Override
-	public MachineGun clone() {
-		return new MachineGun(this);
-	}
-
-	@Override
 	public String toString() {
 		return "Machine Gun";
 	}
+	
 	@Override
 	public boolean isUseless() {
-		
 		return this.ammo < 5;
 	}
+	
 	@Override
 	public float aiValue() {
-		// TODO Auto-generated method stub
 		return 3;
 	}
 }

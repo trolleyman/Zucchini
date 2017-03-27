@@ -19,14 +19,6 @@ public class PointLight extends Entity {
 	private transient boolean losGenerated = false;
 	protected transient FloatBuffer losBuf = null;
 	
-	public PointLight(PointLight l) {
-		super(l);
-		
-		this.color.set(l.color);
-		this.attenuationFactor = l.attenuationFactor;
-		this.dynamic = l.dynamic;
-	}
-	
 	/**
 	 * Constructs a new point light
 	 * @param position The position of the light
@@ -72,10 +64,5 @@ public class PointLight extends Entity {
 	@Override
 	public void renderLight(IRenderer r, Map map) {
 		render(r, map);
-	}
-	
-	@Override
-	public PointLight clone() {
-		return new PointLight(this);
 	}
 }

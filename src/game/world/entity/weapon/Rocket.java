@@ -24,20 +24,16 @@ public class Rocket extends Projectile {
 		super(position, source, angle, INITIAL_SPEED, 12.0);
 	}
 	
-	public Rocket(Rocket r) {
-		super(r);
-	}
-	
 	@Override
 	public void update(UpdateArgs ua) {
 		super.update(ua);
 		Vector2f vdir = Util.pushTemporaryVector2f().set(velocity).normalize();
 		Vector2f newvel = new Vector2f(vdir)
-				.mul(ACCELERATION * (float)ua.dt)
+				.mul(ACCELERATION * (float) ua.dt)
 				.add(velocity);
 		float len = newvel.length();
 		if (len > MAX_SPEED) {
-			newvel.mul(1/len).mul(MAX_SPEED);
+			newvel.mul(1 / len).mul(MAX_SPEED);
 		}
 		ua.bank.updateEntityCached(new VelocityUpdate(this.getId(), newvel));
 		Util.popTemporaryVector2f();
@@ -70,10 +66,5 @@ public class Rocket extends Projectile {
 		Vector2f nvel = Util.pushTemporaryVector2f().set(vel).normalize().mul(0.05f);
 		ua.bank.addEntityCached(new Explosion(pos.sub(nvel), source, 30.0f, 3.0f));
 		Util.popTemporaryVector2f();
-	}
-	
-	@Override
-	public Rocket clone() {
-		return new Rocket(this);
 	}
 }

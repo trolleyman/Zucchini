@@ -16,11 +16,6 @@ public class TorchLightUpdate extends EntityUpdate {
 		this.on = on;
 	}
 	
-	public TorchLightUpdate(TorchLightUpdate u) {
-		super(u);
-		this.on = u.on;
-	}
-	
 	@Override
 	public void updateEntity(Entity e) {
 		if (e != null && e instanceof Player) {
@@ -31,10 +26,5 @@ public class TorchLightUpdate extends EntityUpdate {
 	
 	public boolean isOn() {
 		return on;
-	}
-	
-	@Override
-	public TorchLightUpdate clone() {
-		return new TorchLightUpdate(this);
 	}
 }

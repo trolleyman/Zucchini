@@ -8,15 +8,8 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 public class Spotlight extends PointLight {
-	public float coneAngleMin;
-	public float coneAngleMax;
-	
-	public Spotlight(Spotlight l) {
-		super(l);
-		
-		this.coneAngleMin = l.coneAngleMin;
-		this.coneAngleMax = l.coneAngleMax;
-	}
+	private float coneAngleMin;
+	private float coneAngleMax;
 	
 	/**
 	 * Constructs a new point light
@@ -51,10 +44,5 @@ public class Spotlight extends PointLight {
 	@Override
 	public void renderLight(IRenderer r, Map map) {
 		render(r, map);
-	}
-	
-	@Override
-	public Spotlight clone() {
-		return new Spotlight(this);
 	}
 }

@@ -13,11 +13,6 @@ public class VelocityUpdate extends EntityUpdate {
 		this.velocity = _velocity;
 	}
 	
-	public VelocityUpdate(VelocityUpdate update) {
-		super(update);
-		this.velocity = update.velocity;
-	}
-	
 	@Override
 	public void updateEntity(Entity e) {
 		if (e instanceof MovableEntity) {
@@ -25,10 +20,5 @@ public class VelocityUpdate extends EntityUpdate {
 		} else {
 			System.err.println("Warning: Non-movable entity velocity updated");
 		}
-	}
-	
-	@Override
-	public VelocityUpdate clone() {
-		return new VelocityUpdate(this);
 	}
 }

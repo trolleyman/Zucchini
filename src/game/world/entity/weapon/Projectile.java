@@ -33,13 +33,6 @@ public abstract class Projectile extends MovableEntity {
 		this.ttl = _ttl;
 	}
 	
-	public Projectile(Projectile b) {
-		super(b);
-		this.prevPosition = new Vector2f(b.prevPosition);
-		this.source = b.source.clone();
-		this.ttl = b.ttl;
-	}
-	
 	@Override
 	public void update(UpdateArgs ua) {
 		super.update(ua);
@@ -58,9 +51,9 @@ public abstract class Projectile extends MovableEntity {
 		float x = getLength() * Util.getDirX(ang);
 		float y = getLength() * Util.getDirY(ang);
 		
-		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x+x, position.y+y,
+		EntityIntersection ei = ua.bank.getIntersection(prevPosition.x, prevPosition.y, position.x + x, position.y + y,
 				(e) -> Team.isHostileTeam(source.teamId, e.getTeam()));
-		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x+x, position.y+y, temp1);
+		Vector2f mi = ua.map.intersectsLine(prevPosition.x, prevPosition.y, position.x + x, position.y + y, temp1);
 		
 		// Choose closest point
 		Vector2f closest;
@@ -90,7 +83,7 @@ public abstract class Projectile extends MovableEntity {
 		
 		// Play sounds
 		if (whizzSoundID == -1) {
-			this.whizzSoundID = ua.audio.play("bullet_whizz_silent.wav", 0.6f,this.position);
+			this.whizzSoundID = ua.audio.play("bullet_whizz_silent.wav", 0.6f, this.position);
 		} else {
 			ua.audio.continueLoop(whizzSoundID, this.position);
 		}
@@ -100,10 +93,8 @@ public abstract class Projectile extends MovableEntity {
 	}
 	
 	protected abstract void hitMap(UpdateArgs ua, Vector2f mi, Vector2f velocity);
+	
 	protected abstract void hitEntity(UpdateArgs ua, EntityIntersection ei, Vector2f velocity);
 	
 	protected abstract float getLength();
-
-	@Override
-	public abstract Projectile clone();
 }

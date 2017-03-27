@@ -10,11 +10,6 @@ public class HealthUpdate extends EntityUpdate {
 		this.health = _health;
 	}
 	
-	public HealthUpdate(HealthUpdate hu) {
-		super(hu);
-		this.health = hu.health;
-	}
-	
 	public float getHealth() {
 		return health;
 	}
@@ -22,10 +17,5 @@ public class HealthUpdate extends EntityUpdate {
 	@Override
 	public void updateEntity(Entity e) {
 		e.addHealth(health);
-	}
-	
-	@Override
-	public HealthUpdate clone() {
-		return new HealthUpdate(this);
 	}
 }

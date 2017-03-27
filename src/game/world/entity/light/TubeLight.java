@@ -18,16 +18,6 @@ public class TubeLight extends Entity {
 	public final Vector4f color = new Vector4f();
 	public float attenuationFactor;
 	
-	public TubeLight(TubeLight l) {
-		super(l);
-		
-		this.length = l.length;
-		this.width = l.width;
-		
-		this.color.set(l.color);
-		this.attenuationFactor = l.attenuationFactor;
-	}
-	
 	/**
 	 * Constructs a new tube light
 	 * @param position The intitial position of the light
@@ -58,10 +48,5 @@ public class TubeLight extends Entity {
 	@Override
 	public void renderLight(IRenderer r, Map map) {
 		render(r, map);
-	}
-	
-	@Override
-	public TubeLight clone() {
-		return new TubeLight(this);
 	}
 }

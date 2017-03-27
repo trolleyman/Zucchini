@@ -1,19 +1,17 @@
 package game.world.entity;
 
 import com.google.gson.annotations.SerializedName;
+import game.render.IRenderer;
+import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
 import game.world.map.Map;
 import org.joml.Vector2f;
-
-import game.render.IRenderer;
-import game.world.UpdateArgs;
 
 /**
  * Abstract root of all the Entity classes.
  * <p>
  * An entity is essentially an object with a position in the world. For example, the player, monsters,
  * bullets.
- * 
  * @author Callum
  */
 public abstract class Entity implements Cloneable {
@@ -55,18 +53,6 @@ public abstract class Entity implements Cloneable {
 	private transient Damage lastDamage;
 	
 	/**
-	 * Clones the specified entity
-	 * @param e The entity
-	 */
-	public Entity(Entity e) {
-		this.id = e.id;
-		this.team = e.team;
-		this.position = new Vector2f(e.position);
-		this.angle = e.angle;
-		this.health = e.health;
-	}
-
-	/**
 	 * Constructs an entity at the position specified
 	 * @param _position The position
 	 */
@@ -88,7 +74,8 @@ public abstract class Entity implements Cloneable {
 	 * rendering changes. By default this function does nothing.
 	 * @param ua The UpdateArgs class
 	 */
-	public void clientUpdate(UpdateArgs ua) {}
+	public void clientUpdate(UpdateArgs ua) {
+	}
 	
 	/**
 	 * Called when the Entity dies from low health. This allows entities to say their final farewells.
@@ -105,24 +92,26 @@ public abstract class Entity implements Cloneable {
 	
 	/**
 	 * Renders the entity to the screen
-	 * @param r The renderer
+	 * @param r   The renderer
 	 * @param map The map
 	 */
 	public abstract void render(IRenderer r, Map map);
 	
 	/**
 	 * Renders the light associated with the entity. By default the entity emits no light.
-	 * @param r The renderer
+	 * @param r   The renderer
 	 * @param map The map
 	 */
-	public void renderLight(IRenderer r, Map map) {}
+	public void renderLight(IRenderer r, Map map) {
+	}
 	
 	/**
 	 * Renders the glitch effect associated with the entity. For most objects this will be nothing.
-	 * @param r The renderer
+	 * @param r   The renderer
 	 * @param map The map
 	 */
-	public void renderGlitch(IRenderer r, Map map) {}
+	public void renderGlitch(IRenderer r, Map map) {
+	}
 	
 	/**
 	 * Calculates an intersection with the entity and a line
@@ -180,6 +169,7 @@ public abstract class Entity implements Cloneable {
 	public int getId() {
 		return id;
 	}
+	
 	/**
 	 * Sets the entity ID
 	 */
@@ -193,6 +183,7 @@ public abstract class Entity implements Cloneable {
 	public void setTeam(int team) {
 		this.team = team;
 	}
+	
 	/**
 	 * Gets the team of the Entity
 	 */
@@ -206,10 +197,4 @@ public abstract class Entity implements Cloneable {
 	public String getReadableName() {
 		return toString();
 	}
-	
-	/**
-	 * Implementations must override this function.
-	 */
-	@Override
-	public abstract Entity clone();
 }

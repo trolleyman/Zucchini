@@ -1,6 +1,5 @@
 package game.world.entity;
 
-import com.google.gson.annotations.SerializedName;
 import game.render.IRenderer;
 import game.world.Team;
 import game.world.entity.damage.DamageSource;
@@ -12,11 +11,6 @@ public abstract class Item extends Entity {
 	public Item(Vector2f position) {
 		super(Team.PASSIVE_TEAM, position);
 		owner = new DamageSource();
-	}
-	
-	public Item(Item i) {
-		super(i);
-		owner = i.owner.clone();
 	}
 	
 	public boolean isHeld() {
@@ -50,9 +44,6 @@ public abstract class Item extends Entity {
 	/** Called to render information about the item to the screen */
 	public abstract void renderUI(IRenderer r);
 	
-	@Override
-	public abstract Item clone();
-
 	@Override
 	public abstract String toString();
 }

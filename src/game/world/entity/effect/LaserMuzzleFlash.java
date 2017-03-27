@@ -16,13 +16,6 @@ public class LaserMuzzleFlash extends Entity {
 	
 	private PointLight light;
 	
-	public LaserMuzzleFlash(LaserMuzzleFlash l) {
-		super(l);
-		
-		time = l.time;
-		light = l.light.clone();
-	}
-	
 	public LaserMuzzleFlash(Vector2f position) {
 		super(Team.PASSIVE_TEAM, position);
 		light = new PointLight(position, ColorUtil.WHITE, 20.0f, false);
@@ -49,10 +42,5 @@ public class LaserMuzzleFlash extends Entity {
 		light.color.w = p;
 		light.attenuationFactor = 15.0f;
 		light.render(r, map);
-	}
-	
-	@Override
-	public LaserMuzzleFlash clone() {
-		return new LaserMuzzleFlash(this);
 	}
 }

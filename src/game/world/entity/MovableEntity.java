@@ -9,7 +9,8 @@ import game.world.entity.update.VelocityUpdate;
 import org.joml.Vector2f;
 
 public abstract class MovableEntity extends Entity {
-	/** A scale for how much momentum the entity has.
+	/**
+	 * A scale for how much momentum the entity has.
 	 * <p>
 	 * The higher this is, the "heavier" the entity will feel
 	 **/
@@ -25,8 +26,8 @@ public abstract class MovableEntity extends Entity {
 	
 	/**
 	 * Constructs a MovableEntity that doesn't collide with anything
-	 * @param team The team of the entity
-	 * @param position The position of the entity
+	 * @param team           The team of the entity
+	 * @param position       The position of the entity
 	 * @param _momentumScale The momentum scale that the entity has. A player is at 1.0f scale
 	 */
 	public MovableEntity(int team, Vector2f position, float _momentumScale) {
@@ -35,9 +36,9 @@ public abstract class MovableEntity extends Entity {
 	
 	/**
 	 * Constructs a MovableEntity that has a circular collision shape
-	 * @param team The team of the entity
-	 * @param position The position of the entity
-	 * @param _radius The radius of the entity
+	 * @param team           The team of the entity
+	 * @param position       The position of the entity
+	 * @param _radius        The radius of the entity
 	 * @param _momentumScale The momentum scale that the entity has. A player is at 1.0f scale
 	 */
 	public MovableEntity(int team, Vector2f position, float _radius, float _momentumScale) {
@@ -46,12 +47,6 @@ public abstract class MovableEntity extends Entity {
 		this.velocity = new Vector2f();
 		this.radius = _radius;
 		this.momentumScale = _momentumScale;
-	}
-	
-	public MovableEntity(MovableEntity e) {
-		super(e);
-		this.velocity = e.velocity;
-		this.momentumScale = e.momentumScale;
 	}
 	
 	public boolean isCollidable() {
@@ -108,7 +103,4 @@ public abstract class MovableEntity extends Entity {
 			PhysicsUtil.intersectCircleLine(position.x, position.y, radius, x0, y0, x1, y1, null);
 		return null;
 	}
-	
-	@Override
-	public abstract MovableEntity clone();
 }

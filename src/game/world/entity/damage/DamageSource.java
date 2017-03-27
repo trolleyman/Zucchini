@@ -40,16 +40,4 @@ public class DamageSource {
 			readableName = e.getReadableName();
 		}
 	}
-	
-	public DamageSource(DamageSource s) {
-		entityId = s.entityId;
-		teamId = s.teamId;
-		isPlayer = s.isPlayer;
-		readableName = s.readableName;
-	}
-	
-	@Override
-	public DamageSource clone() {
-		return new DamageSource(this);
-	}
 }

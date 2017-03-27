@@ -11,18 +11,8 @@ public class PositionUpdate extends EntityUpdate {
 		this.position = _position;
 	}
 	
-	public PositionUpdate(PositionUpdate update) {
-		super(update);
-		this.position = update.position;
-	}
-	
 	@Override
 	public void updateEntity(Entity e) {
 		e.position = this.position;
-	}
-	
-	@Override
-	public PositionUpdate clone() {
-		return new PositionUpdate(this);
 	}
 }

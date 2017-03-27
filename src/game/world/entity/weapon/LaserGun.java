@@ -1,6 +1,11 @@
 package game.world.entity.weapon;
 
+import game.ColorUtil;
+import game.Util;
+import game.render.Align;
+import game.render.IRenderer;
 import game.render.Texture;
+import game.world.UpdateArgs;
 import game.world.entity.Entity;
 import game.world.entity.damage.Damage;
 import game.world.entity.damage.DamageType;
@@ -9,12 +14,6 @@ import game.world.entity.update.DamageUpdate;
 import game.world.map.Map;
 import game.world.map.Wall;
 import org.joml.Vector2f;
-
-import game.ColorUtil;
-import game.Util;
-import game.render.Align;
-import game.render.IRenderer;
-import game.world.UpdateArgs;
 
 import java.util.ArrayList;
 
@@ -25,13 +24,9 @@ public class LaserGun extends Weapon {
 	private transient Wall prevWall = null;
 	private transient Vector2f curPos = null;
 	
-	public LaserGun(LaserGun g) {
-		super(g);
-	}
-	
 	public LaserGun(Vector2f position, int ammo) {
 		super(position, ammo, false, 0.15f, 64, 2.0f,
-				(float)Math.toRadians(0.5f), (float)Math.toRadians(5.0f), (float)Math.toRadians(0.2f), (float)Math.toRadians(1.0f));
+				(float) Math.toRadians(0.5f), (float) Math.toRadians(5.0f), (float) Math.toRadians(0.2f), (float) Math.toRadians(1.0f));
 	}
 	
 	@Override
@@ -39,7 +34,7 @@ public class LaserGun extends Weapon {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		Texture tex = r.getTextureBank().getTexture("Weapon_LaserGun.png");
 		float ratio = getHeight() / tex.getHeight();
-		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
+		r.drawTexture(tex, a, position.x, position.y, ratio * tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
@@ -83,8 +78,8 @@ public class LaserGun extends Weapon {
 			
 			// Spawn new segment
 			ua.bank.addEntityCached(new LaserBulletSegment(
-					curPos, lengthLeft/MAX_LASER_LENGTH,
-					newPos, newLengthLeft/MAX_LASER_LENGTH));
+					curPos, lengthLeft / MAX_LASER_LENGTH,
+					newPos, newLengthLeft / MAX_LASER_LENGTH));
 			
 			// Damage entities that contact with laser
 			// TODO: Fix so that entities can collide with outer extents of laser
@@ -136,24 +131,17 @@ public class LaserGun extends Weapon {
 	}
 	
 	@Override
-	public LaserGun clone() {
-		return new LaserGun(this);
-	}
-
-	@Override
 	public String toString() {
 		return "Laser Gun";
 	}
-
+	
 	@Override
 	public float aiValue() {
-		// TODO Auto-generated method stub
 		return 4;
 	}
-
+	
 	@Override
 	public boolean isUseless() {
-		
 		return this.ammo < 5;
 	}
 }

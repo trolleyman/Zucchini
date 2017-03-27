@@ -9,14 +9,12 @@ import game.world.EntityBank;
 import game.world.PhysicsUtil;
 import game.world.UpdateArgs;
 import game.world.entity.damage.Damage;
-import game.world.entity.damage.DamageSource;
 import game.world.entity.light.PointLight;
 import game.world.entity.light.Spotlight;
 import game.world.entity.update.AngleUpdate;
 import game.world.entity.update.HeldItemUpdate;
 import game.world.entity.update.TorchLightUpdate;
 import game.world.entity.weapon.Knife;
-import game.world.entity.weapon.MachineGun;
 import game.world.entity.weapon.Weapon;
 import game.world.map.Map;
 import org.joml.Vector2f;
@@ -27,7 +25,6 @@ import java.util.Optional;
 
 /**
  * Represents a player, either controlled by an AI or a human
- *
  * @author Callum
  */
 public abstract class Player extends AutonomousEntity {
@@ -70,7 +67,6 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Constructs a new player at the specified position holding {@link Player#getDefaultHeldItem}
-	 *
 	 * @param position The position
 	 * @param name     The name of the player
 	 */
@@ -80,7 +76,6 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Constructs a new player at the specified position holding a weapon
-	 *
 	 * @param position  The position
 	 * @param _name     The name of the player
 	 * @param _heldItem The currently held item
@@ -98,23 +93,6 @@ public abstract class Player extends AutonomousEntity {
 				new Vector4f(TORCH_COLOR.x, TORCH_COLOR.y, TORCH_COLOR.z, 1.0f),
 				0.01f, true, (float) Math.toRadians(30.0f), (float) Math.toRadians(60.0f));
 		updateChildrenInfo();
-	}
-	
-	/**
-	 * Clones the specified player
-	 *
-	 * @param p The player
-	 */
-	public Player(Player p) {
-		super(p);
-		
-		this.name = p.name;
-		this.heldItem = p.heldItem.clone();
-		
-		this.beganUse = p.beganUse;
-		
-		this.pointLight = p.pointLight.clone();
-		this.torch = p.torch.clone();
 	}
 	
 	protected void updateChildrenInfo() {
@@ -221,7 +199,6 @@ public abstract class Player extends AutonomousEntity {
 	
 	/**
 	 * Handles an action on the player
-	 *
 	 * @param ua The update arguments
 	 * @param a  The action
 	 */

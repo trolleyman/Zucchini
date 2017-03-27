@@ -26,10 +26,6 @@ public class Pickup extends Entity {
 		}
 	}
 	
-	public Pickup(Pickup p) {
-		super(p);
-	}
-	
 	public Item getItem() {
 		return item;
 	}
@@ -76,10 +72,5 @@ public class Pickup extends Entity {
 		this.item.render(r, map);
 		this.light.color.w = 0.1f;
 		this.light.render(r, map);
-	}
-	
-	@Override
-	public Pickup clone() {
-		return new Pickup(this);
 	}
 }

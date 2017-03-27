@@ -8,17 +8,12 @@ import game.render.Texture;
 import game.world.UpdateArgs;
 import game.world.map.Map;
 import org.joml.Vector2f;
-import org.joml.Vector4f;
 
 public class RocketLauncher extends Weapon {
 	private transient int reloadSoundID = -1;
 	
-	public RocketLauncher(RocketLauncher rl) {
-		super(rl);
-	}
-	
 	public RocketLauncher(Vector2f position, int ammo) {
-		super(position, ammo, true, 0.0f, 1, 5.0f, (float)Math.toRadians(4.0f));
+		super(position, ammo, true, 0.0f, 1, 5.0f, (float) Math.toRadians(4.0f));
 	}
 	
 	@Override
@@ -26,12 +21,13 @@ public class RocketLauncher extends Weapon {
 		Align a = isHeld() ? Align.BM : Align.MM;
 		Texture tex = r.getTextureBank().getTexture("Weapon_RocketLauncher.png");
 		float ratio = getHeight() / tex.getHeight();
-		r.drawTexture(tex, a, position.x, position.y, ratio*tex.getWidth(), getHeight(), this.angle);
+		r.drawTexture(tex, a, position.x, position.y, ratio * tex.getWidth(), getHeight(), this.angle);
 	}
 	
 	@Override
 	protected void fire(UpdateArgs ua, float angle) {
-		Vector2f muzzlePos = new Vector2f().set(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);;
+		Vector2f muzzlePos = new Vector2f().set(Util.getDirX(angle), Util.getDirY(angle)).mul(getHeight()).add(this.position);
+		;
 		
 		// System.out.println("[Game]: Whoosh! Rocket fired!");
 		ua.audio.play("rocket-launcher.wav", 0.5f, this.position);
@@ -48,7 +44,7 @@ public class RocketLauncher extends Weapon {
 		if (this.reloadSoundID == -1) {
 			// System.out.println("Reloading rocket launcher...");
 			this.reloadSoundID = ua.audio.play("rocket_reload[5sec].wav", 1.0f, this.position);
-		}else{
+		} else {
 			ua.audio.updateSourcePos(this.reloadSoundID, this.position);
 		}
 	}
@@ -72,22 +68,17 @@ public class RocketLauncher extends Weapon {
 	}
 	
 	@Override
-	public RocketLauncher clone() {
-		return new RocketLauncher(this);
-	}
-
-	@Override
 	public String toString() {
 		return "Rocket Launcher";
 	}
+	
 	@Override
 	public boolean isUseless() {
-		
 		return this.ammo < 1;
 	}
+	
 	@Override
 	public float aiValue() {
-		// TODO Auto-generated method stub
 		return 2;
 	}
 }

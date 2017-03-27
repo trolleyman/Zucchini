@@ -1,7 +1,5 @@
 package game.world.entity;
 
-import game.ColorUtil;
-import game.Util;
 import game.render.IRenderer;
 import game.world.Team;
 import game.world.UpdateArgs;
@@ -42,15 +40,6 @@ public class Explosion extends Entity {
 		constructLight();
 	}
 	
-	public Explosion(Explosion e) {
-		super(e);
-		this.maxDamage = e.maxDamage;
-		this.radius = e.radius;
-		this.source = e.source.clone();
-		
-		this.light = e.light;
-	}
-	
 	private void constructLight() {
 		this.startAttenuationFactor = LightUtil.getAttenuationFactor(radius, 0.1f);
 		this.endAttenuationFactor = LightUtil.getAttenuationFactor(radius, 0.8f);
@@ -59,7 +48,7 @@ public class Explosion extends Entity {
 	
 	@Override
 	public void clientUpdate(UpdateArgs ua) {
-		this.addHealth(-(float)ua.dt);
+		this.addHealth(-(float) ua.dt);
 	}
 	
 	@Override
@@ -76,13 +65,13 @@ public class Explosion extends Entity {
 				}
 			}
 		}
-		this.addHealth(-(float)ua.dt);
+		this.addHealth(-(float) ua.dt);
 	}
 	
 	private void setLightParams() {
 		float p = (1 - getHealth() / getMaxHealth());
 		this.light.attenuationFactor = p * (startAttenuationFactor - endAttenuationFactor) + startAttenuationFactor;
-		this.light.color.w = (1-p) * 2.0f - 1.0f;
+		this.light.color.w = (1 - p) * 2.0f - 1.0f;
 	}
 	
 	@Override
@@ -108,10 +97,5 @@ public class Explosion extends Entity {
 	@Override
 	public float getMaxHealth() {
 		return 1.0f;
-	}
-	
-	@Override
-	public Explosion clone() {
-		return new Explosion(this);
 	}
 }
