@@ -1,7 +1,5 @@
-package game.stateMachineTesting;
+package game.ai;
 
-import game.ai.IStateMachine;
-import game.ai.StateMachine;
 import game.world.UpdateArgs;
 
 /**
