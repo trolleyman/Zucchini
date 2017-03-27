@@ -2,6 +2,7 @@ package game.ai;
 
 import java.util.HashMap;
 import game.world.UpdateArgs;
+import junit.*;
 
 /**
  * Tests the logic of the state machine by role playing what events that our ai will go through
@@ -14,7 +15,7 @@ public class TestFSMLogic {
 	public enum eventType{SEE_ENEMY, ENEMY_GONE, SEE_PICKUP, PICKUP_GONE, SHOT_AT, NOT_SHOT_AT};
 	public static HashMap<Integer,eventType> events = new HashMap<Integer,eventType>();
 
-	public static void main(String[] args) throws InterruptedException{		
+	public  void main() throws InterruptedException{		
 		
 		int currentRate=0;
 		
