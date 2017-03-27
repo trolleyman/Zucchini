@@ -48,10 +48,8 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	
 	private Font font;
 	
-	private ButtonComponent toggleReadyButton;
-	private ButtonComponent leaveButton;
-	
-	private ButtonComponent backButton;
+	protected ButtonComponent toggleReadyButton;
+	protected ButtonComponent leaveButton;
 	
 	private final ImageComponent backgroundImage;
 	
@@ -91,23 +89,14 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		// Create Leave Button
 		this.leaveButton = new ButtonComponent(
 				() -> { try {
-					connection.sendLobbyLeaveRequest();
+					getConnection().sendLobbyLeaveRequest();
 				} catch (ProtocolException e) {
-					connection.close();
+					getConnection().close();
 				} },
 				Align.BR, 100, 100,
 				textureBank.getTexture("leaveDefault.png"),
 				textureBank.getTexture("leaveHover.png"),
 				textureBank.getTexture("leavePressed.png")
-		);
-
-		// Create Back Button
-		backButton = new ButtonComponent(
-				() -> this.nextUI = new LobbyUI(this),
-				Align.BL, 100, 100,
-				textureBank.getTexture("backDefault.png"),
-				textureBank.getTexture("backHover.png"),
-				textureBank.getTexture("backPressed.png")
 		);
 		
 		// Create Background Image
@@ -118,10 +107,9 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		// Add input handlers
 		this.inputHandlers.add(this.toggleReadyButton);
 		this.inputHandlers.add(this.leaveButton);
-		this.errorInputHandlers.add(this.backButton);
 		
 		LobbyWaitUI that = this;
-		connection.setHandler(new IClientConnectionHandler() {
+		getConnection().setHandler(new IClientConnectionHandler() {
 			@Override
 			public void processLobbyUpdate(LobbyInfo info) {
 				Arrays.sort(info.players, Comparator.comparingInt((i) -> i.team));
@@ -145,7 +133,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			
 			@Override
 			public void handleWorldStart(WorldStart start) {
-				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, connection, lobbyName, messageLog);
+				ClientWorld world = new ClientWorld(start.map, new EntityBank(), start.playerId, audio, getConnection(), lobbyName, messageLog);
 				nextUI = new GameUI(that, world);
 			}
 			
@@ -175,7 +163,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		
 		if (sendJoinRequest) {
 			try {
-				connection.sendLobbyJoinRequest(this.lobbyName);
+				getConnection().sendLobbyJoinRequest(this.lobbyName);
 			} catch (ProtocolException e) {
 				this.error = e.toString();
 			}
@@ -195,7 +183,7 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 	// Toggle whether the player is ready
 	private void toggleReady() {
 		try {
-			connection.sendToggleReady();
+			getConnection().sendToggleReady();
 		} catch (ProtocolException e) {
 			System.err.println("Error: Cannot toggle ready status: " + e.toString());
 			e.printStackTrace();
@@ -234,7 +222,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 		
 		this.toggleReadyButton.update(dt);
 		this.leaveButton.update(dt);
-		this.backButton.update(dt);
 	}
 	
 	@Override
@@ -302,10 +289,6 @@ public class LobbyWaitUI extends UI implements InputPipeMulti {
 			String s = "Could not connect to lobby " + lobbyName + ":";
 			r.drawText(font, s, Align.MM, true, r.getWidth()/2, r.getHeight()/2, scale, ColorUtil.RED);
 			r.drawText(font, error, Align.MM, true, r.getWidth()/2, r.getHeight()/2 - font.getHeight(scale), scale, ColorUtil.RED);
-			
-			backButton.setX(20.0f);
-			backButton.setY(20.0f);
-			backButton.render(r);
 		} else {
 			// Loading
 			float angle = (float)(time * 5.0 % (Math.PI * 2));

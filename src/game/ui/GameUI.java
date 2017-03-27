@@ -11,7 +11,6 @@ import game.ui.component.ScoreboardComponent;
 import game.world.ClientWorld;
 import game.world.PlayerScoreboardInfo;
 import game.world.entity.damage.Damage;
-import game.world.entity.damage.DamageSource;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private static final Vector4f SCOREBOARD_BACKGROUND_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.3f);
 	
 	/** The world of the game */
-	private ClientWorld world;
+	protected ClientWorld world;
 	private float windowW; //window width
 	private float windowH; //window height
 		
@@ -37,7 +36,7 @@ public class GameUI extends UI implements InputPipeMulti {
 	private boolean destroy = false;
 	private UI nextUI;
 	
-	private boolean scoreboardShown;
+	protected boolean scoreboardShown;
 	private ScoreboardComponent scoreboardComponent;
 	
 	/**
@@ -116,7 +115,7 @@ public class GameUI extends UI implements InputPipeMulti {
 			
 		} else if (world.isPlayerDead()) {
 			r.drawText(f, "You are dead.", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING, titleScale, ColorUtil.RED);
-			PlayerScoreboardInfo p = world.getScoreboard().getPlayer(connection.getName());
+			PlayerScoreboardInfo p = world.getScoreboard().getPlayer(getConnection().getName());
 			Damage d = p == null ? null : p.lastDamage;
 			String s = d == null ? "Unknown" : d.source.readableName;
 			r.drawText(f, "Killed by " + s + ".", Align.TM, false, r.getWidth()/2, r.getHeight() - Util.HUD_PADDING - 50.0f - f.getHeight(titleScale), 1.0f, ColorUtil.RED);

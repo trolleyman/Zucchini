@@ -3,6 +3,7 @@ package game;
 import game.action.ActionTest;
 import game.audio.AudioManagerTests;
 import game.net.NetTests;
+import game.ui.UITests;
 import game.world.WorldTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -16,6 +17,7 @@ import org.junit.runners.Suite;
 		ActionTest.class,
 		AudioManagerTests.class,
 		NetTests.class,
+		UITests.class,
 		WorldTests.class,
 		
 		// Standalone test classes in the game package

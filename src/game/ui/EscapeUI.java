@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import game.InputHandler;
 import game.InputPipeMulti;
 import game.exception.ProtocolException;
-import game.Util;
 import game.render.Align;
 import game.render.Font;
 import game.render.IRenderer;
@@ -23,12 +22,12 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	private static final Vector4f ESCAPE_COLOR = new Vector4f(0.1f, 0.1f, 0.1f, 0.3f);
 	private static final float BUTTON_PADDING = 8;
 	
-	private ButtonComponent continueBtn;
-	private ButtonComponent helpBtn;
-	private ButtonComponent quitBtn;
+	protected ButtonComponent continueBtn;
+	protected ButtonComponent helpBtn;
+	protected ButtonComponent quitBtn;
 	
 	/** The mute toggle button */
-	private MuteComponent muteComponent;
+	protected MuteComponent muteComponent;
 	/** The volume slider */
 	private VolumeComponent volumeComponent;
 	
@@ -66,7 +65,7 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	 */
 	public void start() {
 		continueBtn = new ButtonComponent(
-				() -> this.nextUI = new GameUI(this, world),
+				() -> {this.nextUI = new GameUI(this, world); System.out.println("Continuing game...");},
 				Align.BL, 0, 0,
 				textureBank.getTexture("continuebtn.png"),
 				textureBank.getTexture("continueclicked.png"),
@@ -85,9 +84,9 @@ public class EscapeUI extends UI implements InputPipeMulti {
 				() -> {
 					this.destroy = true;
 					try {
-						connection.sendLobbyLeaveRequest();
+						getConnection().sendLobbyLeaveRequest();
 					} catch (ProtocolException e) {
-						connection.error(e);
+						getConnection().error(e);
 					}
 					this.nextUI = new StartUI(this);
 				},
@@ -133,9 +132,6 @@ public class EscapeUI extends UI implements InputPipeMulti {
 	
 	@Override
 	public void update(double dt) {
-		if (this.nextUI != this)
-			this.nextUI = this;
-		
 		continueBtn.update(dt);
 		helpBtn.update(dt);
 		quitBtn.update(dt);

@@ -15,23 +15,22 @@ import game.render.TextureBank;
  * @author jackm
  */
 public abstract class UI implements InputHandler {
-	/** This is the connection to the server */
 	protected IClientConnection connection;
 	protected AudioManager audio;
 	protected TextureBank textureBank;
 	protected FontBank fontBank;
-
+	
 	/**
 	 * Constructs a UI using an existing UI
 	 * @param ui The ui
 	 */
 	public UI(UI ui) {
-		this.connection = ui.connection;
+		this.connection = ui.getConnection();
 		this.audio = ui.audio;
 		this.textureBank = ui.textureBank;
 		this.fontBank = ui.fontBank;
 	}
-
+	
 	/**
 	 * Constructs a UI using all of the components
 	 * @param _connection The client connection to the server
@@ -45,7 +44,16 @@ public abstract class UI implements InputHandler {
 		this.textureBank = _textureBank;
 		this.fontBank = _fontBank;
 	}
-
+	
+	/** This is the connection to the server */
+	public IClientConnection getConnection() {
+		return connection;
+	}
+	
+	public AudioManager getAudio() {
+		return audio;
+	}
+	
 	/**
 	 * Updates the UI
 	 * @param dt The number of seconds passed since the last update

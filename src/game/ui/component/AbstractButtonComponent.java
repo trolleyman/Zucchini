@@ -37,7 +37,7 @@ public abstract class AbstractButtonComponent extends UIComponent {
 	/** Called when the button is pressed (i.e. the mouse button is pressed on the button) */
 	protected abstract void onPressed();
 	/** Called when the button is clicked (i.e. pressed + released on the button) */
-	protected abstract void onClicked();
+	public abstract void onClicked();
 	
 	public abstract float getWidth();
 	public abstract float getHeight();

@@ -42,6 +42,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	
 	private double time = 0.0;
 	private boolean enabled = true;
+	private final Object currentStringLock = new Object();
 	
 	/**
 	 * Constructs a new TextEntryComponent
@@ -114,9 +115,14 @@ public class TextEntryComponent extends AbstractButtonComponent {
 			borderColour = ColorUtil.DARK_GREY;
 		}
 		
-		String s = getString();
-		int trucLen = getTruncStringLen();
-		String trunc = getTruncatedString();
+		String s;
+		int trucLen;
+		String trunc;
+		synchronized (currentStringLock) {
+			s = getString();
+			trucLen = getTruncStringLen();
+			trunc = getTruncatedString();
+		}
 		
 		// Draw the outer box (also acts as the border)
 		r.drawBox(Align.BL, x, y, w, h, borderColour);
@@ -161,15 +167,17 @@ public class TextEntryComponent extends AbstractButtonComponent {
 		}
 		c = characterConverter.convert(c);
 		
-		if (!this.isValidChar.test(c)) {
-			out("'" + c + "' is not a valid char.");
-		} else if (currentString.size() >= maxLength) {
-			out("String is at max length: " + getStringWithPos());
-		} else {
-			// Insert at i
-			this.currentString.add(cursorPos++, c);
-			out("Add '" + c + "' @ " + (cursorPos-1) + ": " + getStringWithPos());
-			modified();
+		synchronized (currentStringLock) {
+			if (!this.isValidChar.test(c)) {
+				out("'" + c + "' is not a valid char.");
+			} else if (currentString.size() >= maxLength) {
+				out("String is at max length: " + getStringWithPos());
+			} else {
+				// Insert at i
+				this.currentString.add(cursorPos++, c);
+				out("Add '" + c + "' @ " + (cursorPos - 1) + ": " + getStringWithPos());
+				modified();
+			}
 		}
 	}
 	
@@ -242,7 +250,7 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	protected void onPressed() {}
 	
 	@Override
-	protected void onClicked() {
+	public void onClicked() {
 		float mx = getMouseX();
 		float my = getMouseY();
 		
@@ -293,15 +301,17 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	 * @return The string
 	 */
 	private String getStringWithPos() {
-		StringBuilder s = new StringBuilder(currentString.size());
-		for (int i = 0; i < currentString.size(); i++) {
-			if (cursorPos == i)
+		synchronized (currentStringLock) {
+			StringBuilder s = new StringBuilder(currentString.size());
+			for (int i = 0; i < currentString.size(); i++) {
+				if (cursorPos == i)
+					s.append('|');
+				s.append(currentString.get(i));
+			}
+			if (cursorPos == currentString.size())
 				s.append('|');
-			s.append(currentString.get(i));
+			return s.toString();
 		}
-		if (cursorPos == currentString.size())
-			s.append('|');
-		return s.toString();
 	}
 
 	/**
@@ -309,10 +319,12 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	 * @return The string
 	 */
 	public String getString() {
-		StringBuilder s = new StringBuilder(currentString.size());
-		for (Character c : currentString)
-			s.append(c);
-		return s.toString();
+		synchronized (currentStringLock) {
+			StringBuilder s = new StringBuilder(currentString.size());
+			for (Character c : currentString)
+				s.append(c);
+			return s.toString();
+		}
 	}
 
 	/**
@@ -321,16 +333,18 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	 * @return The length (float)
 	 */
 	private float getWidthTruncatedString(int num) {
-		FontAdvancer fa = f.getAdvancer(0.0f, 0.0f, scale);
-		for (int i = 0; i < num; i++) {
-			fa.advance(currentString.get(i));
+		synchronized (currentStringLock) {
+			FontAdvancer fa = f.getAdvancer(0.0f, 0.0f, scale);
+			for (int i = 0; i < num; i++) {
+				fa.advance(currentString.get(i));
+			}
+			if (num <= currentString.size())
+				for (int i = 0; i < 3; i++)
+					fa.advance((int) '.');
+			float w = fa.getX();
+			fa.free();
+			return w;
 		}
-		if (num <= currentString.size())
-		for (int i = 0; i < 3; i++)
-			fa.advance((int)'.');
-		float w = fa.getX();
-		fa.free();
-		return w;
 	}
 
 	/**
@@ -346,13 +360,15 @@ public class TextEntryComponent extends AbstractButtonComponent {
 	 * @return The number of characters
 	 */
 	private int getTruncStringLen() {
-		float maxWidth = getInnerWidth();
-		for (int num = currentString.size(); num >= 0; num--) {
-			float tw = getWidthTruncatedString(num);
-			if (tw < maxWidth)
-				return num;
+		synchronized (currentStringLock) {
+			float maxWidth = getInnerWidth();
+			for (int num = currentString.size(); num >= 0; num--) {
+				float tw = getWidthTruncatedString(num);
+				if (tw < maxWidth)
+					return num;
+			}
+			return 0;
 		}
-		return 0;
 	}
 
 	/**
