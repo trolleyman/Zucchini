@@ -26,7 +26,7 @@ public class UIRunthroughTest {
 		server = new Server();
 		server.start();
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// This is fine
 		}
@@ -36,7 +36,7 @@ public class UIRunthroughTest {
 	public static void tearDown() {
 		server.stop();
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// This is fine
 		}
@@ -91,7 +91,7 @@ public class UIRunthroughTest {
 		c.handleKey(GLFW_KEY_ENTER, GLFW_KEY_UNKNOWN, GLFW_PRESS, 0);
 		c.handleKey(GLFW_KEY_ENTER, GLFW_KEY_UNKNOWN, GLFW_RELEASE, 0);
 		
-		Thread.sleep(300);
+		Thread.sleep(2000);
 		assertTrue(t.isAlive());
 		assertEquals(StartUI.class, c.getUI().getClass());
 	}
@@ -100,7 +100,7 @@ public class UIRunthroughTest {
 	public void tearDownInstance() throws InterruptedException {
 		if (c != null) {
 			c.setUI(null);
-			Thread.sleep(100);
+			Thread.sleep(400);
 			assertFalse(t.isAlive());
 			c = null;
 			t = null;
@@ -125,7 +125,7 @@ public class UIRunthroughTest {
 	@Test
 	public void gameTest() throws InterruptedException {
 		// Connect and go to StartUI
-		connectUsingEnter("localhost", "test0");
+		connectUsingEnter("", "test1");
 		
 		// StartUI - go to help
 		UI ui = c.getUI();
@@ -134,7 +134,7 @@ public class UIRunthroughTest {
 			StartUI startUI = (StartUI) ui;
 			startUI.helpButton.onClicked();
 		}
-		Thread.sleep(100);
+		Thread.sleep(200);
 		
 		// HelpUI - Go back
 		ui = c.getUI();
@@ -143,7 +143,7 @@ public class UIRunthroughTest {
 			HelpUI helpUI = (HelpUI) ui;
 			helpUI.backBtn.onClicked();
 		}
-		Thread.sleep(100);
+		Thread.sleep(200);
 		
 		// StartUI - go to help
 		ui = c.getUI();
@@ -152,7 +152,7 @@ public class UIRunthroughTest {
 			StartUI startUI = (StartUI) ui;
 			startUI.helpButton.onClicked();
 		}
-		Thread.sleep(100);
+		Thread.sleep(200);
 		
 		// HelpUI - Go forward 7 times
 		for (int i = 0; i < 7; i++) {
@@ -162,7 +162,7 @@ public class UIRunthroughTest {
 				HelpUI helpUI = (HelpUI) ui;
 				helpUI.nextBtn.onClicked();
 			}
-			Thread.sleep(100);
+			Thread.sleep(200);
 		}
 		
 		// StartUI - start
@@ -172,7 +172,7 @@ public class UIRunthroughTest {
 			StartUI startUI = (StartUI) ui;
 			startUI.startButton.onClicked();
 		}
-		Thread.sleep(100);
+		Thread.sleep(200);
 		
 		// LobbyUI - back
 		ui = c.getUI();
@@ -184,6 +184,7 @@ public class UIRunthroughTest {
 			prevLobbiesSize = lobbyUI.lobbies.size();
 			lobbyUI.backButton.onClicked();
 		}
+		Thread.sleep(200);
 		
 		// StartUI - start
 		ui = c.getUI();
@@ -192,7 +193,7 @@ public class UIRunthroughTest {
 			StartUI startUI = (StartUI) ui;
 			startUI.startButton.onClicked();
 		}
-		Thread.sleep(100);
+		Thread.sleep(200);
 		
 		// LobbyUI - create
 		ui = c.getUI();
@@ -203,15 +204,16 @@ public class UIRunthroughTest {
 			assertEquals(prevLobbiesSize, lobbyUI.lobbies.size());
 			lobbyUI.createButton.onClicked();
 		}
+		Thread.sleep(200);
 		
 		// LobbyCreateUI - go back
-		Thread.sleep(200);
 		ui = c.getUI();
 		assertEquals(LobbyCreateUI.class, ui.getClass());
 		synchronized (ui) {
 			LobbyCreateUI lobbyCreateUI = (LobbyCreateUI) ui;
 			lobbyCreateUI.backButton.onClicked();
 		}
+		Thread.sleep(200);
 		
 		// LobbyUI - create
 		ui = c.getUI();
@@ -222,9 +224,9 @@ public class UIRunthroughTest {
 			assertEquals(prevLobbiesSize, lobbyUI.lobbies.size());
 			lobbyUI.createButton.onClicked();
 		}
+		Thread.sleep(200);
 		
 		// LobbyCreateUI - enter lobby and create
-		Thread.sleep(200);
 		ui = c.getUI();
 		assertEquals(LobbyCreateUI.class, ui.getClass());
 		synchronized (ui) {
@@ -234,6 +236,7 @@ public class UIRunthroughTest {
 			}
 			lobbyCreateUI.createButton.onClicked();
 		}
+		Thread.sleep(200);
 		
 		// LobbyWaitUI - ready up & wait, but then leave
 		ui = c.getUI();
@@ -248,9 +251,9 @@ public class UIRunthroughTest {
 			LobbyWaitUI lobbyWaitUI = (LobbyWaitUI) ui;
 			lobbyWaitUI.leaveButton.onClicked();
 		}
+		Thread.sleep(500);
 		
 		// LobbyUI - create
-		Thread.sleep(500);
 		ui = c.getUI();
 		assertEquals(LobbyUI.class, ui.getClass());
 		Thread.sleep(1000); // Wait for lobby list
@@ -260,9 +263,9 @@ public class UIRunthroughTest {
 			assertEquals(prevLobbiesSize, lobbyUI.lobbies.size());
 			lobbyUI.createButton.onClicked();
 		}
+		Thread.sleep(200);
 		
 		// LobbyCreateUI - enter lobby and create
-		Thread.sleep(200);
 		ui = c.getUI();
 		assertEquals(LobbyCreateUI.class, ui.getClass());
 		synchronized (ui) {
@@ -272,6 +275,7 @@ public class UIRunthroughTest {
 			}
 			lobbyCreateUI.createButton.onClicked();
 		}
+		Thread.sleep(500);
 		
 		// LobbyWaitUI - ready up & wait for world
 		ui = c.getUI();
@@ -295,7 +299,7 @@ public class UIRunthroughTest {
 			ui.handleKey(GLFW_KEY_TAB, 0, GLFW_PRESS, 0);
 		}
 		// Wait for key to register
-		Thread.sleep(100);
+		Thread.sleep(200);
 		synchronized (ui) { // "Release" tab
 			GameUI gameUI = (GameUI) ui;
 			assertTrue(gameUI.scoreboardShown);
@@ -304,10 +308,11 @@ public class UIRunthroughTest {
 			ui.handleKey(GLFW_KEY_TAB, 0, GLFW_RELEASE, 0);
 		}
 		// Wait for key to register
-		Thread.sleep(100);
+		Thread.sleep(200);
 		synchronized (ui) { // Ensure scoreboard is not shown
 			assertFalse(((GameUI)ui).scoreboardShown);
 		}
+		Thread.sleep(500);
 		
 		// Exit
 	}

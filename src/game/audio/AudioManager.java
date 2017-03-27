@@ -306,7 +306,8 @@ public class AudioManager implements IAudioManager{
     @Override
 	public void updateSourcePos(int sourceID, Vector2f position) {
 		SoundSource source = getSoundSource(sourceID);
-		source.setPosition(position);
+		if (source != null)
+			source.setPosition(position);
 	}
     
     /**
