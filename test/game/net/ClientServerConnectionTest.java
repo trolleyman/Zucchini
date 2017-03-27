@@ -120,11 +120,6 @@ public class ClientServerConnectionTest {
 	private class PacketCacheCCH implements IClientConnectionHandler {
 		private final ClientConnection cc;
 		
-		private WorldStart start = null;
-		
-		private ArrayList<EntityUpdate> updates = new ArrayList<>();
-		
-		private boolean passedTorch;
 		private boolean passedMessage1;
 		private boolean passedMessage2;
 		
@@ -133,27 +128,9 @@ public class ClientServerConnectionTest {
 		}
 		
 		public synchronized boolean hasPassed() {
-			if (updates.size() > 0) {
-				for (EntityUpdate u : updates) {
-					processEntityUpdate(u);
-				}
-			}
-			updates.clear();
-			System.out.println("TEST: passedTorch: " + passedTorch);
 			System.out.println("TEST: passedMessage1: " + passedMessage1);
 			System.out.println("TEST: passedMessage2: " + passedMessage2);
-			return passedTorch && passedMessage1 && passedMessage2;
-		}
-		
-		private synchronized void processEntityUpdate(EntityUpdate update) {
-			if (update instanceof TorchLightUpdate) {
-				if (start.playerId == update.getId()) {
-					if (!((TorchLightUpdate) update).isOn()) {
-						passedTorch = true;
-						System.out.println("TEST: torch update received");
-					}
-				}
-			}
+			return passedMessage1 && passedMessage2;
 		}
 		
 		@Override
@@ -177,11 +154,8 @@ public class ClientServerConnectionTest {
 		}
 		
 		@Override
-		public synchronized void updateEntity(EntityUpdate update) {
-			if (start == null)
-				updates.add(update);
-			else
-				processEntityUpdate(update);
+		public void updateEntity(EntityUpdate update) {
+			// Don't care
 		}
 		
 		@Override
@@ -191,7 +165,7 @@ public class ClientServerConnectionTest {
 		
 		@Override
 		public synchronized void handleWorldStart(WorldStart start) {
-			this.start = start;
+			// Don't care
 		}
 		
 		@Override
@@ -217,7 +191,6 @@ public class ClientServerConnectionTest {
 		PacketCache c = new PacketCache();
 		c.sendStringTcp(Protocol.sendMessageToServer("testmessage1"));
 		c.sendStringTcp(Protocol.sendMessageToServer("testmessage2"));
-		c.sendStringTcp(Protocol.sendAction(new Action(ActionType.TOGGLE_LIGHT)));
 		
 		Thread.sleep(200);
 		ClientConnection cc = getTempConnection();
@@ -237,7 +210,7 @@ public class ClientServerConnectionTest {
 		c.processCache(cc);
 		
 		// Wait for a bit, then check if we have passed the test
-		Thread.sleep(10000);
+		Thread.sleep(3000);
 		System.out.println("TEST: Testing if passed");
 		assertTrue(cch.hasPassed());
 		cc.close();
