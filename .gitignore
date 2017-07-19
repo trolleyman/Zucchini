@@ -28,4 +28,5 @@ hs_err_pid*
 # Build items
 c3.jar
 /src/manifests/
+/src/META-INF/
 
